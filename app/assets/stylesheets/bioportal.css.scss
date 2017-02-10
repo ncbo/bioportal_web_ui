@@ -846,6 +846,18 @@ li.ac_over > .obsolete_class {
   display: none;
 }
 
+#format_specific_options #skos_options {
+  display: none;
+}
+
+#format_specific_options #umls_options {
+  display: none;
+}
+
+#format_specific_options #obo_options {
+  display: none;
+}
+
 span.concept_property {
   cursor: help;
 }

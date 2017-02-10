@@ -52,6 +52,18 @@
         jQuery(".format_options").optionsOut("fast");
         jQuery("#owl_options").optionsIn("fast");
         break;
+      case 'SKOS':
+        jQuery(".format_options").optionsOut("fast");
+        jQuery("#skos_options").optionsIn("fast");
+        break;
+      case 'OBO':
+        jQuery(".format_options").optionsOut("fast");
+        jQuery("#obo_options").optionsIn("fast");
+        break;
+      case 'UMLS':
+        jQuery(".format_options").optionsOut("fast");
+        jQuery("#umls_options").optionsIn("fast");
+        break;
       default:
         jQuery(".format_options").optionsOut("fast");
     }
@@ -108,7 +120,35 @@
         = select("submission", "hasOntologyLanguage", ont_formats, { :selected => selected, :style => "width: 200px;", :required => true })
         #format_spacing
         %table#format_specific_options
+          %tbody#skos_options.format_options
+            %tr{:style => "border-left: none;"}
+              %td{:colspan => "2", :style => "border-left: none; border-right: none; border-bottom: none; border-top: none; padding: 0em 0em 0.5em 0em;"}
+                Classes are defined by the rdf:type <b>skos:Concept</b>
+                %br/
+                Hierarchical relations between concepts are defined by the <b>skos:broader</b> property only.
+                %br/
+                The root concept of the concept tree is defined by <b>skos:hasTopConcept</b>.
+          %tbody#umls_options.format_options
+            %tr{:style => "border-left: none;"}
+              %td{:colspan => "2", :style => "border-left: none; border-right: none; border-bottom: none; border-top: none; padding: 0em 0em 0.5em 0em;"}
+                To process ontologies translated from
+                = link_to "UMLS", "https://www.nlm.nih.gov/research/umls/"
+                using
+                = link_to "umls2rdf", "https://github.com/ncbo/umls2rdf"
+          %tbody#obo_options.format_options
+            %tr{:style => "border-left: none;"}
+              %td{:colspan => "2", :style => "border-left: none; border-right: none; border-bottom: none; border-top: none; padding: 0em 0em 0.5em 0em;"}
+                Ontologies using the
+                = link_to "OBO", "http://www.obofoundry.org"
+                format.
           %tbody#owl_options.format_options
+            %tr{:style => "border-left: none;"}
+              %td{:colspan => "2", :style => "border-top: none; border-left: none; border-right: none; border-bottom: none; border-top: none; padding: 0em 0em 0.5em 0em;"}
+                Classes are defined by the rdf:type <b>owl:Class</b>
+                %br/
+                Hierarchical relations between classes are defined by the <b>rdfs:subClassOf</b> property.
+                %br/
+                The root concept of the concept tree is <b>owl:Thing</b>.
             %tr
               %th
                 Prefered Name Property
