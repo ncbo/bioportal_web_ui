@@ -31,7 +31,7 @@ class AnnotatorController < ApplicationController
                 :class_hierarchy_max_level => params[:class_hierarchy_max_level].to_i,
                 :expand_class_hierarchy => params[:class_hierarchy_max_level].to_i > 0,
                 :semantic_types => params[:semantic_types],
-                :mappings => params[:mappings],
+                :expand_mappings => params[:expand_mappings],
                 :longest_only => params[:longest_only],
                 :exclude_numbers => params[:exclude_numbers] ||= "false",  # service default is false
                 :whole_word_only => params[:whole_word_only] ||= "true", # service default is true
@@ -42,19 +42,20 @@ class AnnotatorController < ApplicationController
     start = Time.now
     query = ANNOTATOR_URI
     query += "?text=" + CGI.escape(text_to_annotate)
-    query += "&include=prefLabel"
+    #query += "&include=prefLabel"
+    # Include= prefLabel causes an internal error when retrieving mappings
     query += "&expand_class_hierarchy=true" if options[:class_hierarchy_max_level] > 0
     query += "&class_hierarchy_max_level=" + options[:class_hierarchy_max_level].to_s if options[:class_hierarchy_max_level] > 0
     query += "&ontologies=" + CGI.escape(options[:ontologies].join(',')) unless options[:ontologies].empty?
     query += "&semantic_types=" + options[:semantic_types].join(',') unless options[:semantic_types].empty?
-    query += "&mappings=" + options[:mappings].join(',') unless options[:mappings].empty?
+    query += "&expand_mappings=" + options[:expand_mappings].to_s unless options[:expand_mappings].empty?
     query += "&longest_only=#{options[:longest_only]}"
     query += "&recognizer=#{params[:recognizer]}"
     query += "&exclude_numbers=" + options[:exclude_numbers].to_s unless options[:exclude_numbers].empty?
     query += "&whole_word_only=" + options[:whole_word_only].to_s unless options[:whole_word_only].empty?
     query += "&exclude_synonyms=" + options[:exclude_synonyms].to_s unless options[:exclude_synonyms].empty?
     query += "&ncbo_slice=" + options[:ncbo_slice].to_s unless options[:ncbo_slice].empty?
-
+    
     annotations = parse_json(query) # See application_controller.rb
     #annotations = LinkedData::Client::HTTP.get(query)
     LOG.add :debug, "Retrieved #{annotations.length} annotations: #{Time.now - start}s"

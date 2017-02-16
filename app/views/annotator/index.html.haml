@@ -21,8 +21,8 @@
       = label_tag :longest_only, "Match Longest Only"
       &nbsp;&nbsp;
       / TODO: When the REST API supports different mapping types, revise this section of the UI.
-      = check_box_tag :mappings, :all, false, :id => "mappings_all"
-      = label_tag :mappings_all, "Include Mappings"
+      = check_box_tag :expand_mappings, :all, false, :id => "expand_mappings"
+      = label_tag :expand_mappings, "Include Mappings"
     %p
       = check_box_tag :exclude_numbers, :all, false, :id => "exclude_numbers"
       = label_tag :exclude_numbers, "Exclude Numbers"
