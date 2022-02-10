@@ -22,6 +22,7 @@ Rails.application.routes.draw do
 
   resources :ontologies do
     resources :submissions
+    get 'instances/:instance_id', to: 'instances#show', constraints: { instance_id: /[^\/?]+/ }
   end
 
   resources :login
@@ -98,6 +99,8 @@ Rails.application.routes.draw do
   get '/ajax/classes/treeview' => 'concepts#show_tree'
   get '/ajax/properties/tree' => 'concepts#property_tree'
   get '/ajax/biomixer' => 'concepts#biomixer'
+  get '/ajax/:ontology/instances' => 'instances#index_by_ontology'
+  get '/ajax/:ontology/classes/:conceptid/instances' => 'instances#index_by_class', :constraints => { conceptid: /[^\/?]+/ }
 
   # User
   get '/logout' => 'login#destroy', :as => :logout

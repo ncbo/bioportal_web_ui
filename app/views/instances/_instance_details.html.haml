@@ -1,0 +1,19 @@
+%div
+  - ontology_acronym = params[:ontology_id]
+  - filter_properties = ["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
+  %h4
+    Details of  #{link_to_instance(@instance,ontology_acronym)} of type : #{@instance.types.map {|cls| link_to_class(ontology_acronym,cls)}.join(', ').html_safe}
+  %table.zebra{style:'width: 80vw'}
+    %thead
+      %tr
+        %th Property name
+        %th Property value
+    %tbody
+      - properties = @instance[:properties].to_h.select{|k,v| !filter_properties.include? k.to_s}
+      - properties.each do |prop|
+        - if !prop[1].nil?
+          %tr
+            %td
+              = link_to_property(prop[0] , ontology_acronym)
+            %td{style:"word-break: break-all"}
+              = prop[1].map { |value| instance_property_value(value , ontology_acronym) }.join(', ').html_safe

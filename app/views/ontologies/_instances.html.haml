@@ -1,0 +1,22 @@
+:javascript
+  $( document ).ready(function() {
+      const inst = document.querySelector("##{id}")
+       const concept_id = "#{@instances_concept_id}"
+       //print the instance count append to the tab title
+       if(concept_id){
+           inst.addEventListener("update" ,  (e) => {
+              document.querySelector("#instances_count").textContent = e.detail.data["table"]["totalCount"]
+          })
+       }
+  }, false);
+
+
+
+%div.ontologies_list_container.mt-3
+  %instances-table.zebra{id: id,
+  style:"width:100%; position:relative" , 'ontology-acronym': @ontology.acronym ,'class-uri': @instances_concept_id}
+
+
+
+
+

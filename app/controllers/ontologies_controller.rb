@@ -1,13 +1,13 @@
 class OntologiesController < ApplicationController
   include MappingsHelper
 
-  require "multi_json"
+  require 'multi_json'
   require 'cgi'
 
   helper :concepts
   layout :determine_layout
 
-  before_action :authorize_and_redirect, :only=>[:edit,:update,:create,:new]
+  before_action :authorize_and_redirect, only: [:edit,:update,:create,:new]
 
   KNOWN_PAGES = Set.new(["terms", "classes", "mappings", "notes", "widgets", "summary", "properties"])
 
@@ -35,11 +35,12 @@ class OntologiesController < ApplicationController
     end
   end
 
+  include InstancesHelper
   include ActionView::Helpers::NumberHelper
   include OntologiesHelper
   def index
-    @app_name = "FacetedBrowsing"
-    @app_dir = "/browse"
+    @app_name = 'FacetedBrowsing'
+    @app_dir = '/browse'
     @base_path = @app_dir
     ontologies = LinkedData::Client::Models::Ontology.all(include: LinkedData::Client::Models::Ontology.include_params + ",viewOf", include_views: true, display_context: false)
     ontologies_hash = Hash[ontologies.map {|o| [o.id, o] }]
@@ -79,11 +80,11 @@ class OntologiesController < ApplicationController
         o[:class_count] = 0
         o[:individual_count] = 0
       end
-      o[:class_count_formatted] = number_with_delimiter(o[:class_count], :delimiter => ",")
-      o[:individual_count_formatted] = number_with_delimiter(o[:individual_count], :delimiter => ",")
+      o[:class_count_formatted] = number_with_delimiter(o[:class_count], delimiter: ',')
+      o[:individual_count_formatted] = number_with_delimiter(o[:individual_count], delimiter: ',')
 
       o[:id]               = ont.id
-      o[:type]             = ont.viewOf.nil? ? "ontology" : "ontology_view"
+      o[:type]             = ont.viewOf.nil? ? 'ontology' : 'ontology_view'
       o[:show]             = ont.viewOf.nil? ? true : false # show ontologies only by default
       o[:reviews]          = reviews[ont.id] || []
       o[:groups]           = ont.group || []
@@ -110,10 +111,10 @@ class OntologiesController < ApplicationController
       end
 
       o[:artifacts] = []
-      o[:artifacts] << "notes" if ont.notes.length > 0
-      o[:artifacts] << "reviews" if ont.reviews.length > 0
-      o[:artifacts] << "projects" if ont.projects.length > 0
-      o[:artifacts] << "summary_only" if ont.summaryOnly
+      o[:artifacts] << 'notes' if ont.notes.length > 0
+      o[:artifacts] << 'reviews' if ont.reviews.length > 0
+      o[:artifacts] << 'projects' if ont.projects.length > 0
+      o[:artifacts] << 'summary_only' if ont.summaryOnly
 
       sub = submissions_map[ont.acronym]
       if sub
@@ -140,16 +141,23 @@ class OntologiesController < ApplicationController
   end
 
   def classes
-    get_class(params)
+    @instance_details, type = get_instance_and_type(params[:instanceid])
 
-    if ["application/ld+json", "application/json"].include?(request.accept)
+
+    unless @instance_details.empty? || type.nil? || concept_id_param_exist?(params)
+      params[:conceptid] = type # set class id from the type of the specified instance id
+    end
+
+    get_class(params)
+    @instances_concept_id = get_concept_id(params, @concept, @root)
+
+    if ['application/ld+json', 'application/json'].include?(request.accept)
       render plain: @concept.to_jsonld, content_type: request.accept and return
     end
 
     @current_purl = @concept.purl if $PURL_ENABLED
     @submission = get_ontology_submission_ready(@ontology)
-
-    unless @concept.id == "bp_fake_root"
+    unless @concept.id == 'bp_fake_root'
       @notes = @concept.explore.notes
       @mappings = get_concept_mappings(@concept)
       @delete_mapping_permission = check_delete_mapping_permission(@mappings)
@@ -158,23 +166,23 @@ class OntologiesController < ApplicationController
     update_tab(@ontology, @concept.id)
 
     if request.xhr?
-      render "visualize", layout: false
+      render 'visualize', layout: false
     else
-      render "visualize", layout: "ontology_viewer"
+      render 'visualize', layout: 'ontology_viewer'
     end
   end
 
   def properties
     if request.xhr?
-      return render 'properties', :layout => false
+      return render 'properties', layout: false
     else
-      return render 'properties', :layout => "ontology_viewer"
+      return render 'properties', layout: 'ontology_viewer'
     end
   end
 
   def create
     if params['commit'] == 'Cancel'
-      redirect_to "/ontologies"
+      redirect_to '/ontologies'
       return
     end
     @ontology = LinkedData::Client::Models::Ontology.new(values: ontology_params)
@@ -185,7 +193,7 @@ class OntologiesController < ApplicationController
       @user_select_list.sort! {|a,b| a[1].downcase <=> b[1].downcase}
       @errors = response_errors(@ontology_saved)
       #@errors = {acronym: "Acronym already exists, please use another"} if @ontology_saved.status == 409
-      render "new"
+      render 'new'
     else
       # TODO_REV: Enable subscriptions
       # if params["ontology"]["subscribe_notifications"].eql?("1")
@@ -224,9 +232,9 @@ class OntologiesController < ApplicationController
     @ontology_id = @ontology.acronym
     @ontology_label = @ontology.name
     if request.xhr?
-      render :partial => 'mappings', :layout => false
+      render partial: 'mappings', layout: false
     else
-      render :partial => 'mappings', :layout => "ontology_viewer"
+      render partial: 'mappings', layout: 'ontology_viewer'
     end
   end
 
@@ -240,20 +248,27 @@ class OntologiesController < ApplicationController
 
   def notes
     # Get the latest 'ready' submission, or fallback to any latest submission
-    @submission = get_ontology_submission_ready(@ontology)  # application_controller
+    @submission = get_ontology_submission_ready(@ontology) # application_controller
     @notes = @ontology.explore.notes
     @notes_deletable = false
     # TODO_REV: Handle notes deletion
     # @notes.each {|n| @notes_deletable = true if n.deletable?(session[:user])} if @notes.kind_of?(Array)
     @note_link = "/ontologies/#{@ontology.acronym}/notes/"
     if request.xhr?
-      render :partial => 'notes', :layout => false
+      render partial: 'notes', layout: false
     else
-      render :partial => 'notes', :layout => "ontology_viewer"
+      render partial: 'notes', layout: 'ontology_viewer'
     end
   end
 
-  # GET /ontologies/1
+  def instances
+    if request.xhr?
+      render partial: 'instances', locals: { id: 'instances-data-table'}, layout: false
+    else
+      render partial: 'instances', locals: { id: 'instances-data-table'}, layout: 'ontology_viewer'
+    end
+  end
+  # GET /ontologies/ACRONYM
   # GET /ontologies/1.xml
   def show
     # Hack to make ontologyid and conceptid work in addition to id and ontology params
@@ -262,13 +277,13 @@ class OntologiesController < ApplicationController
 
     # PURL-specific redirect to handle /ontologies/{ACR}/{CLASS_ID} paths
     if params[:purl_conceptid]
-      params[:purl_conceptid] = "root" if params[:purl_conceptid].eql?("classes")
+      params[:purl_conceptid] = 'root' if params[:purl_conceptid].eql?('classes')
       if params[:conceptid]
         params.delete(:purl_conceptid)
       else
         params[:conceptid] = params.delete(:purl_conceptid)
       end
-      redirect_to "/ontologies/#{params[:acronym]}?p=classes#{params_string_for_redirect(params, prefix: "&")}", :status => :moved_permanently
+      redirect_to "/ontologies/#{params[:acronym]}?p=classes#{params_string_for_redirect(params, prefix: "&")}", status: :moved_permanently
       return
     end
 
@@ -287,7 +302,7 @@ class OntologiesController < ApplicationController
     # Handle the case where an ontology is converted to summary only. 
     # See: https://github.com/ncbo/bioportal_web_ui/issues/133.
     if @ontology.summaryOnly && params[:p].present?
-      pages = KNOWN_PAGES - ["summary", "notes"]
+      pages = KNOWN_PAGES - ['summary', 'notes']
       if pages.include?(params[:p])
         redirect_to(ontology_path(params[:ontology]), status: :temporary_redirect) and return
       end
@@ -300,7 +315,7 @@ class OntologiesController < ApplicationController
     LOG.add :error, "No submissions for ontology: #{@ontology.id}" if @submissions.empty?
 
     # Get the latest submission (not necessarily the latest 'ready' submission)
-    @submission_latest = @ontology.explore.latest_submission rescue @ontology.explore.latest_submission(include: "")
+    @submission_latest = @ontology.explore.latest_submission rescue @ontology.explore.latest_submission(include: '')
 
     # Is the ontology downloadable?
     restrict_downloads = $NOT_DOWNLOADABLE
@@ -311,27 +326,30 @@ class OntologiesController < ApplicationController
 
     # This action is now a router using the 'p' parameter as the page to show
     case params[:p]
-      when "terms"
+      when 'terms'
         params[:p] = 'classes'
-        redirect_to "/ontologies/#{params[:ontology]}#{params_string_for_redirect(params)}", :status => :moved_permanently
+        redirect_to "/ontologies/#{params[:ontology]}#{params_string_for_redirect(params)}", status: :moved_permanently
         return
-      when "classes"
+      when 'classes'
         self.classes #rescue self.summary
         return
-      when "mappings"
+      when 'mappings'
         self.mappings #rescue self.summary
         return
-      when "notes"
+      when 'notes'
         self.notes #rescue self.summary
         return
-      when "widgets"
+      when 'widgets'
         self.widgets #rescue self.summary
         return
-      when "properties"
+      when 'properties'
         self.properties #rescue self.summary
         return
-      when "summary"
+      when 'summary'
         self.summary
+        return
+      when 'instances'
+        self.instances
         return
       else
         self.summary
@@ -343,12 +361,16 @@ class OntologiesController < ApplicationController
     @acronym = params[:id]
     # Force the list of ontologies to be fresh by adding a param with current time
     @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:id], cache_invalidate: Time.now.to_i).first
-    render "submit_success"
+    render 'submit_success'
   end
 
   def summary
-    # Check to see if user is requesting RDF+XML. If so, return the file from the REST service.
-    if request.accept.to_s.eql?("application/ld+json") || request.accept.to_s.eql?("application/json")
+    # Note: find_by_acronym includes ontology views
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:id]).first
+    not_found if @ontology.nil?
+    # Check to see if user is requesting json-ld, return the file from REST service if so
+
+    if request.accept.to_s.eql?('application/ld+json') || request.accept.to_s.eql?('application/json')
       headers['Content-Type'] = request.accept.to_s
       render plain: @ontology.to_jsonld
       return
@@ -361,9 +383,9 @@ class OntologiesController < ApplicationController
     @view_decorators = @views.map{ |view| ViewDecorator.new(view, view_context) }
     
     if request.xhr?
-      render partial: "metadata", layout: false
+      render partial: 'metadata', layout: false
     else
-      render partial: "metadata", layout: "ontology_viewer"
+      render partial: 'metadata', layout: 'ontology_viewer'
     end
   end
 
@@ -382,7 +404,7 @@ class OntologiesController < ApplicationController
       @user_select_list = LinkedData::Client::Models::User.all.map {|u| [u.username, u.id]}
       @user_select_list.sort! {|a,b| a[1].downcase <=> b[1].downcase}
       @errors = response_errors(error_response)
-      @errors = {acronym: "Acronym already exists, please use another"} if error_response.status == 409
+      @errors = { acronym: 'Acronym already exists, please use another' } if error_response.status == 409
     else
       # TODO_REV: Enable subscriptions
       # if params["ontology"]["subscribe_notifications"].eql?("1")
@@ -402,9 +424,9 @@ class OntologiesController < ApplicationController
 
   def widgets
     if request.xhr?
-      render :partial => 'widgets', :layout => false
+      render partial: 'widgets', layout: false
     else
-      render :partial => 'widgets', :layout => "ontology_viewer"
+      render partial: 'widgets', layout: 'ontology_viewer'
     end
   end
 

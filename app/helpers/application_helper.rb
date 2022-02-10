@@ -440,4 +440,20 @@ module ApplicationHelper
   ###END ruby equivalent of JS code in bp_ajax_controller.
 
 
+  def uri?(url)
+    url =~ /\A#{URI::DEFAULT_PARSER.make_regexp(%w[http https])}\z/
+  end
+
+  def extract_label_from(uri)
+    label = uri.to_s
+    index = label.index('#')
+    if !index.nil?
+      label = label[(index + 1) , uri.length-1]
+    else
+      index = label.rindex('/')
+      label = label[(index + 1), uri.length-1]  if index > -1
+    end
+    label
+  end
+
 end

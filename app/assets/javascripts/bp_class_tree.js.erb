@@ -59,7 +59,7 @@ function initClassTree() {
     }
   });
 
-  setConcept(jQuery(document).data().bp.ont_viewer.concept_id);
+  setConcept(getClassesConceptId());
   setOntology(jQuery(document).data().bp.ont_viewer.ontology_id);
   jQuery("#sd_content").scrollTo(jQuery('a.active'));
 
@@ -87,6 +87,7 @@ function initClassTree() {
 };
 
 function nodeClicked(node_id) {
+
   // Get current html and store data in cache (to account for changes since the cache was retrieved)
   setCacheCurrent();
 
@@ -130,7 +131,8 @@ function nodeClicked(node_id) {
     insertNotesTable(tabData["notes_table_data"]);
 
     wrapupTabChange(selectedTab);
-  } else {
+  }
+  else {
     jQuery.blockUI({ message: '<h1>' + '<%= image_tag src="jquery.simple.tree/spinner.gif" %>' + ' Loading Class...</h1>', showOverlay: false });
     jQuery.get('/ajax_concepts/'+jQuery(document).data().bp.ont_viewer.ontology_id+'/?conceptid='+node_id+'&callback=load',
       function(data){
@@ -150,6 +152,18 @@ function nodeClicked(node_id) {
       }
     );
   }
+
+  //TODO: think of if we can use the cache for instances
+  updateConceptInstances(getOntology() , node_id)
+
+}
+
+// Update instances table when a new concept in the tree view is clicked
+function updateConceptInstances(ontology_acronym,node_id){
+    $("#class-instances-data-table").ready(function() {
+        const instanceTable =  document.querySelector("#class-instances-data-table")
+        instanceTable.update(ontology_acronym, decodeURIComponent(node_id))
+    })
 }
 
 // Keep trying to put the tree view content in place (looks for #sd_content)
@@ -180,10 +194,20 @@ function placeTreeView(treeHTML) {
   }
 }
 
+
+/**
+ * Return the conceptid from
+ * the section url if the section is "classes"
+ * @returns {*|string}
+ */
+function getClassesConceptId(default_concept_id = "root"){
+    const ont_viewer_data =  jQuery(document).data().bp.ont_viewer
+    return ont_viewer_data.content_section === "classes" ? ont_viewer_data.concept_id : default_concept_id
+}
 // Retrieve the tree view using ajax
 function getTreeView() {
   jQuery.ajax({
-    url: "/ajax/classes/treeview?ontology="+jQuery(document).data().bp.ont_viewer.ontology_id+"&conceptid="+encodeURIComponent(jQuery(document).data().bp.ont_viewer.concept_id),
+    url: "/ajax/classes/treeview?ontology="+jQuery(document).data().bp.ont_viewer.ontology_id+"&conceptid="+encodeURIComponent(getClassesConceptId()),
     success: function(data) {
       placeTreeView(data);
     },

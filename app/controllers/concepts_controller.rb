@@ -2,7 +2,7 @@ require 'cgi'
 
 class ConceptsController < ApplicationController
   include MappingsHelper
-
+  include ConceptsHelper
   layout 'ontology'
 
   def show
@@ -39,23 +39,15 @@ class ConceptsController < ApplicationController
   def show_label
     cls_id = params[:concept]   # cls_id should be a full URI
     ont_id = params[:ontology]  # ont_id could be a full URI or an acronym
+
     if ont_id.to_i > 0
       params_cleanup_new_api()
       stop_words = ["controller", "action"]
       redirect_to "#{request.path}#{params_string_for_redirect(params, stop_words: stop_words)}", :status => :moved_permanently
       return
     end
-    @ontology = LinkedData::Client::Models::Ontology.find(ont_id)
-    @ontology ||= LinkedData::Client::Models::Ontology.find_by_acronym(ont_id).first
-    not_found unless @ontology
-    # Retrieve a class prefLabel or return the class ID (URI)
-    # - mappings may contain class URIs that are not in bioportal (e.g. obo-xrefs)
-    cls = @ontology.explore.single_class(cls_id)
-    # TODO: log any cls.errors
-    # TODO: NCBO-402 might be implemented here, but it throws off a lot of ajax result rendering.
-    #cls_label = cls.prefLabel({:use_html => true}) || cls_id
-    cls_label = cls.prefLabel || cls_id
-    render plain: cls_label
+
+    render plain: concept_label(ont_id, cls_id)
   end
 
   def show_definition

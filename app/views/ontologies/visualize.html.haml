@@ -1,3 +1,15 @@
+:javascript
+  $(document).ready(function() {
+    const ontology_acronym = "#{@ontology.acronym}"
+    let data = #{raw @instance_details.to_json} || null
+
+    if(data && Object.keys(data).length !== 0){
+      $.facebox({ajax: `/ontologies/${ontology_acronym}/instances/${encodeURIComponent(data["@id"])}`})
+    }
+
+  })
+
+
 - unless @error
   - @title = "#{@ontology.name} - #{@concept.prefLabel}"
   - @new_term_request_ontologies
@@ -21,6 +33,11 @@
           %ul
             %li#details_top.selected.first{:onclick => "return false;"}
               %a{:href => "#details", :onclick => "return false;", :style => "color: gray;"} Details
+            %li#instances_top{:onclick => "return false;"}
+              %a{:href => "#instances", :onclick => "return false;", :style => "color: gray;"}
+                Instances (
+                %span#instances_count= 0
+                )
             %li#visualization_top{:onclick => "return false;"}
               %a{:href => "#visualization", :onclick => "return false;", :style => "color: gray;"} Visualization
             %li#notes_top{:onclick => "return false;"}
@@ -65,6 +82,7 @@
         #contents
           #details_content.tab_container
             %div{:style => "padding: 100px 0; font-size: larger; font-weight: bold; text-align: center;"} Use the "Jump To" to find a class and display details, visualization, notes, and mappings
+          #instances_content.tab_container.not_visible= render :partial =>'instances' , locals: {id: "class-instances-data-table"}
           #visualization_content.tab_container.not_visible
           #notes_content.tab_container.not_visible
           #mappings_content.tab_container.not_visible
@@ -75,6 +93,11 @@
           %ul
             %li#details_top.selected.tab.first
               %a{:href => "#details"} Details
+            %li#instances_top.tab
+              %a{:href => "#instances"}
+                Instances (
+                %span#instances_count= 0
+                )
             %li#visualization_top.tab
               %a{:href => "#visualization"} Visualization
             %li#notes_top.tab
@@ -98,6 +121,7 @@
               %i{class: "fas fa-link", aria: {hidden: "true"}}
         #contents
           #details_content.tab_container= render :partial =>'/concepts/details'
+          #instances_content.tab_container.not_visible= render :partial =>'instances' , locals: {id: "class-instances-data-table"}
           #visualization_content.tab_container.not_visible= render :partial =>'/concepts/biomixer'
           #notes_content.tab_container.not_visible= render :partial =>'/notes/list'
           #mappings_content.tab_container.not_visible= render :partial => '/mappings/concept_mappings'

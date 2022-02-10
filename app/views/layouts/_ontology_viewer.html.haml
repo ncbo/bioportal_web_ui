@@ -114,20 +114,23 @@
               %li.nav-item 
                 = link_to("Properties", ontology_path(@ontology.acronym, p: "properties"), |
                     id: "ont-properties-tab", class: "nav-link", role: "tab", data: {bp_ont_page: "properties", toggle: "tab", target: "#ont_properties_content"}, |
-                    aria: {controls: "ont_properties_content", selected: "false"}) |
-            %li.nav-item 
+                    aria: {controls: "ont_properties_content", selected: "false"})
+            %li.nav-item
+              = link_to("Instances", ontology_path(@ontology.acronym, p: "instances"),
+                  id: "ont-instances-tab", class: "nav-link", role: "tab", data: {bp_ont_page: "instances", toggle: "tab", target: "#ont_instances_content"},
+                  aria: {controls: "ont_instances_content", selected: "false"})
+            %li.nav-item
               = link_to("Notes", ontology_path(@ontology.acronym, p: "notes"), |
                   id: "ont-notes-tab", class: "nav-link", role: "tab", data: {bp_ont_page: "notes", toggle: "tab", target: "#ont_notes_content"}, |
                   aria: {controls: "ont_notes_content", selected: "false"}) |
-            - unless @ontology.summaryOnly
-              %li.nav-item
-                = link_to("Mappings", ontology_path(@ontology.acronym, p: "mappings"), |
-                    id: "ont-mappings-tab", class: "nav-link", role: "tab", data: {bp_ont_page: "mappings", toggle: "tab", target: "#ont_mappings_content"}, |
-                    aria: {controls: "ont_mappings_content", selected: "false"}) |
-              %li.nav-item 
-                = link_to("Widgets", ontology_path(@ontology.acronym, p: "widgets"), |
-                    id: "ont-widgets-tab", class: "nav-link", role: "tab", data: {bp_ont_page: "widgets", toggle: "tab", target: "#ont_widgets_content"}, |
-                    aria: {controls: "ont_widgets_content", selected: "false"}) |
+            %li.nav-item
+              = link_to("Mappings", ontology_path(@ontology.acronym, p: "mappings"),
+                 id: "ont-mappings-tab", class: "nav-link", role: "tab", data: {bp_ont_page: "mappings", toggle: "tab", target: "#ont_mappings_content"},
+                 aria: {controls: "ont_mappings_content", selected: "false"})
+            %li.nav-item
+              = link_to("Widgets", ontology_path(@ontology.acronym, p: "widgets"), |
+                 id: "ont-widgets-tab", class: "nav-link", role: "tab", data: {bp_ont_page: "widgets", toggle: "tab", target: "#ont_widgets_content"}, |
+                 aria: {controls: "ont_widgets_content", selected: "false"}) |
         %div.card-body
           -# Tab panes for displaying ontology content sections
           %div.tab-content{id: "ontology_content"}
@@ -139,6 +142,9 @@
                 = yield
             %div.tab-pane{id: "ont_properties_content", role: "tabpanel", aria: {labelledby: "ont-properties-tab"}}
               - if content_section.eql?("properties")
+                = yield
+            %div.tab-pane{id: "ont_instances_content", role: "tabpanel", aria: {labelledby: "ont-instances-tab"}}
+              - if content_section.eql?("instances")
                 = yield
             %div.tab-pane{id: "ont_notes_content", role: "tabpanel", aria: {labelledby: "ont-notes-tab"}}
               - if content_section.eql?("notes")
