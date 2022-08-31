@@ -23,6 +23,7 @@ jobs:
     runs-on: self-hosted
     env:
       ImageOS: ubuntu20
+      BUNDLE_WITHOUT: default
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -31,7 +32,7 @@ jobs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7.6 # Not needed with a .ruby-version file
-    #    bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: get-deployment-config
       uses: actions/checkout@v3
       with:
