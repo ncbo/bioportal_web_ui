@@ -39,7 +39,7 @@ jobs:
         token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
         path:  deploy_config
     - name: copy-deployment-config
-      run:  cp -r deploy_config/bioportal_web_ui/* .
+      run:  cp -rv deploy_config/bioportal_web_ui/* .
     - uses: miloserdow/capistrano-deploy@master
       with:
         target: staging # Defines the environment that will be used for the deploymenhu
