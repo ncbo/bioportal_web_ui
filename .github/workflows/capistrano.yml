@@ -35,9 +35,7 @@ jobs:
     - name: get-deployment-config
       uses: actions/checkout@v3
       with:
-        repository: alexskr/bioportal_config
-        # repository: ${{ secrets.CONFIG_REPO }} # repository containing deployment settings
-        #token: $${{ secrets.PRIVATE_REPO_KEY }}
+        repository: ${{ secrets.CONFIG_REPO }} # repository containing deployment settings
         token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
         path:  deploy_config
     - name: copy-deployment-config
