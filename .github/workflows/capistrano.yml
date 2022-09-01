@@ -41,7 +41,8 @@ jobs:
         path:  deploy_config
     - name: copy-deployment-config
       run:  cp -rv deploy_config/bioportal_web_ui/* .
-    - uses: miloserdow/capistrano-deploy@master
+   #- uses: miloserdow/capistrano-deploy@master
+    - uses: alexskr/capistrano-deploy@master
       with:
         target: staging # Defines the environment that will be used for the deploymenhu
         #        BRANCH: master
