@@ -42,7 +42,10 @@ jobs:
     - name: copy-deployment-config
       run:  cp -rv deploy_config/bioportal_web_ui/* .
     - name: Adding Known Hosts
-      run: ssh-keyscan -H ${{ secrets.SSH_JUMPHOST }}
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.SSH_JUMPHOST }} > ~/.ssh/known_hosts
+      shell: bash
     - uses: miloserdow/capistrano-deploy@master
     #- uses: alexskr/capistrano-deploy@master
       with:
