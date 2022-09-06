@@ -41,6 +41,8 @@ jobs:
         path:  deploy_config
     - name: copy-deployment-config
       run:  cp -rv deploy_config/bioportal_web_ui/* .
+    - name: ssh-host
+      run: ssh-keyscan -H sftp.bmir.stanford.edu,171.67.213.124 >> ~/.ssh/known_hosts
     - uses: miloserdow/capistrano-deploy@master
     #- uses: alexskr/capistrano-deploy@master
       with:
