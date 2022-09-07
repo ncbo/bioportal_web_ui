@@ -17,7 +17,7 @@ set :deploy_to, "/srv/rails/#{fetch(:application)}"
 # set :format, :pretty
 
 # Default value for :log_level is :debug
-# set :log_level, :debug
+set :log_level, :error
 
 # Default value for :pty is false
 # set :pty, true
