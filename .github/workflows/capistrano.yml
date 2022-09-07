@@ -40,7 +40,7 @@ jobs:
         token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
         path:  deploy_config
     - name: copy-deployment-config
-      run:  cp deploy_config/bioportal_web_ui/* .
+      run:  cp -r deploy_config/bioportal_web_ui/* .
     # add ssh hostkey so that capistrano doesn't complain
     - name: Add jumphost's hostkey to Known Hosts
       run: |
