@@ -114,19 +114,6 @@ ENV['MEMCACHE_SERVERS'] = 'localhost'
 require 'log'
 $REMOTE_LOGGING = false
 
-##
-# Flex Options
-##
-
-# URL to pull Flex apps from
-$FLEX_URL = "/flex"
-
-# Flex App API keys
-$ANNOTATOR_FLEX_APIKEY = ""
-$SEARCH_FLEX_APIKEY = ""
-$RECOMMENDER_FLEX_APIKEY = ""
-$FLEXOVIZ_APIKEY = ""
-
 # URL where BioMixer GWT app is located
 $BIOMIXER_URL = 'http://biomixer.bioontology.org'
 
