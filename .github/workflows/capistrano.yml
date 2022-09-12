@@ -13,6 +13,8 @@ on:
       BRANCH:
         description: 'Branch'
         default: 'master'
+      environment:
+        type: environment
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -50,6 +52,6 @@ jobs:
     - uses: miloserdow/capistrano-deploy@master
     #- uses: alexskr/capistrano-deploy@master
       with:
-        target: staging # Defines the environment that will be used for the deploymenhu
+        target: staging # Defines the environment that will be used for the deployment
         #        BRANCH: master
         deploy_key: ${{ secrets.DEPLOY_ENC_KEY }} # Name of the variable configured in Settings/Secrets of your github project
