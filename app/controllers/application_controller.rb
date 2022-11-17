@@ -15,7 +15,7 @@ require 'ontologies_api_client'
 class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
   helper_method :bp_config_json, :current_license, :using_captcha?
-
+  rescue_from ActiveRecord::RecordNotFound, with: :not_found_record
   # Pull configuration parameters for REST connection.
   REST_URI = $REST_URL
   API_KEY = $API_KEY
@@ -82,13 +82,21 @@ class ApplicationController < ActionController::Base
     user ||= User.new({"id" => 0})
   end
 
-  def not_found
+  def ontology_not_found(ontology_acronym)
+    not_found("Ontology #{ontology_acronym} not found")
+  end
+
+  def concept_not_found(concept_id)
+    not_found("Concept #{concept_id} not found")
+  end
+
+  def not_found(message = '')
     if request.xhr?
-      render plain: "Error: load failed"
+      render plain: message || "Error: load failed"
       return
     end
-    
-    raise ActiveRecord::RecordNotFound.new('Not Found')
+
+    raise ActiveRecord::RecordNotFound.new(message || 'Not Found')
   end
 
   NOTIFICATION_TYPES = { :notes => "CREATE_NOTE_NOTIFICATION", :all => "ALL_NOTIFICATION" }
@@ -225,7 +233,7 @@ class ApplicationController < ActionController::Base
       return
     end
     acronym = BPIDResolver.id_to_acronym(params[:ontology])
-    not_found unless acronym
+    ontology_not_found(acronym) unless acronym
     if class_view
       @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(acronym).first
       concept = get_class(params).first.to_s
@@ -390,7 +398,7 @@ class ApplicationController < ActionController::Base
         roots = @ontology.explore.roots
         if roots.nil? || roots.empty?
           LOG.add :debug, "Missing roots for #{@ontology.acronym}"
-          not_found
+          not_found("Missing roots for #{@ontology.acronym}")
         end
 
         @root = LinkedData::Client::Models::Class.new(read_only: true)
@@ -403,14 +411,14 @@ class ApplicationController < ActionController::Base
         # Some ontologies have "too many children" at their root. These will not process and are handled here.
         if @concept.nil?
           LOG.add :debug, "Missing class #{root_child.links.self}"
-          not_found
+          not_found("Missing class #{root_child.links.self}")
         end
       else
         # if the id is coming from a param, use that to get concept
         @concept = @ontology.explore.single_class({full: true}, params[:conceptid])
         if @concept.nil? || @concept.errors
           LOG.add :debug, "Missing class #{@ontology.acronym} / #{params[:conceptid]}"
-          not_found
+          not_found("Missing class #{@ontology.acronym} / #{params[:conceptid]}")
         end
 
         # Create the tree
@@ -419,7 +427,7 @@ class ApplicationController < ActionController::Base
           roots = @ontology.explore.roots
           if roots.nil? || roots.empty?
             LOG.add :debug, "Missing roots for #{@ontology.acronym}"
-            not_found
+            not_found("Missing roots for #{@ontology.acronym}")
           end
           if roots.any? {|c| c.id == @concept.id}
             rootNode = roots
@@ -686,4 +694,9 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  private
+  def not_found_record(exception)
+    @error_message = exception.message
+    render 'errors/not_found', status: 404
+  end
 end

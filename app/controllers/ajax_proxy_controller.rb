@@ -37,7 +37,7 @@ class AjaxProxyController < ApplicationController
   end
 
   def json_class
-    not_found if params[:conceptid].nil? || params[:conceptid].empty?
+    concept_not_found if params[:conceptid].nil? || params[:conceptid].empty?
     params[:ontology] ||= params[:ontologyid]
 
     if params[:ontologyid].to_i > 0
@@ -48,10 +48,10 @@ class AjaxProxyController < ApplicationController
     end
 
     @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology]).first
-    not_found if @ontology.nil?
+    ontology_not_found(params[:ontology]) if @ontology.nil?
 
     @concept = @ontology.explore.single_class({}, params[:conceptid])
-    not_found if @concept.nil?
+    concept_not_found(params[:conceptid]) if @concept.nil?
 
     render_json @concept.to_json
   end
@@ -59,7 +59,7 @@ class AjaxProxyController < ApplicationController
 
   def json_ontology
     @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology]).first
-    not_found if @ontology.nil?
+    ontology_not_found(params[:ontology]) if @ontology.nil?
     simple_ontology = simplify_ontology_model(@ontology)  # application_controller (cached)
     render_json simple_ontology.to_json
   end
