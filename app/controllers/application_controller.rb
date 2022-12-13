@@ -224,7 +224,7 @@ class ApplicationController < ActionController::Base
       @error = "Please provide an ontology id or concept id with an ontology id."
       return
     end
-    acronym = BPIDResolver.id_to_acronym(params[:ontology])
+    acronym = BpidResolver.id_to_acronym(params[:ontology])
     not_found unless acronym
     if class_view
       @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(acronym).first
@@ -238,7 +238,7 @@ class ApplicationController < ActionController::Base
   def params_cleanup_new_api
     params = @_params
     if params[:ontology] && params[:ontology].to_i > 0
-      params[:ontology] = BPIDResolver.id_to_acronym(params[:ontology])
+      params[:ontology] = BpidResolver.id_to_acronym(params[:ontology])
     end
 
     params

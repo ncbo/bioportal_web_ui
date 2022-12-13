@@ -34,3 +34,6 @@
 //= require projects
 //= require submissions
 
+//= require application_esbuild
+
+

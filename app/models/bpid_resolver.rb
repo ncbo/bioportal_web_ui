@@ -3,7 +3,7 @@ require 'ostruct'
 require 'json'
 require 'open-uri'
 
-class BPIDResolver
+class BpidResolver
   require Rails.root + 'lib/resolver/acronym_from_virtual'
   require Rails.root + 'lib/resolver/virtual_from_acronym'
   require Rails.root + 'lib/resolver/virtual_from_version'

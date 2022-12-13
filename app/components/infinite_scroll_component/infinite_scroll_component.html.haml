@@ -1,0 +1,16 @@
+= turbo_frame_tag "#{@id}_view-page-#{@current_page}"  do
+  - if @collection && !@collection.empty?
+    .hide-if-loading
+      %div
+        %ul.simpleTree{data:{controller: 'simple-tree history','simple-tree': { 'auto-click-value': auto_click? }, action: 'clicked->history#updateURL'}}
+          %li.root
+            %ul
+              = content
+    - if @next_page
+      = turbo_frame_tag "#{@id}_view-page-#{@next_page}",
+                         loading: :lazy, src: @next_url do
+        Loading ...
+  - elsif @current_page == 1
+    %div.text-wrap
+      = render AlertMessageComponent.new(id: "#{@id}_view_alert") do
+        = error
