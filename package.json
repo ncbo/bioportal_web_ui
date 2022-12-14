@@ -1,0 +1,24 @@
+{
+  "name": "bioportal_web_ui",
+  "version": "1.0.0",
+  "description": "bioportal_web_ui ================",
+  "dependencies": {
+    "@hotwired/stimulus": "^3.0.1",
+    "@hotwired/turbo-rails": "^7.1.1",
+    "esbuild": "^0.14.41",
+    "split.js": "^1.6.5"
+  },
+  "scripts": {
+    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ontoportal-lirmm/bioportal_web_ui.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ontoportal-lirmm/bioportal_web_ui/issues"
+  },
+  "homepage": "https://github.com/ontoportal-lirmm/bioportal_web_ui#readme"
+}

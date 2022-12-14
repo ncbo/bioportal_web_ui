@@ -1,0 +1,51 @@
+x-app: &default-app
+  build:
+    context: "."
+    target: "app"
+    args:
+      - "UID=${UID:-1000}"
+      - "GID=${GID:-1000}"
+      - "RAILS_ENV=${RAILS_ENV:-production}"
+      - "NODE_ENV=${NODE_ENV:-production}"
+  depends_on:
+    - "db"
+    - "cache"
+  links:
+    - "db"
+    - "cache"
+  env_file:
+    - ".env"
+  tty: true
+  volumes:
+    - "${DOCKER_WEB_VOLUME}"
+    -  bundle:/usr/local/bundle
+    - node:/node_modules
+
+services:
+  db:
+    environment:
+      MYSQL_ROOT_PASSWORD: 'bp_user'
+    image: "mysql:latest"
+    profiles: ["db"]
+    ports:
+      - "3306:3306"
+  cache:
+    deploy:
+      resources:
+        limits:
+          cpus: "${DOCKER_REDIS_CPUS:-0}"
+          memory: "${DOCKER_REDIS_MEMORY:-0}"
+    image: "memcached:1.6.17-bullseye"
+    profiles: ["cache"]
+    ports:
+      - "11211:11211"
+
+  web:
+    <<: *default-app
+    ports:
+      - "${DOCKER_WEB_PORT_FORWARD:-127.0.0.1:3000}:${PORT:-3000}"
+    profiles: ["web"]
+    command: "yarn build --watch"
+volumes:
+  bundle:
+  node:

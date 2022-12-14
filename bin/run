@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+array="${@}"
+echo "Run : docker compose exec web sh -c '${array}'"
+docker compose exec web sh -c "${array}"
