@@ -25,5 +25,6 @@ install_plugin Capistrano::SCM::Git
 require 'capistrano/rails'
 require 'capistrano/locally'
 require 'capistrano/yarn'
+require 'new_relic/recipes' # announce deployments in NewRelic
 # Loads custom tasks from `lib/capistrano/tasks' if you have any defined.
 Dir.glob('lib/capistrano/tasks/*.cap').each { |r| import r }
