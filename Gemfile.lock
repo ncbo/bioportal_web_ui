@@ -136,6 +136,9 @@ GEM
     cube-ruby (0.0.3)
     daemons (1.4.1)
     dalli (3.2.6)
+    dartsass-rails (0.5.0)
+      railties (>= 6.0.0)
+      sass-embedded (~> 1.63)
     date (3.3.4)
     debug (1.9.1)
       irb (~> 1.10)
@@ -162,6 +165,9 @@ GEM
     flamegraph (0.9.5)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    google-protobuf (3.25.3-arm64-darwin)
+    google-protobuf (3.25.3-x86_64-darwin)
+    google-protobuf (3.25.3-x86_64-linux)
     graphql (2.0.27)
     graphql-client (0.18.0)
       activesupport (>= 3.0)
@@ -342,6 +348,12 @@ GEM
     ruby2_keywords (0.0.5)
     ruby_parser (3.20.3)
       sexp_processor (~> 4.16)
+    sass-embedded (1.69.5-arm64-darwin)
+      google-protobuf (~> 3.23)
+    sass-embedded (1.69.5-x86_64-darwin)
+      google-protobuf (~> 3.23)
+    sass-embedded (1.69.5-x86_64-linux-gnu)
+      google-protobuf (~> 3.23)
     sassc (2.4.0)
       ffi (~> 1.9)
     sassc-rails (2.1.2)
@@ -413,6 +425,7 @@ DEPENDENCIES
   chart-js-rails
   cube-ruby
   dalli
+  dartsass-rails (~> 0.5.0)
   debug
   ed25519 (>= 1.2, < 2.0)
   flamegraph
@@ -444,7 +457,6 @@ DEPENDENCIES
   rexml (~> 3)
   rspec-rails
   rubocop
-  sassc-rails
   select2-rails
   sprockets-rails
   stackprof
