@@ -1,3 +1,13 @@
+@use 'alertify';
+@use 'chosen.css.scss';
+@use 'facebox';
+@use 'jquery-ui-1.8.1.custom.css.scss';
+@use 'jquery.autocomplete' as autocomplete;
+@use 'jquery.tooltip' as tooltip;
+@use 'select2';
+@use 'thickbox';
+@use 'trumbowyg';
+
 // BioPortal
 @use 'admin';
 @use 'annotator';
