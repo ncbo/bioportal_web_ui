@@ -6,7 +6,7 @@
 }
 
 #hd {
-  background: image-url('layout/header_bg.png') repeat-x;
+  background: url('layout/header_bg.png') repeat-x;
   width: 100%;
   min-width: 1200px;
   height: 43px;
@@ -38,7 +38,7 @@
 .tabs {
   float:left;
   width:100%;
-  background: image-url('layout/subnav_bg.png') repeat-x;
+  background: url('layout/subnav_bg.png') repeat-x;
   height:24px;
   display:block;
   border-bottom:1px solid #bcc6d0;
@@ -94,7 +94,7 @@
 }
 
 #grab-point {
-  background: image-url('layout/bar-ext.gif') repeat-y;
+  background: url('layout/bar-ext.gif') repeat-y;
   width:5px;
   height:100%;
   min-height:350px;
@@ -454,7 +454,7 @@ tr.mainresource td {
 }
 
 .home_button{
-    background-image: image-url('layout/home_button.png');
+    background-image: url('layout/home_button.png');
     height:37px;
     width:106px;
     border:0px;
@@ -476,12 +476,12 @@ tr.mainresource td {
   padding:5px;
 }
 .sorting_asc{
-    background-image: image-url('layout/asc.png');
+    background-image: url('layout/asc.png');
     background-repeat:no-repeat;
     background-position:98%;
 }
 .sorting_desc{
-    background-image: image-url('layout/desc.png');
+    background-image: url('layout/desc.png');
     background-repeat:no-repeat;
     background-position:98%;
 }
@@ -614,7 +614,7 @@ div.tree_error {
   line-height: 3px;
   height:3px;
   font-size:3px;
-  background: image-url('jquery.simple.tree/line_bg.gif') 0 0 no-repeat transparent;
+  background: url('jquery.simple.tree/line_bg.gif') 0 0 no-repeat transparent;
 }
 .simpleTree .line-last {
   margin:0 0 0 -16px;
@@ -622,7 +622,7 @@ div.tree_error {
   line-height: 3px;
   height:3px;
   font-size:3px;
-  background: image-url('jquery.simple.tree/spacer.gif') 0 0 no-repeat transparent;
+  background: url('jquery.simple.tree/spacer.gif') 0 0 no-repeat transparent;
 }
 .simpleTree .line-over {
   margin:0 0 0 -16px;
@@ -630,7 +630,7 @@ div.tree_error {
   line-height: 3px;
   height:3px;
   font-size:3px;
-  background: image-url('jquery.simple.tree/line_bg_over.gif') 0 0 no-repeat transparent;
+  background: url('jquery.simple.tree/line_bg_over.gif') 0 0 no-repeat transparent;
 }
 .simpleTree .line-over-last {
   margin:0 0 0 -16px;
@@ -638,34 +638,34 @@ div.tree_error {
   line-height: 3px;
   height:3px;
   font-size:3px;
-  background: image-url('jquery.simple.tree/line_bg_over_last.gif') 0 0 no-repeat transparent;
+  background: url('jquery.simple.tree/line_bg_over_last.gif') 0 0 no-repeat transparent;
 }
 .simpleTree .folder-open {
   margin-left:-16px;
-  background: image-url('jquery.simple.tree/collapsable.gif') 0 -2px no-repeat #fff;
+  background: url('jquery.simple.tree/collapsable.gif') 0 -2px no-repeat #fff;
 }
 .simpleTree .folder-open-last {
   margin-left:-16px;
-  background: image-url('jquery.simple.tree/collapsable-last.gif') 0 -2px no-repeat #fff;
+  background: url('jquery.simple.tree/collapsable-last.gif') 0 -2px no-repeat #fff;
 }
 .simpleTree .folder-close {
   margin-left:-16px;
-  background: image-url('jquery.simple.tree/expandable.gif') 0 -2px no-repeat #fff;
+  background: url('jquery.simple.tree/expandable.gif') 0 -2px no-repeat #fff;
 }
 .simpleTree .folder-close-last {
   margin-left:-16px;
-  background: image-url('jquery.simple.tree/expandable-last.gif') 0 -2px no-repeat #fff;
+  background: url('jquery.simple.tree/expandable-last.gif') 0 -2px no-repeat #fff;
 }
 .simpleTree .doc {
   margin-left:-16px;
-  background: image-url('jquery.simple.tree/leaf.gif') 0 -1px no-repeat #fff;
+  background: url('jquery.simple.tree/leaf.gif') 0 -1px no-repeat #fff;
 }
 .simpleTree .doc-last {
   margin-left:-16px;
-  background: image-url('jquery.simple.tree/leaf-last.gif') 0 -1px no-repeat #fff;
+  background: url('jquery.simple.tree/leaf-last.gif') 0 -1px no-repeat #fff;
 }
 .simpleTree .ajax {
-  background: image-url('jquery.simple.tree/spinner.gif') no-repeat 0 0 #ffffff;
+  background: url('jquery.simple.tree/spinner.gif') no-repeat 0 0 #ffffff;
   height: 16px;
   display:none;
 }
@@ -724,13 +724,13 @@ div.tree_error {
   padding:0;
 }
 #drag_container li.doc, #drag_container li.doc-last {
-  background: image-url('jquery.simple.tree/leaf.gif') no-repeat -17px 0 #ffffff;
+  background: url('jquery.simple.tree/leaf.gif') no-repeat -17px 0 #ffffff;
 }
 #drag_container .folder-close, #drag_container .folder-close-last {
-  background: image-url('jquery.simple.tree/expandable.gif') no-repeat -17px 0 #ffffff;
+  background: url('jquery.simple.tree/expandable.gif') no-repeat -17px 0 #ffffff;
 }
 #drag_container .folder-open, #drag_container .folder-open-last {
-  background: image-url('jquery.simple.tree/collapsable.gif') no-repeat -17px 0 #ffffff;
+  background: url('jquery.simple.tree/collapsable.gif') no-repeat -17px 0 #ffffff;
 }
 .contextMenu {
   display:none;
@@ -1028,7 +1028,7 @@ div#topNavigationToggler a.btn.btn-login {
  ************************************/
 a.help_link {
   border-radius: 6px 6px 6px 6px;
-  background: image-url('jquery-ui-1.8.1.custom/ui-bg_glass_100_e4f1fb_1x400.png') repeat-x scroll 50% 50% #E4F1FB;
+  background: url('jquery-ui-1.8.1.custom/ui-bg_glass_100_e4f1fb_1x400.png') repeat-x scroll 50% 50% #E4F1FB;
   border: 1px solid #74B2E2;
   color: #0070A3;
   font-weight: bold;
