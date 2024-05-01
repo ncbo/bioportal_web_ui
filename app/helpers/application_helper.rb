@@ -75,29 +75,25 @@ module ApplicationHelper
     if node.children.nil? || node.children.length < 1
       return string # unchanged
     end
-    node.children.sort! {|a,b| (a.prefLabel || a.id).downcase <=> (b.prefLabel || b.id).downcase}
+    node.children.sort! { |a, b| (a.prefLabel || a.id).downcase <=> (b.prefLabel || b.id).downcase }
     for child in node.children
       if child.id.eql?(id)
-        active_style="class='active'"
+        active_style = "class='active'"
       else
         active_style = ""
-      end
-      if child.expanded?
-        open = "class='open'"
-      else
-        open = ""
       end
 
       # This fake root will be present at the root of "flat" ontologies, we need to keep the id intact
       li_id = child.id.eql?("bp_fake_root") ? "bp_fake_root" : short_uuid
 
       if child.id.eql?("bp_fake_root")
-        string << "<li class='active' id='#{li_id}'><a id='#{CGI.escape(child.id)}' href='#' #{active_style}>#{child.prefLabel}</a></li>"
+        string << tree_link_to_concept(li_id: li_id, child: child, ontology_acronym: '',
+                                       active_style: active_style, node: node)
       else
-        icons = child.relation_icon(node)
-        string << "<li #{open} id='#{li_id}'><a id='#{CGI.escape(child.id)}' href='/ontologies/#{child.explore.ontology.acronym}/?p=classes&conceptid=#{CGI.escape(child.id)}' #{active_style}> #{child.prefLabel({use_html: true})}</a> #{icons}"
+        string << tree_link_to_concept(li_id: li_id, child: child, ontology_acronym: child.explore.ontology.acronym,
+                            active_style: active_style, node: node)
         if child.hasChildren && !child.expanded?
-          string << "<ul class='ajax'><li id='#{li_id}'><a id='#{CGI.escape(child.id)}' href='/ajax_concepts/#{child.explore.ontology.acronym}/?conceptid=#{CGI.escape(child.id)}&callback=children'>ajax_class</a></li></ul>"
+          string << tree_link_to_children(li_id: li_id, child: child)
         elsif child.expanded?
           string << "<ul>"
           build_tree(child, string, id)
@@ -108,6 +104,18 @@ module ApplicationHelper
     end
 
     string
+  end
+
+  def tree_link_to_concept(li_id:, child:, ontology_acronym:, active_style:, node:)
+    page_name = ontology_viewer_page_name(ontology_acronym, child.prefLabel, 'Classes')
+    open = child.expanded? ? "class='open'" : ''
+    icons = child.relation_icon(node)
+    href = ontology_acronym.blank? ? '#' :  "/ontologies/#{child.explore.ontology.acronym}/concepts/?id=#{CGI.escape(child.id)}"
+    "<li #{open} id='#{li_id}'><a id='#{CGI.escape(child.id)}' data-bp-ont-page-name='#{page_name}' data-turbo=true data-turbo-frame='concept_show' href='#{href}' #{active_style}> #{child.prefLabel({ use_html: true })}</a> #{icons}"
+  end
+
+  def tree_link_to_children(li_id:, child:)
+    "<ul class='ajax'><li id='#{li_id}'><a id='#{CGI.escape(child.id)}' href='/ajax_concepts/#{child.explore.ontology.acronym}/?conceptid=#{CGI.escape(child.id)}&callback=children'>ajax_class</a></li></ul>"
   end
 
   def loading_spinner(padding = false, include_text = true)
@@ -362,6 +370,9 @@ module ApplicationHelper
     return "<a class='ont4ajax' #{data_ont} #{href_ont}>#{ont_acronym}</a>"
   end
   ###END ruby equivalent of JS code in bp_ajax_controller.
+  def ontology_viewer_page_name(ontology_name, concept_name_title , page)
+    ontology_name + concept_name_title + " - #{page.capitalize}"
+  end
 
 
 end

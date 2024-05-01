@@ -4,12 +4,12 @@
 .notes_list_container
   .add_comment{style: "float: left; margin-right: 1em;"}
     - if session[:user].nil?
-      = link_to "Add comment", login_index_path, class: "link_button", style: "font-size: .9em;"
+      = link_to "Add comment",  login_index_path(redirect: request.url), class: "link_button", style: "font-size: .9em;"
     - else
       = link_to "Add comment", "javascript:void(0);", class: "add_comment link_button", style: "font-size: .9em;", data: { parent_id: "#{@concept.id}", parent_type: "class" }
   .add_proposal{style: "float: left; margin-right: 1em;"}
     - if session[:user].nil?
-      = link_to "Add proposal", login_index_path, class: "link_button", style: "font-size: .9em"
+      = link_to "Add proposal",  login_index_path(redirect: request.url), class: "link_button", style: "font-size: .9em"
     - else
       = link_to "Add proposal", "javascript:void(0);", class: "add_proposal link_button", style: "font-size: .9em;", data: { parent_id: "#{@concept.id}", parent_type: "class" }
   .subscribe_to_notes.link_button{:style => "float: left;"}
@@ -59,3 +59,24 @@
                 = note.proposal ? get_note_type_text(note.proposal.type) : "Comment"
               %td
                 = DateTime.parse(note.created).strftime("%Y-%m-%d")
+:javascript
+  jQuery(".ontologies.show").ready(function(){
+    setupNotesFacebox()
+    setupNotesFaceboxSizing();
+    bindAddCommentClick();
+    bindAddProposalClick();
+    bindProposalChange();
+    bindReplyClick();
+    bindReplyCancelClick();
+    bindReplySaveClick();
+
+    jQuery("a.subscribe_to_notes").live("click", function(){
+      subscribeToNotes(this);
+    });
+
+    jQuery("#hide_archived_ont").click(function(){
+      hideOrUnhideArchivedOntNotes();
+    });
+
+    wireOntTable(jQuery("#notes_concept_list_table"));
+  });

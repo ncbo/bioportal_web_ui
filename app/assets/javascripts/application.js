@@ -12,7 +12,6 @@
 //
 //= require bioportal
 //= require admin/licenses
-//= require bp_class_tree
 //= require bp_ajax_controller
 //= require bp_ontology_viewer
 //= require bp_notes
@@ -22,7 +21,6 @@
 //= require bp_analytics
 //= require bp_search
 //= require bp_mappings
-//= require bp_visualize
 //= require bp_admin
 //= require bp_recommender
 //= require bp_property_tree
@@ -31,4 +29,7 @@
 //= require ontologies
 //= require projects
 //= require submissions
+
+//= require application_esbuild
+
 

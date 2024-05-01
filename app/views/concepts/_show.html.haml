@@ -1,0 +1,59 @@
+= turbo_frame_tag 'concept_show' do
+  %div.hide-if-loading.fade.show
+    / When we have an ontology with a flat hierarchy, we initially disable the tabs because we don't have a class to display
+    - if @concept.id.eql?("bp_fake_root")
+      %div{:style => "padding: 100px 0; font-size: larger; font-weight: bold; text-align: center;"}
+        Use the "Jump To" to find a class and display details, visualization, notes, and mappings
+    - else
+      .cls-info-container
+
+        %ul.nav.nav-tabs.tabs
+          %li#details_top.nav-item
+            %a.nav-link.active.py-1{:href => "#details" , data:{toggle: 'tab', target: '#details_content'}} Details
+          %li#visualization_top.nav-item
+            %a.nav-link.py-1{:href => "#visualization", data:{toggle: 'tab', target: '#visualization_content'}} Visualization
+          %li#notes_top.nav-item
+            %a.nav-link.py-1{:href => "#notes", data:{toggle: 'tab', target: '#notes_content'}}
+              Notes
+              %span#note_count_wrapper
+                (
+                %span#note_count= @notes.length
+                )
+          %li#mappings_top.nav-item
+            %a.nav-link.py-1{:href => "#mappings", data:{toggle: 'tab', target: '#mappings_content'}}
+              Class Mappings (
+              %span#mapping_count= @mappings.size
+              )
+          - if @enable_ontolobridge
+            %li#request_term_top.nav-item
+              %a.nav-link.py-1{:href => "#request_term", data:{toggle: 'tab', target: '#request_term'}}
+                New Term Requests
+          - if $PURL_ENABLED
+            = link_to("#classPermalinkModal", class: "class-permalink nav-link", title: "Get a permanent link to this class", aria: {label: "Get a permanent link to this class"}, data: {toggle: "modal", current_purl: "#{@current_purl}"}) do
+              %i{class: "fas fa-link", aria: {hidden: "true"}}
+        #contents.tab-content
+          #details_content.tab-pane.active.show
+            = render :partial =>'/concepts/details'
+          #visualization_content.tab-pane
+            = render :partial =>'/concepts/biomixer'
+          #notes_content.tab-pane
+            = render :partial =>'/notes/list'
+          #mappings_content.tab-pane
+            = render :partial => '/mappings/concept_mappings'
+          - if @enable_ontolobridge
+            #request_term_content.tab-pane
+              = render :partial =>'/concepts/request_term'
+%div.show-if-loading.align-self-center.my-auto
+  loading...
+:javascript
+  jQuery(document).ready(function(){
+
+    jQuery("#classPermalinkModal").on("shown.bs.modal", function (e) {
+      var currentPurl = jQuery("a.class-permalink").data("current-purl");
+      jQuery("#purl_input").val(currentPurl);
+    })
+
+    jQuery("#purl_input").on("click", function () {
+      jQuery(this).select();
+    });
+  });

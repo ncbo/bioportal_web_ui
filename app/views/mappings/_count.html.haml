@@ -17,3 +17,8 @@
                       class: 'facebox')
           %td
             = number_with_delimiter(mapping_count[:count], delimiter: ',')
+
+:javascript
+  $(document).ready(() => {
+    $("#mapping_count_table a.facebox").facebox()
+  })

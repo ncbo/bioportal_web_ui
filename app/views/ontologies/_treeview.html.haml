@@ -1,5 +1,11 @@
-#tree_wrapper
-  %ul.simpleTree
-    %li.root
-      %ul
-        = draw_tree(@root, @concept.id)  # application_helper::draw_tree
+= turbo_frame_tag 'concepts_tree_view' do
+  #tree_wrapper
+    %ul.simpleTree{data:{controller: 'simple-tree'}}
+      %li.root
+        %ul
+          = draw_tree(@root, @concept.id)  # application_helper::draw_tree
+
+  :javascript
+    jQuery(document).ready(function () {
+      jQuery("#sd_content").scrollTo(jQuery('a.active'));
+    })

@@ -153,6 +153,31 @@ module OntologiesHelper
     ontologies.present? ? ontologies.map { |ont| ont.acronym } : []
   end
 
+  def current_section
+    (params[:p]) ? params[:p] : 'summary'
+  end
+
+  def selected_section?(section_title)
+    current_section.eql?(section_title)
+  end
+
+  def lazy_load_section(section_title, &block)
+    render layout: 'ontologies/lazy_load_content',
+           locals: { current_section: current_section, section_title: section_title },
+           &block
+  end
+
+
+  def visits_chart_dataset(visits_data)
+    [{
+       label: 'Visits',
+       data: visits_data,
+       backgroundColor: 'rgba(151, 187, 205, 0.2)',
+       borderColor: 'rgba(151, 187, 205, 1)',
+       pointBorderColor: 'rgba(151, 187, 205, 1)',
+       pointBackgroundColor: 'rgba(151, 187, 205, 1)',
+     }].to_json
+  end
   def change_requests_enabled?(ontology_acronym)
     return false unless Rails.configuration.change_request[:ontologies].present?
 

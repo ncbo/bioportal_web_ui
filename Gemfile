@@ -100,6 +100,11 @@ group :development do
   gem 'rubocop', require: false
 
   # gem 'i18n-debug'
+  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
+  gem 'debug', platforms: %i[ mri mingw x64_mingw ]
+
+  # Use console on exceptions pages [https://github.com/rails/web-console]
+  gem 'web-console'
 end
 
 group :development, :test do
@@ -109,5 +114,8 @@ group :development, :test do
 end
 
 group :test do
+  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
+  gem 'selenium-webdriver'
+  gem 'webdrivers'
 end

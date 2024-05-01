@@ -1,4 +1,4 @@
-- content_section = (params[:p]) ? params[:p] : "summary"
+- content_section = current_section
 - concept_title = @concept.nil? ? "" : " - #{@concept.prefLabel} - Classes"
 - @title = "#{@ontology.name}#{concept_title}"
 
@@ -8,8 +8,8 @@
   - details_available = false
 
 = render :partial =>'layouts/header'
-
 %div#bd
+
 
   :javascript
     // Javascript History HTML5 API
@@ -36,6 +36,7 @@
     jQuery(document).data().bp.ont_viewer.purl_prefix = "#{(Rails.configuration.settings.purl[:enabled] ? Rails.configuration.settings.purl[:prefix]+"/"+@ontology.acronym : '')}";
     jQuery(document).data().bp.ont_viewer.concept_name_title = (jQuery(document).data().bp.ont_viewer.concept_name == "") ?
         "" : " - " + jQuery(document).data().bp.ont_viewer.concept_name;
+
 
   -# Modal dialog for creating a new mapping (must reside in a top-level position in the document to display properly).
   %div#createNewMappingModal{class: "modal fade", tabindex: "-1", "aria-labelledby": "createNewMappingLabel"}
@@ -105,6 +106,7 @@
     %div.col
       %div.card
         %div.card-header
+          - sections  = %w[summary classes properties notes mappings]
           -# Tabbed navigation bar for ontology content sections
           %ul.nav.nav-tabs.card-header-tabs{id: "navbar-ontology", role: "tablist"}
             %li{class: 'nav-item', role: 'presentation'}
@@ -140,31 +142,16 @@
                           data: {bp_ont_page: "widgets", "bs-toggle": "tab", "bs-target": "#ont_widgets_content"},
                           aria: {controls: "ont_widgets_content", selected: "false"})
         %div.card-body
-          -# Tab panes for displaying ontology content sections
           %div.tab-content{id: "ontology_content"}
-            %div.tab-pane{id: "ont_summary_content", role: "tabpanel", aria: {labelledby: "ont-summary-tab"}}
-              - if content_section.eql?("summary")
-                = yield
-            %div.tab-pane{id: "ont_classes_content", role: "tabpanel", aria: {labelledby: "ont-classes-tab"}}
-              - if content_section.eql?("classes")
-                = yield
-            %div.tab-pane{id: "ont_properties_content", role: "tabpanel", aria: {labelledby: "ont-properties-tab"}}
-              - if content_section.eql?("properties")
-                = yield
-            %div.tab-pane{id: "ont_notes_content", role: "tabpanel", aria: {labelledby: "ont-notes-tab"}}
-              - if content_section.eql?("notes")
-                = yield
-            %div.tab-pane{id: "ont_mappings_content", role: "tabpanel", aria: {labelledby: "ont-mappings-tab"}}
-              - if content_section.eql?("mappings")
-                = yield
-            %div.tab-pane{id: "ont_widgets_content", role: "tabpanel", aria: {labelledby: "ont-widgets-tab"}}
-              - if content_section.eql?("widgets")
-                = yield
-
+            - sections.each do |section|
+              %div.tab-pane{id: "ont_#{section}_content", class: selected_section?(section) ? 'active show' : ''}
+                = lazy_load_section(section) do
+                  = yield
 - if Rails.env.appliance?
   </main>
   = render partial: "footer_appliance"
-  = javascript_include_tag "application"
+  = javascript_include_tag "application", "data-turbo-track": "reload"
+  = render partial: "ga_tracking"
 - else
   = render partial: "layouts/footer"
 

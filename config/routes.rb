@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   resources :concepts
 
+  get 'ontologies/:ontology_id/concepts', to: 'concepts#show_concept'
   resources :ontologies do
     resources :submissions
   end
