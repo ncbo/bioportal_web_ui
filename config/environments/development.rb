@@ -64,6 +64,9 @@ Rails.application.configure do
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
+  # Turn digests off
+  config.assets.digest = false
+
   # memcache setup
   config.cache_store = ActiveSupport::Cache::MemCacheStore.new('localhost', namespace: 'BioPortal')
 

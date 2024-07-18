@@ -36,7 +36,7 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'bootsnap', require: false
 
 # Use Sass to process CSS
-gem 'sassc-rails'
+gem 'dartsass-rails', '~> 0.5.0'
 
 gem 'bootstrap', '~> 5.2.3'
 gem 'chart-js-rails'
