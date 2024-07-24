@@ -138,6 +138,7 @@ module NotesHelper
     end
 
     # Init subscribe button parameters.
+    user = LinkedData::Client::Models::User.find(session[:user].id)
     sub_text = "Subscribe"
     params = "data-bp_ontology_id='#{ontology_id}' data-bp_is_subbed='false' data-bp_user_id='#{user.id}'"
     begin

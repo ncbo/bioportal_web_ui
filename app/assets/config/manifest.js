@@ -5,3 +5,5 @@
 //= link bp_annotatorplus.js
 //= link vendor.js
 //= link_directory ../stylesheets .css
+
+//= link_directory ../javascripts .js
