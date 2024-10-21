@@ -1,0 +1,118 @@
+agent1:
+  name: "John Doe"
+  agentType: "person"
+  email: "jonh@test.com"
+  identifiers:
+    - notation: "0000-0001-2345-6789"
+  affiliations:
+    - name: "Research Institute X"
+      agentType: "organization"
+      identifiers:
+        - notation: "1234-5678"
+      affiliations: [ ]
+      email: "x@example.com"
+      acronym: "RI-X"
+      homepage: "https://www.rix-institute.org/"
+
+    - name: "Research Institute Y"
+      agentType: "organization"
+      identifiers:
+        - notation: "1234-5679"
+      affiliations: [ ]
+      email: "y@example.com"
+      acronym: "RI-Y"
+      homepage: "https://www.riy-institute.org/"
+
+agent2:
+  name: "Alice Smith"
+  agentType: "person"
+  identifiers:
+    - notation: "0000-0002-9876-5432"
+  affiliations:
+    - name: "Tech Innovators Ltd."
+      agentType: "organization"
+      identifiers:
+        - notation: "9876-5432"
+      affiliations: [ ]
+      email: "alice.smith@example.com"
+      acronym: "TI Ltd."
+      homepage: "https://www.techinnovators.com/"
+
+agent3:
+  name: "Robert Johnson"
+  agentType: "person"
+  identifiers:
+    - schemaAgency: "ORCID"
+      notation: "0000-0003-4567-8901"
+  affiliations:
+    - name: "Science Hub Inc."
+      agentType: "organization"
+      identifiers:
+        - schemaAgency: "ROR"
+          notation: "3456-7890"
+      affiliations: [ ]
+      email: "robert.johnson@example.com"
+      acronym: "SH Inc."
+      homepage: "https://www.sciencehubinc.com/"
+
+agent4:
+  name: "Emily Brown"
+  agentType: "person"
+  identifiers:
+    - schemaAgency: "ORCID"
+      notation: "0000-0004-5678-9012"
+  affiliations:
+    - name: "Health Solutions Co."
+      agentType: "organization"
+      identifiers:
+        - schemaAgency: "ROR"
+          notation: "5678-9012"
+      affiliations: [ ]
+      email: "emily.brown@example.com"
+      acronym: "HSC"
+      homepage: "https://www.healthsolutionsco.com/"
+
+agent5:
+  name: "Michael Taylor"
+  agentType: "person"
+  identifiers:
+    - schemaAgency: "ORCID"
+      notation: "0000-0005-6789-0123"
+  affiliations:
+    - name: "Environmental Research Foundation"
+      creator:
+      agentType: "organization"
+      identifiers:
+        - schemaAgency: "ROR"
+          notation: "6789-0123"
+      affiliations: [ ]
+      email: "michael.taylor@example.com"
+      acronym: "ERF"
+      homepage: "https://www.enviro-research.org/"
+
+organization1:
+    name: "Tech Solutions Group"
+    agentType: "organization"
+    identifiers:
+        - notation: "1234-5678"
+    email: "info@techsolutionsgroup.com"
+    acronym: "TSG"
+    homepage: "https://www.techsolutionsgroup.com/"
+
+organization2:
+  name: "Quantum Dynamics Solutions"
+  agentType: "organization"
+  identifiers:
+    - notation: "5678-9012"
+  email: "info@quantumdynamics.com"
+  acronym: "QDS"
+  homepage: "https://www.quantumdynamics.com/"
+
+organization3:
+  name: "BioTech Solutions Inc."
+  agentType: "organization"
+  identifiers:
+    - notation: "2345-6789"
+  email: "info@biotechsolutions.com"
+  acronym: "BSI"
+  homepage: "https://www.biotechsolutions.com/"

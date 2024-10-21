@@ -1,0 +1,17 @@
+group1:
+  acronym: "GRP1"
+  name: "Group One"
+  description: "This is the first group."
+  ontologies:
+
+group2:
+  acronym: "GRP2"
+  name: "Group Two"
+  description: "This is the second group."
+  ontologies:
+
+group3:
+  acronym: "GRP3"
+  name: "Group Three"
+  description: "This is the third group."
+  ontologies:

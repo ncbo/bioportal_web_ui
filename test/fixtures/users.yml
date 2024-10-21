@@ -1,0 +1,30 @@
+admin:
+  username: johndoe
+  email: admin@example.com
+  password: password
+john:
+  firstName: John
+  lastName: Doe
+  username: johndoe
+  orcidId: '0000-0001-2345-6789'
+  githubId: 'johndoe_github'
+  email: john.doe@example.com
+  password: password
+
+jane:
+  firstName: Jane
+  lastName: Smith
+  username: janesmith
+  orcidId: '0000-0002-3456-7890'
+  githubId: 'janesmith_github'
+  email: jane.smith@example.com
+  password: password
+
+bob:
+  firstName: Bob
+  lastName: Jones
+  username: bobjones
+  orcidId: '0000-0003-4567-8901'
+  githubId: 'bobjones_github'
+  email: bob.jones@example.com
+  password: password

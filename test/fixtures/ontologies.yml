@@ -1,0 +1,147 @@
+ontology1:
+  acronym: "ONT1"
+  name: "Ontology One"
+  notes: "This is the first ontology."
+  administeredBy:
+  group:
+  viewingRestriction: "public"
+  hasDomain:
+  summaryOnly: false
+  acl:
+
+ontology2:
+  acronym: "ONT2"
+  name: "Ontology Two"
+  notes: "This is the second ontology."
+  administeredBy:
+  group:
+  viewingRestriction: "private"
+  hasDomain:
+  acl:
+
+ontology3:
+  acronym: "ONT3"
+  name: "Ontology Three"
+  notes: "This is the third ontology."
+  administeredBy:
+  group:
+  viewingRestriction: "public"
+  doNotUpdate: false
+  hasDomain:
+  acl:
+
+ontology4:
+  acronym: "ONT4"
+  name: "Ontology Four"
+  notes: "This is the fourth ontology."
+  administeredBy:
+  group:
+  viewingRestriction: "public"
+  hasDomain:
+  summaryOnly: true
+  acl:
+
+ontology_private:
+  acronym: "ontology_private"
+  name: "Ontology private"
+  notes: "This is the fourth ontology."
+  administeredBy:
+  group:
+  viewingRestriction: "private"
+  hasDomain:
+  acl:
+
+ontology_view:
+  acronym: "ontology_view"
+  name: "View of ONT1"
+  notes: "This is a view ontology."
+  administeredBy:
+  group:
+  viewingRestriction: "public"
+  hasDomain:
+  acl:
+  viewOf: "ONT1"
+
+resource_content_formats:
+  json:
+    "@context":
+      ns0: "http://purl.bioontology.org/ontology/STY/"
+      rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      owl: "http://www.w3.org/2002/07/owl#"
+      rdfs: "http://www.w3.org/2000/01/rdf-schema#"
+      skos: "http://www.w3.org/2004/02/skos/core#"
+      metadata_def: "http://data.bioontology.org/metadata/def/"
+    "@graph":
+      - "@id": "ns0:T071"
+        "@type": "owl:Class"
+        "rdfs:subClassOf":
+          "@id": "owl:Thing"
+        "skos:prefLabel":
+          "@value": "Entity"
+          "@language": "en"
+        "skos:notation": "T071"
+        "metadata_def:mappingSameURI":
+          "@id": "ns0:T071"
+        "metadata_def:mappingLoom": "entity"
+      - "@id": "ns0:T072"
+        "rdfs:subClassOf":
+          "@id": "ns0:T071"
+      - "@id": "ns0:T077"
+        "rdfs:subClassOf":
+          "@id": "ns0:T071"
+  
+  xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ns0="http://purl.bioontology.org/ontology/STY/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:metadata_def="http://data.bioontology.org/metadata/def/">
+      <owl:Class rdf:about="http://purl.bioontology.org/ontology/STY/T071">
+        <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
+        <skos:prefLabel xml:lang="en">Entity</skos:prefLabel>
+        <skos:notation>T071</skos:notation>
+        <metadata_def:mappingSameURI rdf:resource="http://purl.bioontology.org/ontology/STY/T071"/>
+        <metadata_def:mappingLoom>entity</metadata_def:mappingLoom>
+      </owl:Class>
+      <rdf:Description rdf:about="http://purl.bioontology.org/ontology/STY/T072">
+        <rdfs:subClassOf>
+          <rdf:Description rdf:about="http://purl.bioontology.org/ontology/STY/T071">
+            <metadata_def:mappingSameURI rdf:resource="http://purl.bioontology.org/ontology/STY/T071"/>
+          </rdf:Description>
+        </rdfs:subClassOf>
+      </rdf:Description>
+      <rdf:Description rdf:about="http://purl.bioontology.org/ontology/STY/T077">
+        <rdfs:subClassOf rdf:resource="http://purl.bioontology.org/ontology/STY/T071"/>
+      </rdf:Description>
+    </rdf:RDF>
+  
+  ntriples: |
+    <http://purl.bioontology.org/ontology/STY/T071> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+    <http://purl.bioontology.org/ontology/STY/T071> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2002/07/owl#Thing> .
+    <http://purl.bioontology.org/ontology/STY/T071> <http://www.w3.org/2004/02/skos/core#prefLabel> "Entity"@en .
+    <http://purl.bioontology.org/ontology/STY/T071> <http://www.w3.org/2004/02/skos/core#notation> "T071" .
+    <http://purl.bioontology.org/ontology/STY/T071> <http://data.bioontology.org/metadata/def/mappingSameURI> <http://purl.bioontology.org/ontology/STY/T071> .
+    <http://purl.bioontology.org/ontology/STY/T071> <http://data.bioontology.org/metadata/def/mappingLoom> "entity" .
+    <http://purl.bioontology.org/ontology/STY/T072> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://purl.bioontology.org/ontology/STY/T071> .
+    <http://purl.bioontology.org/ontology/STY/T077> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://purl.bioontology.org/ontology/STY/T071> .
+    <http://purl.bioontology.org/ontology/STY/T071> <http://data.bioontology.org/metadata/def/mappingSameURI> <http://purl.bioontology.org/ontology/STY/T071> .
+
+  
+  turtle: |
+    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    @prefix ns0: <http://purl.bioontology.org/ontology/STY/> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+    @prefix metadata_def: <http://data.bioontology.org/metadata/def/> .
+
+    ns0:T071
+        metadata_def:mappingLoom "entity" ;
+        metadata_def:mappingSameURI ns0:T071 ;
+        a owl:Class ;
+        rdfs:subClassOf owl:Thing ;
+        skos:notation "T071" ;
+        skos:prefLabel "Entity"@en .
+
+    ns0:T072
+        rdfs:subClassOf ns0:T071 .
+
+    ns0:T077
+        rdfs:subClassOf ns0:T071 .

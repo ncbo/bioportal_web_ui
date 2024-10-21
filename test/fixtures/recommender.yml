@@ -1,0 +1,698 @@
+yaml_structure: regular
+sample_response:
+  - evaluationScore: 0.64
+    ontologies:
+    - acronym: INRAETHES
+      "@id": https://data.stageportal.lirmm.fr/ontologies/INRAETHES
+      "@type": http://data.bioontology.org/metadata/Ontology
+      links:
+        submissions: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/submissions
+        properties: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/properties
+        classes: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes
+        single_class: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/{class_id}
+        roots: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/roots
+        schemes: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/schemes
+        collections: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/collections
+        xl_labels: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/skos_xl_labels
+        instances: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/instances
+        metrics: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/metrics
+        reviews: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/reviews
+        notes: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/notes
+        groups: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/groups
+        categories: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/categories
+        latest_submission: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/latest_submission
+        projects: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/projects
+        download: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/download
+        views: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/views
+        analytics: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/analytics
+        ui: http://stageportal.lirmm.fr/ontologies/INRAETHES
+        "@context":
+          submissions: http://data.bioontology.org/metadata/OntologySubmission
+          properties: http://data.bioontology.org/metadata/Property
+          classes: http://www.w3.org/2002/07/owl#Class
+          single_class: http://www.w3.org/2002/07/owl#Class
+          roots: http://www.w3.org/2002/07/owl#Class
+          schemes: http://www.w3.org/2004/02/skos/core#ConceptScheme
+          collections: http://www.w3.org/2004/02/skos/core#Collection
+          xl_labels: http://www.w3.org/2008/05/skos-xl#Label
+          instances: http://data.bioontology.org/metadata/Instance
+          metrics: http://data.bioontology.org/metadata/Metrics
+          reviews: http://data.bioontology.org/metadata/Review
+          notes: http://data.bioontology.org/metadata/Note
+          groups: http://data.bioontology.org/metadata/Group
+          categories: http://data.bioontology.org/metadata/Category
+          latest_submission: http://data.bioontology.org/metadata/OntologySubmission
+          projects: http://data.bioontology.org/metadata/Project
+          download: http://data.bioontology.org/metadata/Ontology
+          views: http://data.bioontology.org/metadata/Ontology
+          analytics: http://data.bioontology.org/metadata/Analytics
+          ui: http://data.bioontology.org/metadata/Ontology
+      "@context":
+        "@vocab": http://data.bioontology.org/metadata/
+        acronym: http://omv.ontoware.org/2005/05/ontology#acronym
+        "@language": en
+    coverageResult:
+      score: 50
+      normalizedScore: 0.909
+      numberTermsCovered: 5
+      numberWordsCovered: 5
+      annotations:
+      - from: 1
+        to: 8
+        matchType: PREF
+        text: MELANOMA
+        annotatedClass:
+          "@id": http://opendata.inrae.fr/thesaurusINRAE/c_11970
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970
+            ontology: https://data.stageportal.lirmm.fr/ontologies/INRAETHES
+            children: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/INRAETHES?p=classes&conceptid=http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 0
+      - from: 25
+        to: 29
+        matchType: PREF
+        text: TUMOR
+        annotatedClass:
+          "@id": http://opendata.inrae.fr/thesaurusINRAE/c_11887
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887
+            ontology: https://data.stageportal.lirmm.fr/ontologies/INRAETHES
+            children: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/INRAETHES?p=classes&conceptid=http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 0
+      - from: 66
+        to: 69
+        matchType: PREF
+        text: SKIN
+        annotatedClass:
+          "@id": http://opendata.inrae.fr/thesaurusINRAE/c_8606
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8606
+            ontology: https://data.stageportal.lirmm.fr/ontologies/INRAETHES
+            children: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8606/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8606/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8606/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8606/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8606/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8606/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8606/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8606/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/INRAETHES?p=classes&conceptid=http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8606
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 0
+      - from: 87
+        to: 95
+        matchType: PREF
+        text: INTESTINE
+        annotatedClass:
+          "@id": http://opendata.inrae.fr/thesaurusINRAE/c_8817
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8817
+            ontology: https://data.stageportal.lirmm.fr/ontologies/INRAETHES
+            children: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8817/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8817/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8817/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8817/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8817/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8817/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8817/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8817/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/INRAETHES?p=classes&conceptid=http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_8817
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 0
+      - from: 105
+        to: 107
+        matchType: PREF
+        text: EYE
+        annotatedClass:
+          "@id": http://opendata.inrae.fr/thesaurusINRAE/c_9169
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_9169
+            ontology: https://data.stageportal.lirmm.fr/ontologies/INRAETHES
+            children: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_9169/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_9169/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_9169/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_9169/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_9169/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_9169/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_9169/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_9169/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/INRAETHES?p=classes&conceptid=http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_9169
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 0
+    specializationResult:
+      score: 11.832
+      normalizedScore: 0.932
+    acceptanceResult:
+      normalizedScore: 0
+      bioportalScore: 0
+      umlsScore: 0
+    detailResult:
+      normalizedScore: 0
+      definitionsScore: 0
+      synonymsScore: 0
+      propertiesScore: 0
+  - evaluationScore: 0.4
+    ontologies:
+    - acronym: PATO
+      "@id": https://data.stageportal.lirmm.fr/ontologies/PATO
+      "@type": http://data.bioontology.org/metadata/Ontology
+      links:
+        submissions: https://data.stageportal.lirmm.fr/ontologies/PATO/submissions
+        properties: https://data.stageportal.lirmm.fr/ontologies/PATO/properties
+        classes: https://data.stageportal.lirmm.fr/ontologies/PATO/classes
+        single_class: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/{class_id}
+        roots: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/roots
+        schemes: https://data.stageportal.lirmm.fr/ontologies/PATO/schemes
+        collections: https://data.stageportal.lirmm.fr/ontologies/PATO/collections
+        xl_labels: https://data.stageportal.lirmm.fr/ontologies/PATO/skos_xl_labels
+        instances: https://data.stageportal.lirmm.fr/ontologies/PATO/instances
+        metrics: https://data.stageportal.lirmm.fr/ontologies/PATO/metrics
+        reviews: https://data.stageportal.lirmm.fr/ontologies/PATO/reviews
+        notes: https://data.stageportal.lirmm.fr/ontologies/PATO/notes
+        groups: https://data.stageportal.lirmm.fr/ontologies/PATO/groups
+        categories: https://data.stageportal.lirmm.fr/ontologies/PATO/categories
+        latest_submission: https://data.stageportal.lirmm.fr/ontologies/PATO/latest_submission
+        projects: https://data.stageportal.lirmm.fr/ontologies/PATO/projects
+        download: https://data.stageportal.lirmm.fr/ontologies/PATO/download
+        views: https://data.stageportal.lirmm.fr/ontologies/PATO/views
+        analytics: https://data.stageportal.lirmm.fr/ontologies/PATO/analytics
+        ui: http://stageportal.lirmm.fr/ontologies/PATO
+        "@context":
+          submissions: http://data.bioontology.org/metadata/OntologySubmission
+          properties: http://data.bioontology.org/metadata/Property
+          classes: http://www.w3.org/2002/07/owl#Class
+          single_class: http://www.w3.org/2002/07/owl#Class
+          roots: http://www.w3.org/2002/07/owl#Class
+          schemes: http://www.w3.org/2004/02/skos/core#ConceptScheme
+          collections: http://www.w3.org/2004/02/skos/core#Collection
+          xl_labels: http://www.w3.org/2008/05/skos-xl#Label
+          instances: http://data.bioontology.org/metadata/Instance
+          metrics: http://data.bioontology.org/metadata/Metrics
+          reviews: http://data.bioontology.org/metadata/Review
+          notes: http://data.bioontology.org/metadata/Note
+          groups: http://data.bioontology.org/metadata/Group
+          categories: http://data.bioontology.org/metadata/Category
+          latest_submission: http://data.bioontology.org/metadata/OntologySubmission
+          projects: http://data.bioontology.org/metadata/Project
+          download: http://data.bioontology.org/metadata/Ontology
+          views: http://data.bioontology.org/metadata/Ontology
+          analytics: http://data.bioontology.org/metadata/Analytics
+          ui: http://data.bioontology.org/metadata/Ontology
+      "@context":
+        "@vocab": http://data.bioontology.org/metadata/
+        acronym: http://omv.ontoware.org/2005/05/ontology#acronym
+        "@language": en
+    coverageResult:
+      score: 25
+      normalizedScore: 0.455
+      numberTermsCovered: 3
+      numberWordsCovered: 3
+      annotations:
+      - from: 66
+        to: 69
+        matchType: SYN
+        text: SKIN
+        annotatedClass:
+          "@id": http://purl.obolibrary.org/obo/UBERON_0002097
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0002097
+            ontology: https://data.stageportal.lirmm.fr/ontologies/PATO
+            children: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0002097/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0002097/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0002097/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0002097/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0002097/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0002097/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0002097/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0002097/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/PATO?p=classes&conceptid=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0002097
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 8
+      - from: 87
+        to: 95
+        matchType: PREF
+        text: INTESTINE
+        annotatedClass:
+          "@id": http://purl.obolibrary.org/obo/UBERON_0000160
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000160
+            ontology: https://data.stageportal.lirmm.fr/ontologies/PATO
+            children: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000160/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000160/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000160/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000160/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000160/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000160/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000160/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000160/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/PATO?p=classes&conceptid=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000160
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 0
+      - from: 105
+        to: 107
+        matchType: PREF
+        text: EYE
+        annotatedClass:
+          "@id": http://purl.obolibrary.org/obo/UBERON_0000970
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000970
+            ontology: https://data.stageportal.lirmm.fr/ontologies/PATO
+            children: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000970/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000970/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000970/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000970/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000970/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000970/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000970/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/PATO/classes/http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000970/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/PATO?p=classes&conceptid=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FUBERON_0000970
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 5
+    specializationResult:
+      score: 12.689
+      normalizedScore: 1
+    acceptanceResult:
+      normalizedScore: 0
+      bioportalScore: 0
+      umlsScore: 0
+    detailResult:
+      normalizedScore: 0
+      definitionsScore: 0
+      synonymsScore: 0
+      propertiesScore: 0
+  - evaluationScore: 0.269
+    ontologies:
+    - acronym: EUROSCIVOC
+      "@id": https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC
+      "@type": http://data.bioontology.org/metadata/Ontology
+      links:
+        submissions: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/submissions
+        properties: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/properties
+        classes: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes
+        single_class: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/{class_id}
+        roots: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/roots
+        schemes: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/schemes
+        collections: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/collections
+        xl_labels: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/skos_xl_labels
+        instances: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/instances
+        metrics: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/metrics
+        reviews: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/reviews
+        notes: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/notes
+        groups: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/groups
+        categories: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/categories
+        latest_submission: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/latest_submission
+        projects: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/projects
+        download: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/download
+        views: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/views
+        analytics: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/analytics
+        ui: http://stageportal.lirmm.fr/ontologies/EUROSCIVOC
+        "@context":
+          submissions: http://data.bioontology.org/metadata/OntologySubmission
+          properties: http://data.bioontology.org/metadata/Property
+          classes: http://www.w3.org/2002/07/owl#Class
+          single_class: http://www.w3.org/2002/07/owl#Class
+          roots: http://www.w3.org/2002/07/owl#Class
+          schemes: http://www.w3.org/2004/02/skos/core#ConceptScheme
+          collections: http://www.w3.org/2004/02/skos/core#Collection
+          xl_labels: http://www.w3.org/2008/05/skos-xl#Label
+          instances: http://data.bioontology.org/metadata/Instance
+          metrics: http://data.bioontology.org/metadata/Metrics
+          reviews: http://data.bioontology.org/metadata/Review
+          notes: http://data.bioontology.org/metadata/Note
+          groups: http://data.bioontology.org/metadata/Group
+          categories: http://data.bioontology.org/metadata/Category
+          latest_submission: http://data.bioontology.org/metadata/OntologySubmission
+          projects: http://data.bioontology.org/metadata/Project
+          download: http://data.bioontology.org/metadata/Ontology
+          views: http://data.bioontology.org/metadata/Ontology
+          analytics: http://data.bioontology.org/metadata/Analytics
+          ui: http://data.bioontology.org/metadata/Ontology
+      "@context":
+        "@vocab": http://data.bioontology.org/metadata/
+        acronym: http://omv.ontoware.org/2005/05/ontology#acronym
+        "@language": en
+    coverageResult:
+      score: 15
+      normalizedScore: 0.273
+      numberTermsCovered: 2
+      numberWordsCovered: 2
+      annotations:
+      - from: 1
+        to: 8
+        matchType: PREF
+        text: MELANOMA
+        annotatedClass:
+          "@id": http://data.europa.eu/8mn/euroscivoc/276b8c99-a318-48df-aa31-1f9f3e0ba910
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910
+            ontology: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC
+            children: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/EUROSCIVOC?p=classes&conceptid=http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 0
+      - from: 34
+        to: 44
+        matchType: SYN
+        text: MELANOCYTES
+        annotatedClass:
+          "@id": http://data.europa.eu/8mn/euroscivoc/276b8c99-a318-48df-aa31-1f9f3e0ba910
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910
+            ontology: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC
+            children: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/EUROSCIVOC?p=classes&conceptid=http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 0
+    specializationResult:
+      score: 3.732
+      normalizedScore: 0.294
+    acceptanceResult:
+      normalizedScore: 0.5
+      bioportalScore: 0
+      umlsScore: 1
+    detailResult:
+      normalizedScore: 0
+      definitionsScore: 0
+      synonymsScore: 0
+      propertiesScore: 0
+  - evaluationScore: 0.239
+    ontologies:
+    - acronym: AGROVOC
+      "@id": https://data.stageportal.lirmm.fr/ontologies/AGROVOC
+      "@type": http://data.bioontology.org/metadata/Ontology
+      links:
+        submissions: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/submissions
+        properties: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/properties
+        classes: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes
+        single_class: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/{class_id}
+        roots: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/roots
+        schemes: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/schemes
+        collections: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/collections
+        xl_labels: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/skos_xl_labels
+        instances: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/instances
+        metrics: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/metrics
+        reviews: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/reviews
+        notes: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/notes
+        groups: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/groups
+        categories: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/categories
+        latest_submission: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/latest_submission
+        projects: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/projects
+        download: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/download
+        views: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/views
+        analytics: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/analytics
+        ui: http://stageportal.lirmm.fr/ontologies/AGROVOC
+        "@context":
+          submissions: http://data.bioontology.org/metadata/OntologySubmission
+          properties: http://data.bioontology.org/metadata/Property
+          classes: http://www.w3.org/2002/07/owl#Class
+          single_class: http://www.w3.org/2002/07/owl#Class
+          roots: http://www.w3.org/2002/07/owl#Class
+          schemes: http://www.w3.org/2004/02/skos/core#ConceptScheme
+          collections: http://www.w3.org/2004/02/skos/core#Collection
+          xl_labels: http://www.w3.org/2008/05/skos-xl#Label
+          instances: http://data.bioontology.org/metadata/Instance
+          metrics: http://data.bioontology.org/metadata/Metrics
+          reviews: http://data.bioontology.org/metadata/Review
+          notes: http://data.bioontology.org/metadata/Note
+          groups: http://data.bioontology.org/metadata/Group
+          categories: http://data.bioontology.org/metadata/Category
+          latest_submission: http://data.bioontology.org/metadata/OntologySubmission
+          projects: http://data.bioontology.org/metadata/Project
+          download: http://data.bioontology.org/metadata/Ontology
+          views: http://data.bioontology.org/metadata/Ontology
+          analytics: http://data.bioontology.org/metadata/Analytics
+          ui: http://data.bioontology.org/metadata/Ontology
+      "@context":
+        "@vocab": http://data.bioontology.org/metadata/
+        acronym: http://omv.ontoware.org/2005/05/ontology#acronym
+        "@language": en
+    coverageResult:
+      score: 20
+      normalizedScore: 0.364
+      numberTermsCovered: 2
+      numberWordsCovered: 2
+      annotations:
+      - from: 1
+        to: 8
+        matchType: PREF
+        text: MELANOMA
+        annotatedClass:
+          "@id": http://aims.fao.org/aos/agrovoc/c_4713
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713
+            ontology: https://data.stageportal.lirmm.fr/ontologies/AGROVOC
+            children: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/AGROVOC?p=classes&conceptid=http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 0
+      - from: 66
+        to: 69
+        matchType: PREF
+        text: SKIN
+        annotatedClass:
+          "@id": http://aims.fao.org/aos/agrovoc/c_7097
+          "@type": http://www.w3.org/2002/07/owl#Class
+          links:
+            self: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_7097
+            ontology: https://data.stageportal.lirmm.fr/ontologies/AGROVOC
+            children: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_7097/children
+            parents: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_7097/parents
+            descendants: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_7097/descendants
+            ancestors: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_7097/ancestors
+            instances: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_7097/instances
+            tree: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_7097/tree
+            notes: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_7097/notes
+            mappings: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_7097/mappings
+            ui: http://stageportal.lirmm.fr/ontologies/AGROVOC?p=classes&conceptid=http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_7097
+            "@context":
+              self: http://www.w3.org/2002/07/owl#Class
+              ontology: http://data.bioontology.org/metadata/Ontology
+              children: http://www.w3.org/2002/07/owl#Class
+              parents: http://www.w3.org/2002/07/owl#Class
+              descendants: http://www.w3.org/2002/07/owl#Class
+              ancestors: http://www.w3.org/2002/07/owl#Class
+              instances: http://data.bioontology.org/metadata/Instance
+              tree: http://www.w3.org/2002/07/owl#Class
+              notes: http://data.bioontology.org/metadata/Note
+              mappings: http://data.bioontology.org/metadata/Mapping
+              ui: http://www.w3.org/2002/07/owl#Class
+          "@context":
+            "@vocab": http://data.bioontology.org/metadata/
+            "@language": en
+        hierarchySize: 0
+    specializationResult:
+      score: 3.315
+      normalizedScore: 0.261
+    acceptanceResult:
+      normalizedScore: 0
+      bioportalScore: 0
+      umlsScore: 0
+    detailResult:
+      normalizedScore: 0
+      definitionsScore: 0
+      synonymsScore: 0
+      propertiesScore: 0

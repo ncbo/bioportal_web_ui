@@ -1,0 +1,181 @@
+yaml_structure: regular
+sample_response:
+  - annotatedClass:
+      prefLabel: Melanom
+      synonym:
+      - cilt kanseri
+      "@id": http://aims.fao.org/aos/agrovoc/c_4713
+      "@type": http://www.w3.org/2002/07/owl#Class
+      links:
+        self: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713
+        ontology: http://localhost:9393/ontologies/STY
+        children: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/children
+        parents: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/parents
+        descendants: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/descendants
+        ancestors: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/ancestors
+        instances: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/instances
+        tree: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/tree
+        notes: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/notes
+        mappings: https://data.stageportal.lirmm.fr/ontologies/AGROVOC/classes/http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713/mappings
+        ui: http://stageportal.lirmm.fr/ontologies/AGROVOC?p=classes&conceptid=http%3A%2F%2Faims.fao.org%2Faos%2Fagrovoc%2Fc_4713
+        "@context":
+          self: http://www.w3.org/2002/07/owl#Class
+          ontology: http://localhost:9393/ontologies/STY
+          children: http://www.w3.org/2002/07/owl#Class
+          parents: http://www.w3.org/2002/07/owl#Class
+          descendants: http://www.w3.org/2002/07/owl#Class
+          ancestors: http://www.w3.org/2002/07/owl#Class
+          instances: http://data.bioontology.org/metadata/Instance
+          tree: http://www.w3.org/2002/07/owl#Class
+          notes: http://data.bioontology.org/metadata/Note
+          mappings: http://data.bioontology.org/metadata/Mapping
+          ui: http://www.w3.org/2002/07/owl#Class
+      "@context":
+        "@vocab": http://data.bioontology.org/metadata/
+        prefLabel: http://www.w3.org/2004/02/skos/core#prefLabel
+        synonym: http://www.w3.org/2004/02/skos/core#altLabel
+        "@language": en
+    hierarchy: []
+    annotations:
+    - from: 1
+      to: 8
+      matchType: PREF
+      text: MELANOMA
+    mappings: []
+  - annotatedClass:
+      prefLabel: Melanom
+      synonym:
+      - malignant melanoma
+      - melanoma patient
+      - melanocytes
+      "@id": http://data.europa.eu/8mn/euroscivoc/276b8c99-a318-48df-aa31-1f9f3e0ba910
+      "@type": http://www.w3.org/2002/07/owl#Class
+      links:
+        self: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910
+        ontology: http://localhost:9393/ontologies/STY
+        children: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/children
+        parents: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/parents
+        descendants: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/descendants
+        ancestors: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/ancestors
+        instances: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/instances
+        tree: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/tree
+        notes: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/notes
+        mappings: https://data.stageportal.lirmm.fr/ontologies/EUROSCIVOC/classes/http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910/mappings
+        ui: http://stageportal.lirmm.fr/ontologies/EUROSCIVOC?p=classes&conceptid=http%3A%2F%2Fdata.europa.eu%2F8mn%2Feuroscivoc%2F276b8c99-a318-48df-aa31-1f9f3e0ba910
+        "@context":
+          self: http://www.w3.org/2002/07/owl#Class
+          ontology: http://localhost:9393/ontologies/STY
+          children: http://www.w3.org/2002/07/owl#Class
+          parents: http://www.w3.org/2002/07/owl#Class
+          descendants: http://www.w3.org/2002/07/owl#Class
+          ancestors: http://www.w3.org/2002/07/owl#Class
+          instances: http://data.bioontology.org/metadata/Instance
+          tree: http://www.w3.org/2002/07/owl#Class
+          notes: http://data.bioontology.org/metadata/Note
+          mappings: http://data.bioontology.org/metadata/Mapping
+          ui: http://www.w3.org/2002/07/owl#Class
+      "@context":
+        "@vocab": http://data.bioontology.org/metadata/
+        prefLabel: http://www.w3.org/2004/02/skos/core#prefLabel
+        synonym: http://www.w3.org/2004/02/skos/core#altLabel
+        "@language": en
+    hierarchy: []
+    annotations:
+    - from: 1
+      to: 8
+      matchType: PREF
+      text: MELANOMA
+    - from: 34
+      to: 44
+      matchType: SYN
+      text: MELANOCYTES
+    mappings: []
+  - annotatedClass:
+      definition:
+      - http://opendata.inrae.fr/thesaurusINRAE/note_f18c0fe1
+      prefLabel: mélanome
+      synonym:
+      - malignant melanoma
+      - mélanome malin
+      "@id": http://opendata.inrae.fr/thesaurusINRAE/c_11970
+      "@type": http://www.w3.org/2002/07/owl#Class
+      links:
+        self: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970
+        ontology: http://localhost:9393/ontologies/STY
+        children: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/children
+        parents: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/parents
+        descendants: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/descendants
+        ancestors: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/ancestors
+        instances: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/instances
+        tree: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/tree
+        notes: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/notes
+        mappings: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970/mappings
+        ui: http://stageportal.lirmm.fr/ontologies/INRAETHES?p=classes&conceptid=http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11970
+        "@context":
+          self: http://www.w3.org/2002/07/owl#Class
+          ontology: http://localhost:9393/ontologies/STY
+          children: http://www.w3.org/2002/07/owl#Class
+          parents: http://www.w3.org/2002/07/owl#Class
+          descendants: http://www.w3.org/2002/07/owl#Class
+          ancestors: http://www.w3.org/2002/07/owl#Class
+          instances: http://data.bioontology.org/metadata/Instance
+          tree: http://www.w3.org/2002/07/owl#Class
+          notes: http://data.bioontology.org/metadata/Note
+          mappings: http://data.bioontology.org/metadata/Mapping
+          ui: http://www.w3.org/2002/07/owl#Class
+      "@context":
+        "@vocab": http://data.bioontology.org/metadata/
+        prefLabel: http://www.w3.org/2004/02/skos/core#prefLabel
+        synonym: http://www.w3.org/2004/02/skos/core#altLabel
+        definition: http://www.w3.org/2004/02/skos/core#definition
+        "@language": en
+    hierarchy: []
+    annotations:
+    - from: 1
+      to: 8
+      matchType: PREF
+      text: MELANOMA
+    mappings: []
+  - annotatedClass:
+      prefLabel: tumeur
+      synonym:
+      - néoplasme
+      - néoplasie
+      "@id": http://opendata.inrae.fr/thesaurusINRAE/c_11887
+      "@type": http://www.w3.org/2002/07/owl#Class
+      links:
+        self: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887
+        ontology: http://localhost:9393/ontologies/STY
+        children: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/children
+        parents: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/parents
+        descendants: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/descendants
+        ancestors: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/ancestors
+        instances: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/instances
+        tree: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/tree
+        notes: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/notes
+        mappings: https://data.stageportal.lirmm.fr/ontologies/INRAETHES/classes/http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887/mappings
+        ui: http://stageportal.lirmm.fr/ontologies/INRAETHES?p=classes&conceptid=http%3A%2F%2Fopendata.inrae.fr%2FthesaurusINRAE%2Fc_11887
+        "@context":
+          self: http://www.w3.org/2002/07/owl#Class
+          ontology: http://localhost:9393/ontologies/STY
+          children: http://www.w3.org/2002/07/owl#Class
+          parents: http://www.w3.org/2002/07/owl#Class
+          descendants: http://www.w3.org/2002/07/owl#Class
+          ancestors: http://www.w3.org/2002/07/owl#Class
+          instances: http://data.bioontology.org/metadata/Instance
+          tree: http://www.w3.org/2002/07/owl#Class
+          notes: http://data.bioontology.org/metadata/Note
+          mappings: http://data.bioontology.org/metadata/Mapping
+          ui: http://www.w3.org/2002/07/owl#Class
+      "@context":
+        "@vocab": http://data.bioontology.org/metadata/
+        prefLabel: http://www.w3.org/2004/02/skos/core#prefLabel
+        synonym: http://www.w3.org/2004/02/skos/core#altLabel
+        "@language": en
+    hierarchy: []
+    annotations:
+    - from: 25
+      to: 29
+      matchType: PREF
+      text: TUMOR
+    mappings: []
