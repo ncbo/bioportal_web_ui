@@ -4,6 +4,10 @@ class ChangeRequestsController < ApplicationController
   before_action :require_login
   before_action :set_common_instance_variables, except: [:create]
 
+  def node_deletion
+    respond_to :turbo_stream
+  end
+
   def node_obsoletion
     respond_to :turbo_stream
   end

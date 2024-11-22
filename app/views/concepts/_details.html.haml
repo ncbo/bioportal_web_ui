@@ -10,7 +10,10 @@
                      type: 'button', 'data-bs-toggle': 'dropdown',  'aria-haspopup': 'true', 'aria-expanded': 'false')
         %div.dropdown-menu{'aria-labelledby': 'addProposalDropdown'}
           = link_to('Deepen class', '#', class: 'dropdown-item disabled')
-          = link_to('Delete class', '#', class: 'dropdown-item disabled')
+          = link_to('Delete class',
+                    change_requests_node_deletion_path(concept_id: @concept.id, concept_label: @concept.prefLabel,
+                                                       ont_acronym: @ontology.acronym),
+                    class: 'dropdown-item', 'data-turbo': 'true', 'data-turbo-stream': 'true')
           = link_to('Obsolete class',
                     change_requests_node_obsoletion_path(concept_id: @concept.id, concept_label: @concept.prefLabel,
                                                          ont_acronym: @ontology.acronym),

@@ -1,0 +1,8 @@
+## Hey ontobot! apply:
+
+* delete <%= curie %>
+
+---
+
+<% footer_template = File.read("#{Rails.root}/app/lib/kgcl/templates/footer.erb") %>
+<%= ERB.new(footer_template, trim_mode: '<>', eoutvar: 'footer').result(binding) %>
