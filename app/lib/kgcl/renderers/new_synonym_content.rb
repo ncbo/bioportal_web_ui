@@ -10,7 +10,7 @@ module KGCL
     #   create synonym 'single organism process' @en for 'GO:0008150'
     #   create exact synonym 'single organism process' for 'GO:0008150'
     #
-    # @see https://github.com/INCATools/kgcl KGCL documentation
+    # @see https://incatools.github.io/kgcl/NewSynonym/ NewSynonym documentation
     #
     class NewSynonymContent < IssueContent
       def comment

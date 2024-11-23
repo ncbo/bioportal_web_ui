@@ -7,7 +7,7 @@ module KGCL
     #
     #   obsolete GO:0008150
     #
-    # @see https://github.com/INCATools/kgcl KGCL documentation
+    # @see https://incatools.github.io/kgcl/NodeObsoletion/ NodeObsoletion documentation
     #
     class NodeObsoletionContent < IssueContent
       def comment

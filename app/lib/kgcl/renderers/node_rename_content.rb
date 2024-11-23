@@ -7,7 +7,7 @@ module KGCL
     #
     #   rename MONDO:0000087 from 'polymicrogyria' to 'polymicrogyria ABCD'
     #
-    # @see https://github.com/INCATools/kgcl KGCL documentation
+    # @see https://incatools.github.io/kgcl/NodeRename/ NodeRename documentation
     #
     class NodeRenameContent < IssueContent
       def comment

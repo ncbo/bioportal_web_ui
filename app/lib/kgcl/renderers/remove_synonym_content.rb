@@ -9,7 +9,7 @@ module KGCL
     #   remove synonym 'terminal specialization' for GO:0044292
     #   remove synonym 'terminal specialization' @en for GO:0044292
     #
-    # @see https://github.com/INCATools/kgcl KGCL documentation
+    # @see https://incatools.github.io/kgcl/RemoveSynonym/ RemoveSynonym documentation
     #
     class RemoveSynonymContent < IssueContent
       def comment
