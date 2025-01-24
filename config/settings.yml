@@ -2,6 +2,7 @@ shared:
   links:
     about: 'https://www.bioontology.org/about-us/'
     cite: 'https://www.bioontology.org/about-us/#cite-bioportal'
+    cookies: 'https://www.bioontology.org/terms/#use-of-cookies'
     facebook: 'https://www.facebook.com/National-Center-for-Biomedical-Ontology-127444774011153/'
     github: 'http://github.com/ncbo'
     help: 'https://www.bioontology.org/wiki/BioPortal_Help'

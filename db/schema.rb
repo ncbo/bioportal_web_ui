@@ -11,7 +11,7 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.0].define(version: 2023_11_30_210229) do
-  create_table "analytics", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "analytics", id: :integer, charset: "utf8mb4", force: :cascade do |t|
     t.string "segment"
     t.string "action"
     t.string "bp_slice"
@@ -22,13 +22,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_30_210229) do
     t.datetime "updated_at", precision: nil
   end
 
-  create_table "licenses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "licenses", charset: "utf8mb4", force: :cascade do |t|
     t.text "encrypted_key"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "ontologies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "ontologies", charset: "utf8mb4", force: :cascade do |t|
     t.string "acronym", null: false
     t.text "new_term_instructions"
     t.text "custom_message"
@@ -37,7 +37,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_30_210229) do
     t.index ["acronym"], name: "index_ontologies_on_acronym", unique: true
   end
 
-  create_table "timeouts", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "timeouts", id: :integer, charset: "utf8mb4", force: :cascade do |t|
     t.string "path"
     t.integer "ontology_id"
     t.text "concept_id"
@@ -45,7 +45,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_11_30_210229) do
     t.timestamp "created"
   end
 
-  create_table "virtual_appliance_users", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "virtual_appliance_users", id: :integer, charset: "utf8mb4", force: :cascade do |t|
     t.string "user_id"
     t.datetime "created_at", precision: nil
     t.datetime "updated_at", precision: nil
