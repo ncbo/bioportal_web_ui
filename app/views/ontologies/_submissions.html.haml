@@ -33,3 +33,20 @@
       %tr
         %td{colspan: more_colspan, class: "show_more_subs"}
           %a#version_toggle{:href => ""} more...
+
+:javascript
+  jQuery(document).ready(() => {
+    jQuery("#version_toggle").click( (event) => {
+        event.preventDefault();
+        jQuery("#ontology_versions tr.hidden_select").toggleClass("hidden_ont")
+        const oldText = event.target.innerHTML
+        switch (oldText) {
+          case 'more...':
+            event.target.innerHTML = 'less...'
+            break
+          case 'less...':
+            event.target.innerHTML = 'more...'
+            break
+        }
+    })
+  })

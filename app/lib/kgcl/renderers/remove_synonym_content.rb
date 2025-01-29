@@ -11,32 +11,9 @@ module KGCL
     #
     # @see https://github.com/INCATools/kgcl KGCL documentation
     #
-    class RemoveSynonymContent
-      attr_reader :params
-
-      def initialize(params)
-        @params = params
-      end
-
-      def render
-        tr = KGCL::TemplateRenderer.new(
-          title_template: 'remove_synonym_title.erb',
-          body_template: 'remove_synonym_body.erb',
-          bind_klass: self
-        )
-        tr.render
-      end
-
+    class RemoveSynonymContent < IssueContent
       def comment
         @params[:remove_synonym][:comment]
-      end
-
-      def concept_label
-        @params[:concept_label]
-      end
-
-      def curie
-        @params[:curie]
       end
 
       def get_binding
@@ -47,8 +24,12 @@ module KGCL
         @params[:remove_synonym][:synonym]
       end
 
-      def username
-        @params[:username]
+      def title_template
+        'remove_synonym_title.erb'
+      end
+
+      def body_template
+        'remove_synonym_body.erb'
       end
     end
   end

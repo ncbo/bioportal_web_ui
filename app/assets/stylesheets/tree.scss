@@ -1,6 +1,11 @@
 /********************
 ## TREE VIEW
 *********************/
+#tree_wrapper {
+  max-height: 70vh;
+  overflow-y: scroll;
+}
+
 div.tree_error {
   background: none repeat scroll 0 0 lightYellow;
   font-weight: 600;

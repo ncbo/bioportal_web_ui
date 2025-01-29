@@ -1,0 +1,17 @@
+.button-container
+    = button_elem
+
+- if load_animation?
+    = render Display::ButtonLoaderComponent.new(id: @id + '-loading-animation', slim: @size.eql?('slim'), color: @color)
+    :javascript
+        function displayAnimation(element, loadingId){
+            const loading = document.getElementById(loadingId)
+            element.style.display = 'none';
+            loading.style.display = 'flex';
+        }
+        document.addEventListener('turbo:submit-end', function(event) {
+             const loading = document.getElementById('#{"#{@id}-loading-animation"}')
+             const button = document.getElementById('#{"#{@id}"}')
+             button.style.display = 'flex';
+             loading.style.display = 'none';
+        });

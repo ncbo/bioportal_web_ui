@@ -5,13 +5,11 @@ Rails.application.routes.draw do
 
   resources :notes, constraints: { id: /.+/ }
 
-  resources :ontolobridge do
-    post :save_new_term_instructions, on: :collection
-  end
+
 
   resources :projects, constraints: { id: /[^\/]+/ }
 
-  resources :users, path: :accounts, constraints: { id: /[\d\w\.\-\%\+ ]+/ }
+  resources :users, path: :accounts, constraints: { id: /[\d\w\.\-\%\+\@ ]+/ }
 
   resources :mappings do
     member do
@@ -20,6 +18,8 @@ Rails.application.routes.draw do
   end
 
   resources :concepts
+
+  get 'ontologies/:ontology_id/concepts', to: 'concepts#show_concept'
 
   resources :ontologies do
     resources :submissions
@@ -65,7 +65,6 @@ Rails.application.routes.draw do
   get '/robots.txt' => 'robots#index'
 
   # Ontologies
-  get '/ontologies/virtual/:ontology' => 'ontologies#virtual', :as => :ontology_virtual
   get '/ontologies/success/:id' => 'ontologies#submit_success'
   match '/ontologies/:acronym' => 'ontologies#update', via: [:get, :post]
   match '/ontologies/:acronym/submissions/:id' => 'submissions#update', via: [:get, :post]
@@ -76,6 +75,7 @@ Rails.application.routes.draw do
 
   # Ontology change requests
   get 'change_requests/create_synonym'
+  get 'change_requests/edit_definition'
   get 'change_requests/node_obsoletion'
   get 'change_requests/node_rename'
   get 'change_requests/remove_synonym'
@@ -93,7 +93,6 @@ Rails.application.routes.draw do
   get '/ajax/json_class' => 'ajax_proxy#json_class'
   get '/ajax/loading_spinner' => 'ajax_proxy#loading_spinner'
   get '/ajax/notes/delete' => 'notes#destroy'
-  get '/ajax/notes/concept_list' => 'notes#show_concept_list'
   get '/ajax/classes/label' => 'concepts#show_label'
   get '/ajax/classes/definition' => 'concepts#show_definition'
   get '/ajax/classes/treeview' => 'concepts#show_tree'
@@ -107,6 +106,8 @@ Rails.application.routes.draw do
   post '/accounts/:id/custom_ontologies' => 'users#custom_ontologies', :as => :custom_ontologies
   get '/login_as/:login_as' => 'login#login_as', constraints: { login_as:  /[\d\w\.\-\%\+ ]+/ }
   post '/login/send_pass', to: 'login#send_pass'
+  get 'password', to: 'passwords#edit', as: :edit_password
+  patch 'password', to: 'passwords#update'
 
   # Search
   get 'search', to: 'search#index'
@@ -128,6 +129,4 @@ Rails.application.routes.draw do
   get '/admin/update_info', to: 'admin#update_info'
   get '/admin/update_check_enabled', to: 'admin#update_check_enabled'
 
-  # Ontolobridge
-  # post '/ontolobridge/:save_new_term_instructions' => 'ontolobridge#save_new_term_instructions'
 end

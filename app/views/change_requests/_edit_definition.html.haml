@@ -1,0 +1,25 @@
+= form_with(scope: :edit_definition, url: change_requests_path,
+            data: {turbo: true, turbo_frame: 'top', action: 'turbo:submit-end->change-requests#hideForm'},
+            class: 'my-4') do |f|
+  = hidden_field_tag 'concept_id', @concept_id
+  = hidden_field_tag 'concept_label', @concept_label
+  = hidden_field_tag 'github_id', @user.githubId
+  = hidden_field_tag 'old_definition', @definition
+  = hidden_field_tag 'ont_acronym', @ont_acronym
+  = hidden_field_tag 'orcid_id', @user.orcidId
+  = hidden_field_tag 'username', @user.username
+  = hidden_field_tag 'operation', KGCL::Operations::TEXT_DEFINITION_REPLACEMENT
+  %div.mb-3
+    = f.label :definition, "Proposal: modify the definition of '#{@concept_label}'", class: 'form-label fs-6'
+    = f.text_area(:definition, class: 'form-control', value: sanitize(@definition),
+                  'aria-describedby': 'editDefinitionHelpBlock')
+    = tag.div('Enter the desired replacement text', class: 'form-text', style: 'font-size: 1em',
+              id: 'editDefinitionHelpBlock')
+  %div.mb-3
+    = f.label :comment, 'Comment', class: 'form-label fs-6'
+    = f.text_area :comment, class: 'form-control', 'aria-describedby': 'editDefinitionCommentHelpBlock'
+    = tag.div('Optionally enter a comment giving a reason for the modification', class: 'form-text',
+              style: 'font-size: 1em', id: 'editDefinitionCommentHelpBlock')
+  = submit_tag 'Submit', id: 'edit_definition_button', class: 'btn btn-primary btn-sm'
+  = tag.button('Cancel', type: 'button',
+               'data-action': 'click->change-requests#clearProposalForm', class: 'btn btn-primary btn-sm')

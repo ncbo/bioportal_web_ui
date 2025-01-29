@@ -17,18 +17,12 @@ class ProjectsController < ApplicationController
   end
 
   def show
-    projects = LinkedData::Client::Models::Project.find_by_acronym(params[:id])
-    if projects.blank?
-      flash.alert = "Project not found: #{params[:id]}"
-      redirect_to projects_path
-      return
-    end
-
-    @project = projects.first
+    @project = LinkedData::Client::Models::Project.get(params[:id])
+    not_found if @project.nil? || (@project.errors && @project.status == 404)
     @ontologies_used = []
     onts_used = @project.ontologyUsed
     onts_used.each do |ont_used|
-      ont = LinkedData::Client::Models::Ontology.find(ont_used)
+      ont = LinkedData::Client::Models::Ontology.get(ont_used, include: 'name,acronym')
       @ontologies_used << Hash['name', ont.name, 'acronym', ont.acronym] unless ont.nil?
     end
     @ontologies_used.sort_by! { |o| o['name'].downcase }
@@ -45,13 +39,7 @@ class ProjectsController < ApplicationController
   end
 
   def edit
-    projects = LinkedData::Client::Models::Project.find_by_acronym(params[:id])
-    if projects.blank?
-      flash.alert = "Project not found: #{params[:id]}"
-      redirect_to projects_path
-      return
-    end
-    @project = projects.first
+    @project = LinkedData::Client::Models::Project.get(params[:id])
     @user_select_list = LinkedData::Client::Models::User.all.map { |u| [u.username, u.id] }
     @user_select_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
     @usedOntologies = @project.ontologyUsed || []
@@ -84,21 +72,15 @@ class ProjectsController < ApplicationController
   end
 
   def update
-    projects = LinkedData::Client::Models::Project.find_by_acronym(params[:id])
-    if projects.blank?
-      flash.alert = "Project not found: #{params[:id]}"
-      redirect_to projects_path
-      return
-    end
-    @project = projects.first
+    @project = LinkedData::Client::Models::Project.get(params[:id])
     @project.update_from_params(project_params)
-    @user_select_list = LinkedData::Client::Models::User.all.map { |u| [u.username, u.id] }
-    @user_select_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
-    @usedOntologies = @project.ontologyUsed || []
-    @ontologies = LinkedData::Client::Models::Ontology.all
-    error_response = @project.update
+    error_response = @project.update(cache_refresh_all: false)
     if response_error?(error_response)
       @errors = response_errors(error_response)
+      @user_select_list = LinkedData::Client::Models::User.all.map { |u| [u.username, u.id] }
+      @user_select_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
+      @usedOntologies = @project.ontologyUsed || []
+      @ontologies = LinkedData::Client::Models::Ontology.all
       render :edit
     else
       flash[:notice] = 'Project successfully updated'
@@ -107,13 +89,7 @@ class ProjectsController < ApplicationController
   end
 
   def destroy
-    projects = LinkedData::Client::Models::Project.find_by_acronym(params[:id])
-    if projects.blank?
-      flash.alert = "Project not found: #{params[:id]}"
-      redirect_to projects_path
-      return
-    end
-    @project = projects.first
+    @project = LinkedData::Client::Models::Project.get(params[:id])
     error_response = @project.delete
     if response_error?(error_response)
       @errors = response_errors(error_response)

@@ -1,0 +1,17 @@
+.alert-container{id: @id, data: {controller: "alert-component",
+                        'alert-component-auto-close-value': auto_close?,
+                        'alert-component-auto-close-after-value': @auto_close_delay,
+                        },
+                 class: alert_type_class, style: 'white-space: normal;'}
+    .alert-icon{class: alert_type_class}
+        = inline_svg_tag alert_icon
+    .alert-message{class: alert_type_class}
+        = message || content
+    - if button
+        .alert-button
+            = render button
+    - if closable?
+        .alert-close{"data-action":"click->alert-component#close", class: alert_type_class}
+            = inline_svg_tag "x.svg"
+
+    

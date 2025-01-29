@@ -1,95 +1,84 @@
-%div.ont-properties
-  %div#propTree
-  %div#prop_contents.pl-3
+= render TurboFrameComponent.new(id: 'properties',data: {"turbo-frame-target": "frame"}) do
+  %div.ont-properties.py-3{data:{controller: 'container-splitter'}}
+    %div#propTree{data:{'container-splitter-target': 'container'}}
+    %div#prop_contents.pl-3{data:{'container-splitter-target': 'container'}}
 
-:plain
-  <script id="property-details" type="text/x-handlebars-template">
-    <table cellpadding="0" cellspacing="0" class="minimal concept_details" width="100%">
-      {{#if label}}
+  :plain
+    <script id="property-details" type="text/x-handlebars-template">
+      <table cellpadding="0" cellspacing="0" class="minimal concept_details" width="100%">
+        {{#if label}}
+          <tr>
+            <td class="label">
+              Labels
+            </td>
+            <td>
+              <p>
+                {{label}}&nbsp;
+              </p>
+            </td>
+          </tr>
+        {{/if}}
+        {{#if definition}}
+          <tr>
+            <td class="label">
+              Definitions
+            </td>
+            <td>
+              <p>
+                {{definition}}&nbsp;
+              </p>
+            </td>
+          </tr>
+        {{/if}}
         <tr>
-          <td class="label">
-            Labels
-          </td>
+          <td class="label">ID</td>
           <td>
             <p>
-              {{label}}&nbsp;
+              {{id}}&nbsp;
             </p>
           </td>
         </tr>
-      {{/if}}
-      {{#if definition}}
-        <tr>
-          <td class="label">
-            Definitions
-          </td>
-          <td>
-            <p>
-              {{definition}}&nbsp;
-            </p>
-          </td>
-        </tr>
-      {{/if}}
-      <tr>
-        <td class="label">ID</td>
-        <td>
-          <p>
-            {{id}}&nbsp;
-          </p>
-        </td>
-      </tr>
-      {{#if parents}}
-        <tr>
-          <td class="label">Parent</td>
-          <td>
-            <p>
-              {{parents}}&nbsp;
-            </p>
-          </td>
-        </tr>
-      {{/if}}
-    </table>
-  </script>
+        {{#if parents}}
+          <tr>
+            <td class="label">Parent</td>
+            <td>
+              <p>
+                {{parents}}&nbsp;
+              </p>
+            </td>
+          </tr>
+        {{/if}}
+      </table>
+    </script>
 
-:javascript
-  jQuery(document).data().bp.ontPropertiesTab = {};
+  :javascript
+    $(document).ready(function(){
+        jQuery(document).data().bp.ontPropertiesTab = {};
 
-  jQuery(document).data().bp.ontPropertiesTab.init = function() {
-    var source = jQuery("#property-details").html();
-    var propDetailsTemp = Handlebars.compile(source);
+        jQuery(document).data().bp.ontPropertiesTab.init = function() {
+          var source = jQuery("#property-details").html();
+          var propDetailsTemp = Handlebars.compile(source);
 
-    $("#propTree").NCBOPropertyTree({
-      ontology: "#{@ontology.acronym}",
-      ncboUIURL: jQuery(document).data().bp.config.ui_url,
-      width: "100%",
-      onInit: function() {
-        var ontPropTree = $("#propTree").data().NCBOPropertyTree;
-        var data = $("#propTree").find("a:first").data();
-        if (data) {
-          ontPropTree.selectClass(data.id);
-          data.id = decodeURIComponent(data.id);
-          jQuery("#prop_contents").html(propDetailsTemp(data));
-
-          Split(['#propTree', '#prop_contents'], {
-            elementStyle: function (dimension, size, gutterSize) {
-              return {
-                'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'
+          $("#propTree").NCBOPropertyTree({
+            ontology: "#{@ontology.acronym}",
+            ncboUIURL: jQuery(document).data().bp.config.ui_url,
+            width: "100%",
+            onInit: function() {
+              var ontPropTree = $("#propTree").data().NCBOPropertyTree;
+              var data = $("#propTree").find("a:first").data();
+              if (data) {
+                ontPropTree.selectClass(data.id);
+                data.id = decodeURIComponent(data.id);
+                jQuery("#prop_contents").html(propDetailsTemp(data));
               }
-            },
-            gutterStyle: function (dimension, gutterSize) {
-              return {
-                'flex-basis':  gutterSize + 'px'
-              }
-            },
-            gutterSize: 10,
-            direction: "horizontal",
-            sizes: [25, 75],
-            cursor: "col-resize"
-          })  
+            }
+          }).on("afterSelect", function (e, classId, label, node) {
+            var data = node.data();
+            data.id = decodeURIComponent(data.id);
+            jQuery("#prop_contents").html(propDetailsTemp(data));
+          });
         }
-      }
-    }).on("afterSelect", function (e, classId, label, node) {
-      var data = node.data();
-      data.id = decodeURIComponent(data.id);
-      jQuery("#prop_contents").html(propDetailsTemp(data));
-    });
-  }
+
+        jQuery(document).data().bp.ontPropertiesTab.init();
+
+    })

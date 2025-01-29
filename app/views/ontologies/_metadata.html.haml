@@ -1,142 +1,145 @@
-%div.ont-metadata
+= turbo_frame_tag 'summary', data: {turbo: false} do
+  %div.ont-metadata.py-3
+    -# Details pane
+    %section.ont-metadata-card.ont-details-card
+      %header.pb-2.fw-bold Details
+      %table.table.table-sm
+        %tr.border-top
+          %td Acronym
+          %td= @ontology.acronym
+        %tr
+          %td Visibility
+          %td= strip_links(visibility_link(@ontology))
+        - if @ontology.viewing_restricted?
+          %tr
+            %td Viewing restriction
+            %td= @ontology.viewingRestriction.capitalize
+        - unless @ontology.viewOf.nil?
+          %tr
+            %td View of ontology
+            %td
+              - ont_parent_acronym = @ontology.viewOf.split('/').last
+              - if Rails.configuration.settings.purl[:enabled]
+                - ont_url = @ontology.purl.sub(@ontology.acronym, ont_parent_acronym)
+              - else
+                - ont_url = @ontology.links['ui'].sub(@ontology.acronym, ont_parent_acronym)
+              = link_to(ont_parent_acronym, ont_url)
+        - unless @submission_latest.nil?
+          %tr
+            %td Description
+            %td= sanitize(@submission_latest.description)
+          %tr
+            %td Status
+            %td= @submission_latest.status.capitalize unless @submission_latest.status.nil?
+          %tr
+            %td Format
+            %td= @submission_latest.hasOntologyLanguage
+          - if @submission_latest.naturalLanguage.present?
+            %tr
+              %td Language
+              %td= abbreviations_to_languages(@submission_latest.naturalLanguage).join(", ")
+          %tr
+            %td Contact
+            %td= raw @submission_latest.contact.map {|c| [c.name, c.email].join(", ") if c.member?(:name) && c.member?(:email)}.join("<br/>")
+        - categories_hash = LinkedData::Client::Models::Category.all_to_hash
+        - categories = @ontology.hasDomain
+        - unless categories.empty?
+          %tr
+            %td Categories
+            %td= categories.map {|c| categories_hash[c].name}.sort.join(", ")
+        - groups_hash = LinkedData::Client::Models::Group.all_to_hash
+        - groups = @ontology.group
+        - unless groups.empty?
+          %tr
+            %td Groups
+            %td= groups.map {|g| groups_hash[g].name}.sort.join(", ")
+        = raw additional_details
 
-  -# Details pane
-  %section.ont-metadata-card.ont-details-card
-    %header.pb-2.fw-bold Details
-    %table.table.table-sm
-      %tr.border-top
-        %td Acronym
-        %td= @ontology.acronym
-      %tr
-        %td Visibility
-        %td= strip_links(visibility_link(@ontology))
-      - if @ontology.viewing_restricted?
-        %tr
-          %td Viewing restriction
-          %td= @ontology.viewingRestriction.capitalize
-      - unless @ontology.viewOf.nil?
-        %tr
-          %td View of ontology
-          %td
-            - ont_parent_acronym = @ontology.viewOf.split('/').last
-            - if Rails.configuration.settings.purl[:enabled]
-              - ont_url = @ontology.purl.sub(@ontology.acronym, ont_parent_acronym)
-            - else
-              - ont_url = @ontology.links['ui'].sub(@ontology.acronym, ont_parent_acronym)
-            = link_to(ont_parent_acronym, ont_url)
-      - unless @submission_latest.nil?
-        %tr
-          %td Description
-          %td= sanitize(@submission_latest.description)
-        %tr
-          %td Status
-          %td= @submission_latest.status.capitalize unless @submission_latest.status.nil?
-        %tr
-          %td Format
-          %td= @submission_latest.hasOntologyLanguage
-        %tr
-          %td Contact
-          %td= raw @submission_latest.contact.map {|c| [c.name, c.email].join(", ") if c.member?(:name) && c.member?(:email)}.join("<br/>")
-      - categories_hash = LinkedData::Client::Models::Category.all_to_hash
-      - categories = @ontology.hasDomain
-      - unless categories.empty?
-        %tr
-          %td Categories
-          %td= categories.map {|c| categories_hash[c].name}.sort.join(", ")
-      - groups_hash = LinkedData::Client::Models::Group.all_to_hash
-      - groups = @ontology.group
-      - unless groups.empty?
-        %tr
-          %td Groups
-          %td= groups.map {|g| groups_hash[g].name}.sort.join(", ")
-      = raw additional_details
-
-  -# Submissions pane
-  %section.ont-metadata-card.ont-subs-card
-    %div.ont-section-toolbar
-      %header.pb-2.fw-bold Submissions
-      - if @ontology.admin?(session[:user])
-        = link_to(new_ontology_submission_path(@ontology.acronym), "aria-label": "Add submission", title: "Add submission") do
-          %i.fas.fa-lg.fa-plus-circle{"aria-hidden": "true", style: "margin-left: 0.75rem;"}
-        - unless (@submission_latest.nil? || (@submission_latest.respond_to?(:status) && @submission_latest.status == 404))
-          = link_to(edit_ontology_submission_path(@ontology.acronym, @submission_latest.submissionId), "aria-label": "Edit latest submission", title: "Edit latest submission") do
-            %i.fas.fa-user-edit{"aria-hidden": "true", style: "margin-left: 0.5rem;"}
-    = render partial: "submissions"
-
-  -# Views pane (don't show if the ontology is a view - we don't allow views of views).
-  - unless @ontology.view?
-    %section.ont-metadata-card.ont-views-card
+    -# Submissions pane
+    %section.ont-metadata-card.ont-subs-card
       %div.ont-section-toolbar
-        %header.pb-2.fw-bold= "Views of #{@ontology.acronym}"
-        = new_view_link
-      - if @views.empty?
-        %p.font-italic= "No views of #{@ontology.acronym} available"
-      - else
-        %div.border-top
-          %dl
-            - @view_decorators.each do |view_decorator|
-              %dt= view_decorator.linked_name
-              %dd= view_decorator.description
-      
-  %div.right-hand-content
-    
-    -# Metrics pane
-    %section.ont-metadata-card.ont-metrics-card
-      %div.ont-section-toolbar
-        %header.pb-2.fw-bold Metrics
-        = link_to(Rails.configuration.settings.links[:metrics], target: "_blank", "aria-label": "View individual metrics definitions", title: "View individual metrics definitions") do
-          %i.fas.fa-lg.fa-question-circle{"aria-hidden": "true", style: "margin-left: 0.5rem"}
-      - if @metrics.nil? || (@metrics.is_a?(Array) && @metrics.empty?) || (@metrics.respond_to?(:status) && @metrics.status == 404)
-        %p.font-italic= "We have not yet calculated metrics for #{@ontology.acronym}"
-      - else
-        %table.table.table-sm
-          %tr.border-top
-            %td Classes
-            %td{style: "text-align: right"}= number_with_delimiter(@metrics.classes)
-          %tr
-            %td Individuals
-            %td= number_with_delimiter(@metrics.individuals)
-          %tr
-            %td Properties
-            %td= number_with_delimiter(@metrics.properties)
-          %tr
-            %td Maximum depth
-            %td= number_with_delimiter(@metrics.maxDepth)
-          %tr
-            %td Maximum number of children
-            %td= number_with_delimiter(@metrics.maxChildCount)
-          %tr
-            %td Average number of children
-            %td= number_with_delimiter(@metrics.averageChildCount)
-          %tr
-            %td Classes with a single child
-            %td= number_with_delimiter(@metrics.classesWithOneChild)
-          %tr
-            %td Classes with more than 25 children
-            %td= number_with_delimiter(@metrics.classesWithMoreThan25Children)
-          %tr
-            %td Classes with no definition
-            %td= number_with_delimiter(@metrics.classesWithNoDefinition)
+        %header.pb-2.fw-bold Submissions
+        - if @ontology.admin?(session[:user])
+          = link_to(new_ontology_submission_path(@ontology.acronym), "aria-label": "Add submission", title: "Add submission") do
+            %i.fas.fa-lg.fa-plus-circle{"aria-hidden": "true", style: "margin-left: 0.75rem;"}
+          - unless (@submission_latest.nil? || (@submission_latest.respond_to?(:status) && @submission_latest.status == 404))
+            = link_to(edit_ontology_submission_path(@ontology.acronym, @submission_latest.submissionId), "aria-label": "Edit latest submission", title: "Edit latest submission") do
+              %i.fas.fa-user-edit{"aria-hidden": "true", style: "margin-left: 0.5rem;"}
+      = render partial: "submissions"
 
-    -# Visits pane
-    %section.ont-metadata-card.ont-analytics-card
-      %div.ont-section-toolbar
-        %header.pb-2.fw-bold Visits
-        - if visits_data(@ontology)
-          = link_to(@ontology.links["analytics"] + "?apikey=#{get_apikey}&format=csv", "aria-label": "Download as CSV", title: "Download as CSV") do
-            %i.fas.fa-lg.fa-download{"aria-hidden": "true", style: "margin-left: 0.5rem"}
-      = render partial: "visits"
+    -# Views pane (don't show if the ontology is a view - we don't allow views of views).
+    - unless @ontology.view?
+      %section.ont-metadata-card.ont-views-card
+        %div.ont-section-toolbar
+          %header.pb-2.fw-bold= "Views of #{@ontology.acronym}"
+          = new_view_link
+        - if @views.empty?
+          %p.font-italic= "No views of #{@ontology.acronym} available"
+        - else
+          %div.border-top
+            %dl
+              - @view_decorators.each do |view_decorator|
+                %dt= view_decorator.linked_name
+                %dd= view_decorator.description
 
-    -# Projects pane
-    %section.ont-metadata-card.ont-projects-card
-      %div.ont-section-toolbar
-        %header.pb-2.fw-bold= "Projects using #{@ontology.acronym}"
-        = link_to(new_project_path(), "aria-label": "Create new project", title: "Create new project") do
-          %i.fas.fa-lg.fa-plus-circle{"aria-hidden": "true", style: "margin-left: 0.5rem"}
-      - if @projects.empty?
-        %p.font-italic= "No projects using #{@ontology.acronym}"
-      - else
-        %div.border-top
-          - for project in @projects
-            %p= link_to(project.name, project_path(project.acronym))
+    %div.right-hand-content
 
+      -# Metrics pane
+      %section.ont-metadata-card.ont-metrics-card
+        %div.ont-section-toolbar
+          %header.pb-2.fw-bold Metrics
+          = link_to(Rails.configuration.settings.links[:metrics], target: "_blank", "aria-label": "View individual metrics definitions", title: "View individual metrics definitions") do
+            %i.fas.fa-lg.fa-question-circle{"aria-hidden": "true", style: "margin-left: 0.5rem"}
+        - if @metrics.nil? || (@metrics.is_a?(Array) && @metrics.empty?) || (@metrics.respond_to?(:status) && @metrics.status == 404)
+          %p.font-italic= "We have not yet calculated metrics for #{@ontology.acronym}"
+        - else
+          %table.table.table-sm
+            %tr.border-top
+              %td Classes
+              %td{style: "text-align: right"}= number_with_delimiter(@metrics.classes)
+            %tr
+              %td Individuals
+              %td= number_with_delimiter(@metrics.individuals)
+            %tr
+              %td Properties
+              %td= number_with_delimiter(@metrics.properties)
+            %tr
+              %td Maximum depth
+              %td= number_with_delimiter(@metrics.maxDepth)
+            %tr
+              %td Maximum number of children
+              %td= number_with_delimiter(@metrics.maxChildCount)
+            %tr
+              %td Average number of children
+              %td= number_with_delimiter(@metrics.averageChildCount)
+            %tr
+              %td Classes with a single child
+              %td= number_with_delimiter(@metrics.classesWithOneChild)
+            %tr
+              %td Classes with more than 25 children
+              %td= number_with_delimiter(@metrics.classesWithMoreThan25Children)
+            %tr
+              %td Classes with no definition
+              %td= number_with_delimiter(@metrics.classesWithNoDefinition)
+
+      -# Visits pane
+      %section.ont-metadata-card.ont-analytics-card
+        %div.ont-section-toolbar
+          %header.pb-2.fw-bold Visits
+          - if visits_data(@ontology)
+            = link_to(@ontology.links["analytics"] + "?apikey=#{get_apikey}&format=csv", "aria-label": "Download as CSV", title: "Download as CSV") do
+              %i.fas.fa-lg.fa-download{"aria-hidden": "true", style: "margin-left: 0.5rem"}
+        = render partial: "visits"
+
+      -# Projects pane
+      %section.ont-metadata-card.ont-projects-card
+        %div.ont-section-toolbar
+          %header.pb-2.fw-bold= "Projects using #{@ontology.acronym}"
+          = link_to(new_project_path(), "aria-label": "Create new project", title: "Create new project") do
+            %i.fas.fa-lg.fa-plus-circle{"aria-hidden": "true", style: "margin-left: 0.5rem"}
+        - if @projects.empty?
+          %p.font-italic= "No projects using #{@ontology.acronym}"
+        - else
+          %div.border-top
+            - for project in @projects
+              %p= link_to(project.name, project_path(project.acronym))

@@ -43,6 +43,11 @@ jQuery(document).ready(function(){
   jQuery("#contacts").on("click", ".add-contact", addContact);
   jQuery("#contacts").on("click", ".remove-contact", removeContact);
 
+  jQuery("#submission_naturalLanguage").select2({
+    dropdownParent: jQuery(".submissions form"),
+    include_hidden: false,
+  });
+
   jQuery("#ontology_submission_form").validate({
     highlight: function(element) {
       $(element).closest('.form-group').addClass('has-error');

@@ -1,32 +1,5 @@
-:css
-  .required {
-      color: black;
-  }
-  table.form {
-    width: auto;
-  }
-  table.form td {
-    width: 500px;
-  }
-
 :javascript
-  /* refer to input fields by name for rules */
-  /* refer to input fields by id for equalTo */
   jQuery(document).ready(function() {
-    jQuery("#user_info").validate({
-      rules: {
-        "user[email]": {
-          required: true,
-          email: true,
-        },
-        "user[password]": "required",
-        "user[password_confirmation]": {
-          required: true,
-          equalTo: "#user_password",
-        }
-      }
-    })
-
     jQuery('#user_info').on('submit', function (event) {
         event.preventDefault()
         let admin_checkbox = jQuery('input[id=user_admin]')
@@ -52,94 +25,46 @@
       })
   });
 
-  (function (jQuery) {
-    // custom css expression for a case-insensitive contains()
-    jQuery.expr[':'].Contains = function(a,i,m){
-        return (a.textContent || a.innerText || "").toUpperCase().indexOf(m[3].toUpperCase())>=0;
-    };
+%div.container
+  %div.edit-user-info
+    = form_with scope: :user, url: user_path(@user.username), method: 'put', id: 'user_info', class: 'my-4' do |f|
+      - if @errors.present?
+        .enable-lists
+          Errors updating account:
+          %ul
+            - for error in @errors
+              %li= error
 
-    function listFilter(header, list) { // header is any element, list is an unordered list
-      // create and add the filter form to the header
-      var form = jQuery("<form>").attr({"class":"filterform","action":"#"}),
-          input = jQuery("<input>").attr({"class":"filterinput","type":"text"});
-      jQuery(form).append(input).appendTo(header);
-
-      jQuery(input)
-        .change( function () {
-          var filter = jQuery(this).val();
-          if(filter) {
-            // this finds all links in a list that contain the input,
-            // and hide the ones not containing the input while showing the ones that do
-            jQuery(list).find("a:not(:Contains(" + filter + "))").closest("li").hide();
-            jQuery(list).find("a:Contains(" + filter + ")").closest("li").show();
-          } else {
-            jQuery(list).find("li").show();
-          }
-          return false;
-        })
-      .keyup( function () {
-          // fire the above change event after every letter
-          jQuery(this).change();
-      });
-    }
-  })
-
-
-
-%div{:style => "padding: 1em;"}
-  = form_for(:user, :url => user_path(@user.username), :html => { :id => "user_info", :method => :put }) do |f|
-    - unless @errors.nil?
-      .enable-lists{:style => "color: red; padding: 1em;"}
-        Errors creating your account:
-        %ul
-          - for error in @errors
-            %li= error
-    %table.form
-      - if @user.validate_password.nil?
-        %tr
-          %th
-            First Name
-          %td.top= text_field :user, :firstName, value: @user.firstName
-        %tr
-          %th
-            Last Name
-          %td= text_field :user, :lastName, value: @user.lastName
-        %tr
-          %th
-            Email Address *
-          %td
-            = text_field :user, :email, value: @user.email
-        - if session[:user].admin?
-          %tr
-            %th
-              Grant admin privileges
-            %td
-              = check_box :user, :admin?, { class: (@user.admin? ? 'admin' : '') }
-        \&nbsp;&nbsp;
-        = hidden_field :user, :username, value: @user.username
-      - else
-        = hidden_field :user, :username, value: @user.username
-        = hidden_field :user, :firstName, value: @user.firstName
-        = hidden_field :user, :lastName, value: @user.lastName
-        = hidden_field :user, :email, value: @user.email
-        %tr
-          %th
-            Password: *
-          %td.top
-            = password_field :user, :password
-            &nbsp;&nbsp;
-        %tr
-          %th
-            Re-enter Password: *
-          %td
-            = password_field :user, :password_confirmation
-            &nbsp;&nbsp;
-
-      %tr
-        %td{:align => "left", :colspan => "2"}
-          = submit_tag "Update", :class=>"greenbtn btn btn-outline-secondary btn-sm "
-          \&nbsp;&nbsp;&nbsp;&nbsp;
-          - unless params[:password].eql?("true")
-            = link_to "Change Password", edit_user_path(@user.username, password: true)
-            -# use @user.username unstead of sessions
-    %br/
+      %h2.mb-4 Edit account
+      %div.mb-3
+        = f.label :firstName, 'First name', class: 'form-label'
+        = f.text_field :firstName, class: 'form-control', required: 'true'
+      %div.mb-3
+        = f.label :lastName, 'Last name', class: 'form-label'
+        = f.text_field :lastName, class: 'form-control'
+      %div.mb-3
+        = f.label :username, class: 'form-label'
+        = f.text_field :username, class: 'form-control', disabled: 'true'
+      %div.mb-3
+        = f.label :email, 'Email address', class: 'form-label'
+        = f.email_field :email, class: 'form-control', required: 'true'
+      %div.mb-3
+        = f.label :githubId, 'GitHub username', class: 'form-label'
+        = f.text_field :githubId, class: 'form-control', 'aria-describedby': 'githubUsernameHelp',
+                                  pattern: '[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}',
+                                  title: 'Characters: only alphanumeric and single hyphens. Length: 1-39'
+        %div.form-text{id: 'githubUsernameHelp'}
+          User handle on GitHub, for example: 'octocat'
+      %div.mb-3
+        = f.label :orcidId, 'ORCID iD', class: 'form-label'
+        = f.text_field :orcidId, class: 'form-control', 'aria-describedby': 'orcidHelp',
+                                 pattern: '\d{4}-\d{4}-\d{4}-\d{4}', title: 'Format: XXXX-XXXX-XXXX-XXXX'
+        %div.form-text{id: 'orcidHelp'}
+          16-digit ORCID, for example: 0000-1234-5678-9101
+      - if session[:user].admin?
+        %div.form-check.mb-3
+          = f.check_box :admin?, class: (@user.admin? ? 'admin form-check-input' : 'form-check-input')
+          = f.label :admin, 'Grant admin privileges', class: 'form-check-label'
+      %div.mb-5
+        = submit_tag('Update', class: 'btn btn-primary me-1')
+        = link_to 'Cancel', user_path(@user.username), class: 'btn btn-primary'

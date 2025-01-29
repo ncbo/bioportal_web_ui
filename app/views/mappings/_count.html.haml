@@ -14,6 +14,11 @@
           %td
             = link_to(mapping_count[:target_ontology][:name],
                       mapping_path(id: @ontology.acronym, target: mapping_count[:target_ontology][:id]),
-                      class: 'facebox')
+                      class: 'facebox', 'data-turbo': false)
           %td
             = number_with_delimiter(mapping_count[:count], delimiter: ',')
+
+:javascript
+  $(document).ready(() => {
+    $("#mapping_count_table a.facebox").facebox()
+  })

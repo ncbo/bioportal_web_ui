@@ -1,12 +1,45 @@
 - @title = "Register"
-%div{:style => "padding: 1em;"}
-  %h1
-    New #{$SITE} Account
-  = form_for(:user, :url => users_path) do |f|
-    - unless @errors.nil?
-      .enable-lists{:style => "color: red; padding: 1em;"}
-        Errors creating your account:
+
+%div.signup
+  = form_with scope: :user, url: users_path, class: 'form-signup' do |f|
+    %h4.mb-4 Create an account
+
+    -# TODO: display errors in a standard Rails flash message
+    - if @errors.present?
+      %div.enable-lists
+        Errors creating account:
         %ul
           - for error in @errors
             %li= error
-    = render :partial => 'form', :locals => {:f => f}
+
+    %div.form-floating.mb-3
+      = f.text_field(:firstName, class: 'form-control', placeholder: 'First name', required: 'true')
+      = f.label(:firstName, 'First name', class: 'form-label')
+
+    %div.form-floating.mb-3
+      = f.text_field(:lastName, class: 'form-control', placeholder: 'Last name (optional)')
+      = f.label(:lastName, 'Last name (optional)', class: 'form-label')
+
+    %div.form-floating.mb-3
+      = f.text_field(:username, class: 'form-control', placeholder: 'Username', required: 'true')
+      = f.label(:username, class: 'form-label')
+
+    %div.form-floating.mb-3
+      = f.email_field(:email, class: 'form-control', placeholder: 'Email address', required: 'true')
+      = f.label(:email, class: 'form-label')
+
+    %div.form-floating.mb-3
+      = f.password_field(:password, class: 'form-control', placeholder: 'Password', required: 'true',
+                         autocomplete: 'new-password')
+      = f.label(:password, class: 'form-label')
+
+    - if using_captcha?
+      %div.mb-4
+        = recaptcha_tags
+
+    %div.d-grid
+      = submit_tag('Sign Up', class: 'btn btn-lg btn-primary btn-block')
+
+    %p.text-muted.mt-2
+      Already have an account?
+      = link_to('Log in', login_index_path)

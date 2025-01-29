@@ -1,108 +1,26 @@
-- unless @error
-  - @title = "#{@ontology.name} - #{@concept.prefLabel}"
-  - @new_term_request_ontologies
-  - @enable_ontolobridge = !$NEW_TERM_REQUEST_ONTOLOGIES.nil? && $NEW_TERM_REQUEST_ONTOLOGIES.include?(@ontology.acronym)
-  %div.tooltip
-  %div#bd_content.bd_content.explore
-    %div.sidebar.d-flex.flex-column.pr-2
-      -# Search box for class tree
-      %div#qsearch{class: "input-group pb-2 pe-2"}
-        %span.input-group-text Jump to:
-        = text_field_tag("search_box", nil, class: "form-control rounded-end", "aria-label": "Jump to:")
-        = hidden_field_tag("jump_to_concept_id")
-      -# Class tree
-      %div#sd_content
-        = loading_spinner(true)
-    - if @concept.id.eql?("bp_fake_root")
-      / When we have an ontology with a flat hierarchy, we initially disable the tabs because we don't have a class to display
-      .cls-info-container
-        #fake_tabs.tabs
-          %ul
-            %li#details_top.selected.first{:onclick => "return false;"}
-              %a{:href => "#details", :onclick => "return false;", :style => "color: gray;"} Details
-            %li#visualization_top{:onclick => "return false;"}
-              %a{:href => "#visualization", :onclick => "return false;", :style => "color: gray;"} Visualization
-            %li#notes_top{:onclick => "return false;"}
-              %a{:href => "#notes", :onclick => "return false;", :style => "color: gray;"}
-                Notes
-                %span#note_count_wrapper
-                  (
-                  %span#note_count
-                  )
-            %li#mappings_top{:onclick => "return false;"}
-              %a{:href => "#mappings", :onclick => "return false;", :style => "color: gray;"}
-                Class Mappings (
-                %span#mapping_count= #TODO_REV: Support mapping counts for concepts @concept.mapping_count
-                )
-          - if @enable_ontolobridge
-            %li#request_term_top{:onclick => "return false;"}
-              %a{:href => "#request_term", :onclick => "return false;", :style => "color: gray;"}
-                New Term Requests
-        #non_fake_tabs.tabs{:style => "display: none;"}
-          %ul
-            %li#details_top.selected.tab.first
-              %a{:href => "#details"} Details
-            %li#visualization_top.tab
-              %a{:href => "#visualization"} Visualization
+= render TurboFrameComponent.new(id: 'classes', data: {"turbo-frame-target": "frame"}) do
+  - unless @error
+    - @title = "#{@ontology.name} - #{@concept.prefLabel}"
+    %div.tooltip
+    %div#bd_content.bd_content.explore.py-3{data:{controller: 'container-splitter'}}
+      %div.sidebar.d-flex.flex-column.pr-2{data:{'container-splitter-target': 'container'}}
+        %div#qsearch.input-group.pb-2.pe-1
+          %span.input-group-text Jump to:
+          = text_field_tag("search_box", nil, class: "form-control rounded-end", aria: {label: "Jump to:"},
+          data: {controller: 'class-search-auto-complete',
+                 'class-search-auto-complete-ontology-acronym-value': @ontology.acronym,
+                 'class-search-auto-complete-lang-value': request_lang(@submission),
+                 'class-search-auto-complete-submission-lang-value': submission_languages(@submission),
+                 'class-search-auto-complete-spinner-src-value': asset_path("jquery.simple.tree/spinner.gif")})
+          = hidden_field_tag("jump_to_concept_id")
+        %div#sd_content.p-1
+          = render TurboFrameComponent.new(id: 'concepts_tree_view' , src: "/ajax/classes/treeview?ontology=#{@ontology.acronym}&conceptid=#{escape(@concept.id)}&lang=#{request_lang(@submission)}")
+      %div#concept_content.d-flex.flex-column.card.p-1.ml-2{data:{'container-splitter-target': 'container'}}
+        = render partial: 'concepts/show'
 
-            %li#notes_top.tab
-              %a{:href => "#notes"}
-                Notes
-                %span#note_count_wrapper
-                  (
-                  %span#note_count>
-                  )
-            %li#mappings_top.tab
-              %a{:href => "#mappings"}
-                Class Mappings (
-                %span#mapping_count>= @concept.mapping_count
-                )
-          - if @enable_ontolobridge
-            %li#request_term_top.tab
-              %a{:href => "#request_term"}
-                New Term Requests
-        #contents
-          #details_content.tab_container
-            %div{:style => "padding: 100px 0; font-size: larger; font-weight: bold; text-align: center;"} Use the "Jump To" to find a class and display details, visualization, notes, and mappings
-          #visualization_content.tab_container.not_visible
-          #notes_content.tab_container.not_visible
-          #mappings_content.tab_container.not_visible
-          #request_term_content.tab_container.not_visible
-    - else
-      .cls-info-container
-        .tabs
-          %ul
-            %li#details_top.selected.tab.first
-              %a{:href => "#details"} Details
-            %li#visualization_top.tab
-              %a{:href => "#visualization"} Visualization
-            %li#notes_top.tab
-              %a{:href => "#notes"}
-                Notes
-                %span#note_count_wrapper
-                  (
-                  %span#note_count= @notes.length
-                  )
-            %li#mappings_top.tab
-              %a{:href => "#mappings"}
-                Class Mappings (
-                %span#mapping_count=  #TODO_REV: Support mapping counts for concepts @concept.mapping_count
-                )
-          - if @enable_ontolobridge
-            %li#request_term_top.tab
-              %a{:href => "#request_term"}
-                New Term Requests
-          - if Rails.configuration.settings.purl[:enabled]
-            = link_to("#classPermalinkModal", class: "class-permalink", title: "Get a link to this page",
-                      aria: {label: "Get a link to this page"},
-                      data: {"bs-toggle": "modal", current_purl: "#{@current_purl}"}) do
-              %i{class: "fas fa-link", aria: {hidden: "true"}}
-        #contents
-          #details_content.tab_container= render :partial =>'/concepts/details'
-          #visualization_content.tab_container.not_visible= render :partial =>'/concepts/biomixer'
-          #notes_content.tab_container.not_visible= render :partial =>'/notes/list'
-          #mappings_content.tab_container.not_visible= render :partial => '/mappings/concept_mappings'
-          - if @enable_ontolobridge
-            #request_term_content.tab_container.not_visible= render :partial =>'/concepts/request_term'
-- else # found an error
-  = "<div id=\"error\"><h2>#{@error}</h2></div>"
+    - form_for(:search, :url => '', :html=>{:id=>'search_form'}) do
+      %input{:name => "search[ontologies][]", :type => "hidden", :value => @ontology.acronym}/
+      = hidden_field :search, :search_type, :value=>"contains"
+      = hidden_field :search, :keyword, :value=>"",:id=>"search_keyword"
+  - else # found an error
+    = "<div id=\"error\"><h2>#{@error}</h2></div>"

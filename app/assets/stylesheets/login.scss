@@ -1,0 +1,41 @@
+.signin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 400px;
+  padding: 15px;
+  margin: 0 auto;
+
+  a {
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  h4, p {
+    text-align: center;
+  }
+}
+
+.form-signin .enable-lists {
+  color: red;
+}
+
+.password-reset {
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
+  padding-bottom: 40px;
+
+  form {
+    max-width: 640px;
+  }
+}

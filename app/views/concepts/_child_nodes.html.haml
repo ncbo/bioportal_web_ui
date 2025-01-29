@@ -1,8 +1,7 @@
 - output =""
 - for child in @children
-  - icons = child.relation_icon(@concept)
-  - output << "<li id='#{short_uuid}'><a id='#{CGI.escape(child.id)}' href='/ontologies/#{child.explore.ontology.acronym}/?p=classes&conceptid=#{CGI.escape(child.id)}'> #{child.prefLabel}</a> #{icons}"
+  - output << tree_link_to_concept(li_id: short_uuid, child: child, ontology_acronym: @submission.ontology.acronym, active_style: '', lang: request_lang(@submission))
   - if child.hasChildren
-    - output << "<ul class='ajax'><li id='#{short_uuid}'><a id='#{CGI.escape(child.id)}' href='/ajax_concepts/#{child.explore.ontology.acronym}/?conceptid=#{CGI.escape(child.id)}&callback=children'>#{child.prefLabel}</a></li></ul>"
+    - output << tree_link_to_children(li_id: short_uuid, child: child, ontology_acronym: @submission.ontology.acronym,lang: request_lang(@submission))
   - output << "</li>"
 = raw output

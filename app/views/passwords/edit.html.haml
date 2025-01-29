@@ -1,0 +1,18 @@
+%div.container
+  %div.edit-user-info
+    = form_with url: password_path, method: 'patch', class: 'my-4' do |f|
+      - if @errors.present?
+        %div{class: 'alert alert-danger mb-4'}
+          - for error in @errors
+            %div= error
+      %h2{class: 'pb-2 border-bottom'} Change password
+      = tag.p "Enter a new password for your #{$SITE} account (#{@user.username})", class: 'text-muted mb-4'
+      %div.mb-3
+        = f.label :password, 'New password', class: 'form-label'
+        = f.password_field :password, class: 'form-control', required: 'true'
+      %div.mb-4
+        = f.label :password_confirmation, 'Confirm new password', class: 'form-label'
+        = f.password_field :password_confirmation, class: 'form-control', required: 'true'
+      %div
+        = submit_tag('Update', class: 'btn btn-primary me-1')
+        = link_to 'Cancel', user_path(@user.username), class: 'btn btn-primary'

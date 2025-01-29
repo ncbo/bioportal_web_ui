@@ -1,212 +1,178 @@
+= turbo_frame_tag 'widgets', data: {turbo: false} do
+  - ont_uri = "/ontologies/#{@ontology.acronym}"
+  - get_code_prefix = ont_uri + '?p=widgets#TB_inline&height=400&width=600'
 
-- ont_uri = "/ontologies/#{@ontology.acronym}"
-- get_code_prefix = ont_uri + '?p=widgets#TB_inline&height=400&width=600'
-
-- if @ontology.metadata_only?
-  #widgets_content{:style => "padding: 1em;"}
-    %p
-      Widgets are only available for ontologies stored in #{$SITE}.
-- else
-  #widgets_content
-    %h5.pb-3 Add #{$ORG} Web Widgets to your site for #{@ontology.acronym}
-    %table#widget_table{width: "100%"}
-      %tr
-        %th
-          Widget type
-        %th
-          Widget demonstration
-      %tr
-        %td
-          %div.card
-            %div.card-body
-              %h5.card-title Jump To
-              %p.card-text Type a class name from #{@ontology.acronym} and jump to it in #{$SITE}
-              %a.btn.btn-info.thickbox{href: "#{get_code_prefix}&inlineId=jump".html_safe} Get code
-        %td
-          #bp_quick_jump
-          :javascript
-            var BP_SEARCH_SERVER = "#{$UI_URL}";
-            var BP_SITE = "#{$SITE}";
-            var BP_ORG = "#{$ORG}";
-            var BP_ontology_id = "#{@ontology.acronym}";
-          = javascript_include_tag "/javascripts/widgets/quick_jump.js"
-          #jump{:style => "display:none;"}
-            %h2 Step 2: Follow the Instructions
-            %hr/
-            .enable-lists
-              %ul
-                %li
-                  Download the
-                  %a.external.free{:href => "/javascripts/widgets/quick_jump.js", :rel => "nofollow", :title => "/javascripts/widgets/quick_jump.js"}
-                    %b quick_jump.js file
-                  and put it on your server
-                %li
-                  Copy the code below and paste it to your HTML page
-                %li
-                  %b Note:
-                  If you would like to use Quick Jump across multiple ontologies:
-                  %ul
-                    %li
-                      You can enter a comma-separated list of ontology ids:
-                      %br/
-                      var BP_ontology_id = "NCIt,SNOMEDCT";
-                    %li
-                      You can set the variable to 'all' to search all ontologies in #{$SITE}:
-                      %br/
-                      var BP_ontology_id = "all";
-                %li
-                  To include definitions in the Jump To drop-down, add the following variable in Javascript:
-                  %br/
-                  %pre var BP_include_definitions = true;
-                %li
-                  In the code that you just pasted, make sure to change the path to the quick_jump.js file to point to the location where you put the file (relative to your HTML file)
-                  %ul
-                    %li
-                      For example, if you put the quick_jump.js file in the same directory as your HTML file, this is the code you would use:
-                      %pre
-                        = preserve do
-                          :escaped
-                            <div id="bp_quick_jump"></div>
-                            <script type="text/javascript">
-                                var BP_ontology_id = "#{@ontology.acronym}";</script>
-                            <script src="quick_jump.js" type="text/javascript" charset="utf-8"></script>
-            %p
-              For more help visit
-              %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
-      %tr
-        %td
-          %div.card
-            %div.card-body
-              %h5.card-title Form Autocomplete
-              %p.card-text Fill your form fields with classes from #{@ontology.acronym}
-              %a.btn.btn-info.thickbox{href: "#{get_code_prefix}&inlineId=form".html_safe} Get code
-        %td
-          = javascript_include_tag "/javascripts/widgets/form_complete.js"
-          Example 1 (start typing the class name to get its full URI)
-          %br/
-          %input{:class => "bp_form_complete-#{CGI.escape(@ontology.acronym).sub('-', '%2d')}-uri", :name => "a", :size => "100", :type => "text"}/
-          %br/
-          Example 2 (get the ID for a class)
-          %br/
-          %input{:class => "bp_form_complete-#{CGI.escape(@ontology.acronym).sub('-', '%2d')}-shortid", :name => "b", :size => "100", :type => "text"}/
-          %br/
-          Example 3 (get the preferred name for a class)
-          %br/
-          %input{:class => "bp_form_complete-#{CGI.escape(@ontology.acronym).sub('-', '%2d')}-name", :name => "c", :size => "100", :type => "text"}/
-          #form{:style => "display:none;"}
-            .enable-lists
-              %h2 Step 2: Follow the Instructions
-              %hr/
-              %ul
-                %li
-                  Download the
-                  %a.external.free{:href => "/javascripts/widgets/form_complete.js", :rel => "nofollow", :title => "/javascripts/widgets/form_complete.js"}
-                    %b form_complete.js file
-                  and put it on your server.
-                %li
-                  In the header for the page where you want the form field, include the
-                  %b form_complete.js
-                  file.
-                %li
-                  On your form, for the fields where you want to use the class-selection widget, specify the field's class in the following format:
-                  %code bp_form_complete-{ontology_id_list}-{value}
-                  %ul
-                    %li
-                      For example,
-                      %code bp_form_complete-NCIT-uri
-                      will use NCI Thesaurus (ontology id is NCIT) and will put the class URI in the field after the user selects the class from the pull-down list.
-                      %ul
-                        %li
-                          %b Note:
-                          In addition to single ontology ids, you can use a list:
-                          %br/
-                          %code bp_form_complete-NCIT,NCBITAXON-uri
-                        %li
-                          %b OR
-                          use 'all' to search across all #{$SITE} ontologies:
-                          %br/
-                          %code bp_form_complete-all-uri
-                        %li The autocomplete widget accesses ontology content from the latest version of the ontology.
-                    %li
-                      You can use the following parameters to select which value will be placed into the user-visible input field:
-                      %ul
-                        %li
-                          %code uri
-                          put the complete URI of the class (e.g.,
-                          = succeed ")" do
-                            %a.external.free{:href => @ontology.explore.classes["collection"].first.id, :rel => "nofollow", :title => "/visualize/39478/Common_Neoplasm"}
-                              = @ontology.explore.classes["collection"].first.id
-                        %li
-                          %code shortid
-                          put the short id of the class, as used in #{$SITE} (e.g., "Common_Neoplasm");
-                        %li
-                          %code name
-                          put the preferred name of the class (e.g., "Common Neoplasm");
-                %li
-                  In addition to the input element you defined, there are four hidden form elements that are created and then set when a user selects a class from the list. For example, if you create a field with this code:
-                  %ul
-                  %pre= h '<input type="text" name="a" class="bp_form_complete-all-uri" size="100"/>'
-              The 'name' attribute is used to create the four following fields (note how the 'a' from the name attribute is appended to the id attribute):
-              %ul
-                %li
-                  %pre= h '<input type="hidden" id="a_bioportal_preferred_name">'
-                %li
-                  %pre= h '<input type="hidden" id="a_bioportal_concept_id">'
-                %li
-                  %pre= h '<input type="hidden" id="a_bioportal_ontology_id">'
-                %li
-                  %pre= h '<input type="hidden" id="a_bioportal_full_id">'
-                %li
-                  Additional parameters are documented on the
-                  %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
-              %p
-                For more help visit
-                %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
-      %tr
-        %td
-          %div.card
-            %div.card-body
-              %h5.card-title Visualization
-              %p.card-text Display a visualization for a given class in #{@ontology.acronym}
-              %a.btn.btn-info.thickbox{href: "#{get_code_prefix}&inlineId=vis".html_safe} Get code
-        %td
-          #bp_vis_container
-            <iframe frameborder="0" src="/widgets/visualization?ontology=#{@ontology.acronym}&class=#{CGI.escape(@ontology.explore.classes["collection"].first.id)}&apikey=#{$APIKEY}" width="100%" height="350"></iframe>
-          #vis{:style => "display:none;"}
-            %h2 Step 2: Follow the Instructions
-            %hr/
-            %b Copy the code below and paste it to your HTML page
-            %br/
-            %br/
-            %pre
-              = preserve do
-                :escaped
-                  <iframe frameborder="0" src="/widgets/visualization?ontology=#{@ontology.acronym}&class=#{CGI.escape(@ontology.explore.classes["collection"].first.id)}&apikey=YOUR_API_KEY"></iframe>
-            %p
-              For more help visit
-              %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
-
-      - unless @ontology.flat?
+  - if @ontology.metadata_only?
+    #widgets_content{:style => "padding: 1em;"}
+      %p
+        Widgets are only available for ontologies stored in #{$SITE}.
+  - else
+    #widgets_content
+      %h5.pb-3 Add #{$ORG} Web Widgets to your site for #{@ontology.acronym}
+      %table#widget_table{width: "100%"}
+        %tr
+          %th
+            Widget type
+          %th
+            Widget demonstration
         %tr
           %td
             %div.card
               %div.card-body
-                %h5.card-title Tree Widget
-                %p.card-text Display a class tree with a search field for #{@ontology.acronym}
-                %a.btn.btn-info.thickbox{href: "#{get_code_prefix}&inlineId=widget_tree_popup".html_safe} Get code
+                %h5.card-title Jump To
+                %p.card-text Type a class name from #{@ontology.acronym} and jump to it in #{$SITE}
+                %a.btn.btn-info.thickbox{href: "#{get_code_prefix}&inlineId=jump".html_safe} Get code
           %td
-            #bp_widget_tree_container
-              <link rel="stylesheet" type="text/css" href="/widgets/jquery.ncbo.tree.css">
-              <script src="/widgets/jquery.ncbo.tree-2.0.2.js"></script>
-              <div id="widget_tree"></div>
-              :javascript
-                var widget_tree = $("#widget_tree").NCBOTree({
-                  apikey: "#{$API_KEY}",
-                  ontology: "#{@ontology.acronym}",
-                  ncboUIURL: "#{$UI_URL}",
-                  ncboAPIURL: "#{$REST_URL}"
-                });
-            #widget_tree_popup{:style => "display:none;"}
+            #bp_quick_jump
+            :javascript
+              var BP_SEARCH_SERVER = "#{$UI_URL}";
+              var BP_SITE = "#{$SITE}";
+              var BP_ORG = "#{$ORG}";
+              var BP_ontology_id = "#{@ontology.acronym}";
+            = javascript_include_tag "/javascripts/widgets/quick_jump.js"
+            #jump{:style => "display:none;"}
+              %h2 Step 2: Follow the Instructions
+              %hr/
+              .enable-lists
+                %ul
+                  %li
+                    Download the
+                    %a.external.free{:href => "/javascripts/widgets/quick_jump.js", :rel => "nofollow", :title => "/javascripts/widgets/quick_jump.js"}
+                      %b quick_jump.js file
+                    and put it on your server
+                  %li
+                    Copy the code below and paste it to your HTML page
+                  %li
+                    %b Note:
+                    If you would like to use Quick Jump across multiple ontologies:
+                    %ul
+                      %li
+                        You can enter a comma-separated list of ontology ids:
+                        %br/
+                        var BP_ontology_id = "NCIt,SNOMEDCT";
+                      %li
+                        You can set the variable to 'all' to search all ontologies in #{$SITE}:
+                        %br/
+                        var BP_ontology_id = "all";
+                  %li
+                    To include definitions in the Jump To drop-down, add the following variable in Javascript:
+                    %br/
+                    %pre var BP_include_definitions = true;
+                  %li
+                    In the code that you just pasted, make sure to change the path to the quick_jump.js file to point to the location where you put the file (relative to your HTML file)
+                    %ul
+                      %li
+                        For example, if you put the quick_jump.js file in the same directory as your HTML file, this is the code you would use:
+                        %pre
+                          = preserve do
+                            :escaped
+                              <div id="bp_quick_jump"></div>
+                              <script type="text/javascript">
+                                  var BP_ontology_id = "#{@ontology.acronym}";</script>
+                              <script src="quick_jump.js" type="text/javascript" charset="utf-8"></script>
+              %p
+                For more help visit
+                %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
+        %tr
+          %td
+            %div.card
+              %div.card-body
+                %h5.card-title Form Autocomplete
+                %p.card-text Fill your form fields with classes from #{@ontology.acronym}
+                %a.btn.btn-info.thickbox{href: "#{get_code_prefix}&inlineId=form".html_safe} Get code
+          %td
+            = javascript_include_tag "/javascripts/widgets/form_complete.js"
+            Example 1 (start typing the class name to get its full URI)
+            %br/
+            %input{:class => "bp_form_complete-#{CGI.escape(@ontology.acronym).sub('-', '%2d')}-uri", :name => "a", :size => "100", :type => "text"}/
+            %br/
+            Example 2 (get the ID for a class)
+            %br/
+            %input{:class => "bp_form_complete-#{CGI.escape(@ontology.acronym).sub('-', '%2d')}-shortid", :name => "b", :size => "100", :type => "text"}/
+            %br/
+            Example 3 (get the preferred name for a class)
+            %br/
+            %input{:class => "bp_form_complete-#{CGI.escape(@ontology.acronym).sub('-', '%2d')}-name", :name => "c", :size => "100", :type => "text"}/
+            #form{:style => "display:none;"}
+              .enable-lists
+                %h2 Step 2: Follow the Instructions
+                %hr/
+                %ul
+                  %li
+                    Download the
+                    %a.external.free{:href => "/javascripts/widgets/form_complete.js", :rel => "nofollow", :title => "/javascripts/widgets/form_complete.js"}
+                      %b form_complete.js file
+                    and put it on your server.
+                  %li
+                    In the header for the page where you want the form field, include the
+                    %b form_complete.js
+                    file.
+                  %li
+                    On your form, for the fields where you want to use the class-selection widget, specify the field's class in the following format:
+                    %code bp_form_complete-{ontology_id_list}-{value}
+                    %ul
+                      %li
+                        For example,
+                        %code bp_form_complete-NCIT-uri
+                        will use NCI Thesaurus (ontology id is NCIT) and will put the class URI in the field after the user selects the class from the pull-down list.
+                        %ul
+                          %li
+                            %b Note:
+                            In addition to single ontology ids, you can use a list:
+                            %br/
+                            %code bp_form_complete-NCIT,NCBITAXON-uri
+                          %li
+                            %b OR
+                            use 'all' to search across all #{$SITE} ontologies:
+                            %br/
+                            %code bp_form_complete-all-uri
+                          %li The autocomplete widget accesses ontology content from the latest version of the ontology.
+                      %li
+                        You can use the following parameters to select which value will be placed into the user-visible input field:
+                        %ul
+                          %li
+                            %code uri
+                            put the complete URI of the class (e.g.,
+                            = succeed ")" do
+                              %a.external.free{:href => @ontology.explore.classes["collection"].first.id, :rel => "nofollow", :title => "/visualize/39478/Common_Neoplasm"}
+                                = @ontology.explore.classes["collection"].first.id
+                          %li
+                            %code shortid
+                            put the short id of the class, as used in #{$SITE} (e.g., "Common_Neoplasm");
+                          %li
+                            %code name
+                            put the preferred name of the class (e.g., "Common Neoplasm");
+                  %li
+                    In addition to the input element you defined, there are four hidden form elements that are created and then set when a user selects a class from the list. For example, if you create a field with this code:
+                    %ul
+                    %pre= h '<input type="text" name="a" class="bp_form_complete-all-uri" size="100"/>'
+                The 'name' attribute is used to create the four following fields (note how the 'a' from the name attribute is appended to the id attribute):
+                %ul
+                  %li
+                    %pre= h '<input type="hidden" id="a_bioportal_preferred_name">'
+                  %li
+                    %pre= h '<input type="hidden" id="a_bioportal_concept_id">'
+                  %li
+                    %pre= h '<input type="hidden" id="a_bioportal_ontology_id">'
+                  %li
+                    %pre= h '<input type="hidden" id="a_bioportal_full_id">'
+                  %li
+                    Additional parameters are documented on the
+                    %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
+                %p
+                  For more help visit
+                  %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
+        %tr
+          %td
+            %div.card
+              %div.card-body
+                %h5.card-title Visualization
+                %p.card-text Display a visualization for a given class in #{@ontology.acronym}
+                %a.btn.btn-info.thickbox{href: "#{get_code_prefix}&inlineId=vis".html_safe} Get code
+          %td
+            #bp_vis_container
+              <iframe frameborder="0" src="/widgets/visualization?ontology=#{@ontology.acronym}&class=#{CGI.escape(@ontology.explore.classes["collection"].first.id)}&apikey=#{$APIKEY}" width="100%" height="350"></iframe>
+            #vis{:style => "display:none;"}
               %h2 Step 2: Follow the Instructions
               %hr/
               %b Copy the code below and paste it to your HTML page
@@ -215,17 +181,53 @@
               %pre
                 = preserve do
                   :escaped
-                    <link rel="stylesheet" type="text/css" href="/widgets/jquery.ncbo.tree.css">
-                    <script src="/widgets/jquery.ncbo.tree-2.0.2.js"></script>
-                    <div id="widget_tree"></div>
-                    var widget_tree = $("#widget_tree").NCBOTree({
-                      apikey: "YOUR_API_KEY",
-                      ontology: "#{@ontology.acronym}"
-                    });
-
-              %p
-                You can also view a
-                %a{href: "/widgets/ncbo_tree.html"} detailed demonstration
+                    <iframe frameborder="0" src="/widgets/visualization?ontology=#{@ontology.acronym}&class=#{CGI.escape(@ontology.explore.classes["collection"].first.id)}&apikey=YOUR_API_KEY"></iframe>
               %p
                 For more help visit
                 %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
+
+        - unless @ontology.flat?
+          %tr
+            %td
+              %div.card
+                %div.card-body
+                  %h5.card-title Tree Widget
+                  %p.card-text Display a class tree with a search field for #{@ontology.acronym}
+                  %a.btn.btn-info.thickbox{href: "#{get_code_prefix}&inlineId=widget_tree_popup".html_safe} Get code
+            %td
+              #bp_widget_tree_container
+              <link rel="stylesheet" type="text/css" href="/widgets/jquery.ncbo.tree.css">
+              <div id="widget_tree"></div>
+              :javascript
+                 $.getScript( "/widgets/jquery.ncbo.tree-2.0.2.js", () => {
+                     var widget_tree = $("#widget_tree").NCBOTree({
+                                                                    apikey: "#{$API_KEY}",
+                                                                    ontology: "#{@ontology.acronym}",
+                                                                    ncboUIURL: "#{$UI_URL}",
+                                                                    ncboAPIURL: "#{$REST_URL}"
+                                                                  });
+                })
+
+              #widget_tree_popup{:style => "display:none;"}
+                %h2 Step 2: Follow the Instructions
+                %hr/
+                %b Copy the code below and paste it to your HTML page
+                %br/
+                %br/
+                %pre
+                  = preserve do
+                    :escaped
+                      <link rel="stylesheet" type="text/css" href="/widgets/jquery.ncbo.tree.css">
+                      <script src="/widgets/jquery.ncbo.tree-2.0.2.js"></script>
+                      <div id="widget_tree"></div>
+                      var widget_tree = $("#widget_tree").NCBOTree({
+                        apikey: "YOUR_API_KEY",
+                        ontology: "#{@ontology.acronym}"
+                      });
+
+                %p
+                  You can also view a
+                  %a{href: "/widgets/ncbo_tree.html"} detailed demonstration
+                %p
+                  For more help visit
+                  %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki

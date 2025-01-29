@@ -1,3 +1,23 @@
+.turbo-progress-bar {
+  height: 10px;
+  background-color: #ffffff;
+}
+
+.tabs-container .tab-items > div button{
+  color: var(--primary-color) !important
+}
+
+a{
+  text-decoration: none !important;
+}
+p {
+  margin-bottom: 0;
+}
+
+body{
+  position: relative;
+}
+
 .alignright {
   float:right;
 }
@@ -35,62 +55,9 @@
 #hd ul li a {
   color:#fff;
 }
-.tabs {
-  float:left;
-  width:100%;
-  background: url('layout/subnav_bg.png') repeat-x;
-  height:24px;
-  display:block;
-  border-bottom:1px solid #bcc6d0;
-  font-size:90%;
-  overflow: hidden;
-}
-.tabs ul {
-  margin:0;
-}
-.tabs li {
-  float:left;
-  display:inline;
-  border-left:1px solid #bcc6d0;
-  height:24px;
-}
-.tabs li:hover {
-  background:#efefef;
-}
-.tabs li.first {
-  border-left:none;
-  padding-left:20px;
-}
-.tabs a {
-  float:left;
-  display:block;
-  padding:5px 20px 5px 5px;
-  color:#000;
-  text-decoration:none;
-}
-.tabs a.close {
-  padding:6px 0 0 5px;
-}
-.tabs li.selected {
-  background:#234979;
-  border-top:1px solid #8ca0b9;
-  height:23px;
-}
-.tabs li.selected a {
-  color:#fff;
-  padding-top:4px;
-}
-.tab_container {
-}
+
 #bd {
   background: #fff;
-}
-#bd hr {
-  border:0;
-  height:1px;
-  color:#e9eaeb;
-  background:#e9eaeb;
-  margin:10px 0;
 }
 
 #grab-point {
@@ -518,7 +485,7 @@ tr.mainresource td {
 }
 
 .obsolete_class {
-  color: rgb(100,100,100);
+  color: rgb(100,100,100)!important;
   cursor: help;
   font-style: oblique;
 }
@@ -912,13 +879,16 @@ button.fg-button-menu, button.fg-button {
 /************************************
  * Top navigation bar
  ************************************/
-div#topNavigationToggler a.btn.btn-login {
-  color: #C58612;
-  border-color: #C58612;
+div#topNavigationToggler {
+  justify-content: space-between;
+  a.btn.btn-login {
+    color: #C58612;
+    border-color: #C58612;
 
-  &:hover {
-    color: #234979;
-    background-color: #C58612;
+    &:hover {
+      color: #234979;
+      background-color: #C58612;
+    }
   }
 }
 
@@ -960,6 +930,8 @@ div#topNavigationToggler a.btn.btn-login {
 #ontology_picker_container div.chzn-drop {
   display: none;
 }
+
+
 
 .no_right_border {
   border-right: none !important;
@@ -1116,4 +1088,22 @@ a.truncated_less, a.truncated_more {
 .highlighted .search_ontology_acronym {
   color: white;
 }
+.hide {
+  display: none !important;
+}
 
+.empty-state {
+  display: none;
+
+  &:only-child {
+    display: revert;
+  }
+
+}
+
+turbo-frame[busy] > .hide-if-loading, .show-if-loading {
+  display: none;
+}
+turbo-frame[busy] ~ .show-if-loading {
+  display: inline-block;
+}

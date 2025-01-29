@@ -1,0 +1,8 @@
+# config/i18n-tasks.yml
+<% require 'i18n-tasks-csv' %>
+
+csv:
+  export:
+    - "tmp/i18n-export/main.csv"
+  import:
+    - tmp/i18n-export/main.csv

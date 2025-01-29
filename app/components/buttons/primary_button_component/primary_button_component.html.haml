@@ -1,0 +1,23 @@
+- if @type == "submit"
+    .button-container{onclick: "displayAnimation()", id: "primary-button"}
+        %input.primary-button{:name => @name, :type => "submit", :value => @value, oncklick: @onclick}/
+- else
+    .button-container
+        .primary-button{:name => @name, onclick: "displayAnimation()", id: "primary-button", oncklick: @onclick}
+            = @value
+
+.animation-container#loading-animation
+    .lds-ellipsis
+        %div
+        %div
+        %div
+        %div
+
+:javascript
+    const button = document.getElementById("primary-button")
+    const loading = document.getElementById("loading-animation")
+    function displayAnimation(){
+        console.log("working")
+        button.style.display = 'none';
+        loading.style.display = 'flex';
+    }

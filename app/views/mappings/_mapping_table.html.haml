@@ -1,11 +1,11 @@
 -# called from mappings_controller in several ways:
 -# 1. mappings_controller::get_concept_table via /app/views/mappings/_concept_mappings.html.haml
 -# 2. directly from mappings_controller::get_concept_table
--#NOTES on control over mapping deletion:
--#deleteMappings() is a callback that is called by "#delete_mappings_button" created below.
--#The appearance of that button is controlled by updateMappingDeletePermissions(), which
--#relies on @delete_mapping_permission in /app/views/mappings/_mapping_table.html.haml; which,
--#in turn, is set by /app/controllers/application_controller.check_delete_mapping_permission()
+-# NOTES on control over mapping deletion:
+-# deleteMappings() is a callback that is called by "#delete_mappings_button" created below.
+-# The appearance of that button is controlled by updateMappingDeletePermissions(), which
+-# relies on @delete_mapping_permission in /app/views/mappings/_mapping_table.html.haml; which,
+-# in turn, is set by /app/controllers/application_controller.check_delete_mapping_permission()
 -#
 -# The delete mappings button display is controlled by JS on page ready (see bp_mappings.js)
 -# check_box_tag(name, value = "1", checked = false, options = {})
@@ -14,7 +14,8 @@
 %table#concept_mappings_table.zebra
   %thead
     %tr
-      %th.delete_mappings_column Delete
+      - if session[:user]
+        %th.delete_mappings_column Delete
       %th Mapping To
       %th Ontology
       %th Source
@@ -28,9 +29,10 @@
     - ont_acronym = cls.links['ontology'].split("/").last
     - map_id = map.id.to_s.split("/").last
     %tr.human{id: map_id}
-      %td.delete_mappings_column
-        - if map.id && !map.id.empty? && session[:user] && (session[:user].id.to_i == map.creator || session[:user].admin?)
-          = check_box_tag :delete_mapping_checkbox, map.id
+      - if session[:user]
+        %td.delete_mappings_column
+          - if map.id && !map.id.empty? && (session[:user].id.to_i == map.creator || session[:user].admin?)
+            = check_box_tag :delete_mapping_checkbox, map.id
       %td
         = link_to cls.id, ontology_path(id: ont_acronym, p: 'classes', conceptid: cls.id)
       %td

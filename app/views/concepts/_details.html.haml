@@ -14,18 +14,23 @@
           = link_to('Obsolete class',
                     change_requests_node_obsoletion_path(concept_id: @concept.id, concept_label: @concept.prefLabel,
                                                          ont_acronym: @ontology.acronym),
-                    class: 'dropdown-item', remote: 'true')
+                    class: 'dropdown-item', 'data-turbo': 'true', 'data-turbo-stream': 'true', 'data-turbo-frame': '_top')
           = link_to('Rename class',
                     change_requests_node_rename_path(concept_id: @concept.id, concept_label: @concept.prefLabel,
                                                      ont_acronym: @ontology.acronym),
-                    class: 'dropdown-item', remote: 'true')
-    %div#addProposalFormDiv
+                    class: 'dropdown-item', 'data-turbo': 'true', 'data-turbo-stream': 'true','data-turbo-frame': '_top')
+    %div{'data-controller': 'change-requests'}
+      %div{id: 'addProposalFormDiv', 'data-change-requests-target': 'proposalForm'}
 
   %table.minimal.concept_details{cellpadding: "0", cellspacing: "0", width: "100%"}
     %tr
       %td Preferred Name
       %td
-        %p= @concept.prefLabel({:use_html => true}).html_safe
+        %p
+        - if @concept.prefLabel({:use_html => false}).to_s.empty?
+          %div.alert.alert-warning= 'No preferred name provided for selected language'
+        - else
+          = @concept.prefLabel({:use_html => true}).html_safe
       %td
     %tr
       %td Synonyms
@@ -33,7 +38,7 @@
         - for synonym in @concept.synonym
           %p= synonym
       %td 
-        %div.synonym-change-request
+        %div.change-request-buttons
           = add_synonym_button
           = remove_synonym_button
     - unless @concept.definition.nil? || @concept.definition.empty?
@@ -104,15 +109,19 @@
         %tr
           %td= "#{remove_owl_notation(key)}"
           %td
-
-            -# NCBO-648 Note: a property with complex values might return an array of nils from the REST-API client code.
-            -# If we use values.compact or values.any? we may miss exceptions on data that should be handled better.
-
-            -# Note: get_link_for_cls_ajax is in application_helper.rb, it calls auto_link when necessary.
-            - ajax_links = values.map {|v| get_link_for_cls_ajax(v, @ontology.acronym, '_blank') }
-            = "<p>#{sanitize(ajax_links.join('</p><p>'))}</p>".html_safe
-            -# auto_link("<p>#{sanitize(values.join("<br/>")).split("||%||").join("<\/p><p>").gsub("%ONT%", @ontology.acronym)}</p>", :all, :target => "_blank")
+            - if key.eql?('definition')
+              %div= sanitize(values.first)
+              %div{'data-controller': 'change-requests'}
+                %div{id: 'editDefinitionFormDiv', 'data-change-requests-target': 'proposalForm'}
+            - else
+              -# Note: get_link_for_cls_ajax is in application_helper.rb, it calls auto_link when necessary.
+              - ajax_links = values.map {|v| get_link_for_cls_ajax(v, @ontology.acronym, '_blank') }
+              = "<p>#{sanitize(ajax_links.join('</p><p>'))}</p>".html_safe
+              -# auto_link("<p>#{sanitize(values.join("<br/>")).split("||%||").join("<\/p><p>").gsub("%ONT%", @ontology.acronym)}</p>", :all, :target => "_blank")
           %td
+            - if key.eql?('definition')
+              %div.change-request-buttons
+                = edit_definition_button(values.first)
 
     -# BOTTOM set of properties
     - for key in bottom_set

@@ -58,22 +58,31 @@
     %div.row.legal-text
       %div.col
         = t('.grant_html')
-    %div.row.pt-2.legal-text
+    %div.row.pt-1.legal-text
+      %div.col
+        = t('.free_access', site: "#{$SITE}")
+    %div.row.pt-1.legal-text
       %div.col
         = t('.copyright_html')
     %div.row.pt-2
       %div.col
         %ul.list-inline.nav
           %li.list-inline-item.nav-item
-            = link_to('CITE US', Rails.configuration.settings.links[:cite], class: 'nav-link p-0', target: '_blank')
+            = link_to('Cite Us', Rails.configuration.settings.links[:cite], class: 'nav-link p-0', target: '_blank')
           %li.list-inline-item
             %i.fas.fa-ellipsis-v{"aria-hidden" => "true"}
           %li.list-inline-item
-            = link_to('PRIVACY POLICY', Rails.configuration.settings.links[:privacy_policy],class: 'nav-link p-0',
+            = link_to('Privacy Policy', Rails.configuration.settings.links[:privacy_policy],class: 'nav-link p-0',
                       target: '_blank')
           %li.list-inline-item
             %i.fas.fa-ellipsis-v{"aria-hidden" => "true"}
           %li.list-inline-item
-            = link_to('TERMS', Rails.configuration.settings.links[:terms], class: 'nav-link p-0', target: '_blank')
+            = link_to('Terms of Use', Rails.configuration.settings.links[:terms], class: 'nav-link p-0',
+                      target: '_blank')
+          %li.list-inline-item
+            %i.fas.fa-ellipsis-v{"aria-hidden" => "true"}
+          %li.list-inline-item
+            = link_to('Use of Cookies', Rails.configuration.settings.links[:cookies], class: 'nav-link p-0',
+                      target: '_blank')
 
 = javascript_include_tag "application"

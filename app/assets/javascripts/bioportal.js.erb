@@ -15,22 +15,6 @@ var cache = new Object();
 var que= new Array();
 var queIndex = 0;
 var thread=0;
-var currentOntology;
-var currentConcept;
-
-    function setOntology(ontology){
-        currentOntology = ontology;
-    }
-    function setConcept(concept){
-        currentConcept = concept;
-    }
-
-    function getOntology(){
-        return currentOntology;
-    }
-    function getConcept(){
-        return currentConcept;
-    }
 
 // Invalidate and Refetch
   function refreshCache(nodeID){

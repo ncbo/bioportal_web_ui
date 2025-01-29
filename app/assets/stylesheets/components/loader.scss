@@ -1,0 +1,12 @@
+.loader-component{
+    display: flex;
+    justify-content: center;
+}
+
+.lds-ellipsis.loader-component{
+    transform: scale(1);
+}
+
+.lds-ellipsis.loader-component div{
+    background: var(--primary-color);
+}

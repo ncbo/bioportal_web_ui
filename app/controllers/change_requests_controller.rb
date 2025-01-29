@@ -5,11 +5,16 @@ class ChangeRequestsController < ApplicationController
   before_action :set_common_instance_variables, except: [:create]
 
   def node_obsoletion
-    respond_to :js
+    respond_to :turbo_stream
   end
 
   def node_rename
-    respond_to :js
+    respond_to :turbo_stream
+  end
+
+  def edit_definition
+    @definition = params[:concept_definition]
+    respond_to :turbo_stream
   end
 
   def create_synonym
@@ -24,10 +29,20 @@ class ChangeRequestsController < ApplicationController
   def create
     params[:curie] = generate_curie(params[:ont_acronym], params[:concept_id])
     params[:content] = KGCL::IssueContentGenerator.call(params)
-    @issue = IssueCreatorService.call(params)
-    flash.now.notice = helpers.change_request_success_message if @issue['id'].present?
 
-    respond_to :js
+    result = IssueCreatorService.call(params)
+    if result[:success]
+      flash.now.notice = helpers.change_request_success_message(result[:issue])
+    else
+      flash.now.alert = "Change request failed: #{result[:error]}"
+    end
+
+    # TODO: remove format.js from this block, and the create.js.erb file after the create_synonym and
+    #   remove_synonym actions are converted from Rails UJS to Turbo Streams.
+    respond_to do |format|
+      format.js
+      format.turbo_stream
+    end
   end
 
   private
@@ -49,17 +64,20 @@ class ChangeRequestsController < ApplicationController
   def require_login
     return unless session[:user].blank?
 
-    # TODO: Can this implementation be improved? For discussion:
-    #   https://stackoverflow.com/a/18681807
-    #   https://stackoverflow.com/a/10607511
-    #   https://stackoverflow.com/a/51275445
-    render js: "window.location.href='#{login_index_path}'"
+    # TODO: remove format.js handling after the create_synonym and remove_synonym actions are converted
+    #   from Rails UJS to Turbo Streams.
+    respond_to do |format|
+      format.any(:html, :turbo_stream) { redirect_to login_index_path }
+      format.js { render js: "window.location.href='#{login_index_path}'", status: :found }
+    end
   end
 
   def set_common_instance_variables
     @concept_label = params[:concept_label]
     @concept_id = params[:concept_id]
     @ont_acronym = params[:ont_acronym]
-    @username = session[:user].username
+    @user = LinkedData::Client::Models::User.get(
+      session[:user].id, include: 'username,githubId,orcidId', display_links: 'false', display_context: 'false'
+    )
   end
 end

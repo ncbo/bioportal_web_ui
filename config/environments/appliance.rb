@@ -80,13 +80,14 @@ BioportalWebUi::Application.configure do
   # Use a different cache store in the appliance.
   config.cache_store = :mem_cache_store, ENV["MEMCACHE_SERVERS"] || "localhost:11211", { :namespace => 'bioportal_web_ui', :expires_in => 1.day }
 
+
   # Disable serving static files from the `/public` folder by default since
   # Apache or NGINX already handles this.
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
   # Add custom data attributes to sanitize allowed list
   config.action_view.sanitized_allowed_attributes = ['id', 'class', 'style', 'data-cls', 'data-ont']
-
+  config.view_component.show_previews = true
   # TODO: Fix this?
   # enable json logging format.  Useful for logstash
   # require 'rackstash'

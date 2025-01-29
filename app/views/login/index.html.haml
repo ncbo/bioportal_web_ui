@@ -1,0 +1,29 @@
+- @title = "Login"
+
+%div.signin
+  = form_with scope: :user, url: login_index_path, class: 'form-signin' do |f|
+    %h4.mb-4
+      = "Log in to #{$SITE}"
+
+    -# TODO: display errors in a standard Rails flash message
+    - if @errors.present?
+      %div.enable-lists
+        Errors on form:
+        %ul
+          - for error in @errors
+            %li= error
+
+    %div.form-floating.mb-3
+      = f.text_field(:username, class: 'form-control', placeholder: 'Username', required: true)
+      = f.label(:username)
+    %div.form-floating.mb-3
+      = f.password_field(:password, class: 'form-control', placeholder: 'Password', required: true,
+                         autocomplete: 'current-password')
+      = f.label(:password)
+    %div.d-grid.mb-3
+      = submit_tag('Log in', class: 'btn btn-lg btn-primary')
+    %p.text-muted.mb-1
+      = "New #{$SITE} user?"
+      = link_to('Create account', new_user_path)
+    %p.text-muted
+      = link_to('Forgot your password?', lost_pass_path)

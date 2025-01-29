@@ -1,0 +1,4 @@
+= turbo_frame_tag 'notes', data: {turbo: false} do
+  %div#notes_content{style:"margin: 1em 0"}
+    %h2{style:"margin-bottom: -0.5em; font-size: x-large; padding: .5em .5em 0; float: left;"} Notes
+    = render :partial => 'notes/ontology_list'

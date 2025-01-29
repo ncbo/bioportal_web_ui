@@ -7,9 +7,15 @@ Disallow: /projects/
 Disallow: /login
 Disallow: /virtual
 Disallow: /visualize
-Disallow: /resource_index
 Disallow: /feedback
+Disallow: /ajax
+Disallow: /javascripts
+Disallow: /widgets
+Disallow: /change_requests
 Crawl-delay: 5
+
+User-agent: Amazonbot
+Crawl-delay: 10
 
 User-agent: SemrushBot
 Disallow: /
@@ -23,5 +29,16 @@ Disallow: /
 User-agent: MJ12bot
 Disallow: /
 
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User agent: MTRobot
+Disallow: /
 
 

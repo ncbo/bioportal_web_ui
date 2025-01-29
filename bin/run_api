@@ -1,0 +1,69 @@
+#!/bin/bash
+display_help() {
+  echo "Usage: $0 [options]"
+  echo "Options:"
+  echo "  -f             Remove tmp/ontoportal_docker"
+  echo "  -k API_KEY     API key"
+  echo "  -r REPOSITORY  Image repository"
+  echo "  -t TAG         Image tag"
+  echo "  -s ONTOLOGY    Starter ontology"
+  echo "  -u URL         Remote API URL"
+  echo "  -h             Display this help message"
+  exit 0
+}
+
+
+env_file_path="$(realpath "$(dirname "$0")")/../.env"
+
+# Read and parse the .env file
+if [ -f "$env_file_path" ]; then
+  while IFS='=' read -r key value; do
+    [[ "$key" =~ ^\s*# ]] && continue  # Skip commented lines
+    [[ "$value" ]] || continue  # Skip lines without values
+    export "$key"="$value"
+  done < "$env_file_path"
+fi
+
+
+while getopts ":k:r:t:s:u:fh" opt; do
+  case $opt in
+    k) api_key="$OPTARG" ;;
+    r) image_repository="$OPTARG" ;;
+    t) image_tag="$OPTARG" ;;
+    s) starter_ontology="$OPTARG" ;;
+    u) remote_api_url="$OPTARG" ;;
+    f) rm -fr tmp/ontoportal_docker ;;
+    h) display_help ;;
+    \?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
+    :) echo "Option -$OPTARG requires an argument." >&2; exit 1 ;;
+  esac
+done
+
+
+
+if [ ! -d "tmp/ontoportal_docker" ]; then
+  git clone --depth=1 -b  main https://github.com/ontoportal-lirmm/ontoportal_docker.git tmp/ontoportal_docker
+fi
+
+# If an option is not provided, check and use the corresponding value from the environment variables
+api_key="${api_key:-$OP_API_KEY}"
+image_repository="${image_repository:-$API_IMAGE_REPOSITORY}"
+image_tag="${image_tag:-$API_IMAGE_TAG}"
+starter_ontology="${starter_ontology:-$STARTER_ONTOLOGY}"
+remote_api_url="${remote_api_url:-$OP_API_URL}"
+
+if curl -sSf http://localhost:9393 > /dev/null 2>&1; then
+  echo "API is already running in http://localhost:9393"
+  exit 0
+fi
+
+# Check if the Docker Compose service exists
+docker compose ls -a --filter "name=ontoportal_docker" | grep -q "ontoportal_docker" && no_provision=true || no_provision=false
+(
+  cd tmp/ontoportal_docker || exit 1
+  command="./run -k $api_key -r $image_repository -t $image_tag -s $starter_ontology -u $remote_api_url"
+  [ "$no_provision" = true ] && command="$command"
+  echo "Run: $command"
+  eval "$command"
+)
+

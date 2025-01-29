@@ -1,4 +1,3 @@
-- if notice.present?
-  %div{class: "alert #{change_request_alert_context} alert-dismissible fade show", role: 'alert'}
-    = notice
-    %button{type: 'button', class: 'btn-close', 'data-bs-dismiss': 'alert', 'aria-label': 'Close'}
+%div{class: "alert #{change_request_alert_context} alert-dismissible fade show", role: 'alert'}
+  = notice.present? ? notice : alert
+  %button{type: 'button', class: 'btn-close', 'data-bs-dismiss': 'alert', 'aria-label': 'Close'}

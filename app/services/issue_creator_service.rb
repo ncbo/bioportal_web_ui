@@ -36,9 +36,14 @@ class IssueCreatorService < ApplicationService
   end
 
   def call
-    data = query(FindRepoQuery, variables: { owner: repo_owner, name: repo_name })
-    data = query(CreateIssueMutation, variables: { repositoryId: data.repository.id, title: @title, body: @body })
-    data.to_h.dig('createIssue', 'issue')
+    repo_data = query(FindRepoQuery, variables: { owner: repo_owner, name: repo_name })
+    return { success: false, error: repo_data.errors[:repository].join(', ') } if repo_data.repository.nil?
+
+    issue_data = query(CreateIssueMutation, variables: { repositoryId: repo_data.repository.id,
+                                                         title: @title, body: @body })
+    return { success: false, error: issue_data.errors[:createIssue].join(', ') } if issue_data.errors.any?
+
+    { success: true, issue: issue_data.to_h.dig('createIssue', 'issue') }
   end
 
   private

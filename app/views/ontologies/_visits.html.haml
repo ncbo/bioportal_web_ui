@@ -1,4 +1,5 @@
 - if visits_data(@ontology)
-  %canvas#visits_chart{data: {labels: @visits_data[:labels].last(13), visits: @visits_data[:visits].last(13)}}
+  %canvas#visits_chart{data: {controller:'load-chart' , 'load-chart-labels-value': @visits_data[:labels].last(13),
+                              'load-chart-datasets-value': visits_chart_dataset(@visits_data[:visits].last(13))}}
 - else
   %p.font-italic= "We are still collecting data for #{@ontology.acronym}"

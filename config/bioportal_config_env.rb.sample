@@ -1,82 +1,58 @@
-# coding: utf-8
-
 # Organization info
-$ORG = "NCBO"
-$ORG_URL = "http://www.bioontology.org"
+$ORG = ENV['ORG'] || "NCBO"
+$ORG_URL = ENV['ORG_URL'] || "https://www.bioontology.org"
 
 # Site name (required)
-$SITE = "BioPortal"
+$SITE = ENV['SITE'] || "BioPortal"
+
+# Full string for site, EX: "NCBO BioPortal", do not modify
+$ORG_SITE = $ORG.nil? || $ORG.empty? ? $SITE : "#{$ORG} #{$SITE}"
 
 # The URL for the BioPortal Rails UI (this application)
-$UI_URL = "http://bioportal.bioontology.org"
+$UI_URL = ENV['UI_URL'] || "https://bioportal.bioontology.org"
 
-# Unique string representing the UI's id for use with the BioPortal API
-$API_KEY = ""
+# If you are running a PURL server to provide URLs for ontologies in your BioPortal instance, enable this option
+$PURL_ENABLED = ENV['PURL_ENABLED'] || false
+# The PURL URL is generated using this prefix + the abbreviation for an ontology.
+# The PURL URL generation algorithm can be altered in app/models/ontology_wrapper.rb
+$PURL_PREFIX = ENV['PURL_PREFIX'] || "https://purl.bioontology.org/ontology"
+
+# Unique string representing the UI's id for use with the BioPortal Core
+$API_KEY = ENV['API_KEY']
 
 # BioPortal API service address
-$REST_URL = "http://example.org:8080/"
+$REST_URL = ENV['API_URL']
 
-# Ontolobridge endpoint url
-$ONTOLOBRIDGE_BASE_URL = "https://ontolobridge.ccs.miami.edu/api-test/requests"
-
-# Ontolobridge authentication token
-$ONTOLOBRIDGE_AUTHENTICATION_TOKEN = "Token Uq2pae73ktMtmgjUgtnhEOuHxr9sZeuK"
-
-# Ontologies for which to enable the new term request (Ontolobridge) tab
-$NEW_TERM_REQUEST_ONTOLOGIES = []
-
-# Max number of children to return when rendering a tree view
-$MAX_CHILDREN = 2500
-
-# Max number of children that it's possible to display (more than this is either too slow or not helpful to users)
-$MAX_POSSIBLE_DISPLAY = 10000
+$NOT_DOWNLOADABLE = {}
 
 # Release version text (appears in footer of all pages, except 404 and 500 errors)
-$RELEASE_VERSION = ""
+$RELEASE_VERSION = ENV['RELEASE_VERSION']
 
 # Enable Slices, filtering of ontologies based on subdomain and ontology groups
-$ENABLE_SLICES = false
-
-# Google Analytics ID (optional)
-$ANALYTICS_ID = ""
+$ENABLE_SLICES = ENV['ENABLE_SLICES'] || false
 
 # A user id for user 'anonymous' for use when a user is required for an action on the REST service but you don't want to require a user to login
 $ANONYMOUS_USER = 0
-
-# Cube metrics reporting
-$ENABLE_CUBE = false
-$CUBE_HOST = "localhost"
-$CUBE_PORT = 1180
 
 # Enable client request caching
 $CLIENT_REQUEST_CACHING = true
 
 # Enable debugging of API Ruby client
-$DEBUG_RUBY_CLIENT = false
+$DEBUG_RUBY_CLIENT = ENV["DEBUG_RUBY_CLIENT"] || false
 # When DEBUG_RUBY_CLIENT is true, this array can limit the cache keys for which to receive debug output. Empty array means output debugging info for ALL keys
-$DEBUG_RUBY_CLIENT_KEYS = []
-
-# If you don't use Airbrake you can have exceptions emailed to the $ERROR_EMAIL address by setting this to 'true'
-$EMAIL_EXCEPTIONS = true
+$DEBUG_RUBY_CLIENT_KEYS = ENV["DEBUG_RUBY_CLIENT_KEYS"] || []
 
 # Email settings
 ActionMailer::Base.smtp_settings = {
-  :address  => "", # smtp server address, ex: smtp.example.org
-  :port  => 25, # smtp server port
-  :domain  => "", # fqdn of rails server, ex: rails.example.org
+  address: '', # smtp server address, ex: smtp.example.org
+  port: 25, # smtp server port
+  domain: '' # fqdn of rails server, ex: rails.example.org
 }
-
 # Announcements mailman mailing list REQUEST address, EX: list-request@lists.example.org
 # NOTE: You must use the REQUEST address for the mailing list. ONLY WORKS WITH MAILMAN LISTS.
-$ANNOUNCE_LIST = "bioportal-test-request@lists.stanford.edu"
-
+$ANNOUNCE_LIST = ENV['SUPPORT_EMAIL'] || "bioportal-test-announce@example.org"
 # Email addresses used for sending notifications (errors, feedback, support)
-$SUPPORT_EMAIL = "recipient@example.org"
-$ADMIN_EMAIL = "recipient@example.org"
-$ERROR_EMAIL = "recipient@example.org"
-
-# Settings for date formatting
-CalendarDateSelect.format = :american
+$SUPPORT_EMAIL = ENV['SUPPORT_EMAIL'] || "bioportal-test-support@example.org"
 
 # reCAPTCHA
 # In order to use reCAPTCHA on the account creation and feedback submission pages:
@@ -91,30 +67,37 @@ CalendarDateSelect.format = :american
 ENV['USE_RECAPTCHA'] = 'false'
 
 # Memcached servers
-ENV['MEMCACHE_SERVERS'] = 'localhost'
+# ENV['MEMCACHE_SERVERS'] = 'localhost'
 
 # Custom BioPortal logging
 require 'log'
 
 # URL where BioMixer GWT app is located
-$BIOMIXER_URL = 'http://biomixer.bioontology.org'
+$BIOMIXER_URL = ENV["BIOMIXER_URL"] || "https://biomixer.bioontology.org"
+$BIOMIXER_APIKEY = ENV["BIOMIXER_APIKEY"]
 
 ##
 # Custom Ontology Details
 # Custom details can be added on a per ontology basis using a key/value pair as columns of the details table
 #
 # Example:
-# $ADDITIONAL_ONTOLOGY_DETAILS = { 1000 => { "Additional Detail" => "Text to be shown in the right-hand column." } }
+# $ADDITIONAL_ONTOLOGY_DETAILS = { "STY" => { "Additional Detail" => "Text to be shown in the right-hand column." } }
 ##
 $ADDITIONAL_ONTOLOGY_DETAILS = {}
 
-#################################
-## AUTO-GENERATED DO NOT MODIFY
-#################################
+# Front notice appears on the front page only and is closable by the user. It remains closed for seven days (stored in cookie)
+$FRONT_NOTICE = ''
+# Site notice appears on all pages and remains closed indefinitely. Stored below as a hash with a unique key and a string message
+# EX: $SITE_NOTICE = { :unique_key => 'Put your message here (can include <a href="/link">html</a> if you use single quotes).' }
+$SITE_NOTICE = {}
 
-# Full string for site, EX: "NCBO BioPortal"
-$ORG_SITE = ($ORG.nil? || $ORG.empty?) ? $SITE : "#{$ORG} #{$SITE}"
+$UI_THEME = ENV['UI_THEME'] || 'bioportal'
+$HOSTNAME = ENV['API_URL']
 
-# Email address to mail when exceptions are raised
-ExceptionNotifier.exception_recipients = [$ERROR_EMAIL]
-
+if $HOSTNAME
+  $HOSTNAME = ENV['API_URL'].split('data.').last
+  # add custom stage server configuration if needed (e.g bioportal_config_development_stageportal.lirmm.fr)
+  if File.exist?("config/bioportal_config_development_#{$HOSTNAME}")
+    require_relative "bioportal_config_development_#{$HOSTNAME}"
+  end
+end

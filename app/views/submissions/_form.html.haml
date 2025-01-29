@@ -125,6 +125,14 @@
   %div.col-sm-10
     = text_field(:submission, :version, value: @submission.version, class: 'form-control')
 
+-# Natural language
+%div.row.mb-3
+  %label{class: 'col-sm-2 col-form-label'} Language
+  %div.col-sm-10
+    = natural_language_selector(@submission)
+    %div{id: 'languageHelpBlock', class: 'form-text'}
+      Enter the language of the content of the ontology, i.e., English, French, etc.
+
 -# Status
 %div.row.mb-3
   %label{class: 'col-sm-2 col-form-label', for: "submission_status"}

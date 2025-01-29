@@ -5,8 +5,10 @@
 = form_with scope: :create_synonym, url: change_requests_path, local: false do |f|
   = hidden_field_tag 'concept_id', @concept_id
   = hidden_field_tag 'concept_label', @concept_label
+  = hidden_field_tag 'github_id', @user.githubId
   = hidden_field_tag 'ont_acronym', @ont_acronym
-  = hidden_field_tag 'username', @username
+  = hidden_field_tag 'orcid_id', @user.orcidId
+  = hidden_field_tag 'username', @user.username
   = hidden_field_tag 'operation', KGCL::Operations::NEW_SYNONYM
   %div{class: 'modal-body'}
     %div.mb-3

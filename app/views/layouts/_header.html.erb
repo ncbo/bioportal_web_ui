@@ -26,17 +26,14 @@
   <%= stylesheet_link_tag "application" %>
 
   <!-- JavaScript -->
-  <%= javascript_include_tag "application-esbuild", "data-turbo-track": "reload", type: "module" %>
   <%= javascript_include_tag "vendor" %>
   <%= javascript_include_tag "//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js" %>
   <%= javascript_include_tag "//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js" %>
-  <%= javascript_include_tag "//unpkg.com/split.js/dist/split.min.js" %>
 
   <script>
     jQuery(document).data({bp: {config: <%=bp_config_json.html_safe%>, user: <%=(session[:user] || {}).to_hash.to_json.html_safe%>}});
     jQuery(document).data().bp.ontology = <%=@ontology.to_json.html_safe%> || {};
     jQuery(document).data().bp.submission_latest = <%=@submission_latest.to_json.html_safe%> || {};
-    jQuery(document).data().bp.ontolobridge_ontologies = <%=$NEW_TERM_REQUEST_ONTOLOGIES.to_json.html_safe%> || [];
     jQuery(document).data().bp.ont_viewer = {};
     jQuery(document).data().bp.ont_chart = {};
   </script>

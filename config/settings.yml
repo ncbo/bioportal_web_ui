@@ -2,6 +2,7 @@ shared:
   links:
     about: 'https://www.bioontology.org/about-us/'
     cite: 'https://www.bioontology.org/about-us/#cite-bioportal'
+    cookies: 'https://www.bioontology.org/terms/#use-of-cookies'
     facebook: 'https://www.facebook.com/National-Center-for-Biomedical-Ontology-127444774011153/'
     github: 'http://github.com/ncbo'
     help: 'https://www.bioontology.org/wiki/BioPortal_Help'
@@ -22,6 +23,8 @@ shared:
     virtual_appliance: 'https://ontoportal.github.io/documentation/administration'
     widgets: 'http://www.bioontology.org/wiki/NCBO_Widgets'
     wiki: 'https://www.bioontology.org/wiki/'
+    mappings: 'https://www.bioontology.org/wiki/BioPortal_Help#Mappings_Tab'
+    metadata_help: 'https://doc.jonquetlab.lirmm.fr/share/32c082ff-97f5-45f4-bafe-05f41c9a5ce4'
 
 development:
   links:

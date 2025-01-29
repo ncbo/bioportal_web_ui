@@ -1,0 +1,102 @@
+.alert-container {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border-radius: 5px;
+
+
+}
+
+.alert-container.alert-info-type {
+  background-color: var(--bg-info-light-color);
+}
+
+.alert-container.alert-warning-type {
+  background-color: var(--bg-warning-light-color);
+}
+
+.alert-container.alert-danger-type {
+  background-color: var(--bg-danger-light-color);
+}
+
+.alert-container.alert-success-type {
+  background-color: var(--bg-success-light-color);
+}
+
+
+.alert-message {
+  font-size: 16px;
+  margin: 0 10px;
+  width: 100%;
+}
+
+
+.alert-message.alert-info-type {
+  color: rgb(59, 130, 246);
+}
+
+.alert-message.alert-warning-type {
+  color: rgb(234, 179, 8);
+}
+
+.alert-message.alert-danger-type {
+  color: rgb(239, 68, 68);
+}
+
+.alert-message.alert-success-type {
+  color: rgb(34, 197, 94);
+}
+
+.alert-icon {
+  align-self: flex-start;
+}
+
+.alert-icon svg {
+  width: 25px;
+  margin: 0 !important;
+}
+
+.alert-icon.alert-info-type svg path {
+  fill: rgb(59, 130, 246);
+}
+
+.alert-icon.alert-warning-type svg path {
+  fill: rgb(234, 179, 8);
+}
+
+.alert-icon.alert-danger-type svg path {
+  fill: rgb(239, 68, 68);
+}
+
+.alert-icon.alert-success-type svg path {
+  fill: rgb(34, 197, 94);
+}
+
+
+.alert-close svg {
+  width: 25px;
+  cursor: pointer;
+}
+
+.alert-close.alert-info-type svg path {
+  fill: rgb(59, 130, 246);
+}
+
+.alert-close.alert-warning-type svg path {
+  fill: rgb(234, 179, 8);
+}
+
+.alert-close.alert-danger-type svg path {
+  fill: rgb(239, 68, 68);
+}
+
+.alert-close.alert-success-type svg path {
+  fill: rgb(34, 197, 94);
+}
+
+
+.alert-button {
+  white-space: nowrap;
+  margin-right: 20px;
+}
+

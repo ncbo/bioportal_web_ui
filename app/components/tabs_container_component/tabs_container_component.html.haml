@@ -1,0 +1,17 @@
+%div{data: {controller:'tabs-container'}, class: container_class, id: @id}
+  %div{class: !pinned_right? && 'justify-content-center'}
+    .tab-items.nav
+      - items.each do |item|
+        %div{data:  tabs_container_data(item), class: item.active_class + ' nav-item'}
+          = item
+          - unless @type.eql?('pill')
+            %hr
+    - if pinned_right?
+      %div.d-flex.mx-1
+        = pinned_right
+
+.tab-content
+  - item_contents.each_with_index do |item_content, index|
+    %div.tab-pane{id: item_content_id(items[index]), class: items[index].active_class}
+      = item_content
+

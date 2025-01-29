@@ -6,5 +6,6 @@ module KGCL
     NODE_OBSOLETION = 'NodeObsoletionContent'
     NODE_RENAME = 'NodeRenameContent'
     REMOVE_SYNONYM = 'RemoveSynonymContent'
+    TEXT_DEFINITION_REPLACEMENT = 'TextDefinitionReplacementContent'
   end
 end

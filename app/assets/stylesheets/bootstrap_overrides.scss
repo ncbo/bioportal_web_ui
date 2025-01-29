@@ -1,15 +1,30 @@
 /* Style for Bootstrap sticky footer
    https://getbootstrap.com/docs/5.2/examples/sticky-footer-navbar/
 -------------------------------------------------- */
+.nav-tabs {
+  --bs-nav-tabs-link-active-color: white;
+  --bs-nav-tabs-link-active-bg: #234979;
+}
+
 main > .container-fluid {
   padding: 80px 15px 0;
 }
 
 .footer {
+  width: 100%;
+  height: 310px; /* Set the fixed height of the footer here */
+  color: #757575;
   background-color: #ccc;
   color: #757575;
 }
 
+body{
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+/* Footer
+-------------------------------------------------- */
 footer.footer h6 {
   font-weight: bold;
 }
@@ -18,7 +33,18 @@ footer.footer .list-inline-item:not(:last-child) {
   margin-right: 1rem;
 }
 
-/* TODO: remove styles below this comment when we eliminate Angular */
+.not-disabled {
+  background-color: white !important;
+}
+
+@media only screen and (max-width: 992px) {
+  body {
+    margin-bottom: 350px;
+  }
+  .footer {
+    height: 350px;
+  }
+}
 
 .ontologies.index main.grid-container {
   padding: 80px 15px 0;

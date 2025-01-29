@@ -1,0 +1,12 @@
+%div.d-flex.flex-column{data: {controller: 'turbo-frame-error'}}
+  = turbo_frame_tag @id, **turbo_frame_html_options do
+    %div.hide-if-loading
+      = content
+  %div.show-if-loading.my-auto.mx-auto
+    - if loader?
+      = loader
+    - else
+      %div.p-3
+        = render LoaderComponent.new(type: 'pulsing')
+  %div{'data-turbo-frame-error-target': 'errorMessage', style:'display: none; width: 100%'}
+    = render Display::AlertComponent.new(type:'danger')

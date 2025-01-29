@@ -1,67 +1,81 @@
 - @title = "Account Information"
 
-%div{style: "padding: 1em;"}
-  %table.form
+%div{class: 'container account-info my-4'}
+  %h4{class: 'pb-2 mb-4 border-bottom'}
+    Account basics
+    = tag.small("(#{@user.username})", class: 'text-muted')
+
+  %table.table
     %tr
-      %th.top First Name:
-      %td.top= @user.firstName
+      %th First name
+      %td= @user.firstName
     %tr
-      %th Last Name:
+      %th Last name
       %td= @user.lastName
     %tr
-      %th Email Address:
+      %th Email
       %td= @user.email
     %tr
-      %th Account Name:
-      %td= @user.username
+      %th GitHub username
+      %td= @user.githubId
     %tr
-      %td{colspan: "2", style: "text-align: right;"}
-        = link_to "Edit Information", edit_user_path(url_encode(@user.username))
-  %br/
-  %span{style: "font-size: large; font-weight: bold;"}
-    API Key
-    %span{style: "font-weight: normal; padding-left: 1em; font-size: x-small; color: gray;"} Your API Key can be used to access the NCBO API (REST) Services
-  %p{style: "padding: .5em 0 0 1em;"}
-    = session[:user].apikey
-  %br/
+      %th ORCID iD
+      %td= @user.orcidId
 
+  %div{class: 'd-flex justify-content-end'}
+    = link_to('Edit account', edit_user_path(@user.username), class: 'btn btn-sm btn-outline-secondary')
+    = link_to('Change password', edit_password_path, class: 'btn btn-sm btn-outline-secondary ms-2')
 
-  - unless @user.subscription.nil? || @user.subscription.empty?
-    %h2 Subscriptions
-    %table
+  -# User's API key
+  %h4{class: 'pb-2 my-4 border-bottom'} API Key
+  = tag.p("Your API key can be used to access the #{$SITE} RESTful API and services", class: 'text-muted')
+  %div{'data-controller': 'clipboard'}
+    %span{'data-clipboard-target': 'source'}= session[:user].apikey
+    %div{class: 'd-flex align-items-center mt-2'}
+      = tag.button 'Copy to clipboard', 'data-action': 'clipboard#copy',  class: 'btn btn-sm btn-outline-secondary'
+      %span{'data-clipboard-target': 'copiedIndicator', class: 'hidden text-success fw-semibold ms-2'} Copied!
+
+  -# User's subscriptions
+  - unless @user.subscription.blank?
+    %h4{class: 'pb-2 mt-5 mb-4 border-bottom'} Subscriptions
+    %table.table
+      %thead.table-light
+        %tr
+          %th Ontology
+          %th Subscription type
+          %th &nbsp;
       - @user.subscription.each do |subscription|
         - ont = (!subscription[:ontology].nil? ? subscription[:ontology].split('/').last: nil) # ensure we get the acronym
         - type = (!subscription[:notification_type].nil? ? subscription[:notification_type].downcase : nil)
-        %tr{style: "padding: 5px;"}
-          %td{style: "padding: 5px;"}
-            %a{href: "/ontologies/#{ont}"}= ont
-          %td{style: "padding: 5px;"}
-            - if type == "notes"
-              %a{href: "/ontologies/#{ont}?p=notes"}= type
+        %tr
+          %td
+            = link_to(ont, ontology_path(ont))
+          %td
+            - if type == 'notes'
+              = link_to(type, ontology_path(ont, p: 'notes'))
             - else
               = type
-          %td{style: "padding: 5px;"}
-            .subscribe_to_ontology{style: "float: left;"}
+          %td
+            .subscribe_to_ontology
               = raw subscribe_ontology_button(ont, @user)
-    %br/
 
-  - unless @user_projects.nil? || @user_projects.empty?
-    %h2#user_projects{style: "font-size: large;"}
-      Projects Created
-    %ul{style: "padding-left: 1em;"}
-      - @user_projects.each do |project|
+  -# Projects this user created
+  - unless @user_projects.blank?
+    %h4{class: 'pb-2 mt-5 mb-4 border-bottom'} Projects
+    = tag.p("Projects you created in #{$SITE}", class: 'text-muted')
+    %ul.list-unstyled
+      - @user_projects.each do |p|
         %li
-          %a{href: "/projects/#{project.acronym}"}= project.name
-    %br/
+          = link_to(p.name, project_path(p.acronym))
 
-  - unless @admin_ontologies.nil? || @admin_ontologies.empty?
-    %h2#admin_ontologies{style: "font-size: large;"}
-      Submitted Ontologies
-    %ul{style: "padding-left: 1em;"}
+  -# Ontologies this user administers
+  - unless @admin_ontologies.blank?
+    %h4{class: 'pb-2 mt-5 mb-4 border-bottom'} Ontologies
+    = tag.p("Ontologies you have administrative access to in #{$SITE}", class: 'text-muted')
+    %ul.list-unstyled
       - @admin_ontologies.each do |ont|
         %li
-          %a{href: "/ontologies/#{ont.acronym}"}= ont.name
-    %br
+          = link_to(ont.name, ontology_path(ont.acronym))
 
   :javascript
     jQuery(document).ready(function(){
@@ -106,33 +120,22 @@
       jQuery("#custom_ontologies").hide();
     }
 
-  %h2#custom_ontology_set{style: "font-size: large;"}
-    Custom Ontology Set
-  #custom_ontologies.enable-lists
+  %h4{class: 'pb-2 mt-5 mb-4 border-bottom'} Custom ontology set
+  #custom_ontologies
     - if at_slice?
-      %p{style: "padding-left: 7px; font-size: 10pt; margin: -3px 0 7px;"}
-        Please
-        %a{href: "#{$UI_URL}/account"} visit the main site
-        to modify your Custom Ontology Set.
+      = custom_ontology_set_slice_text
     - else
-      %p{style: "padding-left: 7px; font-size: 9pt; color: gray; margin: -3px 0 7px;"}
-        %b
-          Customize your #{$SITE} display:
-        Pick the ontologies that you want to see and #{$SITE} will hide all other ontologies. <br/>
-        %b
-          Note:
-        this feature works only when you are logged in.
-      %p
-        %span{style: "font-weight: normal; font-size: 9pt; padding-left: 7px;"}
-          %a#edit_custom_ontologies{href: "javascript:void(0);"} select ontologies
-      - if @user_ontologies && !@user_ontologies.empty?
-        %ul
+      = custom_ontology_set_intro_text
+      = button_tag('Select ontologies', type: 'button', id: 'edit_custom_ontologies', class: 'btn btn-primary')
+      - if @user_ontologies.present?
+        %ul{class: 'list-unstyled mt-3 mb-5'}
           - @user_ontologies.each do |ont|
-            - ont = LinkedData::Client::Models::Ontology.get(ont)
+            - ont = LinkedData::Client::Models::Ontology.get(ont, include: 'name,acronym')
             %li
               #{ont.name} (#{ont.acronym})
       - else
-        %p{style: "padding-left: 7px;"} You haven't picked any ontologies yet
+        = tag.p("You haven't picked any ontologies yet", class: 'mt-3 mb-5')
+
   #custom_ontologies_picker{style: "left: -9999px; position: absolute;"}
     = form_tag custom_ontologies_path(url_encode(@user.username)) do
       - selected = @user.customOntology.map {|o| LinkedData::Client::Models::Ontology.get(o).acronym}

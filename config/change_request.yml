@@ -10,7 +10,7 @@ development:
     GO:
       repository: 'hrshdhgd/go-ontology'
     MONDO:
-      repository: 'hrshdhgd/mondo'
+      repository: 'caufieldjh/mondo'
     UBERON:
       repository: 'hrshdhgd/uberon'
 
@@ -21,7 +21,7 @@ staging:
     GO:
       repository: 'hrshdhgd/go-ontology'
     MONDO:
-      repository: 'hrshdhgd/mondo'
+      repository: 'caufieldjh/mondo'
     UBERON:
       repository: 'hrshdhgd/uberon'
 

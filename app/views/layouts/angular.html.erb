@@ -33,12 +33,10 @@
   <%= stylesheet_link_tag "application" %>
 </head>
 <body class="<%= controller_name %> <%= action_name %> d-flex flex-column h-100">
-  <%=javascript_include_tag "application-esbuild", "data-turbo-track": "reload", type: "module" %>
   <%=javascript_include_tag "vendor"%>
   <%=javascript_include_tag "//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"%>
   <%=javascript_include_tag "//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.1/Chart.min.js"%>
   <%=javascript_include_tag "//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"%>
-  <%=javascript_include_tag "//unpkg.com/split.js/dist/split.min.js"%>
   <script>
     jQuery(document).data({bp: {config: <%=bp_config_json.html_safe%>, user: <%=(session[:user] || {}).to_hash.to_json.html_safe%>}});
     jQuery(document).data().bp.ontology = <%=@ontology.to_json.html_safe%> || {};

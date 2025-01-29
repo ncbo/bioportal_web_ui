@@ -132,14 +132,14 @@ class OntologiesController < ApplicationController
   end
 
   def classes
-    get_class(params)
+    @submission = get_ontology_submission_ready(@ontology)
+    get_class(params, @submission)
 
     if ["application/ld+json", "application/json"].include?(request.accept)
       render plain: @concept.to_jsonld, content_type: request.accept and return
     end
 
     @current_purl = @concept.purl if Rails.configuration.settings.purl[:enabled]
-    @submission = get_ontology_submission_ready(@ontology)
 
     unless @concept.id == "bp_fake_root"
       @notes = @concept.explore.notes
@@ -188,7 +188,7 @@ class OntologiesController < ApplicationController
 
   def edit
     # Note: find_by_acronym includes ontology views
-    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:id]).first
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:id], include: 'all').first
     redirect_to_home unless session[:user] && @ontology.administeredBy.include?(session[:user].id) || session[:user].admin?
     @categories = LinkedData::Client::Models::Category.all
     @user_select_list = LinkedData::Client::Models::User.all.map {|u| [u.username, u.id]}
@@ -245,18 +245,10 @@ class OntologiesController < ApplicationController
       return
     end
 
-    if params[:ontology].to_i > 0
-      acronym = BPIDResolver.id_to_acronym(params[:ontology])
-      if acronym
-        redirect_new_api
-        return
-      end
-    end
-
     # Note: find_by_acronym includes ontology views
-    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology]).first
-    not_found if @ontology.nil?
-    
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology], include: 'all').first
+    not_found if @ontology.nil? || (@ontology.errors && [401, 403, 404].include?(@ontology.status))
+
     # Handle the case where an ontology is converted to summary only. 
     # See: https://github.com/ncbo/bioportal_web_ui/issues/133.
     if @ontology.summaryOnly && params[:p].present?
@@ -265,8 +257,6 @@ class OntologiesController < ApplicationController
         redirect_to(ontology_path(params[:ontology]), status: :temporary_redirect) and return
       end
     end
-
-    @ob_instructions = helpers.ontolobridge_instructions_template(@ontology)
 
     # Retrieve submissions in descending submissionId order (should be reverse chronological order)
     @submissions = @ontology.explore.submissions.sort {|a,b| b.submissionId.to_i <=> a.submissionId.to_i } || []
@@ -313,7 +303,7 @@ class OntologiesController < ApplicationController
   end
 
   def submit_success
-    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:id]).first
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:id], include: 'all').first
     render 'submit_success'
   end
 
@@ -345,9 +335,9 @@ class OntologiesController < ApplicationController
       return
     end
     # Note: find_by_acronym includes ontology views
-    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology][:acronym] || params[:id]).first
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:id]).first
     @ontology.update_from_params(ontology_params)
-    error_response = @ontology.update
+    error_response = @ontology.update(cache_refresh_all: false)
     if response_error?(error_response)
       @categories = LinkedData::Client::Models::Category.all
       @user_select_list = LinkedData::Client::Models::User.all.map {|u| [u.username, u.id]}
@@ -361,10 +351,6 @@ class OntologiesController < ApplicationController
       # end
       redirect_to "/ontologies/#{@ontology.acronym}"
     end
-  end
-
-  def virtual
-    redirect_new_api
   end
 
   def widgets

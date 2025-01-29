@@ -9,44 +9,21 @@ module KGCL
     #
     # @see https://github.com/INCATools/kgcl KGCL documentation
     #
-    class NodeObsoletionContent
-      attr_reader :params
-
-      def initialize(params)
-        @params = params
-      end
-
-      def render
-        tr = KGCL::TemplateRenderer.new(
-          title_template: 'node_obsoletion_title.erb',
-          body_template: 'node_obsoletion_body.erb',
-          bind_klass: self
-        )
-        tr.render
-      end
-
+    class NodeObsoletionContent < IssueContent
       def comment
         @params[:node_obsoletion][:comment]
-      end
-
-      def concept_id
-        @params[:concept_id]
-      end
-
-      def concept_label
-        @params[:concept_label]
-      end
-
-      def curie
-        @params[:curie]
       end
 
       def get_binding
         binding
       end
 
-      def username
-        @params[:username]
+      def title_template
+        'node_obsoletion_title.erb'
+      end
+
+      def body_template
+        'node_obsoletion_body.erb'
       end
     end
   end

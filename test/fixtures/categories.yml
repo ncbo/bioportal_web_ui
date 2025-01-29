@@ -1,0 +1,29 @@
+category1:
+  acronym: "CAT1"
+  name: "Category One"
+  description: "This is the first category."
+  ontologies:
+
+category2:
+  acronym: "CAT2"
+  name: "Category Two"
+  description: "This is the second category."
+  ontologies:
+
+category3:
+  acronym: "CAT3"
+  name: "Category Three"
+  description: "This is the third category."
+  ontologies:
+
+category4:
+  acronym: "CAT4"
+  name: "Category Four"
+  description: "This is the fourth category."
+  ontologies:
+
+category5:
+  acronym: "CAT5"
+  name: "Category Five"
+  description: "This is the fifth category."
+  ontologies:

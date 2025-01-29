@@ -96,9 +96,6 @@ class SearchController < ApplicationController
       else
         params[:ontologies] = [params[:ontologies]]
       end
-      if params[:ontologies].first.to_i > 0
-        params[:ontologies].map! {|o| BPIDResolver.id_to_acronym(o)}
-      end
       params[:ontologies] = params[:ontologies].join(",")
     end
   end

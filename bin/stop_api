@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Check if the directory exists
+if [ -d "tmp/ontoportal_docker" ]; then
+  # Check if the container is running
+  if docker ps --filter "name=ontoportal_docker-api" --format "{{.Names}}" | grep -q "ontoportal_docker-api"; then
+      container_names=$(docker ps --filter "name=ontoportal_docker-api" --format "{{.Names}}")
+      docker stop "$container_names"
+  fi
+
+   cd  "tmp/ontoportal_docker" && docker compose down --volumes
+fi
+

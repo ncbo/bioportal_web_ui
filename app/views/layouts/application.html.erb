@@ -3,8 +3,7 @@
 <head>
   <title>BioportalWebUi</title>
   <%= stylesheet_link_tag    "application", :media => "all" %>
-  <%= javascript_include_tag "application-esbuild", "data-turbo-track": "reload", type: "module" %>
-  <%= javascript_include_tag "application"%>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload"%>
   <%= csrf_meta_tags %>
 </head>
 <body class="<%= controller_name %> <%= action_name %>">

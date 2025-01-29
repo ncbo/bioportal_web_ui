@@ -1,0 +1,8 @@
+## Hey ontobot! apply:
+
+* change definition of <%= curie %> from '<%= old_definition %>' to '<%= new_definition %>'
+
+---
+
+<% footer_template = File.read("#{Rails.root}/app/lib/kgcl/templates/footer.erb") %>
+<%= ERB.new(footer_template, trim_mode: '<>', eoutvar: 'footer').result(binding) %>

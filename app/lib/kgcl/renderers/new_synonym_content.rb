@@ -12,36 +12,9 @@ module KGCL
     #
     # @see https://github.com/INCATools/kgcl KGCL documentation
     #
-    class NewSynonymContent
-      attr_reader :params
-
-      def initialize(params)
-        @params = params
-      end
-
-      def render
-        tr = KGCL::TemplateRenderer.new(
-          title_template: 'new_synonym_title.erb',
-          body_template: 'new_synonym_body.erb',
-          bind_klass: self
-        )
-        tr.render
-      end
-
+    class NewSynonymContent < IssueContent
       def comment
         @params[:create_synonym][:comment]
-      end
-
-      def concept_id
-        @params[:concept_id]
-      end
-
-      def concept_label
-        @params[:concept_label]
-      end
-
-      def curie
-        @params[:curie]
       end
 
       def get_binding
@@ -56,8 +29,12 @@ module KGCL
         @params[:create_synonym][:preferred_label]
       end
 
-      def username
-        @params[:username]
+      def title_template
+        'new_synonym_title.erb'
+      end
+
+      def body_template
+        'new_synonym_body.erb'
       end
     end
   end

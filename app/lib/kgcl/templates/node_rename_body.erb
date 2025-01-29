@@ -4,6 +4,5 @@
 
 ---
 
-Comment: <%= comment %>
-
-This request comes from BioPortal user: <%= username %>
+<% footer_template = File.read("#{Rails.root}/app/lib/kgcl/templates/footer.erb") %>
+<%= ERB.new(footer_template, trim_mode: '<>', eoutvar: 'footer').result(binding) %>

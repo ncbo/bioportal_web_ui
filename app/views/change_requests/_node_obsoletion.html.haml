@@ -1,12 +1,17 @@
-= form_with scope: :node_obsoletion, url: change_requests_path, local: false, class: 'mb-5' do |f|
+= form_with(scope: :node_obsoletion, url: change_requests_path,
+            data: {turbo: true, turbo_frame: '_top', action: 'turbo:submit-end->change-requests#hideForm'},
+            class: 'mb-5') do |f|
   = hidden_field_tag 'concept_id', @concept_id
   = hidden_field_tag 'concept_label', @concept_label
+  = hidden_field_tag 'github_id', @user.githubId
   = hidden_field_tag 'ont_acronym', @ont_acronym
-  = hidden_field_tag 'username', @username
+  = hidden_field_tag 'orcid_id', @user.orcidId
+  = hidden_field_tag 'username', @user.username
   = hidden_field_tag 'operation', KGCL::Operations::NODE_OBSOLETION
   %div.mb-2
     = f.label :comment, "Proposal: obsolete '#{@concept_label}'", for: 'node_obsoletion_comment', class: 'form-label'
     = f.text_area :comment, rows: 5, class: 'form-control'
     %div.form-text Optionally enter a comment describing the reason for obsoletion
   = submit_tag 'Submit', id: 'node_obsoletion_button', class: 'btn btn-primary'
-  = tag.button 'Cancel', type: 'button', id: 'cancel_kgcl_proposal', class: 'btn btn-primary'
+  = tag.button('Cancel', type: 'button',
+               'data-action': 'click->change-requests#clearProposalForm', class: 'btn btn-primary')

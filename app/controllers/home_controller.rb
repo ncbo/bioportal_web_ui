@@ -107,11 +107,15 @@ class HomeController < ApplicationController
     @user_ontologies = @user.customOntology
     @user_ontologies ||= []
 
-    onts = LinkedData::Client::Models::Ontology.all
-    @admin_ontologies = onts.select { |o| o.administeredBy.include? @user.id }
+    @admin_ontologies = LinkedData::Client::Models::Ontology.where(include_views: true) do |o|
+      o.administeredBy.include? @user.id
+    end
+    @admin_ontologies.sort! { |a, b| a.name.downcase <=> b.name.downcase }
 
-    projects = LinkedData::Client::Models::Project.all
-    @user_projects = projects.select { |p| p.creator.include? @user.id }
+    @user_projects = LinkedData::Client::Models::Project.where do |p|
+      p.creator.include? @user.id
+    end
+    @user_projects.sort! { |a, b| a.name.downcase <=> b.name.downcase }
 
     render 'users/show'
   end

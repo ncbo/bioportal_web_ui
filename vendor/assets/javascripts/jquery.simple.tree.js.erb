@@ -165,7 +165,7 @@ $.fn.simpleTree = function(opt){
 				{
 					TREE.option.afterClick($(this).parent());
 				}
-				return false;
+				return true;
 			}).dblclick(function(){
 				mousePressed = false;
 				TREE.nodeToggle($(this).parent().get(0));
