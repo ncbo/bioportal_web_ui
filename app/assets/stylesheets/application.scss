@@ -1,6 +1,7 @@
 @use 'alertify';
 @use 'chosen.css.scss';
 @use 'facebox';
+@use 'flag-icon';
 @use 'jquery-ui-1.8.1.custom.css.scss';
 @use 'jquery.autocomplete' as autocomplete;
 @use 'jquery.tooltip' as tooltip;
@@ -10,16 +11,18 @@
 
 // BioPortal
 @use 'admin';
+@use 'account';
 @use 'annotator';
 @use 'bioportal';
 @use 'concepts';
 @use 'footer';
 @use 'home';
+@use 'login';
 @use 'mappings';
 @use 'notes';
 @use 'notice';
-@use 'ontolobridge';
 @use 'ontologies';
+@use 'ontology_viewer';
 @use 'recommender';
 @use 'search';
 @use 'submissions';
