@@ -14,8 +14,8 @@ gem 'chart-js-rails'
 
 gem 'select2-rails'
 
-# SassC as a replacement for sass-rails
-gem 'sassc-rails' # sass-rails replacement
+# Use Sass to process CSS
+gem 'dartsass-rails', '~> 0.5.0'
 
 # Terser JavaScript minifier as a replacement for Uglifier
 gem 'terser' # uglifier replacement
