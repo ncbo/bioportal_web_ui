@@ -35,7 +35,7 @@ gem 'sprockets-rails'
 
 # Use the Puma web server
 # [https://github.com/puma/puma]
-gem 'puma', '~> 5.0'
+gem 'puma', '~> 6.0'
 
 # Use JavaScript with ESM import maps
 # [https://github.com/rails/importmap-rails]
@@ -107,10 +107,8 @@ gem 'flag-icons-rails', '~> 3.4'
 gem 'iso-639', '~> 0.3.6'
 
 # Custom API client
-gem 'ontologies_api_client', github: 'ncbo/ontologies_api_ruby_client', tag: 'v2.4.0'
+gem 'ontologies_api_client', github: 'ncbo/ontologies_api_ruby_client', tag: 'v2.5.0'
 
-# compatibilty pin https://github.com/ncbo/bioportal_web_ui/issues/293
-gem 'base64', '0.1.0'
 gem 'rexml', '~> 3'
 
 # Ruby 2.7.8 pinned gems (to remove when migrating to Ruby >= 3.0)
@@ -147,7 +145,6 @@ group :development do
   gem 'capistrano', '~> 3.17', require: false
   gem 'capistrano-bundler', require: false
   gem 'capistrano-locally', require: false
-  gem 'capistrano-passenger', require: false
   gem 'capistrano-rails', '~> 1.4', require: false
   gem 'capistrano-rbenv', require: false
   gem 'capistrano-yarn', require: false

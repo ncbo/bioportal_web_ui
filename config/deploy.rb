@@ -4,6 +4,7 @@ set :application, "bioportal_web_ui"
 set :repo_url, "https://github.com/#{fetch(:author)}/#{fetch(:application)}.git"
 
 set :deploy_via, :remote_cache
+# set :deploy_via, :copy
 
 # Default branch is :master
 # ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }
@@ -14,7 +15,7 @@ set :deploy_via, :remote_cache
 set :branch, ENV.include?('BRANCH') ? ENV['BRANCH'] : 'master'
 
 # Default deploy_to directory is /var/www/my_app
-set :deploy_to, "/srv/ontoportal/#{fetch(:application)}"
+set :deploy_to, "/opt/ontoportal/#{fetch(:application)}"
 
 # Default value for :scm is :git
 # set :scm, :git
@@ -29,12 +30,11 @@ set :deploy_to, "/srv/ontoportal/#{fetch(:application)}"
 # set :pty, true
 
 # Default value for :linked_files is []
-# set :linked_files, %w{config/bioportal_config.rb config/database.yml public/robots.txt}
+# set :linked_files, %w{tmp/restart.txt}
 
 # Default value for linked_dirs is []
 # set :linked_dirs, %w{bin log tmp/pids tmp/cache public/system public/assets config/locales}
 set :linked_dirs, %w{log tmp/pids tmp/cache public/system public/assets}
-
 # Default value for default_env is {}
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
 
@@ -48,8 +48,8 @@ set :assets_roles, [:web, :app]
 set :keep_assets, 3
 
 # If you want to restart using `touch tmp/restart.txt`, add this to your config/deploy.rb:
+# set :passenger_restart_with_touch, true
 
-set :passenger_restart_with_touch, true
 # If you want to restart using `passenger-config restart-app`, add this to your config/deploy.rb:
 # set :passenger_restart_with_touch, false # Note that `nil` is NOT the same as `false` here
 # If you don't set `:passenger_restart_with_touch`, capistrano-passenger will check what version of passenger you are running
@@ -100,8 +100,7 @@ namespace :deploy do
   desc 'Restart application'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      # Your restart mechanism here, for example:
-      execute :touch, release_path.join('tmp/restart.txt')
+      execute 'sudo /bin/systemctl restart ui.service'
     end
   end
 

@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/ncbo/ontologies_api_ruby_client.git
-  revision: f589b13dfbbc133ea67cbae1a8f92b41ea85c14b
-  tag: v2.4.0
+  revision: 694648f7b6dc6f17c150386c70f75fc2cc339e64
+  tag: v2.5.0
   specs:
-    ontologies_api_client (2.4.0)
+    ontologies_api_client (2.5.0)
       activesupport (= 7.0.8)
       addressable (~> 2.8)
       excon
@@ -89,7 +89,7 @@ GEM
     ast (2.4.2)
     autoprefixer-rails (10.4.19.0)
       execjs (~> 2)
-    base64 (0.1.0)
+    base64 (0.2.0)
     bcrypt_pbkdf (1.1.1)
     bcrypt_pbkdf (1.1.1-arm64-darwin)
     bcrypt_pbkdf (1.1.1-x86_64-darwin)
@@ -101,7 +101,7 @@ GEM
       autoprefixer-rails (>= 9.1.0)
       popper_js (>= 2.11.6, < 3)
       sassc-rails (>= 2.0.0)
-    brakeman (6.2.2)
+    brakeman (7.0.0)
       racc
     bugsnag (6.27.1)
       concurrent-ruby (~> 1.0)
@@ -114,8 +114,6 @@ GEM
     capistrano-bundler (2.1.1)
       capistrano (~> 3.1)
     capistrano-locally (0.3.0)
-      capistrano (~> 3.0)
-    capistrano-passenger (0.2.1)
       capistrano (~> 3.0)
     capistrano-rails (1.7.0)
       capistrano (~> 3.1)
@@ -153,7 +151,7 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     deepl-rb (3.2.0)
-    diff-lcs (1.5.1)
+    diff-lcs (1.6.0)
     docile (1.4.1)
     domain_name (0.6.20240107)
     ed25519 (1.3.0)
@@ -173,8 +171,10 @@ GEM
     faraday-net_http (3.4.0)
       net-http (>= 0.5.0)
     ffi (1.17.1)
+    ffi (1.17.1-aarch64-linux-gnu)
     ffi (1.17.1-arm64-darwin)
     ffi (1.17.1-x86_64-darwin)
+    ffi (1.17.1-x86_64-linux-gnu)
     flag-icons-rails (3.4.6.1)
       sass-rails
     globalid (1.2.1)
@@ -220,7 +220,7 @@ GEM
       terminal-table (>= 1.5.1)
     i18n-tasks-csv (1.1)
       i18n-tasks (~> 0.9)
-    importmap-rails (2.0.3)
+    importmap-rails (2.1.0)
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
       railties (>= 6.0.0)
@@ -242,7 +242,7 @@ GEM
       railties (>= 3.2.16)
     jsbundling-rails (1.3.1)
       railties (>= 6.0.0)
-    json (2.9.1)
+    json (2.10.1)
     language_server-protocol (3.17.0.4)
     launchy (3.1.0)
       addressable (~> 2.8)
@@ -255,10 +255,11 @@ GEM
       letter_opener (~> 1.7)
       railties (>= 5.2)
       rexml
+    lint_roller (1.1.0)
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
-    logger (1.6.5)
+    logger (1.6.6)
     loofah (2.24.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -287,7 +288,7 @@ GEM
     mime-types (3.6.0)
       logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2025.0204)
+    mime-types-data (3.2025.0220)
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
     minitest (5.25.4)
@@ -300,7 +301,7 @@ GEM
       time
     net-http (0.6.0)
       uri
-    net-imap (0.4.18)
+    net-imap (0.5.6)
       date
       net-protocol
     net-pop (0.1.2)
@@ -317,16 +318,16 @@ GEM
     netrc (0.11.0)
     newrelic_rpm (9.17.0)
     nio4r (2.7.4)
-    nokogiri (1.17.2)
+    nokogiri (1.18.3)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.17.2-aarch64-linux)
+    nokogiri (1.18.3-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.17.2-arm64-darwin)
+    nokogiri (1.18.3-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.17.2-x86_64-darwin)
+    nokogiri (1.18.3-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.17.2-x86_64-linux)
+    nokogiri (1.18.3-x86_64-linux-gnu)
       racc (~> 1.4)
     oj (3.16.9)
       bigdecimal (>= 3.0)
@@ -354,10 +355,10 @@ GEM
       date
       stringio
     public_suffix (6.0.1)
-    puma (5.6.9)
+    puma (6.6.0)
       nio4r (~> 2.0)
     racc (1.8.1)
-    rack (2.2.10)
+    rack (2.2.11)
     rack-protection (3.2.0)
       base64 (>= 0.1.0)
       rack (~> 2.2, >= 2.2.4)
@@ -412,7 +413,7 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    rexml (3.4.0)
+    rexml (3.4.1)
     rouge (4.5.1)
     rspec-core (3.13.3)
       rspec-support (~> 3.13.0)
@@ -431,9 +432,10 @@ GEM
       rspec-mocks (~> 3.13)
       rspec-support (~> 3.13)
     rspec-support (3.13.2)
-    rubocop (1.71.2)
+    rubocop (1.72.2)
       json (~> 2.3)
-      language_server-protocol (>= 3.17.0)
+      language_server-protocol (~> 3.17.0.2)
+      lint_roller (~> 1.1.0)
       parallel (~> 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
@@ -459,7 +461,9 @@ GEM
       sprockets-rails
       tilt
     select2-rails (4.0.13)
-    selenium-webdriver (4.16.0)
+    selenium-webdriver (4.29.0)
+      base64 (~> 0.2)
+      logger (~> 1.4)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
@@ -480,15 +484,16 @@ GEM
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
-    sshkit (1.23.2)
+    sshkit (1.24.0)
       base64
+      logger
       net-scp (>= 1.1.2)
       net-sftp (>= 2.1.2)
       net-ssh (>= 2.8.0)
       ostruct
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
-    stringio (3.1.2)
+    stringio (3.1.4)
     temple (0.10.3)
     terminal-table (4.0.0)
       unicode-display_width (>= 1.1.1, < 4)
@@ -540,7 +545,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  base64 (= 0.1.0)
   bcrypt_pbkdf (>= 1.0, < 2.0)
   bootsnap
   bootstrap (~> 5.2.3)
@@ -549,7 +553,6 @@ DEPENDENCIES
   capistrano (~> 3.17)
   capistrano-bundler
   capistrano-locally
-  capistrano-passenger
   capistrano-rails (~> 1.4)
   capistrano-rbenv
   capistrano-yarn
@@ -588,7 +591,7 @@ DEPENDENCIES
   omniauth-rails_csrf_protection
   ontologies_api_client!
   pry
-  puma (~> 5.0)
+  puma (~> 6.0)
   rails (= 7.0.8)
   rails-i18n (~> 7.0.0)
   recaptcha (~> 5.9.0)
@@ -612,4 +615,4 @@ DEPENDENCIES
   will_paginate (~> 3.0)
 
 BUNDLED WITH
-   2.5.11
+   2.3.27
