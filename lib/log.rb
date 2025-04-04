@@ -1,7 +1,7 @@
 # Log using local methods
 # Local: provide the log level as a symbol (:debug, :info, :error, etc)
 
-class LOG
+class Log
   def self.add(level, message)
 
     if defined? Rails.logger

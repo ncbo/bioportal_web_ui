@@ -82,7 +82,7 @@ class AnnotatorplusController < ApplicationController
 
     annotations = parse_json(query) # See application_controller.rb
     #annotations = LinkedData::Client::HTTP.get(query)
-    LOG.add :debug, "Retrieved #{annotations.length} annotations: #{Time.now - start}s"
+    Log.add :debug, "Retrieved #{annotations.length} annotations: #{Time.now - start}s"
     if annotations.empty? || params[:raw] == "true"
       # TODO: if params contains select ontologies and/or semantic types, only return those selected.
       response = {
@@ -134,7 +134,7 @@ class AnnotatorplusController < ApplicationController
     mappings.each do |a|
       simplify_annotated_classes(a['mappings'], class_details) if not a['mappings'].empty?
     end
-    LOG.add :debug, "Completed massage for annotated classes: #{Time.now - start}s"
+    Log.add :debug, "Completed massage for annotated classes: #{Time.now - start}s"
   end
 
   def simplify_annotated_classes(annotations, class_details)
@@ -143,7 +143,7 @@ class AnnotatorplusController < ApplicationController
       cls_id = a['annotatedClass']['@id']
       details = class_details[cls_id]
       if details.nil?
-        LOG.add :debug, "Failed to get class details for: #{a['annotatedClass']['links']['self']}"
+        Log.add :debug, "Failed to get class details for: #{a['annotatedClass']['links']['self']}"
         annotations2delete.push(cls_id)
       else
         # Replace the annotated class with simplified details.

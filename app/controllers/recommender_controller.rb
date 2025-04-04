@@ -42,7 +42,7 @@ class RecommenderController < ApplicationController
     form_data['wa'] = params[:wa].to_s unless params[:wa].nil?
     form_data['wd'] = params[:wd].to_s unless params[:wd].nil?
     recommendations = LinkedData::Client::HTTP.post(RECOMMENDER_URI, form_data, raw: true)
-    LOG.add :debug, "Retrieved #{recommendations.length} recommendations: #{Time.now - start}s"
+    Log.add :debug, "Retrieved #{recommendations.length} recommendations: #{Time.now - start}s"
     render json: recommendations
   end
 

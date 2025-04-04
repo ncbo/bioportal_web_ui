@@ -9,20 +9,20 @@ class ConceptsController < ApplicationController
     params[:id] = params[:id] ? params[:id] : params[:conceptid]
 
     if params[:id].nil? || params[:id].empty?
-      render :text => "Error: You must provide a valid concept id"
+      render text: 'Error: You must provide a valid concept id'
       return
     end
 
     # Note that find_by_acronym includes views by default
     @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology_id]).first
     @submission = get_ontology_submission_ready(@ontology)
-    @concept = @ontology.explore.single_class({full: true, lang: helpers.request_lang(@submission)}, params[:id])
+    @concept = @ontology.explore.single_class({ full: true, lang: helpers.request_lang(@submission) }, params[:id])
 
     @current_purl = @concept.purl if Rails.configuration.settings.purl[:enabled]
 
     not_found if @concept.nil?
     gather_details
-    render :partial => 'show'
+    render partial: 'show'
   end
 
   def show
@@ -49,8 +49,8 @@ class ConceptsController < ApplicationController
   end
 
   def show_label
-  cls_id = params[:concept] || params[:id]  # cls_id should be a full URI
-    ont_id = params[:ontology]  # ont_id could be a full URI or an acronym
+    cls_id = params[:concept] || params[:id] # cls_id should be a full URI
+    ont_id = params[:ontology] # ont_id could be a full URI or an acronym
 
     render inline: helpers.main_language_label(concept_label(ont_id, cls_id))
   end
@@ -133,5 +133,4 @@ class ConceptsController < ApplicationController
     @delete_mapping_permission = check_delete_mapping_permission(@mappings)
     update_tab(@ontology, @concept.id)
   end
-
 end

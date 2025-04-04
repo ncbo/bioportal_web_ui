@@ -81,7 +81,7 @@ class ChangeRequestsController < ApplicationController
     @concept_id = params[:concept_id]
     @ont_acronym = params[:ont_acronym]
     @user = LinkedData::Client::Models::User.get(
-      session[:user].id, include: 'username,githubId,orcidId', display_links: 'false', display_context: 'false'
+      session[:user].username, include: 'username,githubId,orcidId', display_links: 'false', display_context: 'false'
     )
   end
 end

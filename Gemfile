@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 # Main Rails gem
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '7.0.8'
+gem 'rails', '7.2.2.1'
 
 # JavaScript bundling for Rails
 gem 'jsbundling-rails'
@@ -72,7 +72,7 @@ gem 'graphql', '~> 2.0.27'
 gem 'graphql-client'
 
 # Haml template engine for Ruby on Rails
-gem 'haml', '~> 5.1'
+gem 'haml', '~> 6.1.1'
 
 # Internationalization (i18n)
 gem 'i18n'
@@ -107,7 +107,7 @@ gem 'flag-icons-rails', '~> 3.4'
 gem 'iso-639', '~> 0.3.6'
 
 # Custom API client
-gem 'ontologies_api_client', github: 'ncbo/ontologies_api_ruby_client', tag: 'v2.5.2'
+gem 'ontologies_api_client', github: 'ncbo/ontologies_api_ruby_client', tag: 'v2.5.3'
 
 gem 'rexml', '~> 3'
 

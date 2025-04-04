@@ -236,7 +236,7 @@ class AdminController < ApplicationController
       else
         response.merge!(ontologies_data_parsed)
         response[:success] = "Report successfully regenerated on #{ontologies_data_parsed[:report_date_generated]}"
-        LOG.add :debug, "Ontologies Report - retrieved #{response[:ontologies].length} ontologies in #{Time.now - start}s"
+        Log.add :debug, "Ontologies Report - retrieved #{response[:ontologies].length} ontologies in #{Time.now - start}s"
       end
     rescue StandardError => e
       response[:errors] = "Problem retrieving ontologies report - #{e.message}"
@@ -309,7 +309,7 @@ class AdminController < ApplicationController
       response[:users] = JSON.parse(LinkedData::Client::HTTP.get(USERS_URL, { include: 'all' }, raw: true))
 
       response[:success] = "users successfully retrieved in  #{Time.now - start}s"
-      LOG.add :debug, "Users - retrieved #{response[:users].length} users in #{Time.now - start}s"
+      Log.add :debug, "Users - retrieved #{response[:users].length} users in #{Time.now - start}s"
     rescue StandardError => e
       response[:errors] = "Problem retrieving users  - #{e.message}"
     end

@@ -355,7 +355,7 @@ class ApplicationController < ActionController::Base
         roots = @ontology.explore.roots(lang: lang)
 
         if roots.nil? || roots.empty?
-          LOG.add :debug, "Missing roots for #{@ontology.acronym}"
+          Log.add :debug, "Missing roots for #{@ontology.acronym}"
           not_found
         end
 
@@ -371,14 +371,14 @@ class ApplicationController < ActionController::Base
 
         # Some ontologies have "too many children" at their root. These will not process and are handled here.
         if @concept.nil?
-          LOG.add :debug, "Missing class #{root_child.links.self}"
+          Log.add :debug, "Missing class #{root_child.links.self}"
           not_found
         end
       else
         # if the id is coming from a param, use that to get concept
         @concept = @ontology.explore.single_class({full: true, lang: lang}, params[:conceptid])
         if @concept.nil? || @concept.errors
-          LOG.add :debug, "Missing class #{@ontology.acronym} / #{params[:conceptid]}"
+          Log.add :debug, "Missing class #{@ontology.acronym} / #{params[:conceptid]}"
           not_found
         end
 
@@ -389,7 +389,7 @@ class ApplicationController < ActionController::Base
           roots = @ontology.explore.roots(lang: lang)
 
           if roots.nil? || roots.empty?
-            LOG.add :debug, "Missing roots for #{@ontology.acronym}"
+            Log.add :debug, "Missing roots for #{@ontology.acronym}"
             not_found
           end
 
@@ -432,7 +432,7 @@ class ApplicationController < ActionController::Base
       ontology_models = LinkedData::Client::Models::Ontology.all({:include_views => true})
       ontology_models.each {|o| simple_ontologies[o.id] = simplify_ontology_model(o) }
     rescue Exception => e
-      LOG.add :error, e.message
+      Log.add :error, e.message
       return nil
     end
     return simple_ontologies
@@ -444,7 +444,7 @@ class ApplicationController < ActionController::Base
       ont_model = LinkedData::Client::Models::Ontology.find(ont_uri)
       ont = simplify_ontology_model(ont_model)
     rescue Exception => e
-      LOG.add :error, e.message
+      Log.add :error, e.message
       return nil
     end
     return ont
@@ -510,8 +510,8 @@ class ApplicationController < ActionController::Base
         cls[:obsolete] = cls_model.respond_to?('obsolete') && cls_model.obsolete || false
       end
     rescue Exception => e
-      LOG.add :error, e.message
-      LOG.add :error, "Failure to simplify class: #{cls}"
+      Log.add :error, e.message
+      Log.add :error, "Failure to simplify class: #{cls}"
     end
     return cls
   end
@@ -526,7 +526,7 @@ class ApplicationController < ActionController::Base
     ont = Rails.cache.read(id)
     return ont unless ont.nil?
     # No cache or it has expired
-    LOG.add :debug, "No cache or expired cache for ontology: #{id}"
+    Log.add :debug, "No cache or expired cache for ontology: #{id}"
     ont = {}
     ont[:id] = id
     ont[:uri] = id
@@ -580,9 +580,9 @@ class ApplicationController < ActionController::Base
         @retries += 1
         retry
       else
-        LOG.add :error, "\nERROR: batch POST, uri: #{REST_URI_BATCH}"
-        LOG.add :error, "\nERROR: batch POST, params: #{params.to_json}"
-        LOG.add :error, "\nERROR: batch POST, error response: #{error.response}"
+        Log.add :error, "\nERROR: batch POST, uri: #{REST_URI_BATCH}"
+        Log.add :error, "\nERROR: batch POST, params: #{params.to_json}"
+        Log.add :error, "\nERROR: batch POST, error response: #{error.response}"
         raise error
       end
     end
@@ -611,7 +611,7 @@ class ApplicationController < ActionController::Base
         Rails.cache.write(cached_mappings_key, recent_mappings, expires_in: EXPIRY_RECENT_MAPPINGS)
       end
     rescue Exception => e
-      LOG.add :error, e.message
+      Log.add :error, e.message
       # leave recent mappings empty.
     end
     return recent_mappings
@@ -629,7 +629,7 @@ class ApplicationController < ActionController::Base
         total_count = stats.values.sum
       end
     rescue
-      LOG.add :error, e.message
+      Log.add :error, e.message
     end
     
     return total_count
