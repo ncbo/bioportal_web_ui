@@ -3,9 +3,10 @@
 %h2.mt-4 Ontology Recommender
 %p
   = t('recommender.intro').html_safe
-  = link_to(Rails.configuration.settings.links[:help_recommender], id: "recommender-help",
-            "aria-label": "View ontology recommender help") do
-    %i.fas.fa-question-circle.fa-lg{"aria-hidden": "true"}
+  = link_to(Rails.configuration.settings.links[:help_recommender],
+            data: {controller: 'popup', action: 'click->popup#open'},
+            'aria-label': 'View ontology recommender help') do
+    %i{class: 'fas fa-question-circle fa-lg ps-1', "aria-hidden": "true"}
 
 %form
   -# Specify input format

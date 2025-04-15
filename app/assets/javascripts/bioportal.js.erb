@@ -379,43 +379,6 @@ function BP_queryString() {
   return b;
 }
 
-function bpPopWindow(e) {
-  e.preventDefault();
-
-  var url = jQuery(e.currentTarget).attr("href");
-  var pop = (url.match(/\?/) != null) ? "&pop=true" : "?pop=true";
-  var popWidth = 800;
-  var popHeight = 600;
-
-  if (typeof e.data !== "undefined") {
-    if (e.data.hasOwnProperty('w')) {
-      popWidth = e.data.w;
-    }
-    if (e.data.hasOwnProperty('h')) {
-      popHeight = e.data.h;
-    }
-  }
-
-  // Make sure to insert the query string before the hash
-  url = (url.match(/#/) != null) ? [url.slice(0, url.indexOf("#")), pop, url.slice(url.indexOf("#"))].join('') : url + pop;
-
-  // Fixes dual-screen position                         Most browsers       Firefox
-  var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
-  var dualScreenTop = window.screenTop   != undefined ? window.screenTop  : window.screenY;
-
-  var width = window.innerWidth ? window.innerWidth : (document.documentElement.clientWidth ? document.documentElement.clientWidth : window.screen.width);
-  var height = window.innerHeight ? window.innerHeight : (document.documentElement.clientHeight ? document.documentElement.clientHeight : window.screen.height);
-
-  var left = ((width / 2) - (popWidth / 2)) + dualScreenLeft;
-  var top = ((height / 2) - (popHeight / 2)) + dualScreenTop;
-
-  var newWindow = window.open(url, 'bp_popup_window', 'scrollbars=yes, width=' + popWidth + ', height=' + popHeight + ', top=' + top + ', left=' + left);
-  if (window.focus) {
-    newWindow.focus()
-  };
-}
-jQuery("div.footer-support, ul.dropdown-menu.dropdown-menu-end").on("click", "a.pop_window", { w: "800", h: "600" }, bpPopWindow)
-
 /**************************************************************
  * Standardized BP modal popups
  **************************************************************/

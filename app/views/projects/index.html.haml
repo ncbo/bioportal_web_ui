@@ -3,9 +3,9 @@
 %h1.tab_header Projects
 %p.tab_description
   = t(".intro", site: "#{$SITE}")
-  = link_to(Rails.configuration.settings.links[:help_projects], id: 'projects-help',
-            'aria-label': 'View projects help') do
-    %i.fas.fa-question-circle.fa-lg.pl-1{'aria-hidden': 'true'}
+  = link_to(Rails.configuration.settings.links[:help_projects],
+            data: {controller: 'popup', action: 'click->popup#open'}, 'aria-label': 'View projects help') do
+    %i{class: 'fas fa-question-circle fa-lg ps-1', 'aria-hidden': 'true'}
 
 %div{:style => "padding:10px;"}
   %span

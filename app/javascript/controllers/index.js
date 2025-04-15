@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import ChangeRequestsController from "./change_requests_controller"
+application.register("change-requests", ChangeRequestsController)
+
 import ClassSearchAutoCompleteController from "./class_search_auto_complete_controller"
 application.register("class-search-auto-complete", ClassSearchAutoCompleteController)
 
@@ -13,14 +16,11 @@ application.register("container-splitter", ContainerSplitterController)
 import HistoryController from "./history_controller"
 application.register("history", HistoryController)
 
-import ChangeRequestsController from "./change_requests_controller"
-application.register("change-requests", ChangeRequestsController)
+import LabelAjaxController from "./label_ajax_controller"
+application.register("label-ajax", LabelAjaxController)
 
 import LanguageChangeController from "./language_change_controller"
 application.register("language-change", LanguageChangeController)
-
-import ClipboardComponentController from '../../components/clipboard_component/clipboard_component_controller'
-application.register('clipboard', ClipboardComponentController)
 
 import LoadChartController from "./load_chart_controller"
 application.register("load-chart", LoadChartController)
@@ -31,6 +31,9 @@ application.register("ontology-viewer-tabs", OntologyViewerTabsController)
 import OntoportalAutocompleteController from "./ontoportal_autocomplete_controller"
 application.register("ontoportal-autocomplete", OntoportalAutocompleteController)
 
+import PopupController from "./popup_controller"
+application.register("popup", PopupController)
+
 import SimpleTreeController from "./simple_tree_controller"
 application.register("simple-tree", SimpleTreeController)
 
@@ -39,6 +42,3 @@ application.register("turbo-frame", TurboFrameController)
 
 import TurboFrameErrorController from "./turbo_frame_error_controller"
 application.register("turbo-frame-error", TurboFrameErrorController)
-
-import LabelAjaxController from "./label_ajax_controller"
-application.register("label-ajax", LabelAjaxController)

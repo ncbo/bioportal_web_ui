@@ -22,9 +22,10 @@
     <h1 style="font-size: 3em;">Browse</h1>
     <p>
       <%= t('ontologies.intro').html_safe %>
-      <%= link_to(Rails.configuration.settings.links[:help_ontology_browse], id: 'ontology-browse-help',
+      <%= link_to(Rails.configuration.settings.links[:help_ontology_browse],
+                  data: {controller: 'popup', action: 'click->popup#open'},
                   'aria-label': 'View ontology browse help') do %>
-        <i class='fas fa-question-circle fa-lg' aria-hidden='true'></i>
+        <i class='fas fa-question-circle fa-lg ps-1' aria-hidden='true'></i>
       <% end %>
     </p>
 

@@ -3,9 +3,9 @@
   %h1.tab_header Mappings
   %p.tab_description
     = t('mappings.intro').html_safe
-    = link_to(Rails.configuration.settings.links[:help_mappings], id: "mappings-help",
-              "aria-label": "View mappings help") do
-      %i.fas.fa-question-circle.fa-lg{"aria-hidden": "true"}
+    = link_to(Rails.configuration.settings.links[:help_mappings],
+              data: {controller: 'popup', action: 'click->popup#open'}, 'aria-label': 'View mappings help') do
+      %i{class: 'fas fa-question-circle fa-lg ps-1', "aria-hidden": "true"}
   %p#mappings_select
     - if @options.empty?
       No mappings available

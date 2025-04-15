@@ -1,0 +1,6 @@
+app/assets/**
+vendor/**
+node_modules/**
+public/browse/**
+public/javascripts/**
+public/widgets/**

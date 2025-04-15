@@ -28,7 +28,4 @@ jQuery(document).ready(function() {
       header: true
     });
   }
-
-  jQuery('#projects-help').on("click", bpPopWindow);
-
 });

@@ -8,9 +8,9 @@
     %h2.mt-3 Annotator &plus;
     %p
       = t('annotator.index.intro').html_safe
-      = link_to(Rails.configuration.settings.links[:help_annotator],id: "annotator-help",
-                "aria-label": "View annotator help") do
-        %i.fa.fa-question-circle.fa-lg{"aria-hidden": "true"}
+      = link_to(Rails.configuration.settings.links[:help_annotator],
+                data: {controller: 'popup', action: 'click->popup#open'}, 'aria-label': 'View annotator help') do
+        %i{class: 'fa fa-question-circle fa-lg ps-1', "aria-hidden": "true"}
 %div.row
   %div.col
     %form

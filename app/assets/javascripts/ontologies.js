@@ -49,8 +49,6 @@ jQuery(document).ready(function() {
     }
   });
 
-  jQuery('#ontology-browse-help').on('click', bpPopWindow);
-
   // Wire up chosen selectors
   jQuery("#ontology_administeredBy").chosen({width: '100%'});
   jQuery("#ontology_acl").chosen({width: '100%'});

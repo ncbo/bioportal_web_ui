@@ -9,8 +9,9 @@
       = text_field_tag("search_keywords", nil, class: "form-control", aria: {describedby: "classSearchHelpBlock"})
       %div#classSearchHelpBlock.form-text
         = t(".search_keywords_placeholder")
-        = link_to("help", Rails.configuration.settings.links[:help_search], id: "search-help",
-                  aria: {label: "View search documentation"})
+        = link_to('help', Rails.configuration.settings.links[:help_search],
+                  data: {controller: 'popup', action: 'click->popup#open'},
+                  aria: {label: 'View search documentation'})
     %div.mb-3
       = link_to("Show advanced options >>", "javascript:void(0)", id: "advanced_options",
                 data: {text_swap: "Hide advanced options <<"})

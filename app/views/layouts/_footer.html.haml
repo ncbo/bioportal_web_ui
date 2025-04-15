@@ -25,7 +25,8 @@
         %h6 SUPPORT
         %ul{class: 'nav flex-column list-unstyled'}
           %li.nav-item
-            = link_to('Contact Us', feedback_path, class: 'nav-link p-0 pop_window')
+            = link_to('Contact Us', feedback_path, class: 'nav-link p-0',
+                      data: {controller: 'popup', action: 'click->popup#open'})
           %li.nav-item
             = link_to('Documentation', Rails.configuration.settings.links[:help], class: 'nav-link p-0',
                       target: '_blank')
