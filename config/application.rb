@@ -15,8 +15,7 @@ module BioportalWebUi
       HashWithIndifferentAccess
     ]
 
-    # permitted locales available for the application
-    config.i18n.available_locales = [:en, :fr, :it, :de]
+    config.i18n.available_locales = [:en]
     config.i18n.default_locale = :en
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
@@ -39,9 +38,9 @@ module BioportalWebUi
     config.change_request = config_for :change_request
 
     config.generators.template_engine = :haml
-    config.generators.test_framework  =  nil
+    config.generators.test_framework = nil
 
     # Set the default layout to app/views/layouts/component_preview.html.erb
-    config.view_component.default_preview_layout = "component_preview"
+    config.view_component.default_preview_layout = 'component_preview'
   end
 end
