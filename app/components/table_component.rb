@@ -37,7 +37,7 @@ class TableComponent < ViewComponent::Base
   end
 
   def add_row(*args, &block)
-    with_row(*args, &block)
+    with_row.create(*args, &block)
   end
 
   def mini_class
