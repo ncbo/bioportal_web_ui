@@ -117,7 +117,6 @@ gem 'rexml', '~> 3'
 # gem 'net-http', '~> 0.3.2'
 
 gem 'ffi'
-gem 'net-ftp', require: false
 gem 'net-http'
 
 # Multi-Provider Authentication
