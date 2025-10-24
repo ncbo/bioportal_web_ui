@@ -29,8 +29,8 @@ module ComponentsHelper
   end
 
   def tab_item_component(container_tabs:, title:, path:, selected: false, json_link: "", &content)
-    container_tabs.item(title: title.html_safe, path: path, selected: selected, json_link: json_link)
-    container_tabs.item_content { capture(&content) }
+    container_tabs.with_item(title: title.html_safe, path: path, selected: selected, json_link: json_link)
+    container_tabs.with_item_content { capture(&content) }
   end
 
   def alert_component(message, type: "info")
