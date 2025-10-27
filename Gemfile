@@ -75,7 +75,6 @@ gem 'graphql-client'
 gem 'haml', '~> 6.1.1'
 
 # Internationalization (i18n)
-gem 'i18n'
 gem 'rails-i18n', '~> 8.0'
 
 # MySQL database adapter

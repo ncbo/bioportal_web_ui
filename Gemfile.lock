@@ -588,7 +588,6 @@ DEPENDENCIES
   haml (~> 6.1.1)
   haml-rails
   html2haml
-  i18n
   i18n-tasks
   i18n-tasks-csv (~> 1.1)
   importmap-rails
