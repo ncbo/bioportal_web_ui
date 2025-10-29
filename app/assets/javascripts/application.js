@@ -26,6 +26,4 @@
 //= require home
 //= require projects
 
-//= require application_esbuild
-
 
