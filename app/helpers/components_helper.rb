@@ -12,7 +12,7 @@ module ComponentsHelper
           raise ArgumentError, t('components.error_block')
         end
 
-        tree_child.child(child: child, href: href,
+        tree_child.with_child(child: child, href: href,
                          children_href: children_link, selected: child.id.eql?(selected&.id),
                          muted: child.isInActiveScheme&.empty?,
                          target_frame: target_frame,
