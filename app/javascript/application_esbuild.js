@@ -6,12 +6,12 @@ import "./controllers";
 import "./component_controllers";
 
 Turbo.session.drive = false;
-Turbo.setConfirmMethod((message) => {
+Turbo.config.forms.confirm = (message) => {
     return new Promise((resolve, reject) => {
         alertify.confirm(message, (e) => {
             resolve(e)
         })
     })
-})
+}
 
 
