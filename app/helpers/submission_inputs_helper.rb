@@ -176,13 +176,13 @@ module SubmissionInputsHelper
         attribute_input("hasOntologyLanguage")
       end
 
-      c.container { ontology_skos_language_help }
+      c.with_container { ontology_skos_language_help }
 
-      c.container { ontology_obo_language_help }
+      c.with_container { ontology_obo_language_help }
 
-      c.container { ontology_umls_language_help }
+      c.with_container { ontology_umls_language_help }
 
-      c.container { ontology_owl_language_help }
+      c.with_container { ontology_owl_language_help }
 
     end
   end
@@ -209,13 +209,13 @@ module SubmissionInputsHelper
     end
 
     render(Layout::RevealComponent.new(possible_values: %w[private public], selected: ontology.viewingRestriction)) do |c|
-      c.button do
+      c.with_button do
         select_input(label: label_required(t('submission_inputs.visibility')), name: "ontology[viewingRestriction]", required: true,
                      values: %w[public private],
                      selected: ontology.viewingRestriction)
       end
 
-      c.container do
+      c.with_container do
         content_tag(:div, class: 'upload-ontology-input-field-container') do
           select_input(label: t('submission_inputs.accounts_allowed', portal_name: portal_name), name: "ontology[acl]", values: @user_select_list, selected: ontology.acl, multiple: true)
         end
@@ -241,12 +241,12 @@ module SubmissionInputsHelper
 
   def ontology_view_of_input(ontology = @ontology)
     render Layout::RevealComponent.new(selected: ontology.view?, toggle: true) do |c|
-      c.button do
+      c.with_button do
         content_tag(:span, class: 'd-flex') do
           switch_input(id: 'ontology_isView', name: 'ontology[isView]', label: t('submission_inputs.ontology_view_of_another_ontology'), checked: ontology.view?, style: 'font-size: 14px;')
         end
       end
-      c.container do
+      c.with_container do
         content_tag(:div) do
           render SelectInputComponent.new(id: 'viewOfSelect', values: onts_for_select, name: 'ontology[viewOf]', selected: ontology.viewOf&.split('/')&.last)
         end

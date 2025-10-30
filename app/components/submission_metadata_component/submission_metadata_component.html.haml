@@ -2,7 +2,7 @@
   = render TableComponent.new(id: 'submission_metadata_table',small_text: true, custom_class: 'table table-sm', stripped: false) do |t|
     - @metadata_list.each do |metadata, label|
       - next if Array(@submission.send(metadata)).empty?
-      - t.row do |r|
+      - t.with_row do |r|
         - r.td(width: '200px', style: 'text-wrap: wrap') do
           = attr_label(metadata.to_s, attr_metadata: attr_metadata(metadata.to_s), show_tooltip: false)
         - r.td do
