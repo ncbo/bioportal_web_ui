@@ -11,6 +11,6 @@
           - scheme = OpenStruct.new(collection)
           - scheme.prefLabel = Array(get_collection_label(collection)).last
           - scheme.id = scheme['@id']
-          - tree_child.child(child: scheme, href: collection_path(collection_id: collection['@id'], ontology_id: @ontology.acronym, language: request_lang),
+          - tree_child.with_child(child: scheme, href: collection_path(collection_id: collection['@id'], ontology_id: @ontology.acronym, language: request_lang),
                            children_href: '#', selected: scheme.id.eql?(selected_collection_id),
                            target_frame: 'collection', data: {collectionid: collection['@id']}, is_reused: concept_reused?(submission: @submission, concept_id: scheme.id))
