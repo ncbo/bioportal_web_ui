@@ -260,11 +260,11 @@ module SubmissionInputsHelper
                                           error_message: attribute_error(:contact)) do
 
       render NestedFormInputsComponent.new(object_name: 'contact', default_empty_row: true) do |c|
-        c.header do
+        c.with_header do
           content_tag(:div, name.blank? ? '' : label_required(t('submission_inputs.contact_name', name: name)), class: 'w-50') + content_tag(:div, name.blank? ? '' : label_required(t('submission_inputs.contact_email', name: name)), class: 'w-50')
         end
 
-        c.template do
+        c.with_template do
           content_tag(:div, class: 'd-flex my-1') do
             out = content_tag(:div, class: ' w-50 me-2') do
               text_input(label: '', name: 'submission[contact][NEW_RECORD][name]', value: '', error_message: '')
@@ -276,7 +276,7 @@ module SubmissionInputsHelper
         end
 
         Array(@submission.contact).each_with_index do |contact, i|
-          c.row do
+          c.with_row do
             content_tag(:div, class: 'd-flex my-1') do
               out = content_tag(:div, class: 'w-50 me-2') do
                 text_input(label: '', name: "submission[contact][#{i}][name]", value: contact['name'], error_message: '')
@@ -391,14 +391,14 @@ module SubmissionInputsHelper
   def generate_list_field_input(attr, name, label, values, helper_text: nil, &block)
     render Input::InputFieldComponent.new(name: '', error_message: attribute_error(attr.attr), helper_text: helper_text) do
       render NestedFormInputsComponent.new do |c|
-        c.header do
+        c.with_header do
           label
         end
-        c.template do
+        c.with_template do
           block.call('', "#{name}[NEW_RECORD]", attr.attr.to_s + '_' + @ontology.acronym)
         end
 
-        c.empty_state do
+        c.with_empty_state do
           hidden_field_tag "#{name}[#{Array(values).size}]"
         end
 
