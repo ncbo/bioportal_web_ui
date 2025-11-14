@@ -2,5 +2,5 @@
                                     collection: @concepts, next_url: sorted_by_date_url(@page.nextPage, @concepts.last),
                                     current_page: @page.page, next_page: @page.nextPage) do |c|
   = render_concepts_by_dates(auto_click: @page.page.eql?(1))
-  - c.error do
+  - c.with_error do
     = t('concepts.date_sorted_list_error').html_safe
