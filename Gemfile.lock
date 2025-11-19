@@ -1,7 +1,7 @@
 PATH
   remote: /Users/jlvendetti/Development/GitHub/ncbo/ontologies_api_ruby_client
   specs:
-    ontologies_api_client (2.5.3)
+    ontologies_api_client (2.7.1)
       activesupport (= 8.0.3)
       addressable (~> 2.8)
       excon
