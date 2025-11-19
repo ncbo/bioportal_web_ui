@@ -14,7 +14,7 @@ module MappingsHelper
           src: "/ajax/mappings/get_concept_table?ontologyid=#{ontology_acronym}&conceptid=#{CGI.escape(concept_id)}",
           loading: 'lazy'
         )) do |t|
-          concat(t.loader { render(LoaderComponent.new(small: true)) })
+          concat(t.with_loader { render(LoaderComponent.new(small: true)) })
         end
       end)
     end
