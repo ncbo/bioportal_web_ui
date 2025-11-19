@@ -20,8 +20,17 @@
       %td= @user.githubId
     %tr
       %th ORCID iD
-      %td= @user.orcidId
-
+      %td
+        - if @user.orcidId.present?
+          = link_to "https://orcid.org/#{@user.orcidId}", target: '_blank', rel: 'noopener', 'aria-label': "Open ORCID record for #{@user.firstName} #{@user.lastName}" do
+            %span{class: 'me-1', 'aria-hidden': 'true', style: 'vertical-align: middle; position: relative; top: -3px;'}
+              :plain
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" role="img" aria-label="ORCID iD icon">
+                  <title>ORCID iD icon</title>
+                  <path fill="#A6CE39" d="M12 0c6.627 0 12 5.373 12 12S18.627 24 12 24 0 18.627 0 12 5.373 0 12 0z"/>
+                  <path fill="#fff" d="M8.32 6.44h1.64v11.12H8.32zM11.44 11.76c0-2.02 1.54-3.64 3.56-3.64 2.02 0 3.56 1.62 3.56 3.64s-1.54 3.64-3.56 3.64c-2.02 0-3.56-1.62-3.56-3.64zm5.92 0c0-1.3-.98-2.36-2.36-2.36-1.3 0-2.36 1.06-2.36 2.36s1.06 2.36 2.36 2.36c1.38 0 2.36-1.06 2.36-2.36zM8.6 5.04c0-.54.44-.98.98-.98.54 0 .98.44.98.98 0 .54-.44.98-.98.98-.54 0-.98-.44-.98-.98z"/>
+                </svg>
+            = @user.orcidId
   %div{class: 'd-flex justify-content-end'}
     = link_to('Edit account', edit_user_path(@user.username), class: 'btn btn-sm btn-outline-secondary')
     = link_to('Change password', edit_password_path, class: 'btn btn-sm btn-outline-secondary ms-2')

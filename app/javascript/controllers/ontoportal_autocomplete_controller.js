@@ -6,7 +6,8 @@ export default class extends Controller {
         objectTypes: String, default: 'class',
         ontologyAcronym: String,
         lang: String,
-        submissionLang: Array
+        submissionLang: Array,
+        portalLang: String
     }
 
     connect() {
@@ -72,7 +73,8 @@ export default class extends Controller {
         let extraParams = {
             objecttypes: this.objectTypesValue
         };
-        if (this.#isMultiple(this.submissionLangValue)) {
+
+        if (this.#isMultiple(this.submissionLangValue) || this.langValue !== this.portalLangValue) {
             extraParams["lang"] = this.langValue
         }
         return extraParams

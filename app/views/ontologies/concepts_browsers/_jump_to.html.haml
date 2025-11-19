@@ -2,8 +2,12 @@
   %span.input-group-text
     %i.fas.fa-search
   = text_field_tag("search_box", nil, class: "form-control rounded-end", placeholder: t("ontologies.concepts_browsers.placeholder_jump"), aria: {label: t("ontologies.concepts_browsers.label_jump")},
-    data: { controller: 'class-search-auto-complete', 'class-search-auto-complete-ontology-acronym-value': @ontology.acronym,
-      'class-search-auto-complete-spinner-src-value': asset_path("spinner.gif")})
+    data: { controller: 'class-search-auto-complete',
+      'class-search-auto-complete-ontology-acronym-value': @ontology.acronym,
+      'class-search-auto-complete-spinner-src-value': asset_path("spinner.gif"),
+      'class-search-auto-complete-lang-value': request_lang,
+      'class-search-auto-complete-submission-lang-value': submission_languages,
+      'class-search-auto-complete-portal-lang-value': portal_lang })
 
   = hidden_field_tag("jump_to_concept_id")
   - if skos? && false  # disabled for now as no time to test #TODO

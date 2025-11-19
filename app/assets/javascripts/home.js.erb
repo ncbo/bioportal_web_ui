@@ -19,7 +19,13 @@ function jumpToValueOntology() {
       sValue = data;
     }
     document.location="/ontologies/"+sValue;
-    jQuery.blockUI({ message: '<h1><img src="<%= asset_path("jquery.simple.tree/spinner.gif") %>" /> Loading Ontology...</h1>' });
+      jQuery.blockUI({
+        message: '<div class="d-inline-flex align-items-center justify-content-center" ' +
+                   'style="gap:0.75rem; padding:1rem 1.5rem; border-radius:0.5rem; background:white; max-width:fit-content;">' +
+                   '<div class="spinner-border" role="status" aria-hidden="true" style="width:2rem; height:2rem;"></div>' +
+                   '<h2 class="m-0">Loading Ontology…</h2>' +
+                 '</div>'
+      });
     return;
   }
 }

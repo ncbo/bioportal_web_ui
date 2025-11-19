@@ -1,0 +1,150 @@
+- content_for :viewer_content do
+  .row.g-3.pb-4
+    .col-lg-8
+      / === Delete Submissions ===
+      - total_count = @submissions.size
+      - min_count = 5
+      .card{ data: {
+              controller: 'submissions-list',
+              'submissions-list-total-value': total_count,
+              'submissions-list-step-value': 5,
+              'submissions-list-min-value': min_count,
+              'submissions-list-delete-url-value': submissions_ontology_path(@ontology.acronym),
+              'submissions-list-poll-url-template-value': bulk_delete_status_ontology_path(@ontology.acronym, ':process_id'),
+              'submissions-list-rows-url-value': submission_rows_ontology_path(@ontology.acronym)
+            } }
+        .card-header.d-flex.justify-content-between.align-items-center
+          %span Delete submissions
+          %span.text-muted.small.d-inline-flex.align-items-center
+            %span.spinner-border.spinner-border-sm.me-1{ role: "status", "aria-hidden": "true", style: "display:none", data: { 'submissions-list-target': 'statusSpinner' } }
+            %span{ data: { 'submissions-list-target': 'status' }, 'aria-live': 'polite' }
+        - if @submissions.blank?
+          .card-body
+            %p.text-muted.mb-0 No submissions found for this ontology.
+        - else
+          .card-body.p-0
+            %table.table.mb-0
+              %thead
+                %tr
+                  %th.w-1
+                    / Header checkbox wired in Stage 2 (visible-select-all), leave disabled for now
+                    %input.form-check-input{ type: "checkbox",
+                      data: {
+                        'submissions-list-target': 'headerCheckbox',
+                        action: 'change->submissions-list#toggleAllVisible'
+                      }
+                    }
+                  %th Version
+                  %th Created
+                  %th Released
+                  %th Processing Status
+              %tbody
+                = render partial: "ontologies/submission_rows"
+        // Links auto-hide when irrelevant; the divider only shows when both are visible.
+        .card-footer.d-flex.justify-content-end.align-items-center
+          %a.btn.btn-link.btn-sm.text-decoration-none{ href: "#",
+            role: "button",
+            data: {
+              action: 'submissions-list#showLess',
+              'submissions-list-target': 'lessLink'
+            }
+          } Show fewer submissions…
+          %span.border-start.border-secondary.mx-3.d-inline-block.align-self-center.d-none{ style: "height: 1rem; opacity: .75;",
+            data: { 'submissions-list-target': 'divider' } }
+          %a.btn.btn-link.btn-sm.text-decoration-none{ href: "#",
+            role: "button",
+            data: {
+              action: 'submissions-list#showMore',
+              'submissions-list-target': 'moreLink'
+            }
+          } Show more submissions…
+          %div.position-relative.d-inline-block.ms-3
+            %button.btn.btn-danger.btn-sm{ type: "button", disabled: true,
+              data: {
+                'submissions-list-target': 'deleteBtn',
+                action: 'click->submissions-list#toggleInlineConfirm'
+              }
+            } Delete selected
+            / === Delete submissions confirm dialog ===
+            %div.d-none.position-absolute.bg-white.border.rounded.shadow.p-2.text-center{ style: "left: 50%; transform: translateX(-50%); bottom:calc(100% + .5rem); z-index:1055; min-width: 420px;",
+              data: { 'submissions-list-target': 'inlineConfirm' } }
+              %p.mb-1.fw-semibold{ data: { 'submissions-list-target': 'inlineConfirmLabel' } }
+              %p.mb-1.fw-bold{ data: { 'submissions-list-target': 'inlineConfirmList' } }
+              %p.mb-2.text-danger This action cannot be undone!
+              %button.btn.btn-sm.btn-secondary.me-2{ type: "button",
+                data: { action: 'submissions-list#cancelInlineConfirm' } } Cancel
+              %button.btn.btn-sm.btn-danger{ type: "button",
+                data: { action: 'submissions-list#performDelete' } } Delete
+      / === Latest submission error log ===
+      .card.mt-3.d-flex.flex-column{ style: "height: calc(100vh - 550px);" ,
+                                data: { controller: 'user-ontology-log',
+                                'user-ontology-log-url-value': submission_log_ontology_path(@ontology.acronym) } }
+        .card-header.d-flex.align-items-center.justify-content-between
+          %span Latest submission error log
+          .d-flex.gap-2
+            = link_to '#',
+                      class: 'btn btn-sm btn-outline-secondary',
+                      data: { action: 'user-ontology-log#refresh' } do
+              Refresh
+            = link_to submission_log_ontology_path(@ontology.acronym),
+                      class: 'btn btn-sm btn-outline-secondary',
+                      data: { turbo: false } do
+              Download
+        .card-body.overflow-auto.flex-grow-1
+          %pre.mb-0.font-monospace.log-block{ data: { 'user-ontology-log-target': 'content' } }
+            Loading…
+    .col-lg-4
+      / === Quick actions ===
+      .card
+        .card-header Actions
+        .card-body
+          .d-flex.gap-2.flex-wrap
+            = link_to "New submission", new_ontology_submission_path(@ontology.acronym), class: "btn btn-primary btn-sm"
+            - if @submission_latest&.id.present?
+              = link_to "Edit metadata", edit_ontology_submission_path(ontology_id: @ontology.acronym, id: @submission_latest.id.split('/').last), class: "btn btn-outline-secondary btn-sm"
+      / === Delete ontology ===
+      .card.mt-3.border-danger{ data: {
+          controller: 'ontology-delete',
+          'ontology-delete-acronym-value': @ontology.acronym,
+          'ontology-delete-url-value': ontology_path(@ontology.acronym), # DELETE /ontologies/:acronym
+          'ontology-delete-redirect-url-value': ontologies_path # GET /ontologies
+        }
+      }
+        .card-header.text-danger Delete ontology - caution zone!
+        .card-body
+          %p.small.text-muted
+            Deleting the ontology removes submissions, notes, mappings and related data. This cannot be undone.
+          .mb-2
+            %label.form-label{ for: "confirm_acronym" } Type the acronym to confirm:
+            %input#confirm_acronym.form-control.form-control-sm{ type: "text",
+              placeholder: "#{@ontology.acronym}",
+              autocomplete: "off",
+              data: {
+                'ontology-delete-target': 'input',
+                action: "input->ontology-delete#sync"
+              }
+            }
+          %div.position-relative.d-inline-block.mt-2
+            %button.btn.btn-outline-danger.btn-sm{ type: 'button',
+              disabled: true,
+              data: {
+                'ontology-delete-target': 'button',
+                action: "click->ontology-delete#openConfirm"
+              }
+            } Delete ontology "#{@ontology.acronym}"
+            / === Delete ontology confirm dialog ===
+            %div.card.shadow.d-none{ data: { 'ontology-delete-target': 'confirm' },
+              style: "position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + .5rem); z-index:1055; min-width:360px;"
+            }
+              .card-body.p-2
+                %div.fw-semibold.mb-1 Are you sure?
+                %div.small.text-muted.mb-2
+                  Are you sure you want to delete ontology
+                  = precede ' ' do
+                    = succeed '?' do
+                      %b= @ontology.acronym
+                  %br
+                    %span.text-danger This action cannot be undone!
+                .d-flex.gap-2.justify-content-end
+                  %button.btn.btn-sm.btn-secondary{ type: 'button', data: { action: 'click->ontology-delete#cancel' } } Cancel
+                  %button.btn.btn-sm.btn-danger{ type: 'button', data: { action: 'click->ontology-delete#confirm' } } Delete

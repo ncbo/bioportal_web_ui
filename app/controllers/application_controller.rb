@@ -290,6 +290,22 @@ class ApplicationController < ActionController::Base
     redirect_to_home unless admin
   end
 
+  def authorize_ontology_admin(ontology)
+    user = session[:user]
+    ontology.bring(:administeredBy) if ontology.bring?(:administeredBy)
+
+    is_site_admin = user&.admin?
+    admin_ids = Array(ontology.administeredBy).map!(&:to_s)
+    manages_ontology = user && admin_ids.include?(user.id.to_s)
+    allowed = user.present? && (is_site_admin || manages_ontology)
+
+    unless allowed
+      redirect_to_home
+      return false
+    end
+    true
+  end
+
   def current_user_admin?
     session[:user] && session[:user].admin?
   end

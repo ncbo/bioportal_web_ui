@@ -58,9 +58,9 @@
       %div.mb-3
         = f.label :orcidId, 'ORCID iD', class: 'form-label'
         = f.text_field :orcidId, class: 'form-control', 'aria-describedby': 'orcidHelp',
-                                 pattern: '\d{4}-\d{4}-\d{4}-\d{4}', title: 'Format: XXXX-XXXX-XXXX-XXXX'
+                                 pattern: '\d{4}-\d{4}-\d{4}-\d{3}[\dX]', title: 'Format: XXXX-XXXX-XXXX-XXXX (last character may be a digit or X)'
         %div.form-text{id: 'orcidHelp'}
-          16-digit ORCID, for example: 0000-1234-5678-9101
+          16-digit ORCID, for example: 0000-1234-5678-9101 or 0000-1234-5678-910X
       - if session[:user].admin?
         %div.form-check.mb-3
           = f.check_box :admin?, class: (@user.admin? ? 'admin form-check-input' : 'form-check-input')

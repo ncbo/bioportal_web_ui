@@ -1,0 +1,18 @@
+%div{data: {controller: 'ontology-viewer-tabs', 'ontology-viewer-tabs-language-sections-value': ontology_data_sections }}
+  - sections = sections_to_show
+  %div.ontologies-tabs-container{data:{action: 'tab-selected->ontology-viewer-tabs#updateLanguageSelector'}}
+    = render TabsContainerComponent.new(id: 'ontology_viewer', url_parameter: 'p') do |t|
+      - sections.each do |section_title|
+        - t.item(id: section_title,
+                       title: section_name(section_title),
+                       path: ontology_path(@ontology.acronym, p: section_title),
+                       selected: selected_section?(section_title),
+                       page_name: ontology_viewer_page_name(@ontology.acronym, @concept&.prefLabel || '', section_title))
+        - t.pinned_right do
+          %div{style: "display: #{ontology_data_section? ? 'block' : 'none'}; border: none; outline: none; padding: 1px",
+                  data: {'ontology-viewer-tabs-target': 'languageSelector' }}
+            = language_selector_tag(:content_language)
+        - t.item_content do
+          %div.p-1{data: section_data(section_title)}
+            = language_selector_hidden_tag(section_title) if ontology_data_section?(section_title)
+            = lazy_load_section(section_title) { yield }

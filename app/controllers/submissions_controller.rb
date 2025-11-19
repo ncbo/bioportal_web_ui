@@ -49,7 +49,6 @@ class SubmissionsController < ApplicationController
     attribute_template_output = render_to_string(inline: helpers.render_submission_inputs(params[:container_id] || 'metadata_by_ontology', @submission))
 
     render inline: attribute_template_output
-
   end
 
   def edit

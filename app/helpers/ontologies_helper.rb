@@ -96,6 +96,12 @@ module OntologiesHelper
     end
   end
 
+  def ontology_admin_button
+    return unless @ontology.admin?(session[:user])
+    render RoundedButtonComponent.new(link: admin_ontology_path(@ontology.acronym), icon: 'icons/settings.svg',
+                                      size: 'medium', title: 'Ontology Admin')
+  end
+
   def download_button
     return if (@ontology.summaryOnly || @ont_restricted || @submissions.empty?)
 
@@ -264,7 +270,7 @@ module OntologiesHelper
   # Creates a link based on the status of an ontology submission
   def status_link(submission, latest = false, target = '')
     version_text = submission.version.nil? || submission.version.length == 0 ? 'unknown' : submission.version
-    status_text = " <span class='ontology_submission_status'>" + submission_status2string(submission) + '</span>'
+    status_text = " <span class='ontology_submission_status'>(" + submission_status2string(submission) + ')</span>'
     if submission.ontology.summaryOnly || latest == false
       version_link = version_text
     else
@@ -306,7 +312,7 @@ module OntologiesHelper
     status.concat errors
     return '' if status.empty?
 
-    '(' + status.join(', ') + ')'
+    status.join(', ')
   end
 
   # Link for private/public/licensed ontologies

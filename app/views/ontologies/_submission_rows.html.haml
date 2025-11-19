@@ -1,0 +1,24 @@
+- @submissions.each do |s|
+  %tr{ data: { 'submissions-list-target': 'row', submission_id: s.submissionId } }
+    %td
+      %input.form-check-input{ type: "checkbox",
+        data: { 'submissions-list-target': 'rowCheckbox', action: 'change->submissions-list#syncSelection' } }
+    %td= s.submissionId
+    %td
+      - if s.respond_to?(:creationDate) && s.creationDate.present?
+        - begin
+          = l(Date.parse(s.creationDate), format: :monthfull_day_year)
+        - rescue
+          = s.creationDate
+      - else
+        = "—"
+    %td
+      - if s.respond_to?(:released) && s.released.present?
+        - begin
+          = l(Date.parse(s.released), format: :monthfull_day_year)
+        - rescue
+          = s.released
+      - else
+        = "—"
+    %td
+      = submission_status2string(s)

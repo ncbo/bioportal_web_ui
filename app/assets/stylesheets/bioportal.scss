@@ -1141,3 +1141,18 @@ turbo-frame[busy] ~ .show-if-loading {
   background: white;
   max-width: 1024px;
 }
+
+/* Log prettifying */
+/* Line-level coloring */
+.log-block .line-error { color: #dc3545; }   /* whole line */
+.log-block .line-warn  { color: #b58900; }
+
+/* Optional: emphasize exception class names */
+.log-block .exc { color: #dc3545; font-weight: 600; }
+.log-block { background: #fff; }
+.log-block .ts        { color: #6c757d; }       /* timestamp */
+.log-block .lvl-info  { color: #0d6efd; }       /* INFO/I */
+.log-block .lvl-warn  { color: #b58900; }       /* WARN/W */
+.log-block .lvl-error { color: #dc3545; }       /* ERROR/E */
+.log-block .lvl-debug { color: #6f42c1; }       /* DEBUG/D */
+.log-block .path      { color: #198754; }       /* /path/to/file */

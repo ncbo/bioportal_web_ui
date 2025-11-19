@@ -1,11 +1,12 @@
 $ont-metadata-bg-color: #e2ebf0;
 $widget-table-border-color: #EFEFEF;
 $ont-show-bg-color: #e9ecef;
-#concept_details{
+#concept_details {
   max-height: 90vh;
   overflow-y: auto;
 }
-.ontologies.show {
+.ontologies.show,
+.ontologies.admin {
   background-color: $ont-show-bg-color;
 
   #bd {

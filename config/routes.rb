@@ -5,8 +5,6 @@ Rails.application.routes.draw do
 
   resources :notes, constraints: { id: /.+/ }
 
-
-
   resources :projects, constraints: { id: /[^\/]+/ }
 
   resources :users, path: :accounts, constraints: { id: /[\d\w\.\-\%\+\@ ]+/ }
@@ -23,7 +21,6 @@ Rails.application.routes.draw do
     get ':ontology/concepts' => 'concepts#index'
     get ':ontology/concepts/show', to: 'concepts#show'
 
-
     get ':ontology/instances', to: 'instances#index'
     get ':ontology/instances/show', to: 'instances#show'
 
@@ -39,8 +36,21 @@ Rails.application.routes.draw do
 
   get 'ontologies/:ontology_id/concepts', to: 'concepts#show_concept'
 
-  resources :ontologies do
-    resources :submissions
+  # Ontologies
+  resources :ontologies, except: [:destroy] do
+    resources :submissions, constraints: { id: /\d+/ } do
+      get :edit_properties, on: :member
+    end
+  end
+
+  resources :ontologies, param: :acronym do
+    member do
+      get 'admin', to: 'ontologies#admin', as: :admin
+      get :submission_log # /ontologies/:acronym/submission_log
+      delete :submissions # DELETE /ontologies/:acronym/submissions
+      get 'submissions/bulk_delete/:process_id', to: 'ontologies#bulk_delete_status', as: :bulk_delete_status
+      get 'submissions/rows', to: 'ontologies#submission_rows', as: :submission_rows
+    end
   end
 
   resources :login
@@ -85,16 +95,10 @@ Rails.application.routes.draw do
   # Robots.txt
   get '/robots.txt' => 'robots#index'
 
-  # Ontologies
-  resources :ontologies do
-    resources :submissions do
-      get 'edit_properties'
-    end
-  end
-
   get '/ontologies/success/:id' => 'ontologies#submit_success'
   match '/ontologies/:acronym' => 'ontologies#update', via: [:get, :post]
-  match '/ontologies/:acronym/submissions/:id' => 'submissions#update', via: [:get, :post]
+  match '/ontologies/:acronym/submissions/:id' => 'submissions#update', via: [:get, :post], constraints: { id: /\d+/ }
+
   get '/ontologies/:ontology_id/submissions/new' => 'submissions#new', :ontology_id => /.+/
   match '/ontologies/:ontology_id/submissions' => 'submissions#create', :ontology_id => /.+/, via: [:get, :post]
   get '/ontologies/:acronym/classes/:purl_conceptid', to: 'ontologies#show', constraints: { purl_conceptid: /[^\/]+/ }

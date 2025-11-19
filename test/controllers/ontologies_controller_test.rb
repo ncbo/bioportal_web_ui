@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require "minitest/mock"
+require 'ostruct'
 
 class OntologiesControllerTest < ActionDispatch::IntegrationTest
   ONTOLOGIES = []
@@ -49,6 +51,89 @@ class OntologiesControllerTest < ActionDispatch::IntegrationTest
         end
       end
 
+    end
+  end
+
+  test 'DELETE /ontologies/:acronym/submissions requires ontology_submission_ids' do
+    acronym = (ONTOLOGIES.first&.acronym || 'STY')
+
+    delete submissions_ontology_path(acronym)
+    assert_response :unprocessable_entity
+    json = JSON.parse(@response.body)
+    assert_equal 'ontology_submission_ids required', json['error']
+  end
+
+  test 'DELETE /ontologies/:acronym/submissions returns process_id and proxies to backend' do
+    acronym = (ONTOLOGIES.first&.acronym || 'STY')
+    ids = %w[3 5 7]
+
+    called = false
+    stubbed = lambda do |path, params, options|
+      called = true
+      assert_includes path, "/ontologies/#{acronym}/submissions"
+      assert_equal "[#{ids.join(',')}]", params[:ontology_submission_ids]
+      assert_equal true, options[:parse]
+      OpenStruct.new(process_id: 'pid-123')
+    end
+
+    LinkedData::Client::HTTP.stub(:delete, stubbed) do
+      delete submissions_ontology_path(acronym), params: { ontology_submission_ids: ids }
+      assert_response :success
+      json = JSON.parse(@response.body)
+      assert_equal 'pid-123', json['process_id']
+      assert called, 'HTTP.delete was not invoked'
+    end
+  end
+
+  test 'DELETE /ontologies/:acronym/submissions surfaces backend errors' do
+    acronym = (ONTOLOGIES.first&.acronym || 'STY')
+
+    stubbed = lambda do |*_|
+      raise StandardError, 'fake error'
+    end
+
+    LinkedData::Client::HTTP.stub(:delete, stubbed) do
+      delete submissions_ontology_path(acronym), params: { ontology_submission_ids: %w[1] }
+      assert_response :bad_gateway
+      json = JSON.parse(@response.body)
+      assert_match(/Delete request failed/i, json['error'])
+    end
+  end
+
+  test 'GET /ontologies/:acronym/submissions/bulk_delete/:process_id proxies and returns JSON' do
+    acronym    = (ONTOLOGIES.first&.acronym || 'STY')
+    process_id = 'pid-xyz'
+
+    called = false
+    stubbed_get = lambda do |path, *_|
+      called = true
+      assert_includes path, "/ontologies/#{acronym}/submissions/bulk_delete/#{process_id}"
+      # `get` returns parsed object by default; simulate that with a Hash
+      { 'status' => 'processing', 'deleted_ids' => [] }
+    end
+
+    LinkedData::Client::HTTP.stub(:get, stubbed_get) do
+      get bulk_delete_status_ontology_path(acronym, process_id)
+      assert_response :success
+      json = JSON.parse(@response.body)
+      assert_equal 'processing', json['status']
+      assert called, 'HTTP.get was not invoked'
+    end
+  end
+
+  test 'GET /ontologies/:acronym/submissions/bulk_delete/:process_id surfaces errors' do
+    acronym    = (ONTOLOGIES.first&.acronym || 'STY')
+    process_id = 'pid-err'
+
+    stubbed = lambda do |*_|
+      raise StandardError, 'polling error'
+    end
+
+    LinkedData::Client::HTTP.stub(:get, stubbed) do
+      get bulk_delete_status_ontology_path(acronym, process_id)
+      assert_response :bad_gateway
+      json = JSON.parse(@response.body)
+      assert_match(/Problem retrieving bulk delete status/i, json['error'])
     end
   end
 
