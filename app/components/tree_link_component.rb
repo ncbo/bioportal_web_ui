@@ -49,7 +49,7 @@ class TreeLinkComponent < ViewComponent::Base
   end
 
   def self.tree_close_icon
-    "<i class='fas fa-chevron-down text-primary' data-action='click->simple-tree#toggleChildren'></i>".html_safe
+    "<i class='fas fa-chevron-down' data-action='click->simple-tree#toggleChildren'></i>".html_safe
   end
 
   def open_children_link
