@@ -177,7 +177,7 @@ module MultiLanguagesHelper
     elsif label.is_a?(Array)
       list_items_component(max_items: show_max) do |r|
         label.map do |x|
-          r.container do
+          r.with_container do
             if style_as_badge
               render ChipButtonComponent.new(text: x) if style_as_badge
             else
