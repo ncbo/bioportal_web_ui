@@ -123,11 +123,12 @@ module SubmissionInputsHelper
 
   def ontology_categories_input(ontology = @ontology, categories = @categories)
     categories ||= LinkedData::Client::Models::Category.all(display_links: false, display_context: false)
+    sorted_categories = categories.sort_by! { |c| c[:name].to_s.downcase }
 
     render Input::InputFieldComponent.new(name: '', label: 'Categories') do
       content_tag(:div, class: 'upload-ontology-chips-container') do
         hidden_field_tag('ontology[hasDomain][]') +
-          categories.map do |category|
+          sorted_categories.map do |category|
             content_tag(:div) do
               category_chip_component(id: category[:acronym], name: "ontology[hasDomain][]",
                                       object: category, value: category[:id],
@@ -189,11 +190,12 @@ module SubmissionInputsHelper
 
   def ontology_groups_input(ontology = @ontology, groups = @groups)
     groups ||= LinkedData::Client::Models::Group.all(display_links: false, display_context: false)
+    sorted_groups = groups.sort_by { |g| g[:name] }
 
     render Input::InputFieldComponent.new(name: '', label: t('submission_inputs.groups')) do
       content_tag(:div, class: 'upload-ontology-chips-container') do
         hidden_field_tag('ontology[group][]') +
-          groups.map do |group|
+          sorted_groups.map do |group|
             group_chip_component(name: "ontology[group][]", id: group[:acronym],
                                  object: group, value: group[:id],
                                  checked: ontology.group&.any? { |x| x.eql?(group[:id]) })

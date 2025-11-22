@@ -11,8 +11,13 @@ class SubmissionsController < ApplicationController
     @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology_id], {include: 'all'}).first
     @submission = @ontology.explore.latest_submission || LinkedData::Client::Models::OntologySubmission.new
     @submission.id = nil
+
     @categories = LinkedData::Client::Models::Category.all
+    @categories.sort_by! { |c| c[:name].to_s.downcase }
+
     @groups = LinkedData::Client::Models::Group.all
+    @groups.sort_by! { |g| g[:acronym].to_s.downcase }
+
     @user_select_list = LinkedData::Client::Models::User.all(include: 'username').map { |u| [u.username, u.id] }
     @user_select_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
     @is_update_ontology = true

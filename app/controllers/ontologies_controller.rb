@@ -195,8 +195,13 @@ class OntologiesController < ApplicationController
     @submission.released = Date.today.to_s
     @submission.status = 'production'
     @ontologies = LinkedData::Client::Models::Ontology.all(include: 'acronym', include_views: true, display_links: false, display_context: false)
+
     @categories = LinkedData::Client::Models::Category.all
+    @categories.sort_by! { |c| c[:name].to_s.downcase }
+
     @groups = LinkedData::Client::Models::Group.all
+    @groups.sort_by! { |g| g[:acronym].to_s.downcase }
+
     @user_select_list = LinkedData::Client::Models::User.all(include: 'username').map { |u| [u.username, u.id] }
     @user_select_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
   end
