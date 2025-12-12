@@ -106,8 +106,6 @@ en:
     help_text: Help text
     contact_name: "%{name} Name"
     contact_email: "%{name} Email"
-    edit_metadata_instruction: "Edit the metadata of your ontology here. Some of these values are used by %{portal_name} functionalities, including for FAIRness assessment. %{link}"
-    edit_metadata_instruction_link: "See guidelines and recommendations for metadata here."
     license_help: "%{portal_name} requires an URI for the license. If you do not find your choice here, %{link}"
     license_help_link: "Please pick up an URI from here."
     deprecated_help: "An ontology with status retired shall necessarily be also deprecated, but not the opposite."
