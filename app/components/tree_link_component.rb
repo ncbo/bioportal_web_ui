@@ -59,7 +59,11 @@ class TreeLinkComponent < ViewComponent::Base
     else
       content_tag('turbo_frame', id: "#{child_id}_open_link") do
         link_to @children_link,
-                data: { turbo: true, turbo_frame: "#{child_id + '_childs'}" } do
+                data: {
+                  turbo: true,
+                  turbo_frame: "#{child_id + '_childs'}",
+                  turbo_prefetch: false
+                } do
           content_tag(:i, nil, class: "fas fa-chevron-right")
         end
       end
