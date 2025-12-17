@@ -14,7 +14,14 @@ class TreeLinkComponent < ViewComponent::Base
 
     @pref_label_html, @tooltip = node_label(child)
 
-    @data ||= { controller: 'tooltip', 'tooltip-position-value': 'right', turbo: true, 'turbo-frame': target_frame, action: 'click->simple-tree#select' }
+    @data ||= {
+      controller: 'tooltip',
+      tooltip_position_value: 'right',
+      turbo: 'true',
+      turbo_frame: target_frame,
+      turbo_prefetch: 'false',
+      action: 'click->simple-tree#select'
+    }
 
     @data.merge!(data) do |_, old, new|
       "#{old} #{new}"
