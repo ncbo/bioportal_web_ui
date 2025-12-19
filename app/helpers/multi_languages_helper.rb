@@ -121,7 +121,10 @@ module MultiLanguagesHelper
 
   def request_lang(submission = @submission || @submission_latest)
     lang = params[:language] || params[:lang]
-    lang = submission_languages(submission)&.first unless lang
+    unless lang
+      langs = Array(submission_languages(submission))
+      lang = langs.include?(portal_lang) ? portal_lang : langs.first
+    end
     lang = portal_lang unless lang
     lang
   end
