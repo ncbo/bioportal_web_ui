@@ -4,7 +4,7 @@
 = turbo_frame_tag @type.eql?('modal') ? 'application_modal_content' : 'concept_mappings' do
   %div.p-1
     - if session[:user].nil?
-      = link_to "Create New Mapping", "/login?redirect=/ontologies/#{@ontology.acronym}/?p=classes&t=mappings&conceptid=#{escape(@concept.id)}", :class => "btn btn-default mb-3", data: { turbo_frame: '_top' }
+      = link_to t('mappings.create_new_mapping'), "/login?redirect=/ontologies/#{@ontology.acronym}/?p=classes&t=mappings&conceptid=#{escape(@concept.id)}", :class => "btn btn-default mb-3", data: { turbo_frame: '_top' }
     - else
       %div{style: 'width: 250px; margin: 0 0 10px 0;'}
         = link_to_modal(nil,

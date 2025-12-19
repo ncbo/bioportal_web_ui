@@ -244,6 +244,7 @@ en:
 
   mappings:
     intro: Browse mappings between classes in different ontologies
+    create_new_mapping: Create new mapping
 
   submissions:
     submission_updated_successfully: "Metadata updated successfully"
