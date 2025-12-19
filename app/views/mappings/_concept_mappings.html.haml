@@ -9,7 +9,7 @@
       %div{style: 'width: 250px; margin: 0 0 10px 0;'}
         = link_to_modal(nil,
                   new_mapping_path(ontology_from: "#{@ontology.id}", conceptid_from: "#{@concept.id}"),
-                  data: { show_modal_title_value: "Create a new mapping for #{@concept.prefLabel}" },
+                  data: { show_modal_title_value: "Create a new mapping for #{@concept.prefLabel}", turbo_prefetch: false },
                   ) do
           = render Buttons::RegularButtonComponent.new(id:'new_mapping_btn' , value:t('mappings.create_new_mapping'), variant: 'secondary', size: 'slim', state: 'no-anim')
 
