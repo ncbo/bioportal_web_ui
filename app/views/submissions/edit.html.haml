@@ -7,11 +7,11 @@
         - if @selected_attributes.empty?
           - @categories_order.each_with_index  do |key, index|
             - properties = @category_attributes[key]
-            - t.item_content do
+            - t.with_item_content do
               = render TurboFrameComponent.new(id: "ontology-content-#{index}", loading:"lazy", src: "edit_properties?properties=#{properties.join(',')}&container_id=ontology-content-#{index}")
         - else
           - link  = ontology_submission_edit_properties_path(@ontology.acronym, params[:id], properties: @selected_attributes.join(','), container_id: 'ontology-content-0')
-          - t.item_content do
+          - t.with_item_content do
             = render TurboFrameComponent.new(id: "ontology-content-0", loading:"lazy", src: link)
 
       %hr#edit-ontology-actions-devider

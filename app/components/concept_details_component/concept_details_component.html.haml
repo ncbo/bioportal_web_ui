@@ -10,7 +10,7 @@
           - leftover_set = convert_dates(leftover_set)
 
           - sections.each do |section|
-            - t.row do
+            - t.with_row do
               = section
 
           - row_hash_properties(top_set, @acronym).each do |row|

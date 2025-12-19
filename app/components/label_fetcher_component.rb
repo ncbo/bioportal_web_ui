@@ -29,11 +29,11 @@ class LabelFetcherComponent < ViewComponent::Base
     id = "#{escape(@id)}_label"
     if @ajax_src
       render(TurboFrameComponent.new(id: id, src: "#{@ajax_src}&target=#{@target}", loading: 'lazy')) do |t|
-        t.loader do
+        t.with_loader do
           render ChipButtonComponent.new(url: @id, text: "#{@id} #{render(LoaderComponent.new(small: true))}", type: 'clickable', target: '_blank')
         end
 
-        t.error do
+        t.with_error do
           capture(&block)
         end
       end

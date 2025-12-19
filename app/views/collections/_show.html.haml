@@ -4,7 +4,7 @@
                       top_keys: %w[created modified comment note],
                       bottom_keys: [],
                       exclude_keys: %w[member]) do |c|
-    - c.header(stripped: true) do |t|
+    - c.with_header(stripped: true) do |t|
       - t.add_row({th: t("collections.id")}, {td: link_to_with_actions(@collection["@id"], acronym: @ontology.acronym)})
       - t.add_row({th: t("collections.preferred_name")}, {td: display_in_multiple_languages(get_collection_label(@collection))})
       - t.add_row({th: t("collections.members_count")}) do |r|

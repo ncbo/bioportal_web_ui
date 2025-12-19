@@ -12,6 +12,6 @@
     - else
       = select('search', 'ontologies', @options, {:include_blank => ""},{:onchange=>"loadMappings(this.value);", "data-placeholder".to_sym => "Select an Ontology", autocomplete: "off"})
       #mapping_load
-        %img{src: asset_path("jquery.simple.tree/spinner.gif")}/
+        %img{src: asset_path("spinner.gif")}
         Loading mappings...
       #mappingCount

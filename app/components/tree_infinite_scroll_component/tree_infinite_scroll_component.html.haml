@@ -7,7 +7,7 @@
     = render TreeViewComponent.new(id: nil,  auto_click: auto_click?) do
       = content
 
-  - c.error do
+  - c.with_error do
     %div.text-wrap
       = render Display::AlertComponent.new(type:'info') do
         = error
