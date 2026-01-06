@@ -49,7 +49,7 @@
                   / %input.delete_note_checkbox{"data-applies_to" => note.appliesTo['id'], "data-note_id" => note.id, :id => "delete_#{note.id}", :type => "checkbox"}/
               %td
                 = link_to(note.subject, "#{@note_link}#{CGI.escape(note.id)}", id: "row_#{note.id}",
-                          class: 'concept_notes_list_link notes_list_link', data: { turbo_prefetch: false })
+                          class: 'notes_list_link', data: { turbo_prefetch: false })
                 &nbsp;&nbsp;&nbsp;
                 %span{:id => "#{note.id}_row_archived", :style => "font-size: x-small; color: grey;"}
                   - if note.archived
