@@ -418,13 +418,14 @@ class OntologiesController < ApplicationController
   def notes
     @notes = @ontology.explore.notes
     @notes_deletable = false
+
     # TODO_REV: Handle notes deletion
     # @notes.each {|n| @notes_deletable = true if n.deletable?(session[:user])} if @notes.kind_of?(Array)
-    @note_link = "/ontologies/#{@ontology.acronym}/notes/"
+
     if request.xhr?
-      render :partial => 'notes', :layout => false
+      render partial: 'notes', layout: false
     else
-      render :partial => 'notes', :layout => "ontology_viewer"
+      render partial: 'notes', layout: 'ontology_viewer'
     end
   end
 
