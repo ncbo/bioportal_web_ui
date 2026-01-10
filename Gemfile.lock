@@ -1,7 +1,9 @@
-PATH
-  remote: /Users/jlvendetti/Development/GitHub/ncbo/ontologies_api_ruby_client
+GIT
+  remote: https://github.com/ncbo/ontologies_api_ruby_client.git
+  revision: 67f3b050b4701e52c77ba41d4c60b4b764eee5ee
+  tag: v2.8.0
   specs:
-    ontologies_api_client (2.7.1)
+    ontologies_api_client (2.8.0)
       activesupport (= 8.0.3)
       addressable (~> 2.8)
       excon
@@ -94,7 +96,9 @@ GEM
     autoprefixer-rails (10.4.21.0)
       execjs (~> 2)
     base64 (0.3.0)
+    bcrypt_pbkdf (1.1.1)
     bcrypt_pbkdf (1.1.1-arm64-darwin)
+    bcrypt_pbkdf (1.1.1-x86_64-darwin)
     benchmark (0.5.0)
     bigdecimal (3.3.1)
     bindex (0.8.1)
@@ -182,7 +186,14 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
+    ffi (1.17.2-aarch64-linux-gnu)
+    ffi (1.17.2-aarch64-linux-musl)
+    ffi (1.17.2-arm-linux-gnu)
+    ffi (1.17.2-arm-linux-musl)
     ffi (1.17.2-arm64-darwin)
+    ffi (1.17.2-x86_64-darwin)
+    ffi (1.17.2-x86_64-linux-gnu)
+    ffi (1.17.2-x86_64-linux-musl)
     flag-icons-rails (3.4.6.1)
       sass-rails
     globalid (1.3.0)
@@ -328,7 +339,21 @@ GEM
     netrc (0.11.0)
     newrelic_rpm (9.23.0)
     nio4r (2.7.5)
+    nokogiri (1.18.10-aarch64-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.10-aarch64-linux-musl)
+      racc (~> 1.4)
+    nokogiri (1.18.10-arm-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.10-arm-linux-musl)
+      racc (~> 1.4)
     nokogiri (1.18.10-arm64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.18.10-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.18.10-x86_64-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.10-x86_64-linux-musl)
       racc (~> 1.4)
     oj (3.16.12)
       bigdecimal (>= 3.0)
