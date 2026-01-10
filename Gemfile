@@ -61,7 +61,7 @@ gem 'bootsnap', require: false
 
 # https://stackoverflow.com/questions/79360526/uninitialized-constant-activesupportloggerthreadsafelevellogger-nameerror
 # remove pin after upgrade to rails 8.0.1+ or proper fix is implemented
-gem "concurrent-ruby", "= 1.3.4"
+gem 'concurrent-ruby', '= 1.3.4'
 
 # Memcached client for Ruby
 gem 'dalli'
@@ -166,10 +166,10 @@ group :development do
   gem 'web-console'
 
   # Internationalization tasks
+  gem 'deepl-rb'
   # gem 'i18n-debug'
   gem 'i18n-tasks'
   gem 'i18n-tasks-csv', '~> 1.1'
-  gem 'deepl-rb'
 
   # Email preview in the browser
   gem 'letter_opener_web', '~> 2.0'
@@ -194,5 +194,4 @@ group :test do
   gem 'rspec-rails'
 end
 
-
-gem "color", "~> 1.8"
+gem 'color', '~> 1.8'
