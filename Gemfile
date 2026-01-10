@@ -54,7 +54,7 @@ gem 'stimulus-rails'
 gem 'pry'
 
 # Time zone info for Windows platforms
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+gem 'tzinfo-data', platforms: %i[windows jruby]
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', require: false
@@ -159,7 +159,7 @@ group :development do
   gem 'html2haml'
 
   # Debugging tools
-  gem 'debug', platforms: %i[mri mingw x64_mingw]
+  gem 'debug', platforms: %i[mri windows]
 
   # Use console on exceptions pages
   # [https://github.com/rails/web-console]
