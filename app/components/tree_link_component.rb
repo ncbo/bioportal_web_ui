@@ -14,7 +14,14 @@ class TreeLinkComponent < ViewComponent::Base
 
     @pref_label_html, @tooltip = node_label(child)
 
-    @data ||= { controller: 'tooltip', 'tooltip-position-value': 'right', turbo: true, 'turbo-frame': target_frame, action: 'click->simple-tree#select' }
+    @data ||= {
+      controller: 'tooltip',
+      tooltip_position_value: 'right',
+      turbo: 'true',
+      turbo_frame: target_frame,
+      turbo_prefetch: 'false',
+      action: 'click->simple-tree#select'
+    }
 
     @data.merge!(data) do |_, old, new|
       "#{old} #{new}"
@@ -49,7 +56,7 @@ class TreeLinkComponent < ViewComponent::Base
   end
 
   def self.tree_close_icon
-    "<i class='fas fa-chevron-down text-primary' data-action='click->simple-tree#toggleChildren'></i>".html_safe
+    "<i class='fas fa-chevron-down' data-action='click->simple-tree#toggleChildren'></i>".html_safe
   end
 
   def open_children_link
@@ -59,7 +66,11 @@ class TreeLinkComponent < ViewComponent::Base
     else
       content_tag('turbo_frame', id: "#{child_id}_open_link") do
         link_to @children_link,
-                data: { turbo: true, turbo_frame: "#{child_id + '_childs'}" } do
+                data: {
+                  turbo: true,
+                  turbo_frame: "#{child_id + '_childs'}",
+                  turbo_prefetch: false
+                } do
           content_tag(:i, nil, class: "fas fa-chevron-right")
         end
       end

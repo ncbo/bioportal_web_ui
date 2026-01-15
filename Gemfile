@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 # Main Rails gem
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '7.2.2.1'
+gem 'rails', '8.0.3'
 
 # JavaScript bundling for Rails
 gem 'jsbundling-rails'
@@ -54,14 +54,14 @@ gem 'stimulus-rails'
 gem 'pry'
 
 # Time zone info for Windows platforms
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+gem 'tzinfo-data', platforms: %i[windows jruby]
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', require: false
 
 # https://stackoverflow.com/questions/79360526/uninitialized-constant-activesupportloggerthreadsafelevellogger-nameerror
 # remove pin after upgrade to rails 8.0.1+ or proper fix is implemented
-gem "concurrent-ruby", "= 1.3.4"
+gem 'concurrent-ruby', '= 1.3.4'
 
 # Memcached client for Ruby
 gem 'dalli'
@@ -75,8 +75,7 @@ gem 'graphql-client'
 gem 'haml', '~> 6.1.1'
 
 # Internationalization (i18n)
-gem 'i18n'
-gem 'rails-i18n', '~> 7.0.0'
+gem 'rails-i18n', '~> 8.0'
 
 # MySQL database adapter
 gem 'mysql2'
@@ -94,7 +93,7 @@ gem 'rest-client'
 # View components framework for Rails
 gem 'lookbook', '~> 1.5.5'
 
-gem 'view_component', '~> 2.72'
+gem 'view_component', '~> 3.23'
 
 # Pagination library for Rails
 gem 'will_paginate', '~> 3.0'
@@ -109,7 +108,7 @@ gem 'iso-639', '~> 0.3.6'
 gem 'dotenv-rails', groups: [:test]
 
 # Custom API client
-gem 'ontologies_api_client', github: 'ncbo/ontologies_api_ruby_client', tag: 'v2.7.1'
+gem 'ontologies_api_client', github: 'ncbo/ontologies_api_ruby_client', tag: 'v2.8.0'
 
 gem 'rexml', '~> 3'
 
@@ -160,17 +159,17 @@ group :development do
   gem 'html2haml'
 
   # Debugging tools
-  gem 'debug', platforms: %i[mri mingw x64_mingw]
+  gem 'debug', platforms: %i[mri windows]
 
   # Use console on exceptions pages
   # [https://github.com/rails/web-console]
   gem 'web-console'
 
   # Internationalization tasks
+  gem 'deepl-rb'
   # gem 'i18n-debug'
   gem 'i18n-tasks'
   gem 'i18n-tasks-csv', '~> 1.1'
-  gem 'deepl-rb'
 
   # Email preview in the browser
   gem 'letter_opener_web', '~> 2.0'
@@ -195,5 +194,4 @@ group :test do
   gem 'rspec-rails'
 end
 
-
-gem "color", "~> 1.8"
+gem 'color', '~> 1.8'

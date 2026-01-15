@@ -11,7 +11,7 @@
           children_href: '#', selected: concept.id.eql?(concepts.first.id) && c.auto_click?,
           target_frame: 'concept_show', data: data, is_reused: concept_reused?(submission: @submission, concept_id: concept.id))
 
-  - c.error do
+  - c.with_error do
     - if @collection.nil?
       = t("ontologies.concepts_browsers.select_collection")
     - else

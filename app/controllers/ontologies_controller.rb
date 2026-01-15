@@ -195,8 +195,13 @@ class OntologiesController < ApplicationController
     @submission.released = Date.today.to_s
     @submission.status = 'production'
     @ontologies = LinkedData::Client::Models::Ontology.all(include: 'acronym', include_views: true, display_links: false, display_context: false)
+
     @categories = LinkedData::Client::Models::Category.all
+    @categories.sort_by! { |c| c[:name].to_s.downcase }
+
     @groups = LinkedData::Client::Models::Group.all
+    @groups.sort_by! { |g| g[:acronym].to_s.downcase }
+
     @user_select_list = LinkedData::Client::Models::User.all(include: 'username').map { |u| [u.username, u.id] }
     @user_select_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
   end
@@ -413,13 +418,14 @@ class OntologiesController < ApplicationController
   def notes
     @notes = @ontology.explore.notes
     @notes_deletable = false
+
     # TODO_REV: Handle notes deletion
     # @notes.each {|n| @notes_deletable = true if n.deletable?(session[:user])} if @notes.kind_of?(Array)
-    @note_link = "/ontologies/#{@ontology.acronym}/notes/"
+
     if request.xhr?
-      render :partial => 'notes', :layout => false
+      render partial: 'notes', layout: false
     else
-      render :partial => 'notes', :layout => "ontology_viewer"
+      render partial: 'notes', layout: 'ontology_viewer'
     end
   end
 

@@ -12,7 +12,7 @@ module ComponentsHelper
           raise ArgumentError, t('components.error_block')
         end
 
-        tree_child.child(child: child, href: href,
+        tree_child.with_child(child: child, href: href,
                          children_href: children_link, selected: child.id.eql?(selected&.id),
                          muted: child.isInActiveScheme&.empty?,
                          target_frame: target_frame,
@@ -29,8 +29,8 @@ module ComponentsHelper
   end
 
   def tab_item_component(container_tabs:, title:, path:, selected: false, json_link: "", &content)
-    container_tabs.item(title: title.html_safe, path: path, selected: selected, json_link: json_link)
-    container_tabs.item_content { capture(&content) }
+    container_tabs.with_item(title: title.html_safe, path: path, selected: selected, json_link: json_link)
+    container_tabs.with_item_content { capture(&content) }
   end
 
   def alert_component(message, type: "info")

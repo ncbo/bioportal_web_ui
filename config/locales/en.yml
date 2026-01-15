@@ -23,7 +23,7 @@ en:
   layouts:
     footer:
       copyright_html: >
-        Copyright &copy; 2005‑2025, The Board of Trustees of Leland Stanford Junior University. All rights reserved.
+        Copyright &copy; 2005‑2026, The Board of Trustees of Leland Stanford Junior University. All rights reserved.
       free_access: "%{site} is free and open to all users, with no login required."
       grant_html: >
         The <strong>National Center for Biomedical Ontology</strong> was founded as one of the National Centers for 
@@ -106,8 +106,6 @@ en:
     help_text: Help text
     contact_name: "%{name} Name"
     contact_email: "%{name} Email"
-    edit_metadata_instruction: "Edit the metadata of your ontology here. Some of these values are used by %{portal_name} functionalities, including for FAIRness assessment. %{link}"
-    edit_metadata_instruction_link: "See guidelines and recommendations for metadata here."
     license_help: "%{portal_name} requires an URI for the license. If you do not find your choice here, %{link}"
     license_help_link: "Please pick up an URI from here."
     deprecated_help: "An ontology with status retired shall necessarily be also deprecated, but not the opposite."
@@ -246,6 +244,7 @@ en:
 
   mappings:
     intro: Browse mappings between classes in different ontologies
+    create_new_mapping: Create new mapping
 
   submissions:
     submission_updated_successfully: "Metadata updated successfully"

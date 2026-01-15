@@ -17,11 +17,9 @@
               %div
             .upload-ontology-progress
               = render Layout::ProgressPagesComponent.new(pages_title: [t("ontologies.details"), t("ontologies.general_information"), t("ontologies.dates_and_contacts")]) do |c|
-                - c.page do
+                - c.with_page do
                   = render partial: 'ontologies/form'
-                - c.page do
-                  .upload-ontology-desc
-                    = metadata_help_link
+                - c.with_page do
                   .upload-ontology-input-field-container
                     = attribute_input('description', long_text: true)
                   - if @is_update_ontology
@@ -31,16 +29,16 @@
                     = has_ontology_language_input
                   .upload-ontology-field-container.mt-3
                     = render Layout::RevealComponent.new(selected: @submission.status, possible_values: ['retired']) do |c|
-                      - c.button do
+                      - c.with_button do
                         = attribute_input("status")
-                      - c.container do
+                      - c.with_container do
                         .upload-ontology-field-container
                           - @submission.valid = nil unless @submission.status&.eql?('retired')
                           = attribute_input("valid")
                   .upload-ontology-field-container.mt-3
                     = render partial: 'ontologies/submission_location_form'
 
-                - c.page do
+                - c.with_page do
                   .upload-ontology-input-field-container
                     - if @is_update_ontology
                       = attribute_input('modificationDate', label: t("ontologies.modification_date"), max_date: Date.today)

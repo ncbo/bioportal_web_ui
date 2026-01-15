@@ -33,12 +33,10 @@ class NotesController < ApplicationController
       @note_decorator = NoteDecorator.new(@note, view_context)
     elsif concept_id
       @notes = @ontology.explore.single_class(concept_id).explore.notes
-      @note_link = "/notes/virtual/#{@ontology.ontologyId}/?noteid="
       render partial: 'list', layout: 'ontology'
       return
     else
       @notes = @ontology.explore.notes
-      @note_link = "/notes/virtual/#{@ontology.ontologyId}/?noteid="
       render partial: 'list', layout: 'ontology'
       return
     end

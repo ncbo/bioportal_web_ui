@@ -36,8 +36,8 @@ class TableComponent < ViewComponent::Base
     @layout_fixed ? 'table-layout-fixed' : 'table-auto-layout'
   end
 
-  def add_row(*array, &block)
-    self.row.create(*array, &block)
+  def add_row(*args, &block)
+    with_row.create(*args, &block)
   end
 
   def mini_class

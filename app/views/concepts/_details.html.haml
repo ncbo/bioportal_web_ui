@@ -11,7 +11,7 @@
                   exclude_keys: %w[definition]) do |c|
 
 
-      - c.header(stripped: true) do |t|
+      - c.with_header(stripped: true) do |t|
         - t.add_row({th: t('ontology_details.concept.id')}, {td:link_to_with_actions(@concept.id, acronym: @ontology.acronym)})
         - t.add_row({th: t('ontology_details.concept.preferred_name')}) do |h|
           - h.td do

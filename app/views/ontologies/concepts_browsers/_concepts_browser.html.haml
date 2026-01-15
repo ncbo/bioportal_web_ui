@@ -1,25 +1,25 @@
 %div#concept_browser.tree-container
   = render TabsContainerComponent.new(type:'outline') do |c|
-    - c.item(id: 'tree-tab', selected: default_sub_menu?) do
+    - c.with_item(id: 'tree-tab', selected: default_sub_menu?) do
       %span{title: 'Hierarchy view', 'data-controller': "tooltip"}
         = inline_svg('icons/list-tree.svg',  style:'width: 18px; height: 18px')
 
     - if skos?
-      - c.item(id: 'list-tab', selected: sub_menu_active?('list')) do
+      - c.with_item(id: 'list-tab', selected: sub_menu_active?('list')) do
         %span{title: 'Collection view', 'data-controller': "tooltip"}
           = inline_svg('icons/list.svg',  style:'width: 18px; height: 18px')
 
-    - c.item(id: 'date-tab', selected: sub_menu_active?('date')) do
+    - c.with_item(id: 'date-tab', selected: sub_menu_active?('date')) do
       %span{title: 'Date view', 'data-controller': "tooltip"}
         = inline_svg('icons/calendar.svg',  style:'width: 18px; height: 18px')
 
-    - c.item_content do
+    - c.with_item_content do
       %div.p-1
         = render partial: 'ontologies/concepts_browsers/concepts_tree'
     - if skos?
-      - c.item_content do
+      - c.with_item_content do
         %div.p-1
           = render partial: 'ontologies/concepts_browsers/concepts_list'
-    - c.item_content do
+    - c.with_item_content do
       %div.p-1
         = render partial: 'ontologies/concepts_browsers/concepts_date_sort'
