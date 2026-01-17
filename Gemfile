@@ -9,13 +9,13 @@ gem 'rails', '8.0.3'
 # JavaScript bundling for Rails
 gem 'jsbundling-rails'
 
+# CSS bundling for Rails
+gem 'cssbundling-rails', '~> 1.4'
+
 # Chart.js integration for Rails
 gem 'chart-js-rails'
 
 gem 'select2-rails'
-
-# SassC as a replacement for sass-rails
-gem 'sassc-rails' # sass-rails replacement
 
 # Terser JavaScript minifier as a replacement for Uglifier
 gem 'terser' # uglifier replacement
