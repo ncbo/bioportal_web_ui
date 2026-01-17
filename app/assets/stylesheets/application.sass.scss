@@ -1,49 +1,49 @@
 // Entry point for your Sass build
 
 // Local vendor styles
-@import 'jquery-ui';
-@import 'alertify';
-@import 'chosen';
-@import 'facebox';
-@import 'fg.menu';
-@import 'flag-icon';
-@import 'jquery.autocomplete';
-@import 'jquery.tooltip';
-@import 'jquery-ui-1.8.1.custom';
-@import 'thickbox';
-@import 'select2';
-@import 'trumbowyg';
+@use 'jquery-ui';
+@use 'alertify';
+@use 'chosen';
+@use 'facebox';
+@use 'fg.menu';
+@use 'flag-icon';
+@use 'jquery.autocomplete';
+@use 'jquery.tooltip';
+@use 'jquery-ui-1.8.1.custom';
+@use 'thickbox';
+@use 'select2';
+@use 'trumbowyg';
 
 // Dependencies from node_modules
-@import 'tom-select/dist/scss/tom-select';
-@import 'tippy.js/dist/tippy';
-@import 'tippy.js/themes/light-border';
+@use 'tom-select/dist/scss/tom-select';
+@use 'tippy.js/dist/tippy';
+@use 'tippy.js/themes/light-border';
 
 // BioPortal
-@import 'account';
-@import 'admin';
-@import 'annotator';
-@import 'bioportal';
-@import 'concepts';
-@import 'edit-ontology';
-@import 'footer';
-@import 'home';
-@import 'login';
-@import 'mappings';
-@import 'notes';
-@import 'notice';
-@import 'ontologies';
-@import 'ontology_viewer';
-@import 'recommender';
-@import 'search';
-@import 'submissions';
-@import 'theme-variables';
-@import 'tree';
-@import 'upload_ontology';
+@use 'account';
+@use 'admin';
+@use 'annotator';
+@use 'bioportal';
+@use 'concepts';
+@use 'edit-ontology';
+@use 'footer';
+@use 'home';
+@use 'login';
+@use 'mappings';
+@use 'notes';
+@use 'notice';
+@use 'ontologies';
+@use 'ontology_viewer';
+@use 'recommender';
+@use 'search';
+@use 'submissions';
+@use 'theme-variables';
+@use 'tree';
+@use 'upload_ontology';
 
 // Component styles
-@import "components/index";
+@use "components/index";
 
 // Bootstrap
-@import "bootstrap";
-@import "bootstrap_overrides";
+@use "bootstrap";
+@use "bootstrap_overrides";
