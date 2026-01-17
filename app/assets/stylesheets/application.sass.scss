@@ -1,1 +1,49 @@
 // Entry point for your Sass build
+
+// Local vendor styles
+@import 'jquery-ui';
+@import 'alertify';
+@import 'chosen';
+@import 'facebox';
+@import 'fg.menu';
+@import 'flag-icon';
+@import 'jquery.autocomplete';
+@import 'jquery.tooltip';
+@import 'jquery-ui-1.8.1.custom';
+@import 'thickbox';
+@import 'select2';
+@import 'trumbowyg';
+
+// Dependencies from node_modules
+@import 'tom-select/dist/scss/tom-select';
+@import 'tippy.js/dist/tippy';
+@import 'tippy.js/themes/light-border';
+
+// BioPortal
+@import 'account';
+@import 'admin';
+@import 'annotator';
+@import 'bioportal';
+@import 'concepts';
+@import 'edit-ontology';
+@import 'footer';
+@import 'home';
+@import 'login';
+@import 'mappings';
+@import 'notes';
+@import 'notice';
+@import 'ontologies';
+@import 'ontology_viewer';
+@import 'recommender';
+@import 'search';
+@import 'submissions';
+@import 'theme-variables';
+@import 'tree';
+@import 'upload_ontology';
+
+// Component styles
+@import "components/index";
+
+// Bootstrap
+@import "bootstrap";
+@import "bootstrap_overrides";
