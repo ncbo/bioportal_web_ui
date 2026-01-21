@@ -1,62 +1,8 @@
-<%# This file contains all the color themes of ontoportal alliance%>
-
-<% themes = {
-  "agroportal"  => {
-    primary: "#3CB371",
-    hover: "#41C67C",
-    secondary: "#ffc107",
-    light: "#F1F6FA",
-    bg_chip_button_container: "#777777" ,
-    text_chip_button_container: "#FFFFFF !important"
-  },
-  "stageportal" => {
-    primary: "#37AEA0",
-    hover: "#3BBDAE",
-    secondary: "#ffc107",
-    light: "#ECF7F6",
-    bg_chip_button_container: "#777777" ,
-    text_chip_button_container: "#FFFFFF !important"
-  },
-  "bioportal"   => {
-    primary: "#234979",
-    hover: "#2B5892",
-    secondary: "#ffc107",
-    light: "#F0F5F6",
-    bg_chip_button_container: "#777777" ,
-    text_chip_button_container: "#FFFFFF !important",
-    login_btn: "#C58612",
-    login_btn_hover_bg: "#C58612",
-  },
-  "ontoportal"  => {
-    primary: "#5499a4",
-    hover: "#6B96B7",
-    secondary: "#ffc107",
-    light: "#F1F6FA",
-    bg_chip_button_container: "#777777" ,
-    text_chip_button_container: "#FFFFFF !important",
-    login_btn: "#F1F6FA",
-    login_btn_hover_bg: "#CCCCCC",
-  },
-  "testportal"  => {
-    primary: "#5499a4",
-    hover: "#6B96B7",
-    secondary: "#ffc107",
-    light: "#F1F6FA",
-    bg_chip_button_container: "#777777" ,
-    text_chip_button_container: "#FFFFFF !important"
-  }
-} %>
-
-<% ui_theme = $UI_THEME.to_s.parameterize %>
-<% selected_theme_key = themes.key?(ui_theme) ? ui_theme : 'ontoportal' %>
-<% selected_theme = themes[selected_theme_key] %>
-
 :root {
-  --active-theme: <%=  selected_theme_key %>;
-  --primary-color: <%= selected_theme[:primary] %>;
-  --hover-color: <%= selected_theme[:hover] %>;
-  --secondary-color: <%= selected_theme[:secondary] %>;
-  --light-color: <%= selected_theme[:light] %>;
+  --primary-color: #234979;
+  --hover-color: #2B5892;
+  --secondary-color: #ffc107;
+  --light-color: #F0F5F6;
   --error-color: #EB4335;
   --warning-color: #F2BE22;
   --gray-color: #888888;
@@ -67,8 +13,8 @@
   --bg-danger-light-color: rgba(239, 68, 68, 0.1);
   --bg-warning-light-color: rgba(234, 179, 8, 0.1);
   --bg-success-light-color: rgba(34, 197, 94, 0.1);
-  --bg-chip-button: <%= selected_theme[:bg_chip_button_container] %>;
-  --text-chip-button: <%= selected_theme[:text_chip_button_container] %>;
-  --login-btn-color: <%= selected_theme[:login_btn] %>;
-  --login-btn-hover-bg-color: <%= selected_theme[:login_btn_hover_bg] %>;
+  --bg-chip-button: #777777;
+  --text-chip-button: #FFFFFF;
+  --login-btn-color: #C58612;
+  --login-btn-hover-bg-color: #C58612;
 }
