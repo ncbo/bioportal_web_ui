@@ -26,9 +26,6 @@ gem 'bootstrap', '~> 5.2.3'
 # jQuery integration for Rails
 gem 'jquery-rails'
 
-# jQuery UI integration for Rails
-gem 'jquery-ui-rails'
-
 # The original asset pipeline for Rails
 # [https://github.com/rails/sprockets-rails]
 gem 'sprockets-rails'

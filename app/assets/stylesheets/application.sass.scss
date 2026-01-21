@@ -1,18 +1,15 @@
 // Entry point for your Sass build
 
 // Local vendor styles
-@use 'jquery-ui';
 @use 'alertify';
 @use 'chosen';
 @use 'facebox';
 @use 'fg.menu';
-@use 'flag-icon';
-@use 'jquery.autocomplete';
-@use 'jquery.tooltip';
-@use 'jquery-ui-1.8.1.custom';
 @use 'thickbox';
 @use 'select2';
 @use 'trumbowyg';
+@forward 'jquery.autocomplete';
+@forward 'jquery.tooltip';
 
 // Dependencies from node_modules
 @use 'tom-select/dist/scss/tom-select';
