@@ -1,4 +1,2 @@
-/*
- *= require alertify/alertify.core
- *= require alertify/alertify.bootstrap
- */
+@forward 'alertify.core';
+@forward 'alertify.bootstrap';
