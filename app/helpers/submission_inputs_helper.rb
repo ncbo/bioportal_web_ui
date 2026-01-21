@@ -405,7 +405,7 @@ module SubmissionInputsHelper
         end
 
         Array(values).each_with_index do |metadata_val, i|
-          c.row do
+          c.with_row do
             block.call(metadata_val, "#{name}[#{i}]", "submission_#{attr.attr.to_s}" + '_' + @ontology.acronym)
           end
         end
