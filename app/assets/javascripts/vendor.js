@@ -10,9 +10,6 @@
 //= require jquery2
 //= require jquery-migrate-1.3.0.min
 //= require jquery_ujs
-//= require jquery-ui
-//= require popper
-//= require bootstrap-sprockets
 //
 //= require jquery.blockUI
 //= require facebox
@@ -31,7 +28,7 @@
 //= require alertify
 //= require jquery.tooltip
 //= require Chart.min
-//= require select2 
+//= require select2/select2.full
 //= require jquery.readyselector
 //= require trumbowyg
 

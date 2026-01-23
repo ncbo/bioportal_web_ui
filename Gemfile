@@ -15,13 +15,8 @@ gem 'cssbundling-rails', '~> 1.4'
 # Chart.js integration for Rails
 gem 'chart-js-rails'
 
-gem 'select2-rails'
-
 # Terser JavaScript minifier as a replacement for Uglifier
 gem 'terser' # uglifier replacement
-
-# Bootstrap front-end framework
-gem 'bootstrap', '~> 5.2.3'
 
 # jQuery integration for Rails
 gem 'jquery-rails'

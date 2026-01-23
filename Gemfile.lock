@@ -93,8 +93,6 @@ GEM
     airbrussh (1.5.3)
       sshkit (>= 1.6.1, != 1.7.0)
     ast (2.4.3)
-    autoprefixer-rails (10.4.21.0)
-      execjs (~> 2)
     base64 (0.3.0)
     bcrypt_pbkdf (1.1.1)
     bcrypt_pbkdf (1.1.1-arm64-darwin)
@@ -104,10 +102,6 @@ GEM
     bindex (0.8.1)
     bootsnap (1.19.0)
       msgpack (~> 1.2)
-    bootstrap (5.2.3)
-      autoprefixer-rails (>= 9.1.0)
-      popper_js (>= 2.11.6, < 3)
-      sassc-rails (>= 2.0.0)
     brakeman (7.1.1)
       racc
     bugsnag (6.28.0)
@@ -371,7 +365,6 @@ GEM
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
-    popper_js (2.11.8)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -500,7 +493,6 @@ GEM
       sprockets-rails
       tilt
     securerandom (0.4.1)
-    select2-rails (4.0.13)
     selenium-webdriver (4.38.0)
       base64 (~> 0.2)
       logger (~> 1.4)
@@ -593,7 +585,6 @@ PLATFORMS
 DEPENDENCIES
   bcrypt_pbkdf (>= 1.0, < 2.0)
   bootsnap
-  bootstrap (~> 5.2.3)
   brakeman
   bugsnag (~> 6.26)
   capistrano (~> 3.17)
@@ -646,7 +637,6 @@ DEPENDENCIES
   rexml (~> 3)
   rspec-rails
   rubocop
-  select2-rails
   selenium-webdriver
   simplecov
   simplecov-cobertura

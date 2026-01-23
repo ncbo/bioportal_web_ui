@@ -5,13 +5,14 @@
 @use 'chosen';
 @use 'facebox';
 @use 'fg.menu';
+@use 'select2/select2';
 @use 'thickbox';
-@use 'select2';
 @use 'trumbowyg';
 @forward 'jquery.autocomplete';
 @forward 'jquery.tooltip';
 
 // Dependencies from node_modules
+@use 'bootstrap/scss/bootstrap';
 @use 'tom-select/dist/scss/tom-select';
 @use 'tippy.js/dist/tippy';
 @use 'tippy.js/themes/light-border';
@@ -21,6 +22,7 @@
 @use 'admin';
 @use 'annotator';
 @use 'bioportal';
+@use "bootstrap_overrides";
 @use 'concepts';
 @use 'edit-ontology';
 @use 'footer';
@@ -40,7 +42,3 @@
 
 // Component styles
 @use "components/index";
-
-// Bootstrap
-@use "bootstrap";
-@use "bootstrap_overrides";
