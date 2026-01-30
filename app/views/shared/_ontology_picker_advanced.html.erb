@@ -313,7 +313,10 @@ function clearAllSelections() {
 
 <div id="ont_select_adv" style="overflow: visible; z-index: 100; display: none; text-align: left; border: thin solid gray; position: fixed; background: white; max-width: 550px; box-shadow: 0 0 10px gray;">
   <div id="ont_select_adv_inner" style="padding: 15px 10px 3px; background: white; z-index: 5000;">
-    <h2>Select Multiple Ontologies <a href="javascript:void(0);" id="close_adv_select" class="ui-dialog-titlebar-close ui-corner-all" role="button" unselectable="on" style="-moz-user-select: none; float: right;"><span class="ui-icon ui-icon-closethick" unselectable="on" style="-moz-user-select: none;">close</span></a></h2>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2>Select Multiple Ontologies</h2>
+      <button type="button" id="close_adv_select" class="btn-close" aria-label="Close"></button>
+    </div>
 
     <input type="text" id="advanced_filter_input" class="help_text" style="width: 300px; margin-bottom: 10px;" title="Search all ontology names">
 
