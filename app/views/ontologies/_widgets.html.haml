@@ -7,8 +7,8 @@
       %p
         Widgets are only available for ontologies stored in #{$SITE}.
   - else
-    #widgets_content
-      %h5.pb-3 Add #{$ORG} Web Widgets to your site for #{@ontology.acronym}
+    #widgets_content{class: 'pt-3 px-2'}
+      %h5.pb-3 Add #{$SITE} web widgets to your site for #{@ontology.acronym}
       %table#widget_table{width: "100%"}
         %tr
           %th
