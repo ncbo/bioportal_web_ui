@@ -388,37 +388,6 @@ li.ac_over > .obsolete_class {
   font-style: italic;
 }
 
-#drag_container {
-  background:#ffffff;
-  color:#000;
-  font: normal 11px arial, tahoma, helvetica, sans-serif;
-  border: 1px dashed #767676;
-}
-#drag_container ul {
-  list-style: none;
-  padding:0;
-  margin:0;
-}
-#drag_container li {
-  list-style: none;
-  background-color:#ffffff;
-  line-height:18px;
-  white-space: nowrap;
-  padding:1px 1px 0px 16px;
-  margin:0;
-}
-#drag_container li span {
-  padding:0;
-}
-#drag_container li.doc, #drag_container li.doc-last {
-  background: image-url('jquery.simple.tree/leaf.gif') no-repeat -17px 0 #ffffff;
-}
-#drag_container .folder-close, #drag_container .folder-close-last {
-  background: image-url('jquery.simple.tree/expandable.gif') no-repeat -17px 0 #ffffff;
-}
-#drag_container .folder-open, #drag_container .folder-open-last {
-  background: image-url('jquery.simple.tree/collapsable.gif') no-repeat -17px 0 #ffffff;
-}
 .contextMenu {
   display:none;
 }
