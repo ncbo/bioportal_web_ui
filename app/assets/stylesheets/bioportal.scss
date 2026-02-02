@@ -47,53 +47,10 @@ body{
   float:left;
 }
 
-#hd {
-  background: image-url('layout/header_bg.png') repeat-x;
-  width: 100%;
-  min-width: 1200px;
-  height: 43px;
-  margin: auto;
-  text-align: left;
-  white-space: nowrap;
-  -moz-box-shadow: 1px 0 4px black;
-  -webkit-box-shadow: 1px 0 4px black;
-  box-shadow: 1px 0 4px black;
-}
-#hd ul {
-  padding:0 5px;
-}
-#hd ul li {
-  display:inline;
-  float:left;
-}
-#hd ul.alignright {
-  padding: 0.3em 0 0.5em 0;
-}
-#hd ul.alignright li {
-  display:inline;
-  float:left;
-  padding-left:15px;
-}
-#hd ul li a {
-  color:#fff;
-}
-
-
 #bd {
   background: #fff;
 }
 
-#grab-point {
-  background: image-url('layout/bar-ext.gif') repeat-y;
-  width:5px;
-  height:100%;
-  min-height:350px;
-  position:absolute;
-  top:24px;
-  right:0;
-  border-right:1px solid #ccc;
-  border-left:1px solid #ccc;
-}
 
 /* Tables */
 
@@ -133,27 +90,6 @@ table.align-right th:nth-child(2) {
   text-align: right;
 }
 
-.basic {
-  background:#fff;
-}
-.basic caption {
-  padding: 0 0 5px 0;
-  width: 100%;
-  font: italic 95% "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-  text-align: right;
-}
-.basic thead th, .basic tbody th {
-  font-weight:bold;
-  font-size:90%;
-  padding: 2px 20px 2px 0;
-}
-.basic tbody td {
-  padding: 2px 20px 2px 0;
-}
-.basic tbody tr:hover td, .basic tbody tr:hover th {
-  background: #f5fafa;
-  border-bottom: 1px solid #ccc;
-}
 .annotations {
   background:#fff;
 }
@@ -346,86 +282,6 @@ table.align-right th:nth-child(2) {
   border-left: 1px solid #C1DAD7;
   border-right: 1px solid #C1DAD7;
 }
-/* Resources Tab*/
-
-.resources caption {
-  padding: 0 0 5px 0;
-  width: 100%;
-  font: italic 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-  text-align: right;
-}
-.resources th {
-  white-space:nowrap;
-  font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-  color: #234979;
-  border-left: 1px solid #C1DAD7;
-  border-right: 1px solid #C1DAD7;
-  border-bottom: 1px solid #C1DAD7;
-  border-top: 1px solid #C1DAD7;
-  text-transform: uppercase;
-  text-align: left;
-  padding: 6px 6px 6px 12px;
-  background: #e2ebf0;
-}
-.resources tbody th {
-  font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-  color: #234979;
-  border-left: 1px solid #C1DAD7;
-  border-right: 1px solid #C1DAD7;
-  border-bottom: 1px solid #C1DAD7;
-  border-top: 1px solid #C1DAD7;
-  text-transform: uppercase;
-  text-align: left;
-  padding: 6px 6px 6px 12px;
-  background: #fff;
-}
-.resources th.alt {
-  border-left: 1px solid #C1DAD7;
-  border-top: 0;
-  background: #f5fafa;
-  font: bold 10px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-  color: #797268;
-}
-.resources th.nobg {
-  border-top: 0;
-  border-left: 0;
-  border-right: 1px solid #C1DAD7;
-  background: none;
-}
-.resources td {
-  border-right: 1px solid #C1DAD7;
-  border-bottom: 1px solid #C1DAD7;
-  padding: 20px 20px 20px 20px;
-  color: #000;
-}
-.resources td.alt {
-  background: #f5fafa;
-  color: #000;
-}
-.resources tr {
-  border-left: 1px solid #C1DAD7;
-  color: #000;
-}
-.resources tr.alt {
-  border-left: 1px solid #C1DAD7;
-  background: #f5fafa;
-  color: #000;
-}
-.resources td.top {
-  border-top: 1px solid #C1DAD7;
-}
-tr.mainresource td {
-  cursor:pointer;
-  font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-  color: #234979;
-  border-left: 1px solid #C1DAD7;
-  border-right: 1px solid #C1DAD7;
-  border-bottom: 1px solid #C1DAD7;
-  border-top: 1px solid #C1DAD7;
-  text-align: left;
-  padding: 6px 6px 6px 12px;
-  background: #e2ebf0;
-}
 
 /*Projects */
 .pheader {
@@ -443,14 +299,6 @@ tr.mainresource td {
   background: #e2ebf0;
 }
 
-.home_button{
-    background-image: image-url('layout/home_button.png');
-    height:37px;
-    width:106px;
-    border:0px;
-    color:white;
-}
-
 .asterik{
     color:red;
     font-weight:bold;
@@ -466,12 +314,12 @@ tr.mainresource td {
   padding:5px;
 }
 .sorting_asc{
-    background-image: image-url('layout/asc.png');
+    background-image: url('layout/asc.png');
     background-repeat:no-repeat;
     background-position:98%;
 }
 .sorting_desc{
-    background-image: image-url('layout/desc.png');
+    background-image: url('layout/desc.png');
     background-repeat:no-repeat;
     background-position:98%;
 }
@@ -1012,23 +860,6 @@ div#topNavigationToggler {
   width: 120px;
 }
 
-/************************************
- * Help text at top of tabs
- ************************************/
-a.help_link {
-  border-radius: 6px 6px 6px 6px;
-  background: image-url('jquery-ui-1.8.1.custom/ui-bg_glass_100_e4f1fb_1x400.png') repeat-x scroll 50% 50% #E4F1FB;
-  border: 1px solid #74B2E2;
-  color: #0070A3;
-  font-weight: bold;
-  width: 16px;
-  height: 16px;
-  text-decoration: none;
-  display: inline-block;
-  vertical-align: middle;
-  margin-left: .5em;
-}
-
 h1.tab_header {
   padding: 10px 0 0 13px;
   margin-bottom: 0;
@@ -1062,19 +893,6 @@ a.link_button > span.ui-button-text {
   padding: 5px 30px;
   text-align: center;
   color: #525252;
-}
-
-.class_permalink {
-  background: none repeat scroll 0 0 white;
-  border-color: #BCC6D0;
-  border-style: solid none solid solid;
-  border-width: 1px 0 1px 1px;
-  height: 55px;
-  padding: 15px 10px;
-  position: absolute;
-  right: 0;
-  top: 24px;
-  width: 400px;
 }
 
 /************************************
