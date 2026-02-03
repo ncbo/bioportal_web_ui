@@ -20,13 +20,13 @@ div.tree_error {
 }
 
 #bd ul.simpleTree li {
-    margin-left: 0px;
+    margin-left: 0;
     padding: 5px 0 0 10px;
 }
 
 #bd ul.simpleTree {
-    margin-left: 0px;
-    margin-bottom: 0px;
+    margin-left: 0;
+    margin-bottom: 0;
 }
 
 .simpleTree {
@@ -104,10 +104,7 @@ div.tree_error {
     cursor: default;
     background-color: #B9D5E4;
     font-weight: bold;
-    padding-top: 0px;
-    padding-right: 2px;
-    padding-bottom: 0px;
-    padding-left: 2px;
+    padding: 0 2px;
 }
 
 .simpleTree a, .simpleTree a:hover {
