@@ -23,11 +23,20 @@
   border-bottom: none !important;
 }
 
-.table-content td, .table-content th{
-  padding: 0.75rem;
-  vertical-align: top;
-}
+.table-content {
+  // Base style
+  td, th {
+    padding: 0.75rem;
+    vertical-align: top;
+  }
 
+  // Override style
+  &.is-plain {
+    td, th {
+      padding: 0.25rem 0.25rem;
+    }
+  }
+}
 
 .table-content-stripped tbody tr:nth-child(odd) {
   background-color: #FAFAFA;
