@@ -29,5 +29,3 @@
 //= require Chart.min
 //= require select2/select2.full
 //= require jquery.readyselector
-//= require trumbowyg
-
