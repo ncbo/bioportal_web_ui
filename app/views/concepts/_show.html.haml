@@ -28,12 +28,12 @@
 
   :javascript
     jQuery(document).ready(function(){
-      jQuery("#classPermalinkModal").on("shown.bs.modal", function (e) {
+      jQuery("#classPermalinkModal").off("shown.bs.modal").on("shown.bs.modal", function (e) {
         var currentPurl = jQuery("#classPermalink").data("current-purl");
         jQuery("#purl_input").val(currentPurl);
       })
 
-      jQuery("#purl_input").on("click", function () {
+      jQuery("#purl_input").off("click").on("click", function () {
         jQuery(this).select();
       });
     });

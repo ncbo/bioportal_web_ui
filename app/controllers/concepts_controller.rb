@@ -26,6 +26,7 @@ class ConceptsController < ApplicationController
     @concept = @ontology.explore.single_class({ full: true, language: request_lang }, params[:id])
 
     concept_not_found(params[:id]) if @concept.nil?
+    @current_purl = @concept.purl if Rails.configuration.settings.purl[:enabled]
     @notes = @concept.explore.notes
     render partial: 'show'
   end
