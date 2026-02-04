@@ -392,24 +392,6 @@ li.ac_over > .obsolete_class {
   display:none;
 }
 
-/* simple css-based tooltip */
-div.tooltip {
-  background-color:#000;
-  border:1px solid #fff;
-  padding:10px 15px;
-  width:200px;
-  display:none;
-  color:#fff;
-  text-align:left;
-  font-size:12px;
-  z-index: 999;
-
-  /* outline radius for mozilla/firefox only */
-  -moz-box-shadow:0 0 10px #000;
-  -webkit-box-shadow:0 0 10px #000;
-
-}
-
 #bp_fake_root {
   display: none;
 }

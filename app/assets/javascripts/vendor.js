@@ -26,7 +26,6 @@
 //= require jquery.scrollTo-1.4.0-min
 //= require history/jquery.history
 //= require alertify
-//= require jquery.tooltip
 //= require Chart.min
 //= require select2/select2.full
 //= require jquery.readyselector
