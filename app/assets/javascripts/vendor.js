@@ -21,7 +21,6 @@
 //= require ajax-chosen
 //= require jquery.cookie
 //= require autocomplete
-//= require jquery.hoverIntent
 //= require history/jquery.history
 //= require alertify
 //= require Chart.min
