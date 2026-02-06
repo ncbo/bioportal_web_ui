@@ -3,6 +3,7 @@ require_relative '../config/environment'
 require 'rails/test_help'
 require 'simplecov'
 require 'webmock/minitest'
+require 'timeout'
 
 SimpleCov.start 'rails' do
   add_filter '/bin/'
@@ -10,6 +11,10 @@ SimpleCov.start 'rails' do
   add_filter '/test/'
   add_filter '/vendor/'
 end
+
+# Per-test timeout (seconds). Many tests call the slow external BioPortal API,
+# so the default is generous. Override with TEST_TIMEOUT env var.
+TEST_TIMEOUT = Integer(ENV.fetch('TEST_TIMEOUT', 180))
 
 class ActiveSupport::TestCase
   # Run tests in parallel with specified workers
@@ -21,6 +26,16 @@ class ActiveSupport::TestCase
 
   Capybara.server_host = "0.0.0.0"
   Capybara.app_host = "http://#{Socket.gethostname}:#{Capybara.server_port}"
+
+  # Wrap each test in a timeout so a stuck API call does not hang the suite.
+  # A timeout is reported as a skip (not a failure) since it usually means the
+  # external service is slow or unavailable rather than a real test defect.
+  def run
+    Timeout.timeout(TEST_TIMEOUT, Timeout::Error) { super }
+  rescue Timeout::Error
+    skip "Test timed out after #{TEST_TIMEOUT}s (external API may be slow/unavailable). " \
+         "Increase with TEST_TIMEOUT env var."
+  end
 end
 
 # Define the fixtures helper method

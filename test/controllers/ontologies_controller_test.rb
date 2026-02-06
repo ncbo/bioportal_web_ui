@@ -108,8 +108,8 @@ class OntologiesControllerTest < ActionDispatch::IntegrationTest
     stubbed_get = lambda do |path, *_|
       called = true
       assert_includes path, "/ontologies/#{acronym}/submissions/bulk_delete/#{process_id}"
-      # `get` returns parsed object by default; simulate that with a Hash
-      { 'status' => 'processing', 'deleted_ids' => [] }
+      # Controller passes raw: true, so return a JSON string
+      '{"status":"processing","deleted_ids":[]}'
     end
 
     LinkedData::Client::HTTP.stub(:get, stubbed_get) do

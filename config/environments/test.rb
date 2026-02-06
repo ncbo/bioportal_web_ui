@@ -20,7 +20,9 @@ Rails.application.configure do
 
   # Show full error reports.
   config.consider_all_requests_local = true
-  config.cache_store = :null_store
+  # Use memory_store instead of null_store so that CacheStore-backed sessions
+  # (see config/initializers/session_store.rb) work correctly in tests.
+  config.cache_store = :memory_store
 
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
