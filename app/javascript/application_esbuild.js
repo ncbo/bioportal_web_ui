@@ -3,6 +3,7 @@
 import { Turbo } from '@hotwired/turbo-rails';
 import './controllers';
 import './component_controllers';
+import * as bootstrap from 'bootstrap';
 
 Turbo.session.drive = false;
 

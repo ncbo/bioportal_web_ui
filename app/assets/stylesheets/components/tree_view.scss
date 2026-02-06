@@ -20,13 +20,13 @@ div.tree_error {
 }
 
 #bd ul.simpleTree li {
-    margin-left: 0px;
+    margin-left: 0;
     padding: 5px 0 0 10px;
 }
 
 #bd ul.simpleTree {
-    margin-left: 0px;
-    margin-bottom: 0px;
+    margin-left: 0;
+    margin-bottom: 0;
 }
 
 .simpleTree {
@@ -81,78 +81,6 @@ div.tree_error {
     /*background: url(/images/tree/root.gif) no-repeat 16px 0 #ffffff;*/
 }
 
-.simpleTree .line {
-    margin:0 0 0 -16px;
-    padding: 0;
-    line-height: 3px;
-    height: 3px;
-    font-size: 3px;
-    background: image-url('jquery.simple.tree/line_bg.gif') 0 0 no-repeat transparent;
-}
-
-.simpleTree .line-last {
-    margin: 0 0 0 -16px;
-    padding: 0;
-    line-height: 3px;
-    height: 3px;
-    font-size: 3px;
-    background: image-url('jquery.simple.tree/spacer.gif') 0 0 no-repeat transparent;
-}
-
-.simpleTree .line-over {
-    margin:0 0 0 -16px;
-    padding: 0;
-    line-height: 3px;
-    height: 3px;
-    font-size: 3px;
-    background: image-url('jquery.simple.tree/line_bg_over.gif') 0 0 no-repeat transparent;
-}
-
-.simpleTree .line-over-last {
-    margin: 0 0 0 -16px;
-    padding: 0;
-    line-height: 3px;
-    height: 3px;
-    font-size: 3px;
-    background: image-url('jquery.simple.tree/line_bg_over_last.gif') 0 0 no-repeat transparent;
-}
-
-.simpleTree .folder-open {
-    margin-left: -16px;
-    background: image-url('jquery.simple.tree/collapsable.gif') 0 -2px no-repeat #fff;
-}
-
-.simpleTree .folder-open-last {
-    margin-left: -16px;
-    background: image-url('jquery.simple.tree/collapsable-last.gif') 0 -2px no-repeat #fff;
-}
-
-.simpleTree .folder-close {
-    margin-left: -16px;
-    background: image-url('jquery.simple.tree/expandable.gif') 0 -2px no-repeat #fff;
-}
-
-.simpleTree .folder-close-last {
-    margin-left: -16px;
-    background: image-url('jquery.simple.tree/expandable-last.gif') 0 -2px no-repeat #fff;
-}
-
-.simpleTree .doc {
-    margin-left: -16px;
-    background: image-url('jquery.simple.tree/leaf.gif') 0 -1px no-repeat #fff;
-}
-
-.simpleTree .doc-last {
-    margin-left: -16px;
-    background: image-url('jquery.simple.tree/leaf-last.gif') 0 -1px no-repeat #fff;
-}
-
-.simpleTree .ajax {
-    background: image-url('jquery.simple.tree/spinner.gif') no-repeat 0 0 #ffffff;
-    height: 16px;
-    display: none;
-}
-
 .simpleTree .ajax li {
     display: none;
     margin: 0;
@@ -176,10 +104,7 @@ div.tree_error {
     cursor: default;
     background-color: #B9D5E4;
     font-weight: bold;
-    padding-top: 0px;
-    padding-right: 2px;
-    padding-bottom: 0px;
-    padding-left: 2px;
+    padding: 0 2px;
 }
 
 .simpleTree a, .simpleTree a:hover {

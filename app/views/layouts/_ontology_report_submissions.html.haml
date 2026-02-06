@@ -40,8 +40,8 @@
       %td
         = xmldatetime_to_date(sub.creationDate)
       %td
-        %a{:href => "javascript:;", :class => "link_button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only", :onclick => "DeleteSubmission.act('#{@acronym}', #{sub.submissionId});"}
-          %span{:class => "ui-button-text"} Delete
+        %a{href: 'javascript:;', class: 'btn btn-outline-primary btn-sm',
+           onclick: "DeleteSubmission.act('#{@acronym}', #{sub.submissionId});"} Delete
     - if @submissions.length >= 10
       %tr
         %td{:colspan => 4, :style => "text-align: right;"}

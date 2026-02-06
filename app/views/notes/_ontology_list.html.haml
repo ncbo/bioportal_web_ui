@@ -1,19 +1,23 @@
 .notes_list_container
-  .add_comment{style: "float: left; margin-right: 1em;"}
-    - if session[:user].nil?
-      = link_to "Add comment", login_index_path(redirect: request.url), class: "link_button", style: "font-size: .9em", data: { parent_id: "#{@ontology.id}", parent_type: "ontology" }
-    - else
-      = link_to "Add comment", "javascript:void(0);", class: "add_comment link_button", style: "font-size: .9em", data: { parent_id: "#{@ontology.id}", parent_type: "ontology" }
-  .add_proposal{style: "float: left; margin-right: 1em;"}
-    - if session[:user].nil?
-      = link_to "Add proposal", login_index_path(redirect: request.url), class: "link_button", style: "font-size: .9em", data: { parent_id: "#{@ontology.id}", parent_type: "ontology" }
-    - else
-      = link_to "Add proposal", "javascript:void(0);", class: "add_proposal link_button", style: "font-size: .9em", data: { parent_id: "#{@ontology.id}", parent_type: "ontology" }
-  .subscribe_to_notes{:style => "float: left;"}
-    = subscribe_button(@ontology.acronym)
-  .notes_delete{:style => "float: left; margin-left: 1em;"}
-    / TODO_REV: Enable notes deletion
-    / delete_button
+  %div{class: 'd-inline-flex justify-content-between px-2'}
+    .add_comment
+      - if session[:user].nil?
+        = link_to("Add comment", login_index_path(redirect: request.url), class: 'btn btn-outline-primary btn-sm me-2',
+                  data: { parent_id: "#{@ontology.id}", parent_type: "ontology" })
+      - else
+        = link_to("Add comment", "javascript:void(0);", class: 'add_comment btn btn-outline-primary btn-sm me-2',
+                  data: { parent_id: "#{@ontology.id}", parent_type: "ontology" })
+    .add_proposal
+      - if session[:user].nil?
+        = link_to("Add proposal", login_index_path(redirect: request.url), class: 'btn btn-outline-primary btn-sm me-2',
+                  data: { parent_id: "#{@ontology.id}", parent_type: "ontology" })
+      - else
+        = link_to("Add proposal", "javascript:void(0);", class: 'add_proposal btn btn-outline-primary btn-sm me-2',
+                  data: { parent_id: "#{@ontology.id}", parent_type: "ontology" })
+    .subscribe_to_notes
+      = subscribe_button(@ontology.acronym)
+    .notes_delete
+      -# TODO: Enable notes deletion
   %div.ont_notes_filter{style: "clear: both; padding-top: 10px; float: right;"}
     Filter:
     %input#hide_archived_ont{:checked => "true", :name => "hide_archived_ont", :type => "checkbox"}

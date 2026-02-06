@@ -70,8 +70,8 @@
               %td{:style => "white-space:nowrap;"}
                 Report generated on:&nbsp;&nbsp;
                 %span.report_date_generated
-                %a#refresh_report_action{:href => "javascript:;", :class => "link_button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only", :style => "margin-left:11px;"}
-                  %span.ui-button-text{:class => "report_date_generated_button"}
+                %a#refresh_report_action{href: 'javascript:;', class: 'btn btn-outline-primary btn-sm ms-2'}
+                  %span{class: 'report_date_generated_button'}
           %p.tab_description{:style => "clear:both;"}
           %table#adminOntologies.zebra{:cellpadding => "0", :cellspacing => "0", :width => "100%"}
 

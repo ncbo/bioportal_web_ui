@@ -93,8 +93,6 @@ GEM
     airbrussh (1.5.3)
       sshkit (>= 1.6.1, != 1.7.0)
     ast (2.4.3)
-    autoprefixer-rails (10.4.21.0)
-      execjs (~> 2)
     base64 (0.3.0)
     bcrypt_pbkdf (1.1.1)
     bcrypt_pbkdf (1.1.1-arm64-darwin)
@@ -104,10 +102,6 @@ GEM
     bindex (0.8.1)
     bootsnap (1.19.0)
       msgpack (~> 1.2)
-    bootstrap (5.2.3)
-      autoprefixer-rails (>= 9.1.0)
-      popper_js (>= 2.11.6, < 3)
-      sassc-rails (>= 2.0.0)
     brakeman (7.1.1)
       racc
     bugsnag (6.28.0)
@@ -153,6 +147,8 @@ GEM
     crass (1.0.6)
     css_parser (1.21.1)
       addressable
+    cssbundling-rails (1.4.3)
+      railties (>= 6.0.0)
     csv (3.3.5)
     dalli (3.2.8)
     date (3.5.0)
@@ -258,8 +254,6 @@ GEM
       rails-dom-testing (>= 1, < 3)
       railties (>= 4.2.0)
       thor (>= 0.14, < 2.0)
-    jquery-ui-rails (8.0.0)
-      railties (>= 3.2.16)
     jsbundling-rails (1.3.1)
       railties (>= 6.0.0)
     json (2.16.0)
@@ -371,7 +365,6 @@ GEM
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
-    popper_js (2.11.8)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -500,7 +493,6 @@ GEM
       sprockets-rails
       tilt
     securerandom (0.4.1)
-    select2-rails (4.0.13)
     selenium-webdriver (4.38.0)
       base64 (~> 0.2)
       logger (~> 1.4)
@@ -593,7 +585,6 @@ PLATFORMS
 DEPENDENCIES
   bcrypt_pbkdf (>= 1.0, < 2.0)
   bootsnap
-  bootstrap (~> 5.2.3)
   brakeman
   bugsnag (~> 6.26)
   capistrano (~> 3.17)
@@ -606,6 +597,7 @@ DEPENDENCIES
   chart-js-rails
   color (~> 1.8)
   concurrent-ruby (= 1.3.4)
+  cssbundling-rails (~> 1.4)
   dalli
   debug
   deepl-rb
@@ -624,7 +616,6 @@ DEPENDENCIES
   inline_svg
   iso-639 (~> 0.3.6)
   jquery-rails
-  jquery-ui-rails
   jsbundling-rails
   letter_opener_web (~> 2.0)
   lookbook (~> 1.5.5)
@@ -646,8 +637,6 @@ DEPENDENCIES
   rexml (~> 3)
   rspec-rails
   rubocop
-  sassc-rails
-  select2-rails
   selenium-webdriver
   simplecov
   simplecov-cobertura

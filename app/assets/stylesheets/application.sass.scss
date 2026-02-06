@@ -1,0 +1,41 @@
+// Entry point for your Sass build
+
+// Local vendor styles
+@use 'alertify';
+@use 'chosen';
+@use 'facebox';
+@use 'select2/select2';
+@use 'thickbox';
+@forward 'jquery.autocomplete';
+
+// Dependencies from node_modules
+@use 'bootstrap/scss/bootstrap';
+@use 'tom-select/dist/scss/tom-select';
+@use 'tippy.js/dist/tippy';
+@use 'tippy.js/themes/light-border';
+
+// BioPortal
+@use 'account';
+@use 'admin';
+@use 'annotator';
+@use 'bioportal';
+@use "bootstrap_overrides";
+@use 'concepts';
+@use 'edit-ontology';
+@use 'footer';
+@use 'home';
+@use 'login';
+@use 'mappings';
+@use 'notes';
+@use 'notice';
+@use 'ontologies';
+@use 'ontology_viewer';
+@use 'recommender';
+@use 'search';
+@use 'submissions';
+@use 'tree';
+@use 'upload_ontology';
+@use 'variables';
+
+// Component styles
+@use "components/index";
