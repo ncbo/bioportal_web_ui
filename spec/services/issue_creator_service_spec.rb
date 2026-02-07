@@ -18,6 +18,9 @@ RSpec.describe IssueCreatorService do
     end
 
     it 'creates an issue with the expected attributes' do
+      skip 'Requires GitHub credentials (kgcl:github_access_token in Rails credentials)' unless
+        Rails.application.credentials.dig(:kgcl, :github_access_token).present?
+
       expect(issue).to include('id' => a_kind_of(String),
                                'createdAt' => a_kind_of(String),
                                'title' => params[:content][:title],
@@ -30,6 +33,9 @@ RSpec.describe IssueCreatorService do
       params = { ont_acronym: 'STY', content: { title: nil, body: 'lorem ipsum dolor sit amet' } }
 
       it 'raises an error' do
+        skip 'Requires GitHub credentials (kgcl:github_access_token in Rails credentials)' unless
+          Rails.application.credentials.dig(:kgcl, :github_access_token).present?
+
         expect { IssueCreatorService.call(params) }.to raise_error IssueCreatorService::QueryError
       end
     end
