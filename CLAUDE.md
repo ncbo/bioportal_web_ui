@@ -9,7 +9,7 @@ BioPortal Web UI is a Ruby on Rails application for browsing and interacting wit
 - **Live site**: https://bioportal.bioontology.org/
 - **Staging site**: https://stage.bioontology.org/
 - **Repository**: https://github.com/ncbo/bioportal_web_ui
-- **Development guide**: https://github.com/berkeleybop/bioportal-development-guide
+- **Development guide**: See `developer/` directory and setup instructions below
 
 ## Tech Stack
 
@@ -24,7 +24,7 @@ BioPortal Web UI is a Ruby on Rails application for browsing and interacting wit
 
 ## Development Setup (Docker - Recommended)
 
-Uses the `bioportal-dev` Docker image from https://github.com/berkeleybop/bioportal-development-guide
+Uses the `bioportal-dev` Docker image built from the `developer/` directory in this repo.
 
 ### Prerequisites
 
@@ -33,10 +33,11 @@ Uses the `bioportal-dev` Docker image from https://github.com/berkeleybop/biopor
 
 ### Build the Docker Image (once)
 
-From the `bioportal-development-guide` directory:
+From the `bioportal_web_ui` directory:
 
 ```bash
-docker build --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -t bioportal-dev .
+docker build --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) \
+  -t bioportal-dev -f developer/Dockerfile.developer-environment developer/
 ```
 
 ### Run the Development Environment
@@ -165,6 +166,7 @@ config/
 ├── bioportal_config_*.rb  # Environment-specific BioPortal settings
 ├── database.yml           # Database configuration
 ├── routes.rb              # URL routing
+developer/          # Dockerfile, entrypoint, and config templates for dev container
 public/browse/      # Legacy Angular browse application
 spec/               # RSpec tests
 test/               # Minitest tests

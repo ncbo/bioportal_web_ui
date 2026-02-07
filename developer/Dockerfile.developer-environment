@@ -35,9 +35,9 @@ RUN apt-get update && apt-get install -y wget gnupg2 && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy config templates into the image
-COPY --chown=developer:developer files/database.yml.template /opt/templates/
-COPY --chown=developer:developer files/bioportal_config_development.rb.template /opt/templates/
-COPY --chown=developer:developer files/Procfile.dev /opt/templates/
+COPY --chown=developer:developer database.yml.template /opt/templates/
+COPY --chown=developer:developer bioportal_config_development.rb.template /opt/templates/
+COPY --chown=developer:developer Procfile.dev /opt/templates/
 
 # Copy and set up entrypoint script
 COPY --chown=developer:developer entrypoint.sh /opt/entrypoint.sh
