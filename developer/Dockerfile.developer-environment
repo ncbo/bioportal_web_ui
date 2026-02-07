@@ -1,0 +1,52 @@
+FROM ubuntu:noble
+
+# Accept build arguments for user ID and group ID
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+
+# Create a user that matches the host user's UID/GID
+# Handle case where UID/GID might already exist
+RUN groupadd -g ${GROUP_ID} developer 2>/dev/null || \
+    groupmod -n developer $(getent group ${GROUP_ID} | cut -d: -f1) && \
+    useradd -m -u ${USER_ID} -g ${GROUP_ID} -s /bin/bash developer 2>/dev/null || \
+    usermod -l developer -d /home/developer -m $(getent passwd ${USER_ID} | cut -d: -f1)
+
+# Give the user sudo access for installing packages
+RUN apt-get update && \
+    apt-get install -y sudo && \
+    echo 'developer ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install all required packages (includes gettext-base for envsubst)
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
+    ruby emacs git libruby3.2 ruby-dev build-essential gcc make openssl \
+    dialog ruby-psych ruby-mysql2 mariadb-client mariadb-server ruby-execjs \
+    libyaml-dev libmysqlclient-dev nodejs npm byobu memcached bundler \
+    gettext-base
+
+# Install Google Chrome for headless system tests
+RUN apt-get update && apt-get install -y wget gnupg2 && \
+    wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | \
+      gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+      > /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && \
+    apt-get install -y google-chrome-stable && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy config templates into the image
+COPY --chown=developer:developer files/database.yml.template /opt/templates/
+COPY --chown=developer:developer files/bioportal_config_development.rb.template /opt/templates/
+COPY --chown=developer:developer files/Procfile.dev /opt/templates/
+
+# Copy and set up entrypoint script
+COPY --chown=developer:developer entrypoint.sh /opt/entrypoint.sh
+RUN chmod +x /opt/entrypoint.sh
+
+# Switch to the developer user
+USER developer
+
+# Set working directory to the mounted volume location
+WORKDIR /home/developer/bioportal_web_ui
+
+ENTRYPOINT ["/opt/entrypoint.sh"]
