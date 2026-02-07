@@ -24,8 +24,10 @@ class ActiveSupport::TestCase
 
   WebMock.allow_net_connect!
 
-  Capybara.server_host = "0.0.0.0"
-  Capybara.app_host = "http://#{Socket.gethostname}:#{Capybara.server_port}"
+  if ENV['SELENIUM_URL'].present?
+    Capybara.server_host = "0.0.0.0"
+    Capybara.app_host = "http://#{Socket.gethostname}:#{Capybara.server_port}"
+  end
 
   # Wrap each test in a timeout so a stuck API call does not hang the suite.
   # A timeout is reported as a skip (not a failure) since it usually means the

@@ -4,15 +4,23 @@ require_relative 'helpers/application_test_helpers'
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   include ApplicationTestHelpers::Ontologies
   include ApplicationTestHelpers::Users
-  include ApplicationTestHelpers::Users
   include ApplicationTestHelpers::Categories
   include ApplicationTestHelpers::Groups
   include ApplicationTestHelpers::Agents
 
-  driven_by :selenium, using: ENV['CI'].present? ? :headless_chrome : :chrome, screen_size: [1400, 1400], options: {
-    browser: :remote,
-    url: "http://localhost:4444"
-  }
+  if ENV['SELENIUM_URL'].present?
+    # Remote Selenium (docker-compose chrome-server or CI grid)
+    driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1400], options: {
+      browser: :remote,
+      url: ENV['SELENIUM_URL']
+    }
+  else
+    # Local headless Chrome (dev container)
+    driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1400] do |driver_option|
+      driver_option.add_argument('--no-sandbox')
+      driver_option.add_argument('--disable-dev-shm-usage')
+    end
+  end
 
   def wait_for(selector, tries = 60)
     tries.times.each do
