@@ -111,8 +111,25 @@ sudo RAILS_ENV=test bin/rails test test/controllers/ontologies_controller_test.r
 sudo RAILS_ENV=test bundle exec rspec
 sudo RAILS_ENV=test bundle exec rspec spec/models/
 
-# System tests (requires Chrome/Selenium)
+# System tests (headless Chrome, installed in dev container)
 sudo RAILS_ENV=test bin/rails test:system
+```
+
+### System tests with docker-compose (remote Selenium)
+
+The `docker-compose.yml` includes a `chrome-server` service for running system
+tests via a standalone Selenium container. To use it instead of the dev
+container's local Chrome, set `SELENIUM_URL` in the test service's environment:
+
+```yaml
+  test:
+    environment:
+      SELENIUM_URL: "http://localhost:4444"
+```
+
+Then run:
+```bash
+docker compose run test bin/rails test:system
 ```
 
 ### Environment variables
@@ -121,6 +138,8 @@ sudo RAILS_ENV=test bin/rails test:system
   ontology instead of fetching the entire catalog from the API (recommended)
 - `TEST_TIMEOUT=300` — per-test timeout in seconds (default: 180); tests that
   exceed this are reported as skips, not failures
+- `SELENIUM_URL` — when set, system tests use a remote Selenium server at this
+  URL instead of local headless Chrome (e.g. `http://localhost:4444`)
 
 ### Notes
 

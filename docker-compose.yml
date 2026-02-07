@@ -96,7 +96,6 @@ services:
     <<: *default-app
     environment:
       <<: *env
-      SELENIUM_URL: "http://localhost:4444"
     depends_on:
       db:
         condition: service_healthy
