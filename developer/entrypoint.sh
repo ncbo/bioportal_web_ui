@@ -36,8 +36,7 @@ cp /opt/templates/Procfile.dev Procfile.dev
 
 # 5. Install dependencies
 echo "Installing node packages..."
-npm install yarn
-./node_modules/.bin/yarn install
+yarn install
 
 echo "Installing gems..."
 sudo bundler install

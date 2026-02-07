@@ -24,6 +24,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
     libyaml-dev libmysqlclient-dev nodejs npm byobu memcached bundler \
     gettext-base
 
+# Install yarn globally so it works under sudo (which strips PATH)
+RUN npm install -g yarn
+
 # Install Google Chrome for headless system tests
 RUN apt-get update && apt-get install -y wget gnupg2 && \
     wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | \
