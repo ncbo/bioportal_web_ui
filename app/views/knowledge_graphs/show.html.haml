@@ -1,0 +1,129 @@
+- @title ||= "Knowledge Graph"
+- kg = @knowledge_graph || {}
+
+%div.container-fluid.py-3
+  %div.mb-3
+    = link_to("Knowledge Graphs", knowledge_graphs_path, class: "text-decoration-none")
+
+  %div.d-flex.align-items-start.justify-content-between.flex-wrap.gap-3
+    %div
+      %h1.mb-1= kg[:name].presence || kg[:id]
+      - if kg[:id].present?
+        %div.text-muted.small= "ID: #{kg[:id]}"
+      - meta = [kg[:category], kg[:activity_status]].compact
+      - if meta.any?
+        %div.mt-2
+          - meta.each do |item|
+            %span.badge.bg-secondary.me-1= item
+    - if kg[:homepage_url].present?
+      %div
+        = kg_link(kg[:homepage_url], "Homepage")
+
+  - if kg[:description].present?
+    %p.lead.mt-3= sanitize(kg[:description])
+
+  - details = []
+  - details << ["Category", kg[:category]]
+  - details << ["Activity Status", kg[:activity_status]]
+  - details << ["Homepage", kg_link(kg[:homepage_url])]
+  - details << ["Repository", kg_link(kg[:repository])]
+  - if kg[:license].present?
+    - license = kg[:license]
+    - license_label = license.is_a?(Hash) ? (license[:label] || license[:id]) : license
+    - license_url = license.is_a?(Hash) ? license[:id] : nil
+    - license_value = license_url.present? ? kg_link(license_url, license_label) : license_label
+    - details << ["License", license_value]
+  - details << ["Version", kg[:version]]
+  - details << ["Created", kg_date(kg[:creation_date])]
+  - details << ["Last Updated", kg_date(kg[:last_modified_date])]
+  - details << ["Domains", kg_list(kg[:domains])]
+  - details << ["Tags", kg_list(kg[:tags])]
+  - details << ["Synonyms", kg_list(kg[:synonyms])]
+  - details << ["InfoRes ID", kg[:infores_id]]
+  - details << ["FAIRsharing ID", kg[:fairsharing_id]]
+  - details << ["Evaluation Page", kg_link(kg[:evaluation_page])]
+  - details << ["Collection", kg_list(kg[:collection])]
+  - details << ["Taxon", kg_list(kg[:taxon])]
+  - details << ["Language", kg_list(kg[:language])]
+  - details << ["Funding", kg_list(kg[:funding])]
+  - details << ["Usages", kg_list(kg[:usages])]
+  - details << ["Warnings", kg_list(kg[:warnings])]
+
+  %section.mt-4
+    %h2.h4 Details
+    %table.table.table-sm
+      - details.each do |label, value|
+        - next if value.blank?
+        %tr
+          %td{style: "width: 220px"}= label
+          %td= value
+
+  - contacts = Array(kg[:contacts]).compact
+  - if contacts.any?
+    = render partial: "contact_cards", locals: { title: "Contacts", items: contacts }
+
+  - curators = Array(kg[:curators]).compact
+  - if curators.any?
+    = render partial: "contact_cards", locals: { title: "Curators", items: curators }
+
+  - products = Array(kg[:products]).compact
+  - if products.any?
+    %section.mt-4
+      %h2.h4 Products
+      %div.row.g-3
+        - products.each do |product|
+          %div.col-12.col-lg-6
+            %div.card.h-100
+              %div.card-body
+                %div.d-flex.align-items-start.justify-content-between.gap-2
+                  %h5.card-title.mb-1= product[:name].presence || product[:id]
+                  - if product[:category].present?
+                    %span.badge.bg-light.text-dark= product[:category]
+                - if product[:description].present?
+                  %p.card-text= product[:description]
+                %ul.list-unstyled.mb-0
+                  - if product[:product_url].present?
+                    %li
+                      %span.fw-semibold URL:
+                      = " "
+                      = kg_link(product[:product_url])
+                  - if product[:format].present?
+                    %li
+                      %span.fw-semibold Format:
+                      = " "
+                      = product[:format]
+                  - if product[:original_source].present?
+                    %li
+                      %span.fw-semibold Original Source:
+                      = " "
+                      = kg_list(product[:original_source])
+                  - if product[:secondary_source].present?
+                    %li
+                      %span.fw-semibold Secondary Source:
+                      = " "
+                      = kg_list(product[:secondary_source])
+
+  - publications = Array(kg[:publications]).compact
+  - if publications.any?
+    %section.mt-4
+      %h2.h4 Publications
+      - publications.each do |pub|
+        %div.card.mb-2
+          %div.card-body
+            %div.fw-bold= pub[:title].presence || pub[:id]
+            - authors = Array(pub[:authors]).compact
+            - if authors.any?
+              %div.text-muted.small= authors.join(", ")
+            - meta = [pub[:journal], pub[:year]].compact
+            - if meta.any?
+              %div.text-muted.small= meta.join(" • ")
+            - if pub[:doi].present?
+              %div
+                %span.fw-semibold DOI:
+                = " "
+                = pub[:doi]
+            - if pub[:id].present? && pub[:id].to_s.start_with?("http")
+              %div
+                %span.fw-semibold Link:
+                = " "
+                = kg_link(pub[:id])
