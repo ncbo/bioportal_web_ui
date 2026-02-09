@@ -66,6 +66,36 @@
   - if curators.any?
     = render partial: "contact_cards", locals: { title: "Curators", items: curators }
 
+  - if @kg_sources.any?
+    %section.mt-4
+      %h2.h4 BioPortal Ontology Links
+      - unless @bioportal_apikey_present
+        %div.alert.alert-warning
+          BioPortal API key is not configured. Set `API_KEY` to enable ontology matching.
+      - else
+        - if @kg_mappings[:ontologies].empty?
+          %p.text-muted No BioPortal ontology matches found for the listed sources.
+        - else
+          %table.table.table-sm
+            %thead
+              %tr
+                %th{style: "width: 240px"} Source ID
+                %th BioPortal Ontology
+            %tbody
+              - @kg_mappings[:mappings].each do |mapping|
+                %tr
+                  %td= mapping[:source]
+                  %td
+                    - mapping[:ontologies].each_with_index do |ont, index|
+                      - if index.positive?
+                        = ", "
+                      = link_to(ont[:name].presence || ont[:acronym], "/ontologies/#{ont[:acronym]}")
+        - if @kg_mappings[:unmapped].any?
+          %details.mt-2
+            %summary.text-muted= "Unmapped sources (#{@kg_mappings[:unmapped].length})"
+            %div.mt-2
+              = @kg_mappings[:unmapped].join(", ")
+
   - products = Array(kg[:products]).compact
   - if products.any?
     %section.mt-4

@@ -20,6 +20,10 @@ class KnowledgeGraphsController < ApplicationController
     not_found("Knowledge graph not found") if @knowledge_graph.nil?
 
     @title = @knowledge_graph[:name] || "Knowledge Graph"
+
+    @bioportal_apikey_present = LinkedData::Client.settings.apikey.to_s.strip.present?
+    @kg_sources = KgOntologyMapper.sources_from(@knowledge_graph)
+    @kg_mappings = KgOntologyMapper.map_sources(@kg_sources, skip_lookup: !@bioportal_apikey_present)
   end
 
   private

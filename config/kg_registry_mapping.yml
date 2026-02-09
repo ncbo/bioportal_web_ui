@@ -1,0 +1,9 @@
+# Map KG Registry source identifiers to BioPortal ontology acronyms.
+# Keys are original_source strings from KG Registry. Values are BioPortal acronyms
+# (string) or a list of acronyms.
+#
+# Example:
+# aliases:
+#   ctd: CTD
+#   aop-wiki: AOP
+aliases: {}
