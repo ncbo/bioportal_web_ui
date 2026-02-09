@@ -1,9 +1,86 @@
 # Map KG Registry source identifiers to BioPortal ontology acronyms.
-# Keys are original_source strings from KG Registry. Values are BioPortal acronyms
-# (string) or a list of acronyms.
+# Keys are original_source/secondary_source strings from KG Registry.
+# Values are BioPortal acronyms (string) or a list of acronyms.
 #
-# Example:
-# aliases:
-#   ctd: CTD
-#   aop-wiki: AOP
-aliases: {}
+# Generated from ontologies.htm and kgs.yml.
+aliases:
+  bfo: BFO
+  biolink: BIOLINK
+  bto: BTO
+  chebi: CHEBI
+  cheminf: CHEMINF
+  chr: CHR
+  cl: CL
+  clo: CLO
+  cob: COB
+  dc: DC
+  dct: DCT
+  doid: DOID
+  ecosim: ECOSIM
+  ecto: ECTO
+  edam: EDAM
+  efo: EFO
+  envo: ENVO
+  faldo: FALDO
+  fbbt: FB-BT
+  fbdv: FB-DV
+  fma: FMA
+  gene-ontology: GO
+  geno: GENO
+  geo: GEO
+  glycocoo: GLYCOCOO
+  glycordf: GLYCORDF
+  go: GO
+  goldterms: GOLDTERMS
+  hancestro: HANCESTRO
+  hgnc: HGNC
+  hp: HP
+  hra: HRA
+  hsapdv: HSAPDV
+  iao: IAO
+  icd10: ICD10
+  icd10cm: ICD10CM
+  ido: IDO
+  kgcl: KGCL
+  loinc: LOINC
+  ma: MA
+  maxo: MAXO
+  mesh: MESH
+  metpo: METPO
+  mi: MI
+  mixs: MIXS
+  mondo: MONDO
+  mp: MP
+  mpath: MPATH
+  ms: MS
+  ncbitaxon: NCBITAXON
+  ncit: NCIT
+  ndfrt: NDFRT
+  neo: NEO
+  npo: NPO
+  oba: OBA
+  obi: OBI
+  obib: OBIB
+  ogms: OGMS
+  omim: OMIM
+  omit: OMIT
+  omo: OMO
+  ordo: ORDO
+  pato: PATO
+  pharmgkb: PHARMGKB
+  po: PO
+  pr: PR
+  pw: PW
+  rgd: RGD
+  ro: RO
+  rxnorm: RXNORM
+  sbo: SBO
+  snomedct: SNOMEDCT
+  so: SO
+  uberon: UBERON
+  uniprot: UNIPROT
+  uo: UO
+  vo: VO
+  wbls: WB-LS
+  wikipathways: WIKIPATHWAYS
+  zfa: ZFA
