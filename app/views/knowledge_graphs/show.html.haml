@@ -69,9 +69,9 @@
   - if @kg_sources.any?
     %section.mt-4
       %h2.h4 BioPortal Ontology Links
-      - unless @bioportal_apikey_present
+      - unless @bioportal_index_available
         %div.alert.alert-warning
-          BioPortal API key is not configured. Set `API_KEY` to enable ontology matching.
+          BioPortal ontology list is not available. Set `API_KEY` or provide `#{BioportalOntologyIndex::LOCAL_LIST_ENV}` pointing to a local list.
       - else
         - if @kg_mappings[:ontologies].empty?
           %p.text-muted No BioPortal ontology matches found for the listed sources.
