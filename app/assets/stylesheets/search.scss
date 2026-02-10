@@ -157,9 +157,6 @@ div#search_categories_chzn .chzn-drop {
     color: gray;
     text-decoration: none;
   }
-  a:hover {
-    text-decoration: underline;
-  }
 }
 
 #classSearchHelpBlock {
@@ -174,22 +171,6 @@ div#search_categories_chzn .chzn-drop {
 
 #ontology_counts {
   display: none;
-}
-
-.popup_counts {
-  float: right;
-  display: none;
-}
-
-.ontology_counts_tooltip {
-  background-color: #EEEEEE;
-  border: 1px solid black;
-  color: black;
-  font-size: 12px;
-  padding: 10px 15px;
-  text-align: left;
-  z-index: 999;
-  box-shadow: 3px 3px 7px gray;
 }
 
 .definition {

@@ -798,7 +798,27 @@ jQuery(".admin.index").ready(function() {
     jQuery('#facebox_overlay').unbind('click');
   });
 
-  jQuery("div.ontology_nav").html('<span class="toggle-row-display">' + showOntologiesToggleLinks(problemOnly) + '</span><span style="padding-left:30px;">Apply to Selected Rows:&nbsp;&nbsp;&nbsp;&nbsp;<select id="admin_action" name="admin_action"><option value="">Please Select</option><option value="delete">Delete</option><option value="all">Process</option><option value="process_annotator">Annotate</option><option value="diff">Diff</option><option value="index_search">Index</option><option value="run_metrics">Metrics</option></select>&nbsp;&nbsp;&nbsp;&nbsp;<a class="link_button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" href="javascript:;" id="admin_action_submit"><span class="ui-button-text">Go</span></a></span>');
+  jQuery("div.ontology_nav").html(`
+    <span class="toggle-row-display">
+      ${showOntologiesToggleLinks(problemOnly)}
+    </span>
+    <span style="padding-left:30px;">
+      Apply to Selected Rows:&nbsp;&nbsp;&nbsp;
+      <select id="admin_action" name="admin_action">
+        <option value="">Please Select</option>
+        <option value="delete">Delete</option>
+        <option value="all">Process</option>
+        <option value="process_annotator">Annotate</option>
+        <option value="diff">Diff</option>
+        <option value="index_search">Index</option>
+        <option value="run_metrics">Metrics</option>
+      </select>
+      &nbsp;&nbsp;&nbsp;
+      <a class="btn btn-outline-primary btn-sm" href="javascript:;" id="admin_action_submit">
+        Go
+      </a>
+    </span>
+  `);
 
   // toggle between all and problem ontologies
   jQuery.fn.dataTable.ext.search.push(

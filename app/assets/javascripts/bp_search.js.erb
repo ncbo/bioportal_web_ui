@@ -164,14 +164,6 @@ jQuery(document).ready(function() {
     jQuery(document).live("search_results_updated", function() {
         // Update count
         jQuery("#ontologies_count_total").html(currentOntologiesCount());
-
-        // Tooltip for ontology counts
-        updatePopupCounts();
-        jQuery("#ont_tooltip").tooltip({
-          position: "bottom right",
-          opacity: "90%",
-          offset: [-18, 5]
-        });
     });
 
     // Perform search
@@ -382,10 +374,6 @@ function performSearch() {
                     resultsByOnt.append("Matches in ");
                     resultsByOnt.append(resultsOntCount);
                     resultsByOnt.append(" ontologies");
-                    resultsOntDiv = jQuery("<div>");
-                    resultsOntDiv.attr("id", "ontology_counts");
-                    resultsOntDiv.addClass("ontology_counts_tooltip");
-                    resultsByOnt.append(resultsOntDiv);
                 }
                 result_count.html(resultsByOnt);
                 jQuery("#search_results").html(results.join(""));
@@ -800,23 +788,6 @@ function formatAdditionalOntResults(ontResults, ontAcronym) {
     });
     return ontResultsFormatted;
 }
-
-function updatePopupCounts() {
-    var ontologies = [],
-        result = null,
-        resultsCount = 0;
-    jQuery("#search_results div.search_result").each(function() {
-        result = jQuery(this);
-        // Add one to the additional results to get total count (1 is for the
-        // primary result)
-        resultsCount = result.children("div.additional_ont_results").find("div.search_result_additional").length + 1;
-        ontologies.push(result.attr("data-bp_ont_name") + " <span class='popup_counts'>" + resultsCount + "</span><br/>");
-    });
-    // Sort using case insensitive sorting
-    ontologies.sort(sortStringFunction);
-    jQuery("#ontology_counts").html(ontologies.join(""));
-}
-
 
 function classLabelSpan(cls) {
     // Wrap the class prefLabel in a span, indicating that the  class is obsolete

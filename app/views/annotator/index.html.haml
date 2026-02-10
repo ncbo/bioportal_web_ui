@@ -113,18 +113,17 @@
                   %a#filter_matched_ontologies.bp_popup_link{:href => "javascript:void(0);"} filter
                 %div#matched_ontology_filter_list.bp_popup_list
         %tbody
-      #download_links{:style => "margin-top: 1.5em;"}
-        %p
-          %span{:style => "padding: 0 3px 0 0;"}>
-            %b Format results as:
-            %span#download_links_tabdelimited.link_button.ui_button
-            %span#download_links_json.link_button.ui_button
-            %span#download_links_text.link_button.ui_button
-          %span#download_links_xml.link_button.ui_button
-        %span{:style => "font-size: smaller;"}
+      #download_links.mt-4
+        %span.fw-bold Format results as:
+        %div.my-3
+          %span#download_links_tabdelimited
+          %span#download_links_json
+          %span#download_links_text
+          %span#download_links_xml
+        %small
           To reproduce these results:
           %br/
           %span#annotator_parameters
           %br/
-          Additional parameters are documented at
-          \#{link_to 'Annotator Web Service', "#{$REST_URL}/documentation#nav_annotator", :target => "_blank"}
+          Additional parameters explained at
+          = link_to 'Annotator API documentation', "#{$REST_URL}/documentation#nav_annotator", target: '_blank'

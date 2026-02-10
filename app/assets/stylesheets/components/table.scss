@@ -4,6 +4,7 @@
   border-spacing: 0;
   box-sizing: border-box !important;
 }
+
 .table-auto-layout{
   table-layout: auto !important;
 }
@@ -23,11 +24,20 @@
   border-bottom: none !important;
 }
 
-.table-content td, .table-content th{
-  padding: 0.75rem;
-  vertical-align: top;
-}
+.table-content {
+  // Base style
+  td, th {
+    padding: 0.75rem;
+    vertical-align: top;
+  }
 
+  // Override style
+  &.is-plain {
+    td, th {
+      padding: 0.25rem 0.25rem;
+    }
+  }
+}
 
 .table-content-stripped tbody tr:nth-child(odd) {
   background-color: #FAFAFA;
@@ -42,7 +52,6 @@ table.dataTable thead td, table.dataTable thead th{
   padding: 20px 10px;
 }
 
-
 .table-mini{
   font-size: 14px;
 }
@@ -52,4 +61,3 @@ table.dataTable thead td, table.dataTable thead th{
   border-radius: 8px;
   padding: 10px;
 }
-

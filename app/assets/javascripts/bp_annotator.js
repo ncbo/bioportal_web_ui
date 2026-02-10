@@ -411,17 +411,18 @@ function annotatorFormatLink(param_string, format) {
   "use strict";
   // TODO: Check whether 'text' and 'tabDelimited' could work.
   // For now, assume that json and xml will work or should work.
-  var format_map = {
+  const format_map = {
     "json": "JSON",
     "xml": "XML",
     "text": "Text",
     "tabDelimited": "CSV"
   };
-  var query = BP_CONFIG.rest_url + "/annotator?apikey=" + BP_CONFIG.apikey + "&" + param_string;
-  if (format !== 'json') {
-    query += "&format=" + format;
-  }
-  var link = "<a href=\"" + encodeURI(query) + "\" target=\"_blank\">" + format_map[format] + "</a>";
+
+  const format_param = format !== 'json' ? `&format=${format}` : '';
+  const query = `${BP_CONFIG.rest_url}/annotator?apikey=${BP_CONFIG.apikey}&${param_string}${format_param}`;
+
+  const link = `<a href="${encodeURI(query)}" target="_blank" 
+                          class="btn btn-outline-primary btn-sm">${format_map[format]}</a>`;
   jQuery("#download_links_" + format.toLowerCase()).html(link);
 }
 

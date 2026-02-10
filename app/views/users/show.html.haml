@@ -141,4 +141,4 @@
       - selected = @user.customOntology.map {|o| LinkedData::Client::Models::Ontology.get(o).acronym}
       - locals = { custom_ontologies: @all_ontologies, selected_ontologies: selected, sel_text: "Select Custom Ontologies" }
       = render partial: "shared/ontology_picker", locals: locals
-      = submit_tag "Save Custom Ontologies", class: "link_button"
+      = submit_tag "Save Custom Ontologies", class: 'btn btn-sm btn-outline-secondary'

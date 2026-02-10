@@ -1,5 +1,6 @@
 - unless @submission.nil?
-  = render TableComponent.new(id: 'submission_metadata_table',small_text: true, custom_class: 'table table-sm', stripped: false) do |t|
+  = render TableComponent.new(id: 'submission_metadata_table', small_text: true, custom_class: 'table is-plain',
+                              stripped: false) do |t|
     - @metadata_list.each do |metadata, label|
       - next if Array(@submission.send(metadata)).empty?
       - t.with_row do |r|
