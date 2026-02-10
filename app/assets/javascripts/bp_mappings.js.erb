@@ -34,9 +34,7 @@ function loadMappings(value) {
 
     jQuery('#mappingCount').load('/mappings/' + value + '/count', function () {
         jQuery('#mapping_load').hide();
-        let mappings_table_elem = jQuery("#mapping_count_table");
-        mappings_table_elem.effect("highlight", {color: "#F5F5F5"}, 500);
-        mappings_table_elem.dataTable({
+        jQuery("#mapping_count_table").dataTable({
             "paging": false,
             "info": false,
             "searching": false,
