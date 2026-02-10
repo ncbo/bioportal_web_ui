@@ -28,9 +28,9 @@ $MAX_POSSIBLE_DISPLAY = 10000
 # Application ID: unique string representing the UI's id for use with the Core
 $API_KEY = "${BIOPORTAL_API_KEY}"
 
-$REST_URL = "https://stagedata.bioontology.org"
+$REST_URL = "${BIOPORTAL_API_URL}"
 
-$PROXY_URL = "http://services.stagedata.bioontology.org/annotatorplus"
+$PROXY_URL = "${BIOPORTAL_PROXY_URL}"
 
 $ONTOLOBRIDGE_BASE_URL = "https://ontolobridge.ccs.miami.edu/api/requests"
 
@@ -43,7 +43,7 @@ $CLIENT_REQUEST_CACHING = false
 $DEBUG_RUBY_CLIENT = true
 
 # Old REST core service address
-$LEGACY_REST_URL="http://stagerest.bioontology.org/bioportal"
+$LEGACY_REST_URL="${BIOPORTAL_LEGACY_REST_URL}"
 
 # REST core service port number
 $REST_PORT="80"

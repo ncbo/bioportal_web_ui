@@ -7,7 +7,6 @@ This file provides context for AI assistants working with this codebase.
 BioPortal Web UI is a Ruby on Rails application for browsing and interacting with biological ontologies. It is the frontend for the BioPortal/OntoPortal platform and communicates with an independent REST API for almost all data.
 
 - **Live site**: https://bioportal.bioontology.org/
-- **Staging site**: https://stage.bioontology.org/
 - **Repository**: https://github.com/ncbo/bioportal_web_ui
 - **Development guide**: See `developer/` directory and setup instructions below
 
@@ -28,8 +27,8 @@ Uses the `bioportal-dev` Docker image built from the `developer/` directory in t
 
 ### Prerequisites
 
-1. A developer account on the BioPortal staging environment (contact a current developer)
-2. Your API key from https://stage.bioontology.org/accounts/YOUR_USERNAME
+1. Access to a BioPortal/OntoPortal API server (contact a current developer)
+2. Your API key from the API server's account page
 
 ### Build the Docker Image (once)
 
@@ -47,6 +46,9 @@ From the `bioportal_web_ui` directory:
 ```bash
 docker run --name bpd --network host -it --rm \
   -e BIOPORTAL_API_KEY=your_api_key_here \
+  -e BIOPORTAL_API_URL=https://your-api-server \
+  -e BIOPORTAL_PROXY_URL=http://your-annotator-proxy \
+  -e BIOPORTAL_LEGACY_REST_URL=http://your-legacy-rest \
   -e DB_PASSWORD=choose_any_password \
   -v $(pwd):/home/developer/bioportal_web_ui \
   bioportal-dev
@@ -92,11 +94,10 @@ Services: `dev` (Rails), `node` (JS watcher), `db` (MySQL 8.0), `cache` (Memcach
 Both Minitest and RSpec are used. Tests must run inside the Docker container
 with `sudo` (because the entrypoint configures services as root).
 
-**Important**: Most tests make live HTTP calls to the staging API
-(`stagedata.bioontology.org`), which is very slow (5-30s per call). Tests
-will appear to hang after `# Running:` — this is normal; wait 1-2 minutes
-for the first dots to appear. Use `-v` for verbose output showing test names
-as they start.
+**Important**: Most tests make live HTTP calls to the configured API server
+(`$REST_URL`), which can be slow (5-30s per call). Tests will appear to hang
+after `# Running:` — this is normal; wait 1-2 minutes for the first dots to
+appear. Use `-v` for verbose output showing test names as they start.
 
 ### Running in the Docker container
 
@@ -182,7 +183,7 @@ test/               # Minitest tests
 ### Important Variables
 
 - `$API_KEY` - BioPortal API authentication key
-- `$REST_URL` - BioPortal REST API URL (e.g., `https://stagedata.bioontology.org`)
+- `$REST_URL` - BioPortal REST API URL (set via `BIOPORTAL_API_URL` env var)
 - `$UI_URL` - This application's URL
 - `$SITE` / `$ORG` - Site name and organization
 
@@ -195,5 +196,4 @@ test/               # Minitest tests
 ## Useful Links
 
 - API Client: https://github.com/ncbo/ontologies_api_ruby_client
-- Staging API: https://stagedata.bioontology.org
 - Architecture diagram: https://github.com/berkeleybop/bioportal-development-guide/blob/main/files/BioPortal_Architecture.pdf
