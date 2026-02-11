@@ -71,7 +71,7 @@ Press `Ctrl+C` to stop the dev server and exit the container.
 ## Development Notes
 
 - The database resets each time the container is removed
-- Most JS and Ruby file changes hot-reload; config files require container restart
+- Most JS, SCSS, and Ruby file changes hot-reload; config files require container restart
 - The staging server could be reset at any time
 - Some pages require admin access (admin protected)
 - Dev uses Ruby 3.2.3 in container vs 3.2.9 in production - no issues so far
