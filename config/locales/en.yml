@@ -229,7 +229,7 @@ en:
     details: "Details"
     edit_metadata: "Edit metadata"
     general_information: "General"
-    intro: Browse the library of ontologies
+    intro: "Browse the library of ontologies"
     modification_date: "Modification date"
     submit_new_ontology: "Submit new ontology"
     uri: "URI"
