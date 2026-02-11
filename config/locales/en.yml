@@ -223,6 +223,7 @@ en:
 
   ontologies:
     add_new_submission: "Add new submission"
+    allow_users: "Show ontology metadata only (exclude classes/properties)"
     change_notes: "Changes notes"
     date_of_original_creation: "Release date"
     dates_and_contacts: "Date and contacts"
@@ -230,8 +231,13 @@ en:
     edit_metadata: "Edit metadata"
     general_information: "General"
     intro: "Browse the library of ontologies"
+    load_from_url: "Load from URL"
+    location: "Location"
+    metadata_only: "Metadata only"
     modification_date: "Modification date"
+    new_versions_loaded: "New versions loaded on a nightly basis"
     submit_new_ontology: "Submit new ontology"
+    upload_local_file: "Upload local file"
     uri: "URI"
 
     concepts_browsers:
