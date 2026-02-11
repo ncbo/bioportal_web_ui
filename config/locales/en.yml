@@ -222,17 +222,17 @@ en:
       intro: Browse a selection of projects that use %{site} resources
 
   ontologies:
-    intro: Browse the library of ontologies
-    submit_new_ontology: "Submit new ontology"
-    details: "Details"
-    general_information: "General"
-    dates_and_contacts: "Date and contacts"
     add_new_submission: "Add new submission"
     change_notes: "Changes notes"
-    uri: "URI"
     date_of_original_creation: "Release date"
-    modification_date: "Modification date"
+    dates_and_contacts: "Date and contacts"
+    details: "Details"
     edit_metadata: "Edit metadata"
+    general_information: "General"
+    intro: Browse the library of ontologies
+    modification_date: "Modification date"
+    submit_new_ontology: "Submit new ontology"
+    uri: "URI"
 
     concepts_browsers:
       filter: Filter
