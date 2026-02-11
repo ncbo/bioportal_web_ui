@@ -48,7 +48,6 @@ docker run --name bpd --network host -it --rm \
   -e BIOPORTAL_API_KEY=your_api_key_here \
   -e BIOPORTAL_API_URL=https://your-api-server \
   -e BIOPORTAL_PROXY_URL=http://your-annotator-proxy \
-  -e BIOPORTAL_LEGACY_REST_URL=http://your-legacy-rest \
   -e DB_PASSWORD=choose_any_password \
   -v $(pwd):/home/developer/bioportal_web_ui \
   bioportal-dev

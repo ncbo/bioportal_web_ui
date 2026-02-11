@@ -26,12 +26,6 @@ if [ -z "$BIOPORTAL_PROXY_URL" ]; then
   exit 1
 fi
 
-if [ -z "$BIOPORTAL_LEGACY_REST_URL" ]; then
-  echo "ERROR: BIOPORTAL_LEGACY_REST_URL environment variable is required"
-  echo "Usage: docker run -e BIOPORTAL_LEGACY_REST_URL=http://your-legacy-rest ..."
-  exit 1
-fi
-
 # 2. Start services
 echo "Starting memcached..."
 sudo /etc/init.d/memcached start
@@ -49,7 +43,7 @@ sudo mysql -u root -e "FLUSH PRIVILEGES;"
 echo "Generating config files..."
 mkdir -p config
 envsubst '${DB_PASSWORD}' < /opt/templates/database.yml.template > config/database.yml
-envsubst '${BIOPORTAL_API_KEY} ${BIOPORTAL_API_URL} ${BIOPORTAL_PROXY_URL} ${BIOPORTAL_LEGACY_REST_URL}' < /opt/templates/bioportal_config_development.rb.template > config/bioportal_config_development.rb
+envsubst '${BIOPORTAL_API_KEY} ${BIOPORTAL_API_URL} ${BIOPORTAL_PROXY_URL}' < /opt/templates/bioportal_config_development.rb.template > config/bioportal_config_development.rb
 cp /opt/templates/Procfile.dev Procfile.dev
 
 # 5. Install dependencies

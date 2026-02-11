@@ -42,9 +42,6 @@ $NEW_TERM_REQUEST_ONTOLOGIES = ["BAO", "CLO", "CIDO", "PR", "DTO"]
 $CLIENT_REQUEST_CACHING = false
 $DEBUG_RUBY_CLIENT = true
 
-# Old REST core service address
-$LEGACY_REST_URL="${BIOPORTAL_LEGACY_REST_URL}"
-
 # REST core service port number
 $REST_PORT="80"
 # $REST_PORT="8080"
