@@ -87,7 +87,7 @@ cp .env.sample .env
 docker compose up dev
 ```
 
-Services: `dev` (Rails), `node` (JS watcher), `db` (MySQL 8.0), `cache` (Memcached)
+Services: `dev` (Rails), `node` (JS/CSS watcher), `db` (MySQL 8.0), `cache` (Memcached)
 
 ## Testing
 
