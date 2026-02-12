@@ -71,6 +71,8 @@ Rails.application.routes.draw do
 
   resources :virtual_appliance
 
+  resources :knowledge_graphs, only: [:index, :show]
+
   # Top-level pages
   match '/feedback', to: 'home#feedback', via: [:get, :post]
   get '/help' => 'home#help'
