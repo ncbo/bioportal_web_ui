@@ -1,0 +1,174 @@
+# coding: utf-8
+
+# Organization info
+$ORG = "BPD"
+$ORG_URL = "http://www.bioontology.org"
+
+# Site name (required)
+$SITE = "BioPortalDev"
+
+# The URL for the BioPortal Rails UI (this application)
+$UI_URL = "http://localhost:3000"
+
+$UI_THEME = 'bioportal'
+
+# Full string for site, EX: "NCBO BioPortal" (auto-generated, don't modify)
+$ORG_SITE = ($ORG.nil? || $ORG.empty?) ? $SITE : "#{$ORG} #{$SITE}"
+
+# If your BioPortal installation includes Annotator set this to false
+$ANNOTATOR_DISABLED = false
+
+$USER_INTENTION_SURVEY = nil
+
+$MAX_CHILDREN = 2500
+
+# Max number of children that it's possible to display (more than this is either too slow or not helpful to users)
+$MAX_POSSIBLE_DISPLAY = 10000
+
+# Application ID: unique string representing the UI's id for use with the Core
+$API_KEY = "${BIOPORTAL_API_KEY}"
+
+$REST_URL = "${BIOPORTAL_API_URL}"
+
+$PROXY_URL = "${BIOPORTAL_PROXY_URL}"
+
+$ONTOLOBRIDGE_BASE_URL = "https://ontolobridge.ccs.miami.edu/api/requests"
+
+# Ontologies for which to enable the new term request (Ontolobridge) tab
+$NEW_TERM_REQUEST_ONTOLOGIES = ["BAO", "CLO", "CIDO", "PR", "DTO"]
+
+# These config variables are specific to the ontologies_api_client library
+# Enable client request caching
+$CLIENT_REQUEST_CACHING = false
+$DEBUG_RUBY_CLIENT = true
+
+# REST core service port number
+$REST_PORT="80"
+# $REST_PORT="8080"
+
+# Cube metrics reporting
+$ENABLE_CUBE = false
+
+# A user id for user 'anonymous' for use when a user is required for an action on the REST service but you don't want to require a user to login
+$ANONYMOUS_USER = 39917
+
+$ONTOLOGY_SLICES = {
+  "test" => { :name => "Test Site", :ontologies => [1032, 1054, 1099] }
+}
+
+$ENABLE_SLICES = true
+
+# Max size allowed for uploaded files
+$MAX_UPLOAD_SIZE = 1073741824
+
+# SMTP settings
+ActionMailer::Base.smtp_settings = {
+  address: 'foo.bar.edu', # smtp server address, ex: smtp.domain.com
+  port: 25, # smtp server port
+  domain: 'localhost', # fqdn of rails server, ex: rails.domain.com
+  authentication: 'plain'
+}
+
+# Email address to mail when exceptions are raised
+begin
+  ExceptionNotifier.exception_recipients = %w(me@foo.bar.edu)
+rescue; end
+
+# Announcements mailman mailing list REQUEST address, EX: list-request@lists.example.org
+# NOTE: You must use the REQUEST address for the mailing list. ONLY WORKS WITH MAILMAN LISTS.
+$ANNOUNCE_LIST = "bioportal-test-request@lists.foo.bar.edu"
+
+# Email addresses used for sending notifications (errors, feedback, support)
+$SUPPORT_EMAIL = "me@foo.bar.edu"
+$ADMIN_EMAIL = "me@foo.bar.edu"
+$ERROR_EMAIL = "me@foo.bar.edu"
+
+# Custom BioPortal logging
+require 'log'
+
+# reCAPTCHA
+# In order to use reCAPTCHA on the account creation and feedback submission pages:
+#    1. Obtain a reCAPTCHA v2 key from: https://www.google.com/recaptcha/admin
+#    2. Put the site and secret keys in the encrypted credentials file:
+#
+#       recaptcha:
+#         site_key: your_site_key
+#         secret_key: your_secret_key
+#
+#    3. Set the USE_RECAPTCHA option to 'true'
+ENV['USE_RECAPTCHA'] = 'false'
+
+# URL where BioMixer GWT app is located
+$BIOMIXER_URL = 'https://biomixer.bioontology.org'
+
+$NOT_DOWNLOADABLE = ["CPT","ICD10","ICNP","ICPC2P","MDDB","MEDDRA","MSHFRE","MSHSPA_1","NDDF","NDFRT","NIC","ONTOPARON_SOCIAL","RCD","SCTSPA","SNOMEDCT","WHO-ART"]
+
+$VERSIONS_IN_VIRTUAL_SPACE = Set.new([3905, 4525, 4531, 8056])
+
+$VIRTUAL_ID_UPPER_LIMIT = 9999
+
+$FRONT_NOTICE = ''
+
+# Site notice appears on all pages and remains closed indefinitely. Stored below as a hash with a unique key and a string message
+# EX: $SITE_NOTICE = { :unique_key => 'Put your message here (can include <a href="/link">html</a> if you use single quotes).' }
+
+##
+# Custom Ontology Details
+# Custom details can be added on a per ontology basis using a key/value pair as columns of the details table
+#
+# Example:
+# $ADDITIONAL_ONTOLOGY_DETAILS = { 1000 => { "Additional Detail" => "Text to be shown in the right-hand column." } }
+##
+
+# If you are running a PURL server to provide URLs for ontologies in your BioPortal instance, enable this option
+$PURL_ENABLED = true
+
+# The PURL URL is generated using this prefix + the ontology acronym
+$PURL_PREFIX = 'https://purl.bioontology.org/ontology'
+
+UMLS_LICENSE = <<~EOF
+  This ontology is made available via the UMLS. Users of all UMLS ontologies must abide by the terms of the
+  <a href='https://uts.nlm.nih.gov/uts/assets/LicenseAgreement.pdf' target='_blank'>UMLS license</a>.
+EOF
+
+$ADDITIONAL_ONTOLOGY_DETAILS = {
+  "ICD10CM"     => { 'License Information' => UMLS_LICENSE },
+  "FMA"         => { 'License Information' => UMLS_LICENSE },
+  "ICD9CM"      => { 'License Information' => UMLS_LICENSE },
+  "NCBITAXON"   => { 'License Information' => UMLS_LICENSE },
+  "COSTART"     => { 'License Information' => UMLS_LICENSE },
+  "ICPC"        => { 'License Information' => UMLS_LICENSE },
+  "MEDLINEPLUS" => { 'License Information' => UMLS_LICENSE },
+  "OMIM"        => { 'License Information' => UMLS_LICENSE },
+  "PDQ"         => { 'License Information' => UMLS_LICENSE },
+  "LOINC"       => { 'License Information' => UMLS_LICENSE },
+  "MESH"        => { 'License Information' => UMLS_LICENSE },
+  "NDFRT"       => { 'License Information' => UMLS_LICENSE },
+  "SNOMEDCT"    => { 'License Information' => UMLS_LICENSE },
+  "WHO-ART"     => { 'License Information' => UMLS_LICENSE },
+  "HCPCS"       => { 'License Information' => UMLS_LICENSE },
+  "RXNORM"      => { 'License Information' => UMLS_LICENSE },
+  "NDDF"        => { 'License Information' => UMLS_LICENSE },
+  "ICD10PCS"    => { 'License Information' => UMLS_LICENSE },
+  "MDDB"        => { 'License Information' => 'The MDDB ontology is no longer included in the UMLS distribution; an updated paid version '\
+                                              'can be obtained from the <a href="https://www.wolterskluwercdi.com/" target="_blank">vendor</a>. '\
+                                              'The older version of the MDDB ontology presented here by BioPortal is from the 2017AA UMLS distribution, '\
+                                              'and those <a href="https://uts.nlm.nih.gov/license.html" target="_blank">license terms</a> continue to apply.' },
+  "RCD"         => { 'License Information' => UMLS_LICENSE },
+  "NIC"         => { 'License Information' => UMLS_LICENSE },
+  "ICPC2P"      => { 'License Information' => UMLS_LICENSE },
+  "AI-RHEUM"    => { 'License Information' => UMLS_LICENSE },
+  "CPT"         => { 'License Information' => UMLS_LICENSE },
+  "CPTH"        => { 'License Information' => UMLS_LICENSE },
+  "ICD10"       => { 'License Information' => UMLS_LICENSE },
+  "CRISP"       => { 'License Information' => UMLS_LICENSE },
+  "VANDF"       => { 'License Information' => UMLS_LICENSE },
+  "MEDDRA"      => { 'License Information' => 'The MedDRA ontology is maintained and distributed by the <a href="https://www.meddra.org/about-meddra/organisation/msso" target="_blank">MedDRA MSSO</a>. This ontology is freely accessible on this site for academic and other non-commercial uses. Users anticipating any commercial use of MedDRA must contact the MSSO to obtain a license.' },
+  "VIVO"        => { 'License Information' => '<div class="enable-lists">Classes, properties and individuals in the VIVO namespace (http://vivoweb.org/ontology/core#) are licensed under the Creative Commons 3.0 BY license (http://creativecommons.org/licenses/by/3.0/)<br><br>The VIVO ontology package includes terms derived from the following namespaces used under the following licenses:<ul><li>http://purl.org/ontology/bibo/ - Creative Commons 3.0<br>license statement based on http://bibliontology.com/</li><li>http://purl.org/dc/elements/1.1/ - Creative Commons Attribution 3.0 Unported License<br>license statement based on http://dublincore.org/documents/dcmi-terms/</li><li>http://purl.org/dc/terms/ - Creative Commons Attribution 3.0 Unported License<br>license statement based on http://dublincore.org/documents/dcmi-terms/</li><li>http://purl.org/NET/c4dm/event.owl# - Creative Commons 1.0<br>license statement based on http://motools.sourceforge.net/event/event.html</li><li>http://aims.fao.org/aos/geopolitical.owl# - The use of this ontology is governed by the FAO copyright (http://www.fao.org/corp/copyright/en/)<br>license statement based on http://www.fao.org/countryprofiles/geoinfo.asp</li><li>http://xmlns.com/foaf/0.1/ - Creative Commons 1.0<br>license statement based on http://xmlns.com/foaf/spec/</li><li>http://www.w3.org/2004/02/skos/core# - Copyright ©2009 W3C® (MIT, ERCIM, Keio), All Rights Reserved. W3C liability, trademark and document use rules apply<br>license statement based on http://www.w3.org/TR/swbp-skos-core-guide</li><li>http://www.w3.org/2008/05/skos# - Copyright ©2009 W3C® (MIT, ERCIM, Keio), All Rights Reserved. W3C liability, trademark and document use rules apply<br>license statement based on http://www.w3.org/TR/swbp-skos-core-guide</li><li>http://purl.obolibrary.org/obo/ - Creative Commons 3.0 BY<br>license statement based on http://code.google.com/p/eagle-i/</li></ul></div>' },
+  "NCIT"        => { 'License Information' => 'The NCIT is released under the CC BY 4.0 license (<a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank">https://creativecommons.org/licenses/by/4.0/legalcode</a>). The name "NCI Thesaurus" is trademarked (see <a href="ftp://ftp1.nci.nih.gov/pub/cacore/EVS/NCI_Thesaurus/ThesaurusTermsofUse.htm" target="_blank">ftp://ftp1.nci.nih.gov/pub/cacore/EVS/NCI_Thesaurus/ThesaurusTermsofUse.htm</a>).' },
+  "BAO"         => { 'License Information' => 'This ontology is made available under the Creative Commons Attribution-ShareAlike 4.0 International (<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC by SA4</a>) license.' },
+  "BAO-GPCR"    => { 'License Information' => 'This ontology is made available under the <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution License Version 3</a>' },
+  "RCTV2"       => { 'License Information' => 'This ontology is licensed under the terms of the <a href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3">Open Government Licence</a>.'},
+  "DTO"         => { 'License Information' => 'This ontology is licensed under Creative Commons <a href="https://creativecommons.org/licenses/by-sa/4.0/">Attribution-ShareAlike 4.0 International</a>.'},
+  "HSPO"        => { 'License Information' => 'This ontology is made available under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>' }
+}
