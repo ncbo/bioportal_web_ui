@@ -59,7 +59,7 @@
     %div.col
       -# Ontology visits chart
       %div.card.h-100
-        %h5.card-header Ontology visits #{"in full #{$SITE} " if at_slice?} (#{@analytics.date.strftime("%B %Y")})
+        %h5.card-header Ontology visits (#{@analytics.date.strftime("%B %Y")})
         = tag.div(id: 'ontology-visits-chart', class: 'card-body',
                   data: {ontnames: @anal_ont_names, ontnumbers: @anal_ont_numbers}) do
           %canvas#myChart
@@ -67,7 +67,7 @@
     %div.col
       -# Statistics list group
       %div.card.h-100
-        %h5.card-header Statistics #{"in full #{$SITE}" if at_slice?}
+        %h5.card-header Statistics
         %div.card-body
           %ul.list-group.list-group-flush
             %li.list-group-item 
