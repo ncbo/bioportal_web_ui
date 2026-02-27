@@ -56,8 +56,12 @@ en:
     index:
       find_ontology_placeholder: Start typing ontology name, then choose from list
       query_placeholder: Enter a class, e.g. Melanoma
+      search_class: Search for a class
+      search_ontology: Find an ontology
+      statistics: Statistics
       tagline: the world's most comprehensive repository of biomedical ontologies
       title: Welcome to the %{organization}
+      visits: Ontology visits
       welcome: Welcome to %{site},
     help:
       welcome: Welcome to the National Center for Biomedical Ontology’s %{site}. %{site} is a web-based application for accessing and sharing biomedical ontologies.

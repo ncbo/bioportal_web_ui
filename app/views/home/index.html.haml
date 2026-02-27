@@ -25,7 +25,7 @@
     %div.col
       -# Search for a class across ontologies
       %div.card.h-100
-        %h5.card-header Search for a class
+        %h5.card-header= t('.search_class')
         %div.card-body 
           = form_tag(search_path, method: 'get') do
             %div.input-group.mb-3
@@ -36,7 +36,7 @@
     %div.col
       -# Search for an ontology
       %div.card.h-100
-        %h5.card-header Find an ontology
+        %h5.card-header= t('.search_ontology')
         %div.card-body 
           %input#find_ontology_id{type: 'hidden'}
           %div.input-group.mb-3
@@ -59,7 +59,8 @@
     %div.col
       -# Ontology visits chart
       %div.card.h-100
-        %h5.card-header Ontology visits (#{@analytics.date.strftime("%B %Y")})
+        %h5.card-header
+          = "#{t('.visits')} (#{@analytics.date.strftime("%B %Y")})"
         = tag.div(id: 'ontology-visits-chart', class: 'card-body',
                   data: {ontnames: @anal_ont_names, ontnumbers: @anal_ont_numbers}) do
           %canvas#myChart
@@ -67,7 +68,7 @@
     %div.col
       -# Statistics list group
       %div.card.h-100
-        %h5.card-header Statistics
+        %h5.card-header= t('.statistics')
         %div.card-body
           %ul.list-group.list-group-flush
             %li.list-group-item 
