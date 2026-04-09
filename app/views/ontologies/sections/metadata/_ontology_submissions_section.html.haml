@@ -1,2 +1,3 @@
-= render SummarySectionComponent.new(title: t("ontologies.sections.metadata.submissions") , link: "", link_title: t("ontologies.sections.metadata.submissions_link_title", site: portal_name), service_link: "#{@ontology.id}/submissions?display=all") do |s|
+- service_link, target = api_button_link_and_target("#{@ontology.id}/submissions?display=all", current_user)
+= render SummarySectionComponent.new(title: t("ontologies.sections.metadata.submissions") , link: "", link_title: t("ontologies.sections.metadata.submissions_link_title", site: portal_name), service_link: service_link, target: target ) do |s|
   = render TurboFrameComponent.new(id: 'ontology_submissions', src: ontology_submissions_path(@ontology.acronym, invalidate_cache: true))

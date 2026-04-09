@@ -1,4 +1,5 @@
-= render SummarySectionComponent.new(title: t("ontologies.sections.metadata.metrics") , link: Rails.configuration.settings.links[:metrics], link_title: t("ontologies.sections.metadata.metrics_link_title"), show_card: false, service_link: "#{@ontology.id}/metrics?display=all") do |s|
+- service_link, target = api_button_link_and_target("#{@ontology.id}/metrics?display=all", current_user)
+= render SummarySectionComponent.new(title: t("ontologies.sections.metadata.metrics") , link: Rails.configuration.settings.links[:metrics], link_title: t("ontologies.sections.metadata.metrics_link_title"), show_card: false, service_link: service_link, target: target) do |s|
   - s.action_link do
     = link_to_modal '', ontology_path(@ontology.acronym) + "/metrics",
                         class: "metrics-item", title: t("ontologies.sections.metadata.see_all_metrics", acronym: @ontology.acronym),

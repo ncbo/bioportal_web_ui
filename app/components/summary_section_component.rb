@@ -3,13 +3,14 @@
 class SummarySectionComponent < ViewComponent::Base
   renders_many :action_links
 
-  def initialize(title: , link: nil, link_title: nil, show_card:  true, service_link: nil, html_options: {})
+  def initialize(title: , link: nil, link_title: nil, show_card:  true, service_link: nil, target: nil, html_options: {})
     super
     @title = title
     @link = link
     @link_title = link_title
     @show_card = show_card
     @service_link = service_link
+    @target = target || (service_link.present? ? "_blank" : nil)
     @html_options = html_options
   end
 

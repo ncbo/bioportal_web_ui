@@ -6,7 +6,7 @@
       = link_to(@link, target: "_blank") do
         = render Display::InfoTooltipComponent.new(text: @link_title)
   - if show_icon?
-    = render IconWithTooltipComponent.new(icon: "json.svg",link: @service_link, target: '_blank', title: t("components.go_to_api"), size:'small', style: 'line-height: 0; margin-top: 3px;margin-left: 6px;')
+    = render IconWithTooltipComponent.new(icon: "json.svg",link: @service_link, target: @target, title: t("components.go_to_api"), size:'small', style: 'line-height: 0; margin-top: 3px;margin-left: 6px;')
   - if action_links?
     %span
       = render Layout::HorizontalListComponent.new do |l|
