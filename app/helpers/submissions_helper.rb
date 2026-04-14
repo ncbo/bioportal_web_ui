@@ -198,6 +198,8 @@ module SubmissionsHelper
     out = submission_metadata.map { |x| x['attribute'] }.reject { |x| equivalents.include?(x) }
     out << [:format, format_equivalent]
     out << [:location, location_equivalent]
+    # Add mapping for subjects to hasDomain for submission scope
+    out << [:subjects, :hasDomain]
 
     out
   end
@@ -221,7 +223,12 @@ module SubmissionsHelper
   def submission_editable_properties
     properties = submission_properties.map do |x|
       if x.is_a? Array
-        [attr_label(x[0], show_tooltip: false), x[0]]
+        # Special case for subjects
+        if x[0] == :subjects
+          ['Subjects', :subjects]
+        else
+          [attr_label(x[0], show_tooltip: false), x[0]]
+        end
       else
         [attr_label(x, show_tooltip: false), x]
       end
@@ -382,5 +389,23 @@ module SubmissionsHelper
     render TurboFrameComponent.new(id: frame_id) do
       output.html_safe
     end
+  end
+
+  # Returns the display label for a property key as shown in the dropdown
+  def property_label(key)
+    # Look in ontology_properties first
+    ontology_properties.each do |item|
+      if item.is_a?(Array) && item[1].to_s == key.to_s
+        return item[0]
+      elsif item.to_s == key.to_s
+        return item.to_s.humanize
+      end
+    end
+    # Look in submission_editable_properties
+    submission_editable_properties.each do |label, value|
+      return label if value.to_s == key.to_s
+    end
+    # Fallback to humanize
+    key.to_s.humanize
   end
 end

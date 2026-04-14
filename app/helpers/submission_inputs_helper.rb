@@ -25,13 +25,13 @@ module SubmissionInputsHelper
     end
 
     def values
-      @submission.send(@attr_metadata['attribute'])
+      @submission.send(@attr_metadata['attribute']) if @attr_metadata && @submission
     rescue StandardError
       nil
     end
 
     def help_text
-      CGI.unescape_html(@attr_metadata['helpText']) if @attr_metadata['helpText']
+      CGI.unescape_html(@attr_metadata['helpText']) if @attr_metadata && @attr_metadata['helpText']
     end
 
     def label
@@ -41,7 +41,7 @@ module SubmissionInputsHelper
     end
 
     def type?(type)
-      @attr_metadata['enforce'].include?(type)
+      @attr_metadata && @attr_metadata['enforce'] && @attr_metadata['enforce'].include?(type)
     end
 
     def metadata
@@ -49,7 +49,7 @@ module SubmissionInputsHelper
     end
 
     def required?
-      Array(@attr_metadata['enforce']).include?('existence')
+      @attr_metadata && Array(@attr_metadata['enforce']).include?('existence')
     end
   end
 
@@ -537,25 +537,29 @@ module SubmissionInputsHelper
     label = attr.label
     help = attr.help_text
     required = attr.required?
-    attr = attr.metadata
-    attribute = !attr['namespace'].nil? ? "#{attr['namespace']}:#{attr['attribute']}" : "bioportal:#{attr['attribute']}"
+    metadata = attr.metadata
+    if metadata
+      attribute = !metadata['namespace'].nil? ? "#{metadata['namespace']}:#{metadata['attribute']}" : "bioportal:#{metadata['attribute']}"
+    else
+      attribute = attr.attr_key.to_s
+    end
 
     title = content_tag(:span, "#{label} (#{attribute})")
     title += content_tag(:span, 'required', class: 'badge badge-danger mx-1') if required
 
     render SummarySectionComponent.new(title: title, show_card: false) do
       help_text = ''
-      unless attr['metadataMappings'].nil?
-        help_text += render(FieldContainerComponent.new(label: t('submission_inputs.equivalents'), value: attr['metadataMappings'].join(', ')))
+      if metadata && !metadata['metadataMappings'].nil?
+        help_text += render(FieldContainerComponent.new(label: t('submission_inputs.equivalents'), value: metadata['metadataMappings'].join(', ')))
       end
 
-      unless attr['enforce'].nil? || attr['enforce'].empty?
-        help_text += render(FieldContainerComponent.new(label: t('submission_inputs.validators'), value: attr['enforce'].map do |x|
+      if metadata && !metadata['enforce'].nil? && !metadata['enforce'].empty?
+        help_text += render(FieldContainerComponent.new(label: t('submission_inputs.validators'), value: metadata['enforce'].map do |x|
           content_tag(:span, x.humanize, class: 'badge badge-primary mx-1')
         end.join.html_safe))
       end
 
-      unless attr['helpText'].nil?
+      if help.present?
         help_text += render(FieldContainerComponent.new(label: t('submission_inputs.help_text'), value: help.html_safe))
       end
 

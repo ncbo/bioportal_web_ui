@@ -15,11 +15,9 @@
         - @metadata_sel.each do |meta|
           - h.th do
             %div
+              - label = property_label(meta)
               - attr_metadata = attr_metadata(meta)
-              - if attr_metadata
-                %h6{style:'margin-top: 0.2rem'}=attr_label(meta, attr_metadata: attr_metadata)
-              - else
-                %h6{style:'margin-top: 0.2rem'}=meta
+              %h6{style:'margin-top: 0.2rem'}=attr_label(meta, label, attr_metadata: attr_metadata)
 
       - @hash.each do |acronym, data|
         - ontology = data[:ontology]

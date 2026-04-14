@@ -23,6 +23,36 @@
                 - elsif attribute == "naturalLanguage"
                   - submission.send(attribute).each do |lang|
                     = render LanguageFieldComponent.new(value: lang)
+                - elsif attribute == "hasDomain"
+                  - if from_ontology
+                    - values = ontology.instance_values[attr.to_s]
+                  - else
+                    - values = submission.instance_values[attr.to_s]
+                  - domains = show_ontology_domains(Array(values))
+                  - unless domains.empty?
+                    - if from_ontology
+                      - domains.each do |domain|
+                        = category_chip(domain)
+                    - else
+                      - theme_taxonomy_ontologies = get_theme_taxonomy_ontologies() || []
+                      - domains.each do |domain|
+                        = subject_chip(domain, theme_taxonomy_ontologies)
+                - elsif attribute == "subjects"
+                  - # Subjects always from submission
+                  - values = submission.instance_values["hasDomain"]
+                  - domains = show_ontology_domains(Array(values))
+                  - unless domains.empty?
+                    - theme_taxonomy_ontologies = get_theme_taxonomy_ontologies() || []
+                    - domains.each do |domain|
+                      = subject_chip(domain, theme_taxonomy_ontologies)
+                - elsif attribute == "keywords"
+                  - if from_ontology
+                    - values = ontology.instance_values[attr.to_s]
+                  - else
+                    - values = submission.instance_values[attr.to_s]
+                  - keyword_list = Array(values).flat_map { |v| v.to_s.split(',') }.map(&:strip).reject(&:empty?)
+                  - keyword_list.each do |keyword|
+                    = keyword_chip(keyword)
                 - elsif attribute == "ontology"
                   = acronym
                 - else
@@ -40,6 +70,6 @@
                       %p
                         = value
             %div
-              - if !from_ontology
+              - if !from_ontology || attribute == "hasDomain"
                 = edit_submission_property_link(acronym, submission.submissionId, attribute) do
                   %i.far.fa-edit
