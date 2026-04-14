@@ -5,4 +5,4 @@
     %dl
       - @view_decorators.each do |view_decorator|
         %dt= view_decorator.linked_name
-        %dd= view_decorator.description
+        %dd= render TextAreaFieldComponent.new(value: view_decorator.description)

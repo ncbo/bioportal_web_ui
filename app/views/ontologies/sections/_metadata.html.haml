@@ -62,13 +62,9 @@
             = render partial: "visits"
 
       - unless @ontology.view?
-        = render Layout::CardComponent.new do |d|
-          - d.header do |h|
-            = t("ontologies.sections.views", acronym: @ontology.acronym)
-            = new_element_link(t("ontologies.sections.create_new_view"), new_view_path(@ontology.id))
-          = render Layout::ListComponent.new do |l|
-            - l.row do
-              = render partial: 'ontology_views'
+        = properties_dropdown('views', t("ontologies.sections.views", acronym: @ontology.acronym), '', nil) do |c|
+          - c.row do
+            = render partial: 'ontology_views'
 
 
       = admin_block do

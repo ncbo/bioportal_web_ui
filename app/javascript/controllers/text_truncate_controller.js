@@ -6,8 +6,27 @@ export default class extends ReadMore {
 
     connect() {
         super.connect()
-        if (!this.#isTextClamped()) {
+
+        this.resizeObserver = new ResizeObserver(() => {
+            if (this.contentTarget.clientHeight > 0 && !this.open) {
+                if (!this.#isTextClamped()) {
+                    this.#hideButton()
+                } else {
+                    this.buttonTarget.style.display = ''
+                }
+            }
+        })
+
+        this.resizeObserver.observe(this.contentTarget)
+
+        if (this.contentTarget.clientHeight > 0 && !this.#isTextClamped()) {
             this.#hideButton()
+        }
+    }
+
+    disconnect() {
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect()
         }
     }
 
