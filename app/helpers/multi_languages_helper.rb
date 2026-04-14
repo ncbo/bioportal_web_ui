@@ -180,7 +180,7 @@ module MultiLanguagesHelper
     elsif label.is_a?(Array)
       list_items_component(max_items: show_max) do |r|
         label.map do |x|
-          r.container { content_tag(:span, x, class: style_as_badge ? 'badge bg-secondary' : '').html_safe }
+          r.container { content_tag(:span, x, class: style_as_badge ? 'badge badge-pill p-2' : '', style: 'font-style: italic; color:var(--primary-color); background-color: var(--light-color);').html_safe }        
         end
       end
     else
