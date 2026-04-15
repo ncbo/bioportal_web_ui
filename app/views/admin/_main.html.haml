@@ -25,4 +25,4 @@
       .site-admin-page-section.d-flex
         = link_to 'Flipper UI', admin_flipper_path, class: 'btn btn-primary mx-1', target: '_blank', id: "flipper-link"
         - if sidekiq_enabled?
-          = link_to 'Sidekiq UI', sidekiq_url, class: 'btn btn-primary mx-1', target: '_blank', id: "sidekiq-link"
+          = link_to 'Sidekiq UI', sidekiq_ui_url, class: 'btn btn-primary mx-1', target: '_blank', id: "sidekiq-link"

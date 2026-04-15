@@ -46,7 +46,7 @@ module ApplicationHelper
   end
   def sidekiq_enabled?
     user = current_user rescue nil
-    Flipper.enabled?('SIDEKIQ_UI', user) && $SIDEKIQ_URL
+    Flipper.enabled?('SIDEKIQ_UI', user) && $SIDEKIQ_UI_URL
   end
   def portal_name_from_uri(uri)
     URI.parse(uri).hostname.split('.').first
@@ -394,8 +394,8 @@ module ApplicationHelper
     "#{protocol}://#{cleaned_path}"
   end
 
-  def sidekiq_url
-    sidekiq_url = $SIDEKIQ_URL
+  def sidekiq_ui_url
+    sidekiq_ui_url = $SIDEKIQ_UI_URL
   end
   
   def categories_browse_url(category)
