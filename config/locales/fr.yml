@@ -407,6 +407,9 @@ fr:
     preferred_name: Nom préféré
     type: Type
   components:
+    add_another_object: "Ajouter un autre %{object_name}"
+    contact: "contact"
+    portal: "portail"
     all_languages: Toutes les langues
     back: Retour
     by: par
@@ -983,6 +986,7 @@ fr:
     problem_of_creating_new_term: 'Problème de création d''un nouveau terme %{endpoint}
       : %{class} - %{message}'
   ontologies:
+
     access_rights_information: Informations supplémentaires sur la licence et les
       droits d'accès
     admin:
@@ -1576,6 +1580,9 @@ fr:
     title: Statistiques de %{portal}
     users: Utilisateurs
   submission_inputs:
+    name: Nom
+    acronym: Acronyme
+    categories: 'Catégories'
     accounts_allowed: Ajouter ou supprimer des comptes autorisés à voir cette ontologie
       dans %{portal_name}.
     administrators: Administrateurs
@@ -1629,8 +1636,17 @@ fr:
       de version dans une ontologie, consultez %{link}
     version_helper_link: recommandations.
     visibility: Visibilité
+    view_of: Vue de
+    sample_queries: Requêtes d'exemple
+    description: 'Description'
+    status: 'Statut'
+    valid: 'Date de validité'
+    hasOntologyLanguage: 'Langage de représentation'
+    subjects: Sujets
     theme_taxonomy_not_set: Veuillez définir le champ themeTaxonomy dans la page d'administration pour l'utiliser pour la recherche des sujets
-    subjects_notice: "Les 'Subjets' doivent être sélectionnés dans l'ensemble d'ontologies suivant: %{ontologies}. Si vous souhaitez ajouter un autre mot-clés ou termes de vocabulaires, utiliser la propriété 'Keywords'."
+    subjects_notice: "Les 'Subjets' doivent être sélectionnés dans l'ensemble d'ontologies suivant: %{ontologies}. Si vous souhaitez ajouter un autre mot-clé ou terme de vocabulaire, utilisez la propriété 'Mots-clés'."
+    attributes:
+      description: Description
   submissions:
     actions: Actions
     delete_submission_alert:

@@ -397,6 +397,9 @@ en:
     preferred_name: Preferred name
     type: Type
   components:
+    add_another_object: "Add another %{object_name}"
+    contact: "contact"
+    portal: "portal"
     all_languages: All languages
     back: Back
     by: by
@@ -952,6 +955,7 @@ en:
     problem_of_creating_new_term: 'Problem creating a new term %{endpoint}: %{class}
       - %{message}'
   ontologies:
+
     access_rights_information: Additional license and access rights information
     admin:
       title: "Administration"
@@ -1526,6 +1530,9 @@ en:
     title: "%{portal} Statistics"
     users: Users
   submission_inputs:
+    name: Name
+    acronym: Acronym
+    categories: Categories
     accounts_allowed: Add or remove accounts that are allowed to see this ontology
       in %{portal_name}.
     administrators: Administrators
@@ -1581,8 +1588,15 @@ en:
       an ontology, see %{link}
     version_helper_link: guidelines and recommendations.
     visibility: Visibility
+    view_of: View of
+    sample_queries: Sample queries
+    subjects: Subjects
     theme_taxonomy_not_set: Please set the themeTaxonomy field in the admin page to use it for subjects search
     subjects_notice: "The 'Subjects' must be selected from the following set of ontologies: %{ontologies}. If you wish to add another keyword or controlled term, use the 'Keywords' property."
+    description: 'Description'
+    status: 'Status'
+    valid: 'Valid date'
+    hasOntologyLanguage: 'Representation language'
   submissions:
     actions: Actions
     delete_submission_alert:

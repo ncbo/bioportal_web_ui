@@ -31,4 +31,4 @@
   %div.add-another-object{data: {action:"click->nested-form#add"}}
     = inline_svg 'icons/plus.svg', width: "14px", height: "14px"
     %div
-      Add another #{@object_name}
+      = t("components.add_another_object", object_name: t("components.#{@object_name}"))

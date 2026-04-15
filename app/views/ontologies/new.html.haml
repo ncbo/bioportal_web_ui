@@ -25,7 +25,7 @@
                   .upload-ontology-input-field-container
                     = attribute_input('URI', label: t("ontologies.uri"))
                   .upload-ontology-input-field-container
-                    = attribute_input('description', long_text: true)
+                    = attribute_input('description', label: t('submission_inputs.description'), long_text: true)
                   - if @is_update_ontology
                     .upload-ontology-input-field-container{id: "submissionnotes_from_group_input"}
                       = attribute_input("notes", label: t("ontologies.change_notes"), long_text: true)
@@ -34,11 +34,11 @@
                   .upload-ontology-field-container.mt-3
                     = render Layout::RevealComponent.new(selected: @submission.status, possible_values: ['retired']) do |c|
                       - c.button do
-                        = attribute_input("status")
+                        = attribute_input("status", label: t('submission_inputs.status'))
                       - c.container do
                         .upload-ontology-field-container
                           - @submission.valid = nil unless @submission.status&.eql?('retired')
-                          = attribute_input("valid")
+                          = attribute_input("valid", label: t('submission_inputs.valid'))
                   .upload-ontology-field-container.mt-3
                     = render partial: 'ontologies/submission_location_form'
 

@@ -2,12 +2,12 @@
 .center
   .edit-ontology-container
     .ontology-details-path
-      %a{href: "/ontologies"} Ontologies
+      %a{href: "/ontologies"}= t('ontologies.self')
       = inline_svg_tag 'arrow-right-outlined.svg'
       %a{href: "/ontologies/#{@ontology.acronym}"}= @ontology.acronym
       = inline_svg_tag 'arrow-right-outlined.svg'
       %div
-        = "Submissions"
+        = t('ontologies.sections.submissions')
       = inline_svg_tag 'arrow-right-outlined.svg'
       %div
         = params["id"]
