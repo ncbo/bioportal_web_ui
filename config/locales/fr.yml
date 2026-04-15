@@ -225,8 +225,10 @@ fr:
       clear_cache: Vider le cache de l'UI
       clear_goo_cache: Vider le cache GOO
       clear_http_cache: Vider le cache HTTP
-      flipper_description: Utilisez Flipper pour contrôler la visibilité de fonctionnalités
-        spécifiques de %{portal_name} dans l'interface utilisateur.
+      flipper_description: 
+        Utilisez Flipper pour contrôler la visibilité des fonctionnalités spécifiques de %{portal_name} dans l'interface utilisateur.
+      sidekiq_description:
+        Utilisez Sidekiq pour surveiller et gérer le traitement des tâches en arrière-plan, les files d'attente et les tâches cron.
       reset_cache: 'Réinitialiser la connexion au cache de l''UI '
       settings: Paramètres
       version_management: Gestion des versions

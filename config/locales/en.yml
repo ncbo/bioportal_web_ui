@@ -216,8 +216,10 @@ en:
       clear_cache: Flush UI cache
       clear_goo_cache: Flush GOO cache
       clear_http_cache: Flush HTTP cache
-      flipper_description: Use Flipper to control the visibility of specific %{portal_name}
-        features within the user interface.
+      flipper_description: 
+        Use Flipper to control the visibility of specific %{portal_name} features within the user interface.
+      sidekiq_description:
+        Use Sidekiq to monitor and manage background job processing, queues, and cron jobs.
       reset_cache: Reset UI cache connection
       settings: Settings
       version_management: Version management

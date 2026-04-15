@@ -10,7 +10,7 @@
 
   %div.mb-5
     %div.site-admin-page-header
-      = t('admin.site_administration.version_management')
+    = t('admin.site_administration.version_management')
     %dive.site-admin-page-section.p-2
       = render TurboFrameComponent.new(id: 'update_check_frame', src: '/admin/update_check_enabled') do |c|
         - c.loader { t('admin.site_administration.checking_for_updates') }
@@ -18,6 +18,11 @@
   %div.mb-5
     %div.site-admin-page-header
       = t('admin.site_administration.settings')
-      = description_tooltip(t('admin.index.site_administration'), t('admin.site_administration.flipper_description', portal_name: portal_name))
-    %dive.site-admin-page-section.d-flex
-      = link_to 'Flipper UI', admin_flipper_path, class: 'btn btn-primary mx-1', target: '_blank'
+      - description = t('admin.site_administration.flipper_description', portal_name: portal_name) 
+      - description +=  "\n" + t('admin.site_administration.sidekiq_description') if sidekiq_enabled?
+      = description_tooltip(t('admin.index.site_administration'), description)
+    %div.flex
+      .site-admin-page-section.d-flex
+        = link_to 'Flipper UI', admin_flipper_path, class: 'btn btn-primary mx-1', target: '_blank', id: "flipper-link"
+        - if sidekiq_enabled?
+          = link_to 'Sidekiq UI', sidekiq_url, class: 'btn btn-primary mx-1', target: '_blank', id: "sidekiq-link"
