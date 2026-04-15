@@ -265,7 +265,8 @@ module SubmissionInputsHelper
       end
       c.container do
         content_tag(:div) do
-          render SelectInputComponent.new(id: 'viewOfSelect', values: onts_for_select, name: 'ontology[viewOf]', selected: ontology.viewOf&.split('/')&.last)
+          filtered_values = onts_for_select.reject { |label, acronym| acronym == ontology.acronym }
+          render SelectInputComponent.new(id: 'viewOfSelect', values: filtered_values, name: 'ontology[viewOf]', selected: ontology.viewOf&.split('/')&.last)
         end
       end
     end
