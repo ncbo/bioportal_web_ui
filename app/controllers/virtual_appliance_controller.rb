@@ -4,14 +4,6 @@ class VirtualApplianceController < ApplicationController
 
   def index
     @user = session[:user]
-
-    @virtual_appliance_user = VirtualApplianceUser.where(user_id: @user.id)
-
-    @virtual_appliance_access = false
-    if !@virtual_appliance_user.nil? && !@virtual_appliance_user.empty? || @user.admin?
-      @virtual_appliance_access = true
-    end
-
     @va_users = VirtualApplianceUser.order(:user_id)
   end
 
