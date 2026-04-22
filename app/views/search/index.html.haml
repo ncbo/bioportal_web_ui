@@ -43,7 +43,8 @@
               = "#{t('search.match_in')} #{@search_results.length} #{t('search.ontologies')} #{t('search.from')} #{request_portals_names(@federation_counts, @time)}".html_safe
           %div.d-flex
             .search-page-advanced-button.mr-4{class: @search_results.blank? ? 'd-none' : ''}
-              %a.d-flex{href: @json_url, target: '_blank'}
+              - json_href, json_target = api_button_link_and_target(@json_url)
+              %a.d-flex{href: json_href, target: json_target}
                 = text_with_icon(text: "API JSON", icon: 'json.svg')
 
             .search-page-advanced-button.show-options{class: "#{@advanced_options_open ? 'd-none' : ''}",'data': {'action': 'click->reveal-component#show', 'reveal-component-target': 'showButton'}}

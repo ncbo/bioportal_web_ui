@@ -111,7 +111,8 @@
                     = render Input::RadioChipComponent.new(label: result[:annotations].length.to_s+' annotations', name: 'highlighted_recommendation', value: result[:annotations], checked: result[:highlighted])
         .recommender-bottom-actions
           .json-button
-            = render Buttons::RegularButtonComponent.new(id:'recommender_cite_json', value: "JSON", variant: "secondary", href: @json_link, size: "slim", target: '_blank', state: "regular") do |btn|
+            - json_href, json_target = api_button_link_and_target(@json_link)
+            = render Buttons::RegularButtonComponent.new(id:'recommender_cite_json', value: "JSON", variant: "secondary", href: json_href, size: "slim", target: json_target, state: "regular") do |btn|
               - btn.icon_left do
                 = inline_svg_tag "json.svg"
           .cite-us-button
