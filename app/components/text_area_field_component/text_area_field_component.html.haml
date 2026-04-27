@@ -1,4 +1,5 @@
-%div{data:{controller:"text-truncate", 'text-truncate-more-text-value': @see_more_text , 'text-truncate-less-text-value': @see_less_text}}
+- style = @lines.present? ? "--read-more-line-clamp: #{@lines};" : ""
+%div{data:{controller:"text-truncate", 'text-truncate-more-text-value': @see_more_text , 'text-truncate-less-text-value': @see_less_text}, style: style}
   %span.text-content{'data-text-truncate-target': 'content'}
     = @value
   %span.see_more_text{data:{'text-truncate-target': 'button', 'action':"click->text-truncate#toggle"}}

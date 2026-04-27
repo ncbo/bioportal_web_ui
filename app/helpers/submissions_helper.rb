@@ -210,7 +210,7 @@ module SubmissionsHelper
     
     found.empty? ? nil : found.first.is_a?(Array) ? found.first[1] : found.first
   end
-
+    
   def equivalent_ontology_properties(attr_labels)
     labels = Array(attr_labels)
     labels.map { |x| equivalent_ontology_property(x) }.compact.flatten
