@@ -55,7 +55,7 @@ export default class SelectInput extends Controller {
       const param = this.remoteQueryParamValue
       myOptions['preload'] = 'focus'
       myOptions['loadThrottle'] = 250
-      myOptions['shouldLoad'] = (q) => q.length >= 2
+      myOptions['shouldLoad'] = (q) => q.length >= 3
       myOptions['load'] = (query, callback) => {
         fetch(`${url}?${param}=${encodeURIComponent(query)}`, {
           headers: { Accept: 'application/json' }

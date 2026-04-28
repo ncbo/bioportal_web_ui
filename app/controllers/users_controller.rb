@@ -20,7 +20,7 @@ class UsersController < ApplicationController
     return head(:unauthorized) unless session[:user]
 
     q = params[:q].to_s.strip
-    return render(json: []) if q.length < 2
+    return render(json: []) if q.length < 3
 
     payload = Rails.cache.fetch("users_search:#{q.downcase}", expires_in: 5.minutes) do
       results = LinkedData::Client::HTTP.get(
