@@ -42,8 +42,6 @@ module OntologyUpdater
     @ontologies = LinkedData::Client::Models::Ontology.all(include: 'acronym', include_views: true, display_links: false, display_context: false)
     @categories = LinkedData::Client::Models::Category.all
     @groups = LinkedData::Client::Models::Group.all(display_links: false, display_context: false)
-    @user_select_list = LinkedData::Client::Models::User.all(include: 'username').map { |u| [u.username, u.id] }
-    @user_select_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
     @errors = response_errors(object)
     @selected_attributes = (Array(errors_attributes) + Array(params[:submission]&.keys)).uniq
     @ontology = ontology_from_params if @ontology.nil?

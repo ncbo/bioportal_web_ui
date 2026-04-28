@@ -1,8 +1,3 @@
-:javascript
-  jQuery(document).ready(function(){
-    jQuery("#project_creator").chosen();
-  });
-
 - unless @errors.nil?
   .enable-lists{style: "color:red; padding-left:10px;"}
     %strong Errors On Form
@@ -45,7 +40,7 @@
       %td= text_field :project, :contacts, value: @project.contacts, :tabindex => 3
     %tr
       %th Administrators: *
-      %td= f.select :creator, @user_select_list, { selected: @project.creator || session[:user].id }, { multiple: true, :"data-placeholder" => "Select administrators", tabindex: 4 }    
+      %td= user_select_input(name: 'project[creator]', selected: @project.creator || [session[:user].id], multiple: true)
     %tr
       %th
         Homepage: *

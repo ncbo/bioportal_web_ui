@@ -7,7 +7,11 @@ Rails.application.routes.draw do
 
   resources :projects, constraints: { id: /[^\/]+/ }
 
-  resources :users, path: :accounts, constraints: { id: /[\d\w\.\-\%\+\@ ]+/ }
+  resources :users, path: :accounts, constraints: { id: /[\d\w\.\-\%\+\@ ]+/ } do
+    collection do
+      get :search
+    end
+  end
 
   resources :mappings do
     member do

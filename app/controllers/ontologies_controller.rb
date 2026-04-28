@@ -201,9 +201,6 @@ class OntologiesController < ApplicationController
 
     @groups = LinkedData::Client::Models::Group.all
     @groups.sort_by! { |g| g[:acronym].to_s.downcase }
-
-    @user_select_list = LinkedData::Client::Models::User.all(include: 'username').map { |u| [u.username, u.id] }
-    @user_select_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
   end
 
   # GET /ontologies/1
@@ -483,8 +480,6 @@ class OntologiesController < ApplicationController
     error_response = @ontology.update(cache_refresh_all: false)
     if response_error?(error_response)
       @categories = LinkedData::Client::Models::Category.all
-      @user_select_list = LinkedData::Client::Models::User.all.map {|u| [u.username, u.id]}
-      @user_select_list.sort! {|a,b| a[1].downcase <=> b[1].downcase}
       @errors = response_errors(error_response)
       @errors = {acronym: "Acronym already exists, please use another"} if error_response.status == 409
     else

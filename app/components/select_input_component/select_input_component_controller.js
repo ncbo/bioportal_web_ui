@@ -10,7 +10,9 @@ export default class SelectInput extends Controller {
     openAdd: { type: Boolean, default: false },
     required: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    displayField: { type: String, default: SelectInput.DISPLAY_TEXT }
+    displayField: { type: String, default: SelectInput.DISPLAY_TEXT },
+    remoteUrl: { type: String, default: '' },
+    remoteQueryParam: { type: String, default: 'q' }
   }
 
   connect () {
@@ -29,7 +31,7 @@ export default class SelectInput extends Controller {
         }
       }
     }
-    
+
     myOptions['maxOptions'] = 100
 
     if(!this.searchableValue){
@@ -46,6 +48,22 @@ export default class SelectInput extends Controller {
 
     if (this.openAddValue) {
       myOptions['create'] = true
+    }
+
+    if (this.remoteUrlValue) {
+      const url = this.remoteUrlValue
+      const param = this.remoteQueryParamValue
+      myOptions['preload'] = 'focus'
+      myOptions['loadThrottle'] = 250
+      myOptions['shouldLoad'] = (q) => q.length >= 2
+      myOptions['load'] = (query, callback) => {
+        fetch(`${url}?${param}=${encodeURIComponent(query)}`, {
+          headers: { Accept: 'application/json' }
+        })
+          .then((r) => (r.ok ? r.json() : []))
+          .then(callback)
+          .catch(() => callback())
+      }
     }
 
     this.select = useTomSelect(this.element, myOptions, this.#triggerChange.bind(this))
