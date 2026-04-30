@@ -43,6 +43,15 @@ class UsersControllerSearchTest < ActionDispatch::IntegrationTest
     assert_equal [], JSON.parse(response.body)
   end
 
+  test 'strips whitespace before measuring query length' do
+    login_fake_user
+    # '  al  ' is 6 chars but only 2 after strip — must short-circuit.
+    LinkedData::Client::HTTP.stub(:get, ->(*) { flunk 'API should not be called for whitespace-padded short query' }) do
+      get search_users_url(format: :json, q: '  al  ')
+    end
+    assert_equal [], JSON.parse(response.body)
+  end
+
   test 'returns up to 25 mapped {value, text} entries for a valid query' do
     login_fake_user
     fake_users = (1..30).map { |i| OpenStruct.new(id: "http://example.org/users/u#{i}", username: "user#{i}") }
