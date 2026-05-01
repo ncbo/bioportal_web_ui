@@ -125,7 +125,7 @@ gem 'omniauth-rails_csrf_protection'
 
 group :staging, :production do
   # Application performance monitoring
-  gem 'newrelic_rpm', '~> 9'
+  gem 'newrelic_rpm'
 
   # Error monitoring
   gem 'bugsnag', '~> 6.26'
