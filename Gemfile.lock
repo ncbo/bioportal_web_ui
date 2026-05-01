@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ncbo/ontologies_api_ruby_client.git
-  revision: 85498969878f8c4db9e43c8e709735a1e433d18e
-  tag: v2.8.1
+  revision: dad23b925e9b963f2b64872544ac3d4f884d2ac4
+  branch: fix/slow-users-endpoint
   specs:
     ontologies_api_client (2.8.1)
       activesupport (= 8.0.3)
@@ -577,6 +577,7 @@ PLATFORMS
   aarch64-linux-musl
   arm-linux-gnu
   arm-linux-musl
+  arm64-darwin-23
   arm64-darwin-24
   x86_64-darwin
   x86_64-linux-gnu
