@@ -305,10 +305,27 @@ class AdminController < ApplicationController
   end
 
   def _users
-    response = { users: {}, errors: '', success: '' }
+    response = { users: [], errors: '', success: '' }
     start = Time.now
     begin
-      response[:users] = JSON.parse(LinkedData::Client::HTTP.get(USERS_URL, { include: 'all' }, raw: true))
+      # /users now always returns a paged response. Walk nextPage links and
+      # concatenate `collection` so the frontend keeps receiving a flat array.
+      # The is_a?(Hash) branch tolerates the legacy flat-array shape in case
+      # we ever hit an older API.
+      users = []
+      page = 1
+      loop do
+        raw = JSON.parse(LinkedData::Client::HTTP.get(USERS_URL, { include: 'all', pagesize: 5000, page: page }, raw: true))
+        if raw.is_a?(Hash) && raw['collection'].is_a?(Array)
+          users.concat(raw['collection'])
+          break unless raw['nextPage']
+          page = raw['nextPage']
+        else
+          users = raw
+          break
+        end
+      end
+      response[:users] = users
 
       response[:success] = "users successfully retrieved in  #{Time.now - start}s"
       Log.add :debug, "Users - retrieved #{response[:users].length} users in #{Time.now - start}s"
