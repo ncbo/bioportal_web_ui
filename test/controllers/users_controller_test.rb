@@ -27,6 +27,27 @@ class UsersControllerSearchTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # Stubs LinkedData::Client::HTTP.get so we can observe only the search-
+  # action's API call. Unrelated calls made during the request lifecycle
+  # (layouts, before_actions) get a benign empty response so the request
+  # completes; calls that look like our search endpoint (URL contains
+  # '/users' and params include :search) are recorded into `calls` and
+  # served `payload`.
+  def with_search_stub(payload: [])
+    calls = []
+    recorder = proc do |url, params = {}, *_|
+      if url.to_s.include?('/users') && params.is_a?(Hash) && params[:search]
+        calls << params[:search]
+        payload
+      else
+        []
+      end
+    end
+    LinkedData::Client::HTTP.stub(:get, recorder) do
+      yield calls
+    end
+  end
+
   test 'returns 401 when not logged in' do
     get search_users_url(format: :json, q: 'alex')
     assert_response :unauthorized
@@ -34,10 +55,9 @@ class UsersControllerSearchTest < ActionDispatch::IntegrationTest
 
   test 'returns empty array for query shorter than 3 chars' do
     login_fake_user
-    # Stub HTTP.get to a sentinel that would fail the assertion if reached;
-    # short queries must short-circuit before any API call.
-    LinkedData::Client::HTTP.stub(:get, ->(*) { flunk 'API should not be called for short query' }) do
+    with_search_stub do |calls|
       get search_users_url(format: :json, q: 'al')
+      assert_equal [], calls, 'search API should not be called for short query'
     end
     assert_response :success
     assert_equal [], JSON.parse(response.body)
@@ -45,9 +65,9 @@ class UsersControllerSearchTest < ActionDispatch::IntegrationTest
 
   test 'strips whitespace before measuring query length' do
     login_fake_user
-    # '  al  ' is 6 chars but only 2 after strip — must short-circuit.
-    LinkedData::Client::HTTP.stub(:get, ->(*) { flunk 'API should not be called for whitespace-padded short query' }) do
+    with_search_stub do |calls|
       get search_users_url(format: :json, q: '  al  ')
+      assert_equal [], calls, 'whitespace-padded short query should short-circuit'
     end
     assert_equal [], JSON.parse(response.body)
   end
@@ -55,7 +75,7 @@ class UsersControllerSearchTest < ActionDispatch::IntegrationTest
   test 'returns up to 25 mapped {value, text} entries for a valid query' do
     login_fake_user
     fake_users = (1..30).map { |i| OpenStruct.new(id: "http://example.org/users/u#{i}", username: "user#{i}") }
-    LinkedData::Client::HTTP.stub(:get, fake_users) do
+    with_search_stub(payload: fake_users) do
       get search_users_url(format: :json, q: 'user')
     end
     assert_response :success
@@ -67,30 +87,20 @@ class UsersControllerSearchTest < ActionDispatch::IntegrationTest
   test 'caches results so repeat queries hit the API only once' do
     login_fake_user
     fake_users = [OpenStruct.new(id: 'http://example.org/users/alex', username: 'alex')]
-    call_count = 0
-    counting_get = lambda do |*_args|
-      call_count += 1
-      fake_users
-    end
-    LinkedData::Client::HTTP.stub(:get, counting_get) do
+    with_search_stub(payload: fake_users) do |calls|
       get search_users_url(format: :json, q: 'alex')
       get search_users_url(format: :json, q: 'alex')
+      assert_equal 1, calls.size, 'second identical query should hit the cache'
     end
-    assert_equal 1, call_count, 'second identical query should hit the cache'
   end
 
   test 'cache key is case-insensitive' do
     login_fake_user
     fake_users = [OpenStruct.new(id: 'http://example.org/users/alex', username: 'alex')]
-    call_count = 0
-    counting_get = lambda do |*_args|
-      call_count += 1
-      fake_users
-    end
-    LinkedData::Client::HTTP.stub(:get, counting_get) do
+    with_search_stub(payload: fake_users) do |calls|
       get search_users_url(format: :json, q: 'ALEX')
       get search_users_url(format: :json, q: 'alex')
+      assert_equal 1, calls.size
     end
-    assert_equal 1, call_count
   end
 end
