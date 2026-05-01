@@ -53,7 +53,6 @@ export default class SelectInput extends Controller {
     if (this.remoteUrlValue) {
       const url = this.remoteUrlValue
       const param = this.remoteQueryParamValue
-      myOptions['preload'] = 'focus'
       myOptions['loadThrottle'] = 250
       myOptions['shouldLoad'] = (q) => q.length >= 3
       myOptions['load'] = (query, callback) => {
