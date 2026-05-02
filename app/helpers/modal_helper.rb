@@ -5,7 +5,7 @@ module ModalHelper
     if name.nil?
       link_to(options, html_options, &block)
     else
-      link_to(PopupLinkTextComponent.new(text: name).call, options, html_options)
+      link_to(render(PopupLinkTextComponent.new(text: name)), options, html_options)
     end
   end
 

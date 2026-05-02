@@ -6,7 +6,7 @@ class DropdownButtonComponent < ViewComponent::Base
   renders_many :sections, DropdownSectionButtonComponent
 
   def initialize(css_class: '')
-    super
+    super()
     @component_classes = css_class
   end
 end

@@ -5,7 +5,7 @@ class TabItemComponent < ViewComponent::Base
   include ActionView::Helpers::UrlHelper
 
   def initialize(id: nil, title: nil, path: nil, page_name: '', selected: false, json_link: nil)
-    super
+    super()
     @id = id
     @title = title
     @path = path

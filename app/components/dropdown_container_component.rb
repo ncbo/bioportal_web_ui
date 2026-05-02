@@ -5,7 +5,7 @@ class DropdownContainerComponent < ViewComponent::Base
   renders_one :title
 
   def initialize(title: nil, id:, tooltip:nil, is_open: false)
-    super
+    super()
     @title = title
     @id = id
     @tooltip = tooltip

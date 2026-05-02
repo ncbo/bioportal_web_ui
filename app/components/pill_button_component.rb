@@ -3,7 +3,7 @@
 class PillButtonComponent < ViewComponent::Base
 
   def initialize(text: nil)
-    super
+    super()
     @text = text
   end
 end

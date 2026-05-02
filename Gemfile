@@ -58,6 +58,11 @@ gem 'concurrent-ruby', '= 1.3.4'
 # Memcached client for Ruby
 gem 'dalli'
 
+# connection_pool 3.0 changed its initialize signature, breaking
+# ActiveSupport::Cache::MemCacheStore in Rails 8.0.x.
+# Remove pin after Rails fixes compatibility.
+gem 'connection_pool', '< 3'
+
 # GraphQL client for Ruby
 # Version 2.1 breaks graphql-client. See: https://github.com/github/graphql-client/issues/310.
 gem 'graphql', '~> 2.0.27'
@@ -83,9 +88,9 @@ gem 'recaptcha', '~> 5.9.0'
 gem 'rest-client'
 
 # View components framework for Rails
-gem 'lookbook', '~> 1.5.5'
+gem 'lookbook', '~> 2.3'
 
-gem 'view_component', '~> 3.23'
+gem 'view_component', '~> 4.6'
 
 # Pagination library for Rails
 gem 'will_paginate', '~> 3.0'

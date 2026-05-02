@@ -21,12 +21,12 @@
       .progress-pages-back-button.hide{'data-action': "click->progress-pages#navigateBack", 'data-progress-pages-target': 'backBtn'}
         =  render Buttons::RegularButtonComponent.new(id: 'progress-pages-back-button', value: t('components.back'), variant: "secondary", size: 'slim',state: 'regular') do |btn|
           - btn.icon_left do
-            = inline_svg "icons/arrow-left.svg"
+            = helpers.inline_svg "icons/arrow-left.svg"
       .progress-pages-next-button{'data-action': "click->progress-pages#navigateNext", 'data-progress-pages-target': 'nextBtn'}
         =  render Buttons::RegularButtonComponent.new(id: 'progress-pages-next-button', value: t('components.next'), size: 'slim', state: 'regular') do |btn|
           - btn.icon_right do
-            = inline_svg "arrow-right.svg"
+            = helpers.inline_svg "arrow-right.svg"
       .progress-pages-next-button.hide{ 'data-progress-pages-target': 'finishBtn'}
         =  render Buttons::RegularButtonComponent.new(id: 'progress-pages-finish-button', value: t('components.finish'), size: 'slim', type: 'submit') do |btn|
           - btn.icon_right do
-            = inline_svg "icons/white-check.svg"
+            = helpers.inline_svg "icons/white-check.svg"

@@ -3,7 +3,7 @@
 class SelectInputComponent < ViewComponent::Base
 
   def initialize(id:, name:, values:, selected: nil, multiple: false, open_to_add_values: false, required: false, data: {}, placeholder: '', **html_options)
-    super
+    super()
     @id = id || ''
     @name = name
     @values = values

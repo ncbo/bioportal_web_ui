@@ -3,7 +3,7 @@
 class Input::LanguageSelectorComponent < ViewComponent::Base
   include InternationalisationHelper
   def initialize(languages:, selected: nil,  id: '', name: '' , enable_all: false, **html_options)
-    super
+    super()
     @languages = languages
     @id = id
     @name = name

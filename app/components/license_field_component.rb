@@ -3,7 +3,7 @@
 class LicenseFieldComponent < ViewComponent::Base
 
   def initialize(value: )
-    super
+    super()
     @value = value
   end
 

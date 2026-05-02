@@ -9,7 +9,7 @@ class Display::EmptyStateComponent < ViewComponent::Base
 
   def call
     content_tag(:div, class:'browse-empty-illustration') do
-      inline_svg_tag('empty-box.svg') +
+      helpers.inline_svg_tag('empty-box.svg') +
       content_tag(:p, @text)
     end.html_safe
   end

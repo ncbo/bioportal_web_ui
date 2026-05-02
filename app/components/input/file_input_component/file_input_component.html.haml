@@ -1,5 +1,5 @@
 .file_uploader{data: {controller: "file-input"}}
   .file-drop-area.w-100
-    = inline_svg_tag "upload-file.svg"
+    = helpers.inline_svg_tag "upload-file.svg"
     %span.file-message{data:{'file-input': {target: 'message'}}}= t('components.file_input_message')
     = file_field_tag @name, class: 'file-input', data:{'file-input-target': 'input', action: 'file-input#updateMessage'}

@@ -8,7 +8,7 @@ class TreeInfiniteScrollComponent < ViewComponent::Base
 
   # rubocop:disable Metrics/ParameterLists
   def initialize(id:, collection:, next_url:, current_page:, next_page:, auto_click: false)
-    super
+    super()
     @id = id
     @collection = collection
     @next_url = next_url

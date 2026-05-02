@@ -8,7 +8,7 @@
       = @pref_label_html
       - if @is_reused
         .tree-view-reuse-icon
-          = inline_svg_tag 'icons/reuses.svg'
+          = helpers.inline_svg_tag 'icons/reuses.svg'
   - if @child.hasChildren && !@child.expanded?
     = render TurboFrameComponent.new(id: "#{child_id}_childs")
   - elsif @child.expanded?

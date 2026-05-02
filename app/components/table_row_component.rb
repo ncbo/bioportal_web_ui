@@ -5,7 +5,7 @@ class TableRowComponent < ViewComponent::Base
   renders_many :cells, TableCellComponent
 
   def initialize(id: '', class_css: '')
-    super
+    super()
     @id = id
     @class_css = class_css
   end

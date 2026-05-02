@@ -3,7 +3,7 @@
 class DateTimeFieldComponent < ViewComponent::Base
 
   def initialize(value: , format: :monthfull_day_year)
-    super
+    super()
     @value = value
     @format = format
   end

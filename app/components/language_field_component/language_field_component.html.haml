@@ -1,6 +1,6 @@
 - if @lang_code
   .d-flex.align-items-center.gap-1{data: {toggle: "tooltip"}, title: @label}
-    = @icon ? inline_svg_tag(@icon, width: "17px", height: "17px") : flag_icon(lang_code)
+    = @icon ? helpers.inline_svg_tag(@icon, width: "17px", height: "17px") : flag_icon(lang_code)
     - if @label
       %div.ms-1
         = @label

@@ -14,7 +14,7 @@ class LinkTextComponent < ViewComponent::Base
   end
 
   def call
-    svg_icon = !@icon&.empty? ? inline_svg(@icon, width: '14px', height: '14px') : ''
+    svg_icon = !@icon&.empty? ? helpers.inline_svg(@icon, width: '14px', height: '14px') : ''
     extra_span = @text == @upload_mapppings_label ? '' : "<span class='mx-1'>#{svg_icon}</span>"
     "#{@text}#{extra_span}".html_safe
   end

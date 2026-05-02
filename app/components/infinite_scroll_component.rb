@@ -8,7 +8,7 @@ class InfiniteScrollComponent < ViewComponent::Base
   renders_one :loader
 
   def initialize(id:, collection:, next_url:, current_page:, next_page:)
-    super
+    super()
     @id = id
     @collection = collection
     @next_url = next_url

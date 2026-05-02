@@ -4,7 +4,7 @@ class SummarySectionComponent < ViewComponent::Base
   renders_many :action_links
 
   def initialize(title: , link: nil, link_title: nil, show_card:  true, service_link: nil)
-    super
+    super()
     @title = title
     @link = link
     @link_title = link_title

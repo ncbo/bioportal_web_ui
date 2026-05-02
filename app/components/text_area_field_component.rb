@@ -4,7 +4,7 @@ class TextAreaFieldComponent < ViewComponent::Base
   include InternationalisationHelper
 
   def initialize(value:, see_more_text: nil, see_less_text: nil)
-    super
+    super()
     @value = value
     @see_more_text = see_more_text
     @see_less_text = see_less_text

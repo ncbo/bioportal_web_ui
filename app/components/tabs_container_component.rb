@@ -7,7 +7,7 @@ class TabsContainerComponent < ViewComponent::Base
   renders_one :pinned_right
 
   def initialize(id: '', url_parameter: nil, type: 'primary')
-    super
+    super()
     @url_parameter = url_parameter
     @type = type
     @id = id
