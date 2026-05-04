@@ -5,7 +5,6 @@ require 'minitest/mock'
 
 class UsersControllerSearchTest < ActionDispatch::IntegrationTest
   setup do
-    Rails.cache.clear
     @fake_user = OpenStruct.new(
       username: 'testuser',
       id: 'testuser',
@@ -84,23 +83,21 @@ class UsersControllerSearchTest < ActionDispatch::IntegrationTest
     assert_equal({ 'value' => 'http://example.org/users/u1', 'text' => 'user1' }, body.first)
   end
 
-  test 'caches results so repeat queries hit the API only once' do
+  # /users now returns a paged response (a Page-shaped object exposing
+  # `collection`, `nextPage`, `pageCount`) rather than a flat array. The
+  # search action must unpack `.collection` instead of treating the page
+  # object itself as iterable.
+  test 'unpacks paged response collection' do
     login_fake_user
-    fake_users = [OpenStruct.new(id: 'http://example.org/users/alex', username: 'alex')]
-    with_search_stub(payload: fake_users) do |calls|
-      get search_users_url(format: :json, q: 'alex')
-      get search_users_url(format: :json, q: 'alex')
-      assert_equal 1, calls.size, 'second identical query should hit the cache'
+    fake_users = (1..3).map { |i| OpenStruct.new(id: "http://example.org/users/u#{i}", username: "user#{i}") }
+    paged = OpenStruct.new(collection: fake_users, nextPage: nil, pageCount: 1)
+    with_search_stub(payload: paged) do
+      get search_users_url(format: :json, q: 'user')
     end
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal 3, body.size
+    assert_equal({ 'value' => 'http://example.org/users/u1', 'text' => 'user1' }, body.first)
   end
 
-  test 'cache key is case-insensitive' do
-    login_fake_user
-    fake_users = [OpenStruct.new(id: 'http://example.org/users/alex', username: 'alex')]
-    with_search_stub(payload: fake_users) do |calls|
-      get search_users_url(format: :json, q: 'ALEX')
-      get search_users_url(format: :json, q: 'alex')
-      assert_equal 1, calls.size
-    end
-  end
 end

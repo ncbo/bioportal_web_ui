@@ -22,16 +22,15 @@ class UsersController < ApplicationController
     q = params[:q].to_s.strip
     return render(json: []) if q.length < 3
 
-    payload = Rails.cache.fetch("users_search:#{q.downcase}", expires_in: 5.minutes) do
-      results = LinkedData::Client::HTTP.get(
-        "#{LinkedData::Client.settings.rest_url}/users",
-        search: q,
-        include: 'username'
-      )
-      Array(results).first(25).map { |u| { value: u.id, text: u.username } }
-    end
-
-    render json: payload
+    response = LinkedData::Client::HTTP.get(
+      "#{LinkedData::Client.settings.rest_url}/users",
+      search: q,
+      include: 'username',
+      pagesize: 25,
+      page: 1
+    )
+    users = response.respond_to?(:collection) ? Array(response.collection) : Array(response)
+    render json: users.first(25).map { |u| { value: u.id, text: u.username } }
   end
 
   def show
