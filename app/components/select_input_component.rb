@@ -2,7 +2,7 @@
 
 class SelectInputComponent < ViewComponent::Base
 
-  def initialize(id:, name:, values:, selected: nil, multiple: false, open_to_add_values: false, required: false, data: {}, placeholder: '', **html_options)
+  def initialize(id:, name:, values:, selected: nil, multiple: false, open_to_add_values: false, required: false, data: {}, placeholder: '', remote_url: nil, remote_query_param: 'q', **html_options)
     super
     @id = id || ''
     @name = name
@@ -13,6 +13,8 @@ class SelectInputComponent < ViewComponent::Base
     @placeholder = placeholder
     @data = data
     @required = required
+    @remote_url = remote_url
+    @remote_query_param = remote_query_param
     @html_options = html_options
   end
 
@@ -33,6 +35,10 @@ class SelectInputComponent < ViewComponent::Base
                          'select-input-open-add-value': open_to_add_values,
                          'select-input-required-value': required,
                        })
+    if @remote_url.present?
+      data[:'select-input-remote-url-value'] = @remote_url
+      data[:'select-input-remote-query-param-value'] = @remote_query_param
+    end
     data[:controller] = "#{data[:controller]} select-input"
 
     select_html_options = {

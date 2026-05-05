@@ -113,12 +113,35 @@ module SubmissionInputsHelper
     content_tag(:div, out, class: 'my-1')
   end
 
-  def ontology_administered_by_input(ontology = @ontology, users_list = @user_select_list)
-    unless users_list
-      users_list = LinkedData::Client::Models::User.all(include: "username").map { |u| [u.username, u.id] }
-      users_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
+  def ontology_administered_by_input(ontology = @ontology)
+    user_select_input(
+      name: 'ontology[administeredBy]',
+      label: label_required(t('submission_inputs.administrators')),
+      selected: Array(ontology.administeredBy).presence || [session[:user].id],
+      multiple: true
+    )
+  end
+
+  # Renders a tom-select dropdown backed by /accounts/search?q=<term> instead
+  # of pre-loading the full user list. `selected` is an array of user URIs;
+  # we hydrate just those into <option> tags so existing values display as
+  # usernames on initial render. Remote loading kicks in once the user types.
+  def user_select_input(name:, selected:, label: '', multiple: true, required: false)
+    selected_ids = Array(selected).reject(&:blank?)
+    values = selected_ids.map do |id|
+      user = LinkedData::Client::Models::User.get(id, include: 'username')
+      [user&.username || id, id]
     end
-    select_input(label: label_required(t('submission_inputs.administrators')), name: "ontology[administeredBy]", values: users_list, selected: ontology.administeredBy || session[:user].id, multiple: true)
+
+    select_input(
+      name: name,
+      label: label,
+      multiple: multiple,
+      required: required,
+      values: values,
+      selected: selected_ids,
+      remote_url: search_users_path(format: :json)
+    )
   end
 
   def ontology_categories_input(ontology = @ontology, categories = @categories)
@@ -205,11 +228,6 @@ module SubmissionInputsHelper
   end
 
   def ontology_visibility_input(ontology = @ontology)
-    unless @user_select_list
-      @user_select_list = LinkedData::Client::Models::User.all(include: "username").map { |u| [u.username, u.id] }
-      @user_select_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
-    end
-
     render(Layout::RevealComponent.new(possible_values: %w[private public], selected: ontology.viewingRestriction)) do |c|
       c.with_button do
         select_input(label: label_required(t('submission_inputs.visibility')), name: "ontology[viewingRestriction]", required: true,
@@ -219,7 +237,12 @@ module SubmissionInputsHelper
 
       c.with_container do
         content_tag(:div, class: 'upload-ontology-input-field-container') do
-          select_input(label: t('submission_inputs.accounts_allowed', portal_name: portal_name), name: "ontology[acl]", values: @user_select_list, selected: ontology.acl, multiple: true)
+          user_select_input(
+            name: 'ontology[acl]',
+            label: t('submission_inputs.accounts_allowed', portal_name: portal_name),
+            selected: Array(ontology.acl),
+            multiple: true
+          )
         end
       end
     end

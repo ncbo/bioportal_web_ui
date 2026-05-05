@@ -18,8 +18,6 @@ class SubmissionsController < ApplicationController
     @groups = LinkedData::Client::Models::Group.all
     @groups.sort_by! { |g| g[:acronym].to_s.downcase }
 
-    @user_select_list = LinkedData::Client::Models::User.all(include: 'username').map { |u| [u.username, u.id] }
-    @user_select_list.sort! { |a, b| a[1].downcase <=> b[1].downcase }
     @is_update_ontology = true
     render "ontologies/new"
   end

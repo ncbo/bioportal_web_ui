@@ -14,6 +14,25 @@ class UsersController < ApplicationController
     end
   end
 
+  # JSON autocomplete for tom-select remote-loading dropdowns. Returns up to 25
+  # users matching `q` as `[{value: id, text: username}, ...]`. Requires login.
+  def search
+    return head(:unauthorized) unless session[:user]
+
+    q = params[:q].to_s.strip
+    return render(json: []) if q.length < 3
+
+    response = LinkedData::Client::HTTP.get(
+      "#{LinkedData::Client.settings.rest_url}/users",
+      search: q,
+      include: 'username',
+      pagesize: 25,
+      page: 1
+    )
+    users = response.respond_to?(:collection) ? Array(response.collection) : Array(response)
+    render json: users.first(25).map { |u| { value: u.id, text: u.username } }
+  end
+
   def show
     @user = LinkedData::Client::Models::User.get(escaped_id, include: 'all')
     @user_ontologies = @user.customOntology
