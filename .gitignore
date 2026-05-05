@@ -58,3 +58,6 @@ origin/
 
 # Claude Code
 .claude/
+
+# Serena MCP
+.serena/
