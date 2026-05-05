@@ -64,17 +64,6 @@
       |
       <a href="https://ontoportal.github.io/documentation/administration/steps/getting_started#amazon-aws-ami"> Amazon EC2</a>
 
-  -if @virtual_appliance_access
-    %h3 Archives
-    %p
-      The OntoPortal 2.5 Virtual Appliance is not longer offered for new
-      users. This archival distribution is available only as a backup for
-      those who registered for the Appliance before June 2020
-    %ul
-      %li
-        Version 2.5
-        =link_to 'OVF', 'https://www.bioontology.org/ontoportal-appliance/ontoportal-2.5.zip'
-
   -if @user.admin?
     %div{:style => "margin: 2em 0 0; padding: 1em 1em; border: solid thin gray; background-color: lightGray;"}
       %h1{:style => "margin-bottom: 15px;"} Admin: Add Users
