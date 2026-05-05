@@ -955,7 +955,6 @@ en:
     problem_of_creating_new_term: 'Problem creating a new term %{endpoint}: %{class}
       - %{message}'
   ontologies:
-
     access_rights_information: Additional license and access rights information
     admin:
       title: "Administration"

@@ -986,7 +986,6 @@ fr:
     problem_of_creating_new_term: 'Problème de création d''un nouveau terme %{endpoint}
       : %{class} - %{message}'
   ontologies:
-
     access_rights_information: Informations supplémentaires sur la licence et les
       droits d'accès
     admin:
