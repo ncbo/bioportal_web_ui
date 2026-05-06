@@ -74,7 +74,7 @@ class SubmissionsController < ApplicationController
     category_attributes['general'] << %w[acronym name groups administeredBy sampleQueries]
     category_attributes['licensing'] << 'viewingRestriction'
     category_attributes['relations'] << 'viewOf'
-    category_attributes["description"] << %w[hasDomain categories]
+    category_attributes["description"] << %w[hasDomain subjects]
     category_attributes["usage"].delete("hasDomain")
     @selected_attributes = Array(params[:properties])
     if @selected_attributes.empty?

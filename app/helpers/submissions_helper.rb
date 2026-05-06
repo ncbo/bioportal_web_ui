@@ -370,11 +370,14 @@ module SubmissionsHelper
       end
     end
 
-    if selected_attribute?('categories')
+    selected = Array(@selected_attributes)
+    show_all = selected.empty?
+
+    if show_all || selected.include?('hasDomain') || selected.include?('categories')
       output += ontology_categories_input
     end
 
-    if selected_attribute?('hasDomain')
+    if show_all || selected.include?('subjects')
       output += ontology_submission_subjects_input
     end
 
