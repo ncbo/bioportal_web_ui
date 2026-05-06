@@ -58,6 +58,10 @@ export default class extends Controller {
 
     this.pickedTarget.appendChild(wrapper)
     this.pickedTarget.appendChild(hiddenInput)
+
+    if (this.hasSearchWrapperTarget) {
+      this.searchWrapperTarget.remove()
+    }
   }
 
   removePicked(event) {
