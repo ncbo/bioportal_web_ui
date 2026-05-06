@@ -6,7 +6,7 @@ class LanguageFieldComponent < ViewComponent::Base
   include FlagIconsRails::Rails::ViewHelpers, MultiLanguagesHelper
 
   def initialize(value:, label: nil, auto_label: false, icon: nil)
-    super
+    super()
     @value = value
     @lang_code = nil
     @label = label

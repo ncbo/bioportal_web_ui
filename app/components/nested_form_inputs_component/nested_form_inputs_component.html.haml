@@ -5,7 +5,7 @@
         = template
       %div.d-flex.justify-content-end{style: 'width: 10%'}
         %div.delete{data: {action:"click->nested-form#remove"}}
-          = inline_svg 'icons/delete.svg'
+          = helpers.inline_svg 'icons/delete.svg'
 
   %div.titles
     = header
@@ -17,7 +17,7 @@
         = row
       %div.d-flex.justify-content-end{style: 'width: 10%'}
         %div.delete{data: {action:"click->nested-form#remove"}}
-          = inline_svg 'icons/delete.svg'
+          = helpers.inline_svg 'icons/delete.svg'
 
   - if @default_row && rows.empty?
     %div.d-flex.align-items-center.nested-form-wrapper.my-1{'data-new-record': 'true'}
@@ -25,10 +25,10 @@
         = template
       %div.d-flex.justify-content-end{style: 'width: 10%'}
         %div.delete{data: {action:"click->nested-form#remove"}}
-          = inline_svg 'icons/delete.svg'
+          = helpers.inline_svg 'icons/delete.svg'
 
   %div{'data-nested-form-target': "target"}
   %div.add-another-object{data: {action:"click->nested-form#add"}}
-    = inline_svg 'icons/plus.svg', width: "14px", height: "14px"
+    = helpers.inline_svg 'icons/plus.svg', width: "14px", height: "14px"
     %div
       Add another #{@object_name}

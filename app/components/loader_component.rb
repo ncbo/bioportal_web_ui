@@ -5,7 +5,7 @@ class LoaderComponent < ViewComponent::Base
   include ActionView::Helpers::TagHelper
 
   def initialize(small: false, type: nil)
-    super
+    super()
     @small = small
     @type = type
   end

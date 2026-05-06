@@ -3,7 +3,7 @@
 class Display::InfoTooltipComponent < ViewComponent::Base
 
   def initialize(text: nil , icon: "info.svg", interactive: true)
-    super
+    super()
     @text = text
     @icon = icon
     @interactive = interactive
@@ -13,7 +13,7 @@ class Display::InfoTooltipComponent < ViewComponent::Base
       if content
         content
       else
-        inline_svg_tag "icons/#{@icon}", width: '20', height: '20'
+        helpers.inline_svg_tag "icons/#{@icon}", width: '20', height: '20'
       end
     end
   end

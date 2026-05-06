@@ -3,7 +3,7 @@ class LabelFetcherComponent < ViewComponent::Base
   include UrlsHelper, Turbo::FramesHelper, ModalHelper
 
   def initialize(id:, label: nil, link: nil, ajax_src: nil, open_in_modal: false, target: nil, external: false)
-    super
+    super()
     @id = id
     @link = link
     @ajax_src = ajax_src
@@ -47,9 +47,9 @@ class LabelFetcherComponent < ViewComponent::Base
 
   def link_with_icon
     if external_link?
-      ExternalLinkTextComponent.new(text: @label).call
+      render(ExternalLinkTextComponent.new(text: @label))
     else
-      InternalLinkTextComponent.new(text: @label).call
+      render(InternalLinkTextComponent.new(text: @label))
     end
   end
 end

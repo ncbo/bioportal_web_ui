@@ -3,6 +3,6 @@
     = @message || content
   %div
     %div.copy{data: {controller:'tooltip', action: 'click->clipboard#copy', 'clipboard-target': 'copy'}, title: @title}
-      = inline_svg_tag(@icon, width: '20', height: '21px', fill: 'none')
+      = helpers.inline_svg_tag(@icon, width: '20', height: '21px', fill: 'none')
     %div.d-none.check{data: {controller:'tooltip', 'clipboard-target': 'check'}, title: 'Copied!'}
-      = inline_svg_tag('check.svg', width: '18px', height: '18px')
+      = helpers.inline_svg_tag('check.svg', width: '18px', height: '18px')

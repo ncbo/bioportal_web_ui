@@ -5,7 +5,7 @@ class LinkFieldComponent < ViewComponent::Base
   include ApplicationHelper, Turbo::FramesHelper, ComponentsHelper
 
   def initialize(value:, acronym: nil, raw: false, check_resolvability: false, enable_copy: true,  generate_link: false, generate_htaccess: false)
-    super
+    super()
     @value = value
     @raw = raw
     @check_resolvability = check_resolvability

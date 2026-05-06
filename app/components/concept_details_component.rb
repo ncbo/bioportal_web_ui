@@ -93,11 +93,7 @@ class ConceptDetailsComponent < ViewComponent::Base
 
   private
 
-  def link_to_format_modal(format, icon)
-    link_to_modal(nil, "/ontologies/#{@acronym}/#{escape(@concept_id)}/serialize/#{format}", { id: "resource_content_#{format}", data: { show_modal_title_value: @concept_id, show_modal_size_value: 'modal-xl' } }) do
-      inline_svg("icons/#{icon}.svg", width: '50px', height: '50px')
-    end
-  end
+
 
   def concept_properties2hash(properties, ontology_acronym)
     # NOTE: example properties

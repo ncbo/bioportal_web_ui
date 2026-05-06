@@ -9,7 +9,7 @@ class TableComponent < ViewComponent::Base
                  small_text: false, outline: false, sort_column: nil,
                  paging: false, searching: false, search_placeholder: nil,
                  no_init_sort: false)
-    super
+    super()
     @id = id
     @stripped = stripped
     @borderless = borderless

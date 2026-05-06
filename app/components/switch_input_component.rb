@@ -4,7 +4,7 @@ class SwitchInputComponent < ViewComponent::Base
 
 
   def initialize(id:, name: , label: '', value: '', checked: false, boolean_switch: false, style: nil, help: nil)
-    super
+    super()
     @id = id
     @name = name
     @label = label

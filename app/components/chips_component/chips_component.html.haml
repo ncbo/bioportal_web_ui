@@ -7,7 +7,7 @@
       %label{:for => "chips-#{@id}-check"}
         %input{:id => "chips-#{@id}-check", :name => @name, :type => "checkbox", :value => @value, checked: checked?, disabled: @disabled}
         %span
-          = inline_svg_tag 'check.svg', class: 'chips-check-icon'
+          = helpers.inline_svg_tag 'check.svg', class: 'chips-check-icon'
           %div
             = @label
           = count

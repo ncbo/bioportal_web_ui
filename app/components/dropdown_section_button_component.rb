@@ -6,7 +6,7 @@ class DropdownSectionButtonComponent < ViewComponent::Base
   renders_many :items
 
   def initialize(divide: true, selected_index: nil)
-    super
+    super()
     @divide = divide
     @selected = selected_index
   end

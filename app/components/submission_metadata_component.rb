@@ -4,7 +4,7 @@ class SubmissionMetadataComponent < ViewComponent::Base
   include ApplicationHelper, MetadataHelper, SubmissionInputsHelper,OntologiesHelper
 
   def initialize(submission: , submission_metadata:)
-    super
+    super()
     @submission = submission
 
     @json_metadata = submission_metadata

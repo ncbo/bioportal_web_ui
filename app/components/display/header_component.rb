@@ -6,7 +6,7 @@ class Display::HeaderComponent < ViewComponent::Base
 
 
   def initialize(text: nil, tooltip: nil)
-    super
+    super()
     @text = text
     @info = tooltip
   end
