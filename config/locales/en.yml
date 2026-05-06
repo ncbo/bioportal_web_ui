@@ -1603,6 +1603,7 @@ en:
       content_2: "</span> for ontology <span style='color:red;font-weight:bold;'>"
       content_3: "</span>?<br/><b>This action CAN NOT be undone!!!</b>"
     download: Download
+    download_metadata: Metadata
     edit_button: Edit
     filter:
       all_formats: Formats

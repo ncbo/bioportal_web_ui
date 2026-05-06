@@ -1653,6 +1653,7 @@ fr:
       content_2: "</span> pour l'ontologie <span style='color:red;font-weight:bold;'>"
       content_3: "</span> ?<br/><b>Cette action est IRREVERSIBLE !!!</b>"
     download: Télécharger
+    download_metadata: Métadonnées
     edit_button: Éditer
     filter:
       all_formats: Formats

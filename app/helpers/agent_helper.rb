@@ -277,12 +277,13 @@ module AgentHelper
     if agent.is_a?(String)
       name = agent
       title = nil
+      agent_page_url = nil
     else
       name = agent.agentType.eql?("organization") ? (agent.acronym.presence || agent.name) : agent.name
       agent_icon = agent.agentType.eql?("organization") ? organization_icon : person_icon
       title = agent_tooltip(agent)
+      agent_page_url = agent.id.to_s.include?('/Agents/') ? agents_path + "/#{agent.id.split('/').last}" : nil
     end
-    agent_page_url = agent.id.include?('/Agents/') ? agents_path + "/#{agent.id.split('/').last}" : nil
     render_chip_component(title, agent_icon, name, agent_page_url, target)
   end
 
