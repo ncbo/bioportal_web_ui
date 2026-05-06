@@ -109,3 +109,6 @@ application.register('parent-categories-selector', ParentCategoriesSelectorContr
 
 import SubjectsController from "./subjects_controller.js"
 application.register("subjects", SubjectsController)
+
+import RorSearchController from "./ror_search_controller.js"
+application.register("ror-search", RorSearchController)

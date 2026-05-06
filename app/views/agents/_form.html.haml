@@ -1,5 +1,5 @@
 = agent_alert_container(@agent, params[:parent_id])
-%table.form.w-100{data:{ controller: 'form-options-display',  'form-options-display-hidden-class-value': 'd-none'}}
+%table.form.w-100{data:{ controller: 'form-options-display ror-search',  'form-options-display-hidden-class-value': 'd-none'}}
   %colgroup
     %col
     %col{style: "width: 100%"}
@@ -19,17 +19,19 @@
       %td.top
         %div.d-flex
           %div.custom-control.custom-radio.mx-1
-            = radio_button_tag agent_field_name(:agentType, name_prefix), :person, !agent.agentType.eql?('organization'), class: 'custom-control-input', 'data-action': "change->form-options-display#showOption1"
+            = radio_button_tag agent_field_name(:agentType, name_prefix), :person, !agent.agentType.eql?('organization'), class: 'custom-control-input', 'data-action': "change->form-options-display#showOption1 change->ror-search#hide"
             = label_tag :agentType_person, t('agents.form.person'),  class: 'custom-control-label'
           %div.custom-control.custom-radio.mx-1
-            = radio_button_tag agent_field_name(:agentType, name_prefix), :organization, agent.agentType.eql?('organization'), class: 'custom-control-input', 'data-action': "change->form-options-display#showOption2"
+            = radio_button_tag agent_field_name(:agentType, name_prefix), :organization, agent.agentType.eql?('organization'), class: 'custom-control-input', 'data-action': "change->form-options-display#showOption2", 'data-ror-search-target': 'organizationRadio'
             = label_tag :agentType_organization, t('agents.form.organization'),  class: 'custom-control-label'
   %tr
     %th
       = t("agents.form.name")
       %span.asterik *
     %td.top
-      = text_field_tag agent_field_name(:name, name_prefix), agent.name, class: "form-control"
+      %div.search-inputs
+        = text_field_tag agent_field_name(:name, name_prefix), agent.name, class: "form-control", autocomplete: 'off', data: { 'ror-search-target': 'nameInput', action: 'input->ror-search#search blur->ror-search#blur' }
+        %div.search-container.search-container-scroll{'data-ror-search-target': 'results', 'data-action': 'mousedown->ror-search#prevent', style: 'display: none;'}
   %tr{'data-form-options-display-target':"option1",  class: is_organization?(agent) && 'd-none'}
     %th
       = t("agents.form.email")
@@ -41,12 +43,12 @@
       = t("agents.form.acronym")
       %span.asterik
     %td.top
-      = text_field_tag agent_field_name(:acronym, name_prefix), agent.acronym,class: "form-control"
+      = text_field_tag agent_field_name(:acronym, name_prefix), agent.acronym, class: "form-control", data: { 'ror-search-target': 'acronymInput' }
   %tr{'data-form-options-display-target':"option2",  class: !is_organization?(agent) && 'd-none'}
     %th
       = t("agents.form.homepage")
     %td.top
-      = url_field_tag agent_field_name(:homepage, name_prefix), agent.homepage, class: "form-control"
+      = url_field_tag agent_field_name(:homepage, name_prefix), agent.homepage, class: "form-control", data: { 'ror-search-target': 'homepageInput' }
   %tr.d-none
     %th
       = t("agents.form.creator")
@@ -59,9 +61,9 @@
     %td.top
       %div.agents-identifiers{'data-form-options-display-target':"option2",  class: !is_organization?(agent) && 'd-none'}
         - if identifier&.schemaAgency&.eql?('ROR')
-          = agent_identifier_input('0', name_prefix, identifier.notation)
+          = agent_identifier_input('0', name_prefix, identifier.notation, input_data: { 'ror-search-target': 'identifierInput' })
         - else
-          = agent_identifier_input('0', name_prefix)
+          = agent_identifier_input('0', name_prefix, input_data: { 'ror-search-target': 'identifierInput' })
 
       %div.agents-identifiers{'data-form-options-display-target':"option1",  class: is_organization?(agent) && 'd-none'}
         - if identifier&.schemaAgency&.eql?('ORCID')
