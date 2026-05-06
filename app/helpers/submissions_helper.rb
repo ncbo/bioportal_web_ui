@@ -172,7 +172,7 @@ module SubmissionsHelper
   end
 
   def format_equivalent
-    %w[hasOntologyLanguage prefLabelProperty synonymProperty definitionProperty authorProperty obsoleteProperty obsoleteParent]
+    %w[hasOntologyLanguage prefLabelProperty synonymProperty definitionProperty authorProperty obsoleteProperty]
   end
 
   def location_equivalent

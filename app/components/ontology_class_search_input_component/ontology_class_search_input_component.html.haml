@@ -1,0 +1,41 @@
+- if multiple?
+  = render NestedFormInputsComponent.new(object_name: 'class') do |c|
+    - c.template do
+      .ontology-classes-container{ data: { controller: "class-picker", "class-picker-name-prefix-value": @name_prefix, "class-picker-row-class-value": row_class, "class-picker-show-uri-value": "true" } }
+        .search-wrapper{ data: { "class-picker-target": "searchWrapper" } }
+          = helpers.ontology_classes_content_autocomplete(ontology_acronym: @ontology_acronym)
+        .ontology-classes-list{ data: { "class-picker-target": "list" } }
+
+    - Array(@values).each_with_index do |v, i|
+      - value = v[:value]
+      - label = v[:label]
+      - c.row do
+        %div{class: row_class}
+          .class-picker-display
+            %p.class-label_name= label
+            %small.class-uri= value
+          = hidden_field_tag "#{@name_prefix}[#{i}]", value
+
+    - c.empty_state do
+      = hidden_field_tag "#{@name_prefix}[0]", ""
+
+- else
+  - picked = Array(@values).reject { |v| v[:value].blank? }.first
+  .ontology-class-single-picker{ data: { controller: "class-picker", "class-picker-name-prefix-value": @name_prefix, "class-picker-single-value": "true" } }
+    %template{ data: { "class-picker-target": "deleteIconTemplate" } }
+      = inline_svg 'icons/delete.svg'
+    .search-wrapper{ data: { "class-picker-target": "searchWrapper" } }
+      = helpers.ontology_classes_content_autocomplete(ontology_acronym: @ontology_acronym)
+    .picked-class{ data: { "class-picker-target": "picked" } }
+      - if picked
+        %div.d-flex.align-items-center.nested-form-wrapper.my-1
+          %div{ style: 'width: 90%' }
+            .class-picker-display
+              %p.class-label_name= picked[:label]
+              %small.class-uri= picked[:value]
+          %div.d-flex.justify-content-end{ style: 'width: 10%' }
+            %div.delete{ data: { action: "click->class-picker#removePicked" } }
+              = inline_svg 'icons/delete.svg'
+        = hidden_field_tag @name_prefix, picked[:value]
+      - else
+        = hidden_field_tag @name_prefix, ""

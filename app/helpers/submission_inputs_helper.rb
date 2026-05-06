@@ -85,6 +85,8 @@ module SubmissionInputsHelper
       end
     elsif attr.type?('isOntology')
       generate_select_input(attr, multiple: attr['enforce'].include?('list'))
+    elsif ontology_class_attribute?(attr.attr_key)
+      generate_ontology_class_picker_input(attr)
     elsif attr.type?('uri')
       generate_url_input(attr, helper_text: help)
     elsif attr.type?('boolean')
@@ -429,6 +431,47 @@ module SubmissionInputsHelper
       end
     end
 
+  end
+
+  def ontology_class_attribute?(attr_key)
+    ontology_class_list_attribute?(attr_key) || ontology_class_single_attribute?(attr_key)
+  end
+
+  def ontology_class_list_attribute?(attr_key)
+    %w[keyClasses].include?(attr_key.to_s)
+  end
+
+  def ontology_class_single_attribute?(attr_key)
+    %w[obsoleteParent exampleIdentifier].include?(attr_key.to_s)
+  end
+
+  def generate_ontology_class_picker_input(attr)
+    multiple = ontology_class_list_attribute?(attr.attr_key)
+    values = Array(attr.values).reject(&:blank?).map do |uri|
+      { value: uri, label: resolve_ontology_class_label(uri, @ontology.acronym) }
+    end
+    render Input::InputFieldComponent.new(name: '', label: attr_header_label(attr), error_message: attribute_error(attr.attr)) do
+      render OntologyClassSearchInputComponent.new(ontology_acronym: @ontology.acronym,
+                                                   name_prefix: attr.name,
+                                                   values: values,
+                                                   multiple: multiple)
+    end
+  end
+
+  def resolve_ontology_class_label(class_uri, ontology_acronym)
+    return class_uri if class_uri.blank? || ontology_acronym.blank?
+
+    response = LinkedData::Client::HTTP.get(
+      "#{rest_url}/ontologies/#{ontology_acronym}/classes/#{CGI.escape(class_uri.strip)}",
+      lang: portal_lang,
+      display_context: false,
+      display_links: false,
+      include: 'prefLabel'
+    )
+
+    main_language_label(response&.prefLabel).presence || class_uri
+  rescue StandardError
+    class_uri
   end
 
   def generate_url_input(attr, helper_text: nil)

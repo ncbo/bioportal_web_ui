@@ -243,6 +243,7 @@ Rails.application.routes.draw do
   get 'search', to: 'search#index'
   get 'search/json_search/:id', to: 'search#json_search'
   get 'ajax/search/ontologies/content', to: 'search#json_ontology_content_search'
+  get 'ajax/search/ontologies/:ontology_acronym/classes', to: 'search#json_ontology_classes_search'
 
   get 'check_resolvability' => 'check_resolvability#index'
   get 'check_url_resolvability' => 'check_resolvability#check_resolvability'

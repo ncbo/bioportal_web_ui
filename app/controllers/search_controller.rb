@@ -114,6 +114,43 @@ class SearchController < ApplicationController
     render plain: response, content_type: content_type
   end
 
+  def json_ontology_classes_search
+    acronym = params[:ontology_acronym]
+    query = params[:search].to_s
+    page_size = (params[:page_size] || 25).to_i
+
+    if acronym.blank? || query.blank?
+      render json: []
+      return
+    end
+
+    query = "#{query.strip}*" unless query.end_with?('*')
+
+    search_page = LinkedData::Client::Models::Class.search(query, {
+      ontologies: acronym,
+      pagesize: page_size,
+      also_search_obsolete: false,
+      also_search_views: false,
+      include: 'prefLabel,synonym,definition'
+    })
+
+    results = Array(search_page&.collection).map do |cls|
+      ontology_link = cls.links && cls.links['ontology']
+      ontology_acronym = ontology_link ? ontology_link.split('/').last : acronym
+      label = main_language_label(cls.prefLabel) || cls.id
+
+      {
+        id: cls.id,
+        name: cls.id,
+        label: label,
+        acronym: ontology_acronym,
+        type: 'Class'
+      }
+    end
+
+    render json: results
+  end
+
   def json_ontology_content_search
     query = params[:search] || '*'
     page = (params[:page] || 1).to_i

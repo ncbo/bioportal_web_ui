@@ -53,6 +53,27 @@
   max-width: 280px;
 }
 
+.class-picker-display{
+  display: flex;
+  flex-direction: column;
+  padding: 6px 10px;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  background: #fafafa;
+
+  .class-label_name{
+    margin: 0;
+    font-weight: 500;
+    color: #333;
+    word-break: break-word;
+  }
+
+  .class-uri{
+    color: #777;
+    word-break: break-all;
+  }
+}
+
 .searched-elements{
   margin-bottom: 0;
 }

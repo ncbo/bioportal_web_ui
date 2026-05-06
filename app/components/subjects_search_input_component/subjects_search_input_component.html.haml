@@ -6,10 +6,10 @@
       = t('submission_inputs.subjects_notice', ontologies: @ontologies.join(','))
 
   - c.template do
-    .subjects-container{ data: { controller: "subjects" } }
-      .search-wrapper{ data: { subjects_target: "searchWrapper" } }
+    .subjects-container{ data: { controller: "class-picker", "class-picker-name-prefix-value": "submission[hasDomain]", "class-picker-row-class-value": "nested-subjects-form-input-row" } }
+      .search-wrapper{ data: { "class-picker-target": "searchWrapper" } }
         = helpers.subjects_ontologies_content_autocomplete(ontologies: @ontologies)
-      .subjects-list{ data: { subjects_target: "list" } }
+      .subjects-list{ data: { "class-picker-target": "list" } }
 
   - Array(@values).each_with_index do |v, i|
     - value = v[:value]

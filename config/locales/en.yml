@@ -398,6 +398,7 @@ en:
     type: Type
   components:
     add_another_object: "Add another %{object_name}"
+    class: "class"
     contact: "contact"
     portal: "portal"
     all_languages: All languages
@@ -1100,6 +1101,7 @@ en:
     ontology_processing_failed: 'The ontology processing failed, with the current
       statuses: %{status}'
     ontology_search_prompt: Search an ontology or a term (e.g., plant height)
+    class_search_prompt: Search a class (e.g., plant height)
     ontology_submitted: Ontology submitted successfully!
     ontology_types: Ontology types
     outside: outside

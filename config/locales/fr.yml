@@ -408,6 +408,7 @@ fr:
     type: Type
   components:
     add_another_object: "Ajouter un autre %{object_name}"
+    class: "classe"
     contact: "contact"
     portal: "portail"
     all_languages: Toutes les langues
@@ -1136,6 +1137,7 @@ fr:
       statuts suivants : %{status}'
     ontology_search_prompt: Rechercher une ontologie ou un terme (e.g., hauteur de
       plante)
+    class_search_prompt: Rechercher une classe (e.g., hauteur de plante)
     ontology_submitted: Ontologie soumise avec succès !
     ontology_types: Types d'ontologies
     outside: extérieur

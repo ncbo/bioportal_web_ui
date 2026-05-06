@@ -106,6 +106,8 @@ application.register('concepts-json', ConceptsJsonButtonController)
 import ParentCategoriesSelectorController from "./parent_categories_selector_controller.js"
 application.register('parent-categories-selector', ParentCategoriesSelectorController)
 
+import ClassPickerController from "./class_picker_controller.js"
+application.register("class-picker", ClassPickerController)
 
 import SubjectsController from "./subjects_controller.js"
 application.register("subjects", SubjectsController)
