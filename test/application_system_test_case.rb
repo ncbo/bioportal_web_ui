@@ -49,7 +49,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     fill_in 'user_password', with: user.password
 
     # Click the login button
-    click_button 'Login'
+    click_button 'Log in'
   end
 
   def assert_date(date)

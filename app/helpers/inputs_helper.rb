@@ -11,7 +11,8 @@ module InputsHelper
 
   def select_input(name:, values:, id: nil, label: nil, selected: nil, multiple: false, help: nil, open_to_add: false, required: false,
                    placeholder: nil,
-                   data: {})
+                   data: {},
+                   remote_url: nil, remote_query_param: 'q')
     render Input::SelectComponent.new(label: input_label(label, name), id: id || name, name: name, value: values,
                                       selected: selected,
                                       multiple: multiple,
@@ -19,7 +20,9 @@ module InputsHelper
                                       open_to_add_values: open_to_add,
                                       required: required,
                                       placeholder:  placeholder,
-                                      data: data)
+                                      data: data,
+                                      remote_url: remote_url,
+                                      remote_query_param: remote_query_param)
   end
 
   def number_input(name: , label: '', value: )

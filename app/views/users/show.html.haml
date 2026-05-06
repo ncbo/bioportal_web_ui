@@ -33,9 +33,19 @@
   -# User's API key
   %h4{class: 'pb-2 my-4 border-bottom'} API Key
   = tag.p("Your API key can be used to access the #{$SITE} RESTful API and services", class: 'text-muted')
-  = session[:user].apikey
-  = content_tag(:span, style: 'display: inline-block;') do
-    = render ClipboardComponent.new(message: session[:user].apikey, title: 'Copy API Key', show_content: false)
+  %div.d-flex.align-items-center{data: {controller: 'reveal-component'}}
+    %span.font-monospace{data: {'reveal-component-target': 'item'}}
+      = '•' * 36
+    %span.font-monospace.d-none{data: {'reveal-component-target': 'item'}}
+      = session[:user].apikey
+    = content_tag(:span, style: 'display: inline-block;') do
+      = render ClipboardComponent.new(message: session[:user].apikey, title: 'Copy API Key', show_content: false)
+    %button.btn.btn-sm.btn-outline-secondary.ms-2{data: {'reveal-component-target': 'item', action: 'click->reveal-component#toggle'}, title: 'Show API Key', type: 'button'}
+      %i.fas.fa-eye{"aria-hidden": "true"}
+      Show
+    %button.btn.btn-sm.btn-outline-secondary.ms-2.d-none{data: {'reveal-component-target': 'item', action: 'click->reveal-component#toggle'}, title: 'Hide API Key', type: 'button'}
+      %i.fas.fa-eye-slash{"aria-hidden": "true"}
+      Hide
 
   -# User's subscriptions
   - unless @user.subscription.blank?

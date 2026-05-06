@@ -63,7 +63,7 @@ module MetadataHelper
     reject = [:description,:csvDump, :dataDump, :openSearchDescription, :metrics, :prefLabelProperty, :definitionProperty,
               :definitionProperty, :synonymProperty, :authorProperty, :hierarchyProperty, :obsoleteProperty,
               :ontology, :endpoint, :submissionId, :submissionStatus, :uploadFilePath, :diffFilePath,
-              :pullLocation, :status, :hasOntologyLanguage]
+              :pullLocation, :status, :hasOntologyLanguage, :uriLookupEndpoint]
     metadata_list.reject{|k,v| reject.include?(k.to_sym)}.sort_by{|k,v| v || k}
   end
 
