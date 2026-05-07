@@ -1,5 +1,5 @@
 = agent_alert_container(@agent, params[:parent_id])
-%table.form.w-100{data:{ controller: 'form-options-display ror-search',  'form-options-display-hidden-class-value': 'd-none'}}
+%table.form.w-100{data:{ controller: 'form-options-display ror-search',  'form-options-display-hidden-class-value': 'd-none', 'ror-search-name-placeholder-value': t('agents.form.name_placeholder')}}
   %colgroup
     %col
     %col{style: "width: 100%"}
@@ -19,10 +19,10 @@
       %td.top
         %div.d-flex
           %div.custom-control.custom-radio.mx-1
-            = radio_button_tag agent_field_name(:agentType, name_prefix), :person, !agent.agentType.eql?('organization'), class: 'custom-control-input', 'data-action': "change->form-options-display#showOption1 change->ror-search#hide"
+            = radio_button_tag agent_field_name(:agentType, name_prefix), :person, !agent.agentType.eql?('organization'), class: 'custom-control-input', 'data-action': "change->form-options-display#showOption1 change->ror-search#hide change->ror-search#updatePlaceholder"
             = label_tag :agentType_person, t('agents.form.person'),  class: 'custom-control-label'
           %div.custom-control.custom-radio.mx-1
-            = radio_button_tag agent_field_name(:agentType, name_prefix), :organization, agent.agentType.eql?('organization'), class: 'custom-control-input', 'data-action': "change->form-options-display#showOption2", 'data-ror-search-target': 'organizationRadio'
+            = radio_button_tag agent_field_name(:agentType, name_prefix), :organization, agent.agentType.eql?('organization'), class: 'custom-control-input', 'data-action': "change->form-options-display#showOption2 change->ror-search#updatePlaceholder", 'data-ror-search-target': 'organizationRadio'
             = label_tag :agentType_organization, t('agents.form.organization'),  class: 'custom-control-label'
   %tr
     %th

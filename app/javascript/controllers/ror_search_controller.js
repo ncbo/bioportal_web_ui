@@ -10,11 +10,18 @@ export default class extends Controller {
     static values = {
         apiUrl: { type: String, default: "https://api.ror.org/v2/organizations" },
         minLength: { type: Number, default: 2 },
-        debounceMs: { type: Number, default: 300 }
+        debounceMs: { type: Number, default: 300 },
+        namePlaceholder: { type: String, default: "" }
     }
 
     connect() {
         this.search = debounce(this.search.bind(this), this.debounceMsValue)
+        this.updatePlaceholder()
+    }
+
+    updatePlaceholder() {
+        if (!this.hasNameInputTarget) return
+        this.nameInputTarget.placeholder = this.#isOrganizationMode() ? this.namePlaceholderValue : ""
     }
 
     search() {

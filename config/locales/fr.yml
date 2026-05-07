@@ -257,6 +257,7 @@ fr:
       homepage: Page d'accueil
       identifiers: Identifiants
       name: Nom
+      name_placeholder: Recherchez dans le registre ROR ou créez une nouvelle organisation
       organization: Organisation
       person: Personne
       type: Type
