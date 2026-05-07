@@ -250,7 +250,7 @@ en:
       identifiers: Identifiers
       identifier: Identifier
       name: Name
-      name_placeholder: Lookup the ROR registry or create a new organisation
+      name_placeholder: Lookup the ROR registry or create a new organization
       organization: Organization
       person: Person
       type: Type
