@@ -132,21 +132,36 @@ module SubmissionInputsHelper
     categories ||= LinkedData::Client::Models::Category.all(display_links: false, display_context: false)
     categories_children = categories_with_children(categories)
     categories_parents = categories_with_parents(categories_children)
+    field_name = 'ontology[hasDomain][]'
 
-    render Input::InputFieldComponent.new(name: '', label: t('submission_inputs.categories')) do
-      content_tag(:div, class: 'upload-ontology-chips-container', 'data-controller': 'parent-categories-selector',
-      'data-parent-categories-selector-categories-children-value': "#{categories_children.to_json}",
-      'data-parent-categories-selector-categories-parents-value': "#{categories_parents.to_json}",
-      'data-parent-categories-selector-target': "chips") do
-        hidden_field_tag('ontology[hasDomain][]') +
-        categories.map do |category|
-          content_tag(:div, 'data-action': 'click->parent-categories-selector#check') do
-            category_chip_component(id: category[:acronym], name: "ontology[hasDomain][]",
-                                    object: category, value: category[:id],
-                                    checked: ontology.hasDomain&.any? { |x| x.eql?(category[:id]) })
-            end
-          end.join.html_safe
+    input_field = -> {
+      render Input::InputFieldComponent.new(name: '', label: t('submission_inputs.categories')) do
+        content_tag(:div, class: 'upload-ontology-chips-container', 'data-controller': 'parent-categories-selector',
+        'data-parent-categories-selector-categories-children-value': "#{categories_children.to_json}",
+        'data-parent-categories-selector-categories-parents-value': "#{categories_parents.to_json}",
+        'data-parent-categories-selector-target': "chips") do
+          hidden_field_tag(field_name) +
+          categories.map do |category|
+            content_tag(:div, 'data-action': 'click->parent-categories-selector#check') do
+              category_chip_component(id: category[:acronym], name: field_name,
+                                      object: category, value: category[:id],
+                                      checked: ontology.hasDomain&.any? { |x| x.eql?(category[:id]) })
+              end
+            end.join.html_safe
+        end
       end
+    }
+
+    return input_field.call unless inline_save?
+
+    tag.div(class: 'd-flex w-100 mb-3') do
+      html = tag.div(class: 'flex-grow-1 mr-1') do
+        input_field.call
+      end
+      html += tag.div(class: 'd-flex') do
+        (save_button(attribute: 'hasDomain') + cancel_button(cancel_link(attribute: 'hasDomain'))).html_safe
+      end
+      html
     end
   end
 
@@ -157,20 +172,24 @@ module SubmissionInputsHelper
     ontologies = get_theme_taxonomy_ontologies || []
     resolved_subjects = []
     attr.values.each do |subject|
-      resolved_subjects << {value: subject, label: resolve_subject_uri(subject, ontologies)[:text]} 
+      resolved_subjects << {value: subject, label: resolve_subject_uri(subject, ontologies)[:text]}
     end
-    output = render(TurboFrameComponent.new(id: "submission#{attr}_from_group_input")) do
+    render(TurboFrameComponent.new(id: "submission#{attr_key}_from_group_input")) do
       tag.div(class: 'd-flex w-100 mb-3') do
         html = tag.div(class: 'flex-grow-1 mr-1') do
           render Input::InputFieldComponent.new(name: '', label: attr_header_label(attr, label, show_tooltip: true), error_message: attribute_error(attr_key.to_sym)) do
             render SubjectsSearchInputComponent.new(attr: attr, attr_key: attr_key, values: resolved_subjects, ontologies: ontologies)
           end
         end
+
+        if inline_save?
+          html += tag.div(class: 'd-flex') do
+            (save_button(attribute: 'subjects') + cancel_button(cancel_link(attribute: 'subjects'))).html_safe
+          end
+        end
         html
       end
     end
-
-    return output
   end
 
   def ontology_skos_language_help

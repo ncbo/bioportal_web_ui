@@ -103,6 +103,10 @@ class SubmissionsController < ApplicationController
       'Expires' => '0'
     }
     if params[:submission].nil?
+      if params[:attribute] && @ontology
+        @submission = @ontology.explore.submissions({ display: 'submissionId' }, submission_id)
+        return render_submission_attribute(params[:attribute])
+      end
       return redirect_to edit_ontology_submission_path(acronym), headers: headers, notice: t('submissions.submission_updated_successfully')
     end
 
