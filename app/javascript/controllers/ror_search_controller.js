@@ -29,6 +29,11 @@ export default class extends Controller {
             return
         }
 
+        if (this.lastSelectedName && query === this.lastSelectedName) {
+            this.hideResults()
+            return
+        }
+
         fetch(`${this.apiUrlValue}?query=${encodeURIComponent(query)}`)
             .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
             .then(data => this.renderResults(data.items || []))
@@ -91,11 +96,15 @@ export default class extends Controller {
         const rorId = item.id || ""
 
         const finalName = englishName || this.#rorDisplayName(item) || acronym
-        if (finalName) this.#setValue(this.nameInputTarget, finalName)
+        if (finalName) {
+            this.lastSelectedName = finalName.trim()
+            this.#setValue(this.nameInputTarget, finalName)
+        }
         if (this.hasAcronymInputTarget && acronym) this.#setValue(this.acronymInputTarget, acronym)
         if (this.hasHomepageInputTarget && homepage) this.#setValue(this.homepageInputTarget, homepage)
         if (this.hasIdentifierInputTarget && rorId) this.#setValue(this.identifierInputTarget, rorId)
 
+        this.nameInputTarget.blur()
         this.hideResults()
     }
 
