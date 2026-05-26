@@ -20,7 +20,7 @@ module Admin::UsersHelper
     safe_join([
       link_to('Detail', "/accounts/#{username}", class: 'mx-1'),
       link_to('Delete', 'javascript:;', class: 'delete-user mx-1', data: { account_name: username }),
-      link_to('Login as', "/login_as/#{ERB::Util.url_encode(username)}", class: 'mx-1')
+      link_to('Login as', login_as_path(username: username), class: 'mx-1')
     ], '|')
   end
 

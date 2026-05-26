@@ -45,7 +45,7 @@ class LoginController < ApplicationController
       return
     end
 
-    user = params[:login_as]
+    user = params[:username]
     new_user = LinkedData::Client::Models::User.find_by_username(user).first
 
     if new_user

@@ -144,7 +144,7 @@ Rails.application.routes.draw do
   get '/lost_pass' => 'login#lost_password'
   get '/reset_password' => 'login#reset_password'
   post '/accounts/:id/custom_ontologies' => 'users#custom_ontologies', :as => :custom_ontologies
-  get '/login_as/:login_as' => 'login#login_as', constraints: { login_as:  /[\d\w\.\-\%\+ ]+/ }
+  get '/login_as/*username' => 'login#login_as', as: :login_as, format: false
   post '/login/send_pass', to: 'login#send_pass'
   get 'password', to: 'passwords#edit', as: :edit_password
   patch 'password', to: 'passwords#update'
