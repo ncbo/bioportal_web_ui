@@ -776,7 +776,7 @@ function showOntologiesToggleLinks(problemOnly) {
 jQuery(".admin.index").ready(function() {
   // display ontologies table on load
   displayOntologies({}, DUMMY_ONTOLOGY);
-  displayUsers({});
+  displayUsers();
   UpdateCheck.act();
 
   // make sure facebox window is empty before populating it
@@ -897,62 +897,37 @@ jQuery(".admin.index").ready(function() {
 
 
 /* users part */
-function populateUserRows(data) {
-    let users = data['users'];
-    let allRows = [];
-    // let hideFields = ["format", "administeredBy", "date_created", "report_date_updated", "errErrorStatus", "errMissingStatus", "problem", "logFilePath"];
-    users.forEach(user =>{
-        let id = '<a href="'+ user['@id']+'" >' + user['@id'] + '</a>';
-        let email = user['email'];
-        let username = user['username'];
-        let roles = user['role'];
-        let firstname = user['firstName']
-        let lastname = user['lastName']
-        let created = user['created']
-        let actions = [
-            '<a href="/accounts/'+ user['username'] +'"  class="mx-1">Detail</a>' ,
-            '<a href="javascript:;" class="delete-user mx-1" data-account-name="' + username + '">Delete</a>',
-            '<a href="/login_as/'+ encodeURIComponent(username) +'" class="mx-1">Login as</a>',
-
-        ]
-        let row = [firstname, lastname, username, email , roles , id , created , actions.join('|')];
-        allRows.push(row);
-    })
-
-    return allRows;
-}
-
-function displayUsers(data) {
-    let ontTable = null;
-    let allRows
+function displayUsers() {
     if (jQuery.fn.dataTable.isDataTable('#adminUsers')) {
-        ontTable = jQuery('#adminUsers').DataTable();
+        return jQuery('#adminUsers').DataTable();
+    }
 
-        if (ontology === DUMMY_ONTOLOGY) {
-            // refreshing entire table
-            allRows = populateUserRows(data);
-            ontTable.clear();
-            ontTable.rows.add(allRows);
-            ontTable.draw();
-        } else {
-            // refreshing individual row
-        }
-    } else {
-        ontTable = jQuery("#adminUsers").DataTable({
+    return jQuery("#adminUsers").DataTable({
+            "serverSide": true,
             "ajax": {
                 "url": "/admin/users",
                 "contentType": "application/json",
-                "dataSrc": function (json) {
-                    return populateUserRows(json);
+                "data": function (d) {
+                    var columnToAttr = ['firstName', 'lastName', 'username', 'email', 'role', null, 'created', null];
+                    var params = {
+                        draw: d.draw,
+                        page: Math.floor(d.start / d.length) + 1,
+                        pagesize: d.length,
+                        search: d.search.value
+                    };
+                    if (d.order && d.order.length) {
+                        var attr = columnToAttr[d.order[0].column];
+                        if (attr) {
+                            params.sortby = attr;
+                            params.order = d.order[0].dir;
+                        }
+                    }
+                    return params;
                 }
             },
             "rowCallback": function(row, data, index) {
-                var acronym = jQuery('td:nth-child(3)', row).text();
-
-                jQuery(row).attr("id", "tr_" + acronym);
-                if (data[data.length - 1] === true) {
-                    jQuery(row).addClass("problem");
-                }
+                var username = jQuery('td:nth-child(3)', row).text();
+                jQuery(row).attr("id", "tr_" + username);
             },
             "initComplete": function(settings, json) {
             },
@@ -1013,11 +988,10 @@ function displayUsers(data) {
             "paging": true,
             "pageLength": 100,
             "ordering": true,
+            "order": [[2, "asc"]],
             "responsive": true,
             "stripeClasses": ["", "alt"],
         });
-    }
-    return ontTable;
 }
 
 function DeleteUsers(user) {

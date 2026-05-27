@@ -12,8 +12,6 @@ class AdminController < ApplicationController
   REPORT_NEVER_GENERATED = 'NEVER GENERATED'
 
   def index
-    @users = LinkedData::Client::Models::User.all
-
     if session[:user].nil? || !session[:user].admin?
       redirect_to controller: 'login', action: 'index', redirect: '/admin'
     else
@@ -305,33 +303,41 @@ class AdminController < ApplicationController
   end
 
   def _users
-    response = { users: [], errors: '', success: '' }
-    start = Time.now
-    begin
-      # /users now always returns a paged response. Walk nextPage links and
-      # concatenate `collection` so the frontend keeps receiving a flat array.
-      # The is_a?(Hash) branch tolerates the legacy flat-array shape in case
-      # we ever hit an older API.
-      users = []
-      page = 1
-      loop do
-        raw = JSON.parse(LinkedData::Client::HTTP.get(USERS_URL, { include: 'all', pagesize: 5000, page: page }, raw: true))
-        if raw.is_a?(Hash) && raw['collection'].is_a?(Array)
-          users.concat(raw['collection'])
-          break unless raw['nextPage']
-          page = raw['nextPage']
-        else
-          users = raw
-          break
-        end
-      end
-      response[:users] = users
+    start_time = Time.now
+    page = (params[:page].presence || 1).to_i
+    pagesize = (params[:pagesize].presence || 100).to_i
+    search = params[:search].presence
+    draw = params[:draw].to_i
 
-      response[:success] = "users successfully retrieved in  #{Time.now - start}s"
-      Log.add :debug, "Users - retrieved #{response[:users].length} users in #{Time.now - start}s"
-    rescue StandardError => e
-      response[:errors] = "Problem retrieving users  - #{e.message}"
+    api_params = { include: 'all', page: page, pagesize: pagesize }
+    if search
+      api_params[:search] = search
+      api_params[:search_fields] = 'all'
     end
-    response
+    api_params[:sortby] = params[:sortby] if params[:sortby].presence
+    api_params[:order] = params[:order] if params[:order].presence
+
+    begin
+      raw = JSON.parse(LinkedData::Client::HTTP.get(USERS_URL, api_params, raw: true))
+      users = raw.is_a?(Hash) ? Array(raw['collection']) : Array(raw)
+      total = raw.is_a?(Hash) ? raw['totalCount'].to_i : users.length
+
+      Log.add :debug, "Users - retrieved page #{page} (#{users.length} of #{total}) in #{Time.now - start_time}s"
+
+      {
+        draw: draw,
+        recordsTotal: total,
+        recordsFiltered: total,
+        data: users.map { |user| helpers.user_datatable_row(user) }
+      }
+    rescue StandardError => e
+      {
+        draw: draw,
+        recordsTotal: 0,
+        recordsFiltered: 0,
+        data: [],
+        error: "Problem retrieving users - #{e.message}"
+      }
+    end
   end
 end
