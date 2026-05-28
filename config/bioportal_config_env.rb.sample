@@ -164,7 +164,7 @@ $FRONT_NOTICE = ''
 # EX: $SITE_NOTICE = { :unique_key => 'Put your message here (can include <a href="/link">html</a> if you use single quotes).' }
 $SITE_NOTICE = {}
 
-$TERMS_AND_CONDITIONS_LINK = 'https://doc.jonquetlab.lirmm.fr/share/e6158eda-c109-4385-852c-51a42de9a412/doc/terms-conditions-naDsDo2Zxq'
+$TERMS_AND_CONDITIONS_LINK = 'https://wiki.agroportal.eu/share/e6158eda-c109-4385-852c-51a42de9a412/doc/terms-conditions-naDsDo2Zxq'
 $CITE_ANNOTATOR = 'https://hal.science/hal-00492024'
 $ANNOTATOR_API_DOC = 'https://data.agroportal.lirmm.fr/documentation#nav_annotator'
 $CITE_RECOMMENDER = 'https://doi.org/10.1186/s13326-017-0128-y' 
@@ -299,7 +299,7 @@ $FOOTER_LINKS = {
   ],
   sections: {
     products: {
-      release_notes: "https://doc.jonquetlab.lirmm.fr/share/e6158eda-c109-4385-852c-51a42de9a412/doc/release-notes-btKjZk5tU2",
+      release_notes: "https://wiki.agroportal.eu/share/e6158eda-c109-4385-852c-51a42de9a412/doc/release-notes-btKjZk5tU2",
       api: "https://data.agroportal.lirmm.fr/",
       tools: "/tools",
       sparql: "https://sparql.agroportal.lirmm.fr/test/",
@@ -308,19 +308,19 @@ $FOOTER_LINKS = {
     support: {
       contact_us: "https://#{$SITE}.lirmm.fr/feedback",
       documentation: "https://ontoportal.github.io/documentation/",
-      agro_documentation: "https://doc.jonquetlab.lirmm.fr/share/e6158eda-c109-4385-852c-51a42de9a412/doc/public-documentation-QMpsC9aVBb",
+      agro_documentation: "https://wiki.agroportal.eu/share/e6158eda-c109-4385-852c-51a42de9a412/doc/public-documentation-QMpsC9aVBb",
       issues_and_requests: $GITHUB_ISSUES 
     },
     agreements: {
       terms: $TERMS_AND_CONDITIONS_LINK,
-      privacy_policy: "https://doc.jonquetlab.lirmm.fr/share/e6158eda-c109-4385-852c-51a42de9a412/doc/terms-conditions-naDsDo2Zxq",
-      legal_notices: "https://doc.jonquetlab.lirmm.fr/share/e6158eda-c109-4385-852c-51a42de9a412/doc/terms-conditions-naDsDo2Zxq"
+      privacy_policy: "https://wiki.agroportal.eu/share/e6158eda-c109-4385-852c-51a42de9a412/doc/terms-conditions-naDsDo2Zxq",
+      legal_notices: "https://wiki.agroportal.eu/share/e6158eda-c109-4385-852c-51a42de9a412/doc/terms-conditions-naDsDo2Zxq"
     },
     about: {
       about_us: "https://github.com/agroportal/project-management",
       team: "https://github.com/orgs/agroportal/people",
-      cite_us: "https://doc.jonquetlab.lirmm.fr/share/e6158eda-c109-4385-852c-51a42de9a412/doc/publications-and-references-87tEoeoGKy",
-      acknowledgments: "https://doc.jonquetlab.lirmm.fr/share/e6158eda-c109-4385-852c-51a42de9a412/doc/acknowledgments-15GdRXLQdm"
+      cite_us: "https://wiki.agroportal.eu/share/e6158eda-c109-4385-852c-51a42de9a412/doc/publications-and-references-87tEoeoGKy",
+      acknowledgments: "https://wiki.agroportal.eu/share/e6158eda-c109-4385-852c-51a42de9a412/doc/acknowledgments-15GdRXLQdm"
     }
   }
 }

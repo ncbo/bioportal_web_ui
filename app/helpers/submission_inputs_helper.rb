@@ -194,7 +194,7 @@ module SubmissionInputsHelper
 
   def ontology_skos_language_help
     content_tag(:div, class: 'upload-ontology-desc has_ontology_language_input') do
-      link = link_to(t('submission_inputs.ontology_skos_language_link'), "https://doc.jonquetlab.lirmm.fr/share/618372fb-a852-4f3e-8e9f-8b07ebc053e6", target: "_blank")
+      link = link_to(t('submission_inputs.ontology_skos_language_link'), "https://wiki.agroportal.eu/share/618372fb-a852-4f3e-8e9f-8b07ebc053e6", target: "_blank")
       text = t('submission_inputs.ontology_skos_language_help', portal_name: portal_name, link: link)
       text.html_safe
     end
