@@ -1,23 +1,33 @@
-%div.px-3.py-3.pt-md-5.pb-md-4.text-center
-  %h1.display-4
-    = t('statistics.title', portal: portal_name)
-    %p.lead
-      = t('statistics.lead', last_years: Date.today.year - Date.parse(@merged_data[:labels].first).year)
-%div.container
-  %div
-    = chart_component(title: nil, type: 'line', show_legend: true, 
-                      labels: @merged_data[:labels], datasets: visits_chart_dataset_array({ t('statistics.ontologies') => @merged_data[:visits][2], 
-                      t('statistics.users') => @merged_data[:visits][0], t('statistics.projects') => @merged_data[:visits][1] }, fill: false))
+.container.d-flex.flex-column.py-4{ style: "width: 1248px;" }
+  .d-flex.justify-content-between
+    = render PageHeaderComponent.new(title: t('statistics.title', portal: portal_name), description: t('statistics.description', portal: portal_name, last_years: Date.today.year - Date.parse(@merged_data[:labels].first).year))
+  .statistics-kpi-grid
+    - statistics_kpi_cards(@merged_data).each do |kpi|
+      .statistics-kpi-card{ style: "--kpi-color: #{kpi[:color]};" }
+        .statistics-kpi-label= kpi[:label]
+        .statistics-kpi-value= number_with_delimiter(kpi[:total])
+        - if kpi[:delta] > 0
+          .statistics-kpi-delta.up
+            = "+#{number_with_delimiter(kpi[:delta])} #{t('statistics.this_month')}"
+        - elsif kpi[:delta] < 0
+          .statistics-kpi-delta.down
+            = "#{number_with_delimiter(kpi[:delta])} #{t('statistics.this_month')}"
+  - series = [{ key: :ontologies, label: t('statistics.ontologies'), data: @merged_data[:visits][2], cumulative: true }, { key: :users, label: t('statistics.users'), data: @merged_data[:visits][0], cumulative: true }, { key: :projects, label: t('statistics.projects'), data: @merged_data[:visits][1], cumulative: true }, { key: :agents, label: t('statistics.agents'), data: @merged_data[:visits][3], cumulative: true, hidden: true }]
+  .statistics-chart-container
+    = chart_component(title: nil, type: 'line', show_legend: true,
+                      labels: @merged_data[:labels],
+                      datasets: statistics_chart_datasets(series))
 
   %div.pb-3.pb-md-4
     - size = @merged_data[:labels].size - 1
     - visits =  @year_month_visits
-    = render TableComponent.new(id: 'statistics_table') do |t|
+    = render TableComponent.new(id: 'statistics_table', paging: true, sort_column: '0', no_init_sort: true, show_all: true) do |t|
       - t.header do |h|
         - h.th {t('statistics.date')}
         - h.th {t('statistics.ontologies')}
         - h.th {t('statistics.users')}
         - h.th {t('statistics.projects')}
+        - h.th {t('statistics.agents')}
         - h.th {t('statistics.ontology_visits')}
 
       - @merged_data[:labels].reverse.each_with_index  do |year_month, i|
@@ -26,6 +36,7 @@
           - r.td {@merged_data[:visits][2][size - i].to_s}
           - r.td {@merged_data[:visits][0][size - i].to_s}
           - r.td {@merged_data[:visits][1][size - i].to_s}
+          - r.td {@merged_data[:visits][3][size - i].to_s}
           - r.td do
             - year = Date.parse(year_month).year
             - month = Date.parse(year_month).month

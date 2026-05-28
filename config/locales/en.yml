@@ -1524,11 +1524,14 @@ en:
     show_advanced_options: Show options
   show_advanced_options: Show advanced options
   statistics:
+    agents: Agents
     date: Date
+    description: "Evolution of resources in %{portal} through numbers (last %{last_years} years)."
     lead: "(last %{last_years} years)"
     ontologies: Ontologies
     ontology_visits: Ontology visits
     projects: Projects
+    this_month: this month
     title: "%{portal} Statistics"
     users: Users
   submission_inputs:

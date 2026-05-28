@@ -1574,11 +1574,14 @@ fr:
     show_advanced_options: Afficher les options
   show_advanced_options: Afficher les options avancées
   statistics:
+    agents: Agents
     date: Date
+    description: "Évolution des ressources de %{portal} en chiffres (dernières %{last_years} années)."
     lead: "(dernières %{last_years} années)"
     ontologies: Ontologies
     ontology_visits: Visites de l'ontologie
     projects: Projets
+    this_month: ce mois-ci
     title: Statistiques de %{portal}
     users: Utilisateurs
   submission_inputs:
