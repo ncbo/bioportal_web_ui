@@ -119,12 +119,14 @@
         %p.register-input-title
           = t('users.edit.new_password')
           %font{:color => "red"} *
-        = password_field :user, :password, class: "register-input-long"
+        .password-toggle-wrapper.mb-3{data: { controller: "password-toggle" }}
+          = password_field :user, :password, class: "register-input-long mb-0"
 
         %p.register-input-title
           = t('users.edit.confirm_password')
           %font{:color => "red"} *
-        = password_field :user, :password_confirmation, class: "register-input-long"
+        .password-toggle-wrapper.mb-3{data: { controller: "password-toggle" }}
+          = password_field :user, :password_confirmation, class: "register-input-long mb-0"
       %br
       = render Buttons::RegularButtonComponent.new(id: 'update-button', value: "Save", type:'submit')
       - unless params[:password].eql?("true")

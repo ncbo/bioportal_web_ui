@@ -42,11 +42,13 @@
     %p.register-input-title
       = t('register.password')
       %font{:color => "red"} *
-    = password_field :user, :password, class: "register-input-long"
+    .password-toggle-wrapper.mb-3{data: { controller: "password-toggle" }}
+      = password_field :user, :password, class: "register-input-long mb-0"
     %p.register-input-title
       = t('register.confirm_password')
       %font{:color => "red"} *
-    = password_field :user, :password_confirmation, class: "register-input-long"
+    .password-toggle-wrapper.mb-3{data: { controller: "password-toggle" }}
+      = password_field :user, :password_confirmation, class: "register-input-long mb-0"
     - if using_captcha?
       = recaptcha_tags
     .d-flex

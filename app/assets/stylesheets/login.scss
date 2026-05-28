@@ -61,3 +61,33 @@
 .login-active-sso path{
     fill: var(--primary-color)
 }
+
+.password-toggle-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.password-toggle-wrapper input {
+    margin-bottom: 0;
+    box-sizing: border-box;
+    padding-right: 40px;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #8f8f8f;
+    display: flex;
+    align-items: center;
+    line-height: 0;
+}
+
+.password-toggle-btn:hover {
+    color: var(--primary-color);
+}

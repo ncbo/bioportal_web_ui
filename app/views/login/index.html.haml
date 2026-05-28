@@ -11,7 +11,8 @@
       %p.login-input-title= t('login.username_or_email')
       = text_field 'user', 'username', class: "login-input email-input", placeholder: t('login.enter_email')
       %p.login-input-title= t('login.password')
-      = password_field 'user','password', :autocomplete => "off", class: "login-input password-input", placeholder:  t('login.enter_password')
+      .password-toggle-wrapper.password-input{data: { controller: "password-toggle" }}
+        = password_field 'user','password', :autocomplete => "off", class: "login-input mb-0", placeholder:  t('login.enter_password')
       %a.login-forgot-password{:href => "/lost_pass"}
         %p= t('login.forgot_password')
       .login-button-container
