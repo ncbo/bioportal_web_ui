@@ -1,5 +1,13 @@
 module MappingsHelper
 
+  def mappings_rest_url(ontologies = nil, display = nil)
+    url = rest_url + mappings_path
+    params = []
+    params << "ontologies=#{ontologies}" if ontologies
+    params << "display=#{display}" if display
+    url + (params.any? ? "?#{params.join('&')}" : '')
+  end
+
   # Used to replace the full URI by the prefixed URI
   RELATIONSHIP_PREFIX = {
     'http://www.w3.org/2004/02/skos/core#' => 'skos:',

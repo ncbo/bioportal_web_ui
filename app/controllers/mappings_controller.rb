@@ -132,7 +132,8 @@ class MappingsController < ApplicationController
     end
 
     ontologies = [ontology_acronym, target_acronym]
-    @mapping_pages = LinkedData::Client::HTTP.get("#{MAPPINGS_URL}", { page: page, ontologies: ontologies.join(',') })
+    @ontologies_param = ontologies.join(',')
+    @mapping_pages = LinkedData::Client::HTTP.get("#{MAPPINGS_URL}", { page: page, ontologies: @ontologies_param })
     not_found(@mapping_pages.errors) if @mapping_pages.respond_to?(:errors)
     @mappings = @mapping_pages.collection
     @delete_mapping_permission = check_delete_mapping_permission(@mappings)

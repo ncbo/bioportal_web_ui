@@ -1,4 +1,7 @@
 = render_in_modal do
+  .d-flex.justify-content-end.mb-2
+    - link, target = api_button_link_and_target(mappings_rest_url(@ontologies_param))
+    = render RoundedButtonComponent.new(link: link, target: target, size: 'medium', title: t("components.go_to_api"))
   #mappings.paginate_ajax{:style => "overflow: auto; max-height: 600px;"}
     #mapping_results
       .mappings-table-pagination
