@@ -221,6 +221,7 @@ class OntologiesController < ApplicationController
   end
 
   def sparql
+    @sparql_submission = latest_rdf_submission(@ontology) || @submission_latest
     if request.xhr?
       render partial: 'ontologies/sections/sparql', layout: false
     else
@@ -284,8 +285,8 @@ class OntologiesController < ApplicationController
 
 
     unless helpers.submission_ready?(@submission_latest)
-      submissions = @ontology.explore.submissions(include: 'submissionId,submissionStatus')
-      if submissions.any?{|x| helpers.submission_ready?(x)}
+      @ontology_submissions = @ontology.explore.submissions(include: 'submissionId,submissionStatus')
+      if @ontology_submissions.any?{|x| helpers.submission_ready?(x)}
         @old_submission_ready = true
       elsif !params[:p].blank?
         params[:p] = "summary"
@@ -572,6 +573,17 @@ class OntologiesController < ApplicationController
     return {} if sub.nil?
 
     properties.map { |x| [x.to_s, [sub.send(x.to_s), custom_labels[x.to_sym]]] }.to_h
+  end
+
+  def latest_rdf_submission(ontology)
+    return @submission_latest if helpers.submission_ready?(@submission_latest)
+
+    submissions = @ontology_submissions || ontology.explore.submissions(include: 'submissionId,submissionStatus') || []
+    submissions
+      .select { |s| Array(s.submissionStatus).include?('RDF') }
+      .max_by { |s| s.submissionId.to_i }
+  rescue StandardError
+    nil
   end
 
 

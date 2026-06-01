@@ -1,4 +1,5 @@
 = render TurboFrameComponent.new(id: "sparql", data: {"turbo-frame-target": "frame"} ) do
   - if @ontology.private?
     = render Display::AlertComponent.new(type:'warning', closable: false, message: t('sparql_endpoint.private_ontology_warning'))
-  = sparql_query_container(graph: @submission_latest.id.gsub($REST_URL, 'http://data.bioontology.org'), sample_queries: @ontology.sampleQueries || [])
+  - sparql_submission = @sparql_submission || @submission_latest
+  = sparql_query_container(graph: sparql_submission.id.gsub($REST_URL, 'http://data.bioontology.org'), sample_queries: @ontology.sampleQueries || [])
