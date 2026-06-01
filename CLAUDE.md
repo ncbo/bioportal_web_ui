@@ -144,6 +144,14 @@ docker compose run test bin/rails test:system
 
 ### Notes
 
+- **Minitest must stay on the 5.x series while on Rails 8.0.x.** Minitest 6.x
+  changed `run_suite`'s calling convention, which is incompatible with the Rails
+  8.0.x test runner (`railties` `test_unit/line_filtering`) and crashes
+  `bin/rails test` before any test runs (`wrong number of arguments` in
+  `line_filtering.rb`). The `Gemfile` pins `minitest ~> 5.25`; don't let it float
+  to 6.x. To verify app behavior when the harness is wedged, `rails runner` can
+  exercise code paths (helpers via `ApplicationController.helpers`, views via
+  `ApplicationController.render(template:, layout: false)`) without Minitest.
 - The session store uses `CacheStore` (memcached), so the test environment
   needs `config.cache_store = :memory_store` (not `:null_store`) for flash
   and session data to persist across redirects
