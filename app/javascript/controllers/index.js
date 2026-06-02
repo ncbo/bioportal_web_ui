@@ -57,3 +57,6 @@ application.register("submissions-list", SubmissionsListController)
 
 import OntologyDeleteController from "./ontology_delete_controller"
 application.register("ontology-delete", OntologyDeleteController)
+
+import MappingCountTableController from "./mapping_count_table_controller"
+application.register("mapping-count-table", MappingCountTableController)
