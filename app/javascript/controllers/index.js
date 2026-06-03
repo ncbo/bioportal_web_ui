@@ -63,3 +63,6 @@ application.register("mapping-count-table", MappingCountTableController)
 
 import ProjectsTableController from "./projects_table_controller"
 application.register("projects-table", ProjectsTableController)
+
+import AnnotatorTableController from "./annotator_table_controller"
+application.register("annotator-table", AnnotatorTableController)
