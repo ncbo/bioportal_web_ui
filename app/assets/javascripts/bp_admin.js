@@ -283,7 +283,7 @@ AjaxAction.prototype.onSuccessActionLongOperation = function(data, ontology) {
 
 AjaxAction.prototype.setSelectedOntologies = function() {
   var acronyms = '';
-  var ontTable = jQuery('#adminOntologies').DataTable();
+  var ontTable = new DataTable('#adminOntologies');
   ontTable.rows('.selected').every(function() {
     var trId = this.node().id;
     acronyms += trId.substring("tr_".length) + ",";
@@ -400,7 +400,7 @@ function DeleteOntologies() {
 DeleteOntologies.prototype = Object.create(AjaxAction.prototype);
 DeleteOntologies.prototype.constructor = DeleteOntologies;
 DeleteOntologies.prototype.onSuccessAction = function(data, ontology, deferredObj) {
-  var ontTable = jQuery('#adminOntologies').DataTable();
+  var ontTable = new DataTable('#adminOntologies');
   // remove ontology row from the table
   ontTable.row(jQuery("#tr_" + ontology)).remove().draw();
 };
@@ -629,8 +629,8 @@ function _showStatusMessages(success, errors, notices, isAppendMode) {
 function displayOntologies(data, ontology) {
   var ontTable = null;
 
-  if (jQuery.fn.dataTable.isDataTable('#adminOntologies')) {
-    ontTable = jQuery('#adminOntologies').DataTable();
+  if (DataTable.isDataTable('#adminOntologies')) {
+    ontTable = new DataTable('#adminOntologies');
 
     if (ontology === DUMMY_ONTOLOGY) {
       // refreshing entire table
@@ -651,7 +651,7 @@ function displayOntologies(data, ontology) {
       jQueryRow.removeClass('selected');
     }
   } else {
-    ontTable = jQuery("#adminOntologies").DataTable({
+    ontTable = new DataTable('#adminOntologies', {
       "ajax": {
         "url": "/admin/ontologies_report",
         "contentType": "application/json",
@@ -672,8 +672,6 @@ function displayOntologies(data, ontology) {
           _showStatusMessages([], [json.errors], [], false);
         }
         setDateGenerated(json);
-        // Keep header at top of table even when scrolling
-        // new jQuery.fn.dataTable.FixedHeader(ontTable);
       },
       "columnDefs": [
         {
@@ -821,7 +819,7 @@ jQuery(".admin.index").ready(function() {
   `);
 
   // toggle between all and problem ontologies
-  jQuery.fn.dataTable.ext.search.push(
+  DataTable.ext.search.push(
     function(settings, data, dataIndex) {
       if (!settings.oInit.customAllowOntologiesFilter) {
         return true;
@@ -838,7 +836,7 @@ jQuery(".admin.index").ready(function() {
   // for toggling between all and problem ontologies
   jQuery(".toggle-row-display a").live("click", function() {
     toggleShow(!problemOnly);
-    jQuery("#adminOntologies").DataTable().draw();
+    new DataTable('#adminOntologies').draw();
     str = showOntologiesToggleLinks(problemOnly);
     jQuery(".toggle-row-display").html(str);
     return false;
@@ -898,11 +896,11 @@ jQuery(".admin.index").ready(function() {
 
 /* users part */
 function displayUsers() {
-    if (jQuery.fn.dataTable.isDataTable('#adminUsers')) {
-        return jQuery('#adminUsers').DataTable();
+    if (DataTable.isDataTable('#adminUsers')) {
+        return new DataTable('#adminUsers');
     }
 
-    return jQuery("#adminUsers").DataTable({
+    return new DataTable('#adminUsers', {
             "serverSide": true,
             "ajax": {
                 "url": "/admin/users",
@@ -1002,7 +1000,7 @@ function DeleteUsers(user) {
 DeleteUsers.prototype = Object.create(AjaxAction.prototype);
 DeleteUsers.prototype.constructor = DeleteUsers;
 DeleteUsers.prototype.onSuccessAction = function(username) {
-    let ontTable = jQuery('#adminUsers').DataTable();
+    let ontTable = new DataTable('#adminUsers');
     ontTable.row(jQuery("#tr_" + username)).remove().draw();
 };
 
