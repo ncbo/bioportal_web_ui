@@ -66,3 +66,6 @@ application.register("projects-table", ProjectsTableController)
 
 import AnnotatorTableController from "./annotator_table_controller"
 application.register("annotator-table", AnnotatorTableController)
+
+import AnnotatorPlusTableController from "./annotator_plus_table_controller"
+application.register("annotator-plus-table", AnnotatorPlusTableController)
