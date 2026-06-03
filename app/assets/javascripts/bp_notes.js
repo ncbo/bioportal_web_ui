@@ -172,8 +172,8 @@ function addNote(button, note) {
     jQuery("a#concept_"+id).facebox();
   }
   // Add note to main table
-  if (typeof ontNotesTable !== "undefined") {
-    ontNotesTable.fnAddData(noteRow);
+  if (typeof ontNotesTable !== "undefined" && ontNotesTable) {
+    ontNotesTable.row.add(noteRow).draw();
   }
   jQuery("a#"+id).facebox();
 }
@@ -349,33 +349,9 @@ function subscribeToNotes(button) {
 function hideOrUnhideArchivedOntNotes() {
   if (jQuery("#hide_archived_ont:checked").val() !== undefined) {
     // Checked
-    ontNotesTable.fnFilter('false', ont_columns.archived);
+    ontNotesTable.column(ont_columns.archived).search('false').draw();
   } else {
     // Unchecked
-    ontNotesTable.fnFilter('', ont_columns.archived, true, false);
+    ontNotesTable.column(ont_columns.archived).search('', true, false).draw();
   }
-}
-
-function wireOntTable(ontNotesTableNew) {
-  jQuery.data(document.body, "ontology_id", "#{@ontology.acronym}");
-
-  ontNotesTable = ontNotesTableNew;
-  ontNotesTable.dataTable({
-    "iDisplayLength": 50,
-    "sPaginationType": "full_numbers",
-    "aaSorting": [[ont_columns.date, 'desc']],
-    "aoColumns": [
-      { "bVisible": false }, // Delete
-      { "iDataSort": ont_columns.subjectSort }, // Subject link
-      { "bVisible": false }, // Subject for sort
-      { "bVisible": false }, // Archived for filter
-      null, // Author
-      null, // Type
-      null, // Target
-      null // Created
-    ],
-  });
-  // Important! Table is somehow getting set to zero width. Reset here.
-  jQuery(ontNotesTable).css("width", "100%");
-  ontNotesTable.fnFilter('false', ont_columns.archived);
 }

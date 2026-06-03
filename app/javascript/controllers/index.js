@@ -69,3 +69,6 @@ application.register("annotator-table", AnnotatorTableController)
 
 import AnnotatorPlusTableController from "./annotator_plus_table_controller"
 application.register("annotator-plus-table", AnnotatorPlusTableController)
+
+import OntologyNotesTableController from "./ontology_notes_table_controller"
+application.register("ontology-notes-table", OntologyNotesTableController)
