@@ -13,6 +13,9 @@ threads min_threads_count, max_threads_count
 rails_env = ENV.fetch("RAILS_ENV") { "development" }
 environment rails_env
 
+# Log each request as it occurs.
+log_requests true
+
 if %w[production staging appliance].include?(rails_env)
 
   # Define Puma socket (for Nginx)
