@@ -12,7 +12,7 @@
         .inputs
           %div
             .annotator-page-text-area{'data-controller': 'sample-text'}
-              %textarea{rows: "7" , placeholder: t('annotator.input_hint'), name: "text",  maxlength: "500", 'data-sample-text-target': "input", 'data-annotator-target': 'input'}
+              %textarea{rows: "7" , placeholder: t('annotator.input_hint'), name: "text",  maxlength: "5000", 'data-sample-text-target': "input", 'data-annotator-target': 'input'}
                 = params[:text]
               = insert_sample_text_button(t('annotator.insert_sample_text'))
           .annotator-page-options
