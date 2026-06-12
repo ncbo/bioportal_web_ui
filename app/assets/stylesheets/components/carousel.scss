@@ -1,0 +1,90 @@
+.carousel,
+.fairness-carousel {
+  position: relative;
+
+  .carousel-viewport,
+  .fairness-carousel-viewport {
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  .carousel-track,
+  .fairness-carousel-track {
+    display: flex;
+    transition: transform 0.4s ease;
+
+    > * {
+      flex: 0 0 100%;
+      min-width: 0;
+    }
+  }
+
+  &.carousel--images {
+    > .carousel-track,
+    > .fairness-carousel-track {
+      > * {
+        padding: 0 32px;
+      }
+    }
+
+    .image-content {
+      width: 100%;
+      height: 300px;
+      object-fit: contain;
+    }
+  }
+
+  .carousel-btn,
+  .fairness-carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--primary-color);
+    background: white;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color ease 0.3s;
+
+    svg path {
+      stroke: var(--primary-color);
+      transition: stroke ease 0.3s;
+    }
+
+    .flip-x {
+      transform: scaleX(-1);
+    }
+
+    &:hover:not(.disabled) {
+      background-color: var(--primary-color);
+
+      svg path {
+        stroke: white;
+      }
+    }
+
+    &.disabled {
+      cursor: default;
+
+      svg {
+        opacity: 0.25;
+      }
+    }
+
+    &.carousel-btn-prev,
+    &.fairness-carousel-btn-prev {
+      left: -16px;
+    }
+
+    &.carousel-btn-next,
+    &.fairness-carousel-btn-next {
+      right: -16px;
+    }
+  }
+}

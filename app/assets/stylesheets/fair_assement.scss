@@ -153,69 +153,6 @@ $non_applicable_color :  rgba(176, 190, 197, 0.4);
   }
 }
 
-.fairness-carousel {
-  position: relative;
-
-  .fairness-carousel-viewport {
-    overflow: hidden;
-    border-radius: 8px;
-  }
-
-  .fairness-carousel-track {
-    display: flex;
-    transition: transform 0.4s ease;
-    > * {
-      flex: 0 0 100%;
-      min-width: 0;
-    }
-  }
-
-  .fairness-carousel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 1px solid var(--primary-color);
-    background: white;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color ease 0.3s;
-
-    svg path {
-      stroke: var(--primary-color);
-      transition: stroke ease 0.3s;
-    }
-
-    .flip-x {
-      transform: scaleX(-1);
-    }
-
-    &:hover:not(.disabled) {
-      background-color: var(--primary-color);
-      svg path { stroke: white; }
-    }
-
-    &.disabled {
-      cursor: default;
-      svg { opacity: 0.25; }
-    }
-
-    &.fairness-carousel-btn-prev {
-      left: -16px;
-    }
-
-    &.fairness-carousel-btn-next {
-      right: -16px;
-    }
-  }
-}
-
 .fair-section-head {
   display: flex;
   align-items: center;
