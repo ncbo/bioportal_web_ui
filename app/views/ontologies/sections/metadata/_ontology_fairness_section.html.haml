@@ -1,15 +1,13 @@
-- if fairness_service_enabled? && @ontology.acronym != 'AGROVOC' && @fair_scores_data
-  = render SummarySectionComponent.new(title: t("ontologies.sections.metadata.fair_score_title")) do |s|
-    - s.action_link do
-      = render partial: "fair_score/fair_service_header"
-
-    %div.p-2
-      %section.ont-metadata-card.ont-fair-score-card#fair-summary
-        %div.ont-section-toolbar.justify-content-between.flex-row-reverse
-          %div.align-items-start
-            .btn.btn-primary.rounded-pill.right-button
-              .span{ style: 'cursor: default;' }= t("ontologies.sections.metadata.total_score", score: @fair_scores_data[:score], normalized_score: @fair_scores_data[:normalizedScore])
-
-      %div#fair-score-charts-container
+- if fairness_service_enabled? && @fair_scores_data.present?
+  .summary-card
+    .fair-section-head
+      .d-flex.align-items-center
+        .fair-section-actions.mr-3
+          = image_tag "logos/ofaire.png", height: "43", class: "mr-2", style: "vertical-align: middle;"
+          = render partial: "fair_score/fair_service_header"
+      .btn.btn-primary.rounded-pill.right-button
+        .span{ style: 'cursor: default;' }= t("ontologies.sections.metadata.total_score", score: @fair_scores_data[:score], normalized_score: @fair_scores_data[:normalizedScore])
+    %section#fair-summary
+      %div#fair-score-charts-container{data: { error_message: t('fair_score.fairness_unreachable_warning') }}
         = render partial: "fairs_score"
       .account-page-card-sub-container

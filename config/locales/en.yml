@@ -508,6 +508,14 @@ en:
     send_feedback_button: Send a feedback
   fair_score:
     fairness_unreachable_warning: FAIRness assessment service unreachable
+    foops_unreachable_warning: FOOPS! assessment service unreachable
+    foops_description: 'FOOPS! (Ontology Pitfall Scanner for FAIR) assesses ontology
+      FAIRness by running checks against each FAIR principle (Findable, Accessible,
+      Interoperable, Reusable). Each check scores the ratio of passed vs total tests.
+      More details at: https://foops.linkeddata.es/'
+    description: 'The FAIR score evaluates how well this ontology follows the FAIR
+      principles (Findable, Accessible, Interoperable, Reusable). Two complementary
+      assessments are available: O''FAIRe and FOOPS!'
     go_to_api: Go to API
     metadata_properties: Metadata properties listed in the following are picked from
       %{mod_link}.

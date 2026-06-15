@@ -1,19 +1,22 @@
-- if @fair_scores_data
-  %div#fair-details.statistics_container.d-flex.flex-grow-1{data:{controller:"fair-score-summary"}}
-    %div.w-50
-      = render partial: "shared/fair_score_radar" , locals: {data: @fair_scores_data}
-    %div.w-50
-      = render partial: "shared/fair_score_bars" , locals: {data: @fair_scores_data}
-  %div.text-center
-    - text = " <span>#{t("ontologies.see_details")}</span>"
-    = link_to_modal(text.html_safe,
-                  "/ajax/fair_score/html/?ontologies=#{@ontology.acronym}",
-                  class: "btn",
-                  id:'fair-details-link',
-                  data: { show_modal_title_value: t("ontologies.fairness_assessment_questions"), show_modal_size_value: 'modal-xl' },
-                  )
-- else
-  %p.font-italic= t("ontologies.collecting_data", acronym: @ontology.acronym)
+- id_prefix ||= "ont-fair"
+- stimulus_controller ||= "fair-score-summary"
+- scores_data ||= @fair_scores_data
+%div.statistics_container.d-flex.flex-grow-1{id: "#{id_prefix}-details", data:{controller: stimulus_controller}}
+  %div.w-50
+    = render partial: "shared/fair_score_radar" , locals: {data: scores_data, id_prefix: id_prefix}
+  %div.w-50
+    = render partial: "shared/fair_score_bars" , locals: {data: scores_data, id_prefix: id_prefix}
+  - unless scores_data
+    %p.font-italic= t("ontologies.collecting_data", acronym: @ontology.acronym)
+%div.text-center
+  - text = " <span>#{t("ontologies.see_details")}</span>"
+  - combined_param = id_prefix == "ont-foops" ? "&foops=true" : ""
+  = link_to_modal(text.html_safe,
+                "/ajax/fair_score/html/?ontologies=#{@ontology.acronym}#{combined_param}",
+                class: "btn",
+                id:"#{id_prefix}-details-link",
+                data: { show_modal_title_value: t("ontologies.fairness_assessment_questions"), show_modal_size_value: 'modal-xl' },
+                )
 
 
 :javascript

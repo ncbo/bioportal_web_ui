@@ -1,4 +1,5 @@
-%canvas#ont-fair-scores-canvas{style:"display: block; box-sizing: border-box" ,
+- id_prefix ||= "ont-fair"
+%canvas{id: "#{id_prefix}-scores-canvas", style:"display: block; box-sizing: border-box" ,
     data: {
             labels: (data.nil? ? "[]" : data[:principles][:labels]),
             scores: (data.nil? ? "[]" : data[:principles][:normalizedScores]),

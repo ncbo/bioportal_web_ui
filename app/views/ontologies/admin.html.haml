@@ -19,7 +19,7 @@
     = render Layout::CardComponent.new do |c|
       = turbo_frame_tag "admin_submissions_frame", src: submissions_ontology_administration_path(@ontology.acronym), loading: "lazy" do
         .text-center.p-4
-          %i.fas.fa-spinner.fa-spin.me-2
+          %i.fas.fa-spinner.fa-spin.mr-2
           = t('ontologies.admin.submissions.loading')
 
   .admin-section

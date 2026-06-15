@@ -25,6 +25,9 @@ application.register("fair-score-landscape", FairScoreLandscapeController)
 import FairScoreSummaryController from "./fair_score_summary_controller"
 application.register("fair-score-summary", FairScoreSummaryController)
 
+import FoopsScoreSummaryController from "./foops_score_summary_controller"
+application.register("foops-score-summary", FoopsScoreSummaryController)
+
 import FormAutoCompleteController from "./form_auto_complete_controller"
 application.register("form-auto-complete", FormAutoCompleteController)
 
@@ -111,6 +114,9 @@ application.register("class-picker", ClassPickerController)
 
 import SubjectsController from "./subjects_controller.js"
 application.register("subjects", SubjectsController)
+
+import FairnessCarouselController from "./fairness_carousel_controller.js"
+application.register("fairness-carousel", FairnessCarouselController)
 
 import PasswordToggleController from "./password_toggle_controller.js"
 application.register("password-toggle", PasswordToggleController)

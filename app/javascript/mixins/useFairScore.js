@@ -38,7 +38,7 @@ class FairScoreChartContainer{
         this.requestHrefBase = (this.requestLink != null ?this.requestLink.attr("href") : "")
 
         this.fairSpinner = jQuery("<div id='fair-spinner-container' class='w-100 text-center'> <div class='spinner-grow'></div> </div>")
-        this.fairMsgErr =  jQuery("<div id='fair-msg-container' class='w-100 text-center'> We could not collect the data from the fairness service</div>")
+        this.fairMsgErr =  jQuery("<div id='fair-msg-container' class='w-100 text-center'>" + (this.fairChartsContainer.data('error-message') || 'We could not collect the data from the fairness service') + "</div>")
         this.fairMsgErr.hide()
         this.fairChartsContainer.before(this.fairSpinner)
         this.fairChartsContainer.before(this.fairMsgErr)

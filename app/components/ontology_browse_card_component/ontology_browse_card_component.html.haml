@@ -19,7 +19,7 @@
             = t('components.show_more')
 
 
-          - unless ontology[:fairScore].nil? || ontology[:fairScore].zero? || ontology[:acronym] == 'AGROVOC'
+          - unless ontology[:fairScore].nil? || ontology[:fairScore].zero?
             .browse-fair
               %p.browse-fair-title
                 = t('components.fair_score')

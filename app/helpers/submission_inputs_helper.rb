@@ -171,7 +171,7 @@ module SubmissionInputsHelper
     attr = SubmissionMetadataInput.new(attribute_key: attr_key, submission: @submission, label: label, attr_metadata: attr_metadata(attr_key))
     ontologies = get_theme_taxonomy_ontologies || []
     resolved_subjects = []
-    attr.values.each do |subject|
+    Array(attr.values).each do |subject|
       resolved_subjects << {value: subject, label: resolve_subject_uri(subject, ontologies)[:text]}
     end
     render(TurboFrameComponent.new(id: "submission#{attr_key}_from_group_input")) do

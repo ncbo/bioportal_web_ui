@@ -222,6 +222,7 @@ Rails.application.routes.draw do
   get '/ajax/fair_score/html' => 'fair_score#details_html'
   get '/ajax/submission/show_licenses/:id' => 'ontologies#show_licenses'
   get '/ajax/fair_score/json' => 'fair_score#details_json'
+  get '/ajax/fair_score/foops_json' => 'fair_score#foops_json'
   get '/ajax/ontologies', to: 'ontologies#ajax_ontologies'
   get '/ajax/agents', to: 'agents#ajax_agents'
   get '/ajax/agents/list', to: 'agents#ajax_agents_list'

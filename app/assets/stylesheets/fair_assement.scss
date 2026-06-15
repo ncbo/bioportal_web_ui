@@ -125,3 +125,117 @@ $non_applicable_color :  rgba(176, 190, 197, 0.4);
 .nav-link.active{
   color: white !important;
 }
+
+.fairness-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0;
+
+  .fairness-tab {
+    padding: 6px 16px;
+    border: 1px solid var(--primary-color);
+    border-radius: 20px;
+    background: white;
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    &:hover:not(.active) {
+      opacity: 0.8;
+    }
+  }
+}
+
+.fairness-carousel {
+  position: relative;
+
+  .fairness-carousel-viewport {
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  .fairness-carousel-track {
+    display: flex;
+    transition: transform 0.4s ease;
+    > * {
+      flex: 0 0 100%;
+      min-width: 0;
+    }
+  }
+
+  .fairness-carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--primary-color);
+    background: white;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color ease 0.3s;
+
+    svg path {
+      stroke: var(--primary-color);
+      transition: stroke ease 0.3s;
+    }
+
+    .flip-x {
+      transform: scaleX(-1);
+    }
+
+    &:hover:not(.disabled) {
+      background-color: var(--primary-color);
+      svg path { stroke: white; }
+    }
+
+    &.disabled {
+      cursor: default;
+      svg { opacity: 0.25; }
+    }
+
+    &.fairness-carousel-btn-prev {
+      left: -16px;
+    }
+
+    &.fairness-carousel-btn-next {
+      right: -16px;
+    }
+  }
+}
+
+.fair-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 0 16px;
+
+  .fair-section-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
+  .fair-section-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+#fair-summary, #foops-summary {
+  padding: 0 16px 16px;
+}

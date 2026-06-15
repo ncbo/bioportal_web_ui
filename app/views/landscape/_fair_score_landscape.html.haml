@@ -33,7 +33,7 @@
       %div
         = t('landscape.fairness_interface_details')
   %div.card-body{data:{controller:"fair-score-landscape"}}
-    %div#fair-score-charts-container.row
+    %div#fair-score-charts-container.row{data: { error_message: t('fair_score.fairness_unreachable_warning') }}
       %div.col
         %span.text-secondary.mt-4
           = t('landscape.fairness_interface_hover_instruction')

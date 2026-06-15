@@ -25,13 +25,14 @@
                 - @fair_scores_data[:criteria][:questions][index].each do |question|
                   = link_to question[0], "#"+get_name_with_out_dot(question[0]), data: {turbo: false}, class: "nav-link my-1 ml-3 text-dark"
         %div.col-9#fair-details-content{style:"overflow: scroll;height: 70vh"}
-          %div.alert.alert-light
-            - mod_link =link_to t("fair_score.mod_link"), "https://github.com/sifrproject/MOD-Ontology"
-            - submission_link =link_to t("fair_score.see_the_used_properties"),@rest_uri, target: "_blank"
-            %div
-              = t("fair_score.metadata_properties", mod_link: "#{mod_link}").html_safe
-            %div
-              = t("fair_score.ontology_repository", mod_link: "#{mod_link}", submission_link: "#{submission_link}").html_safe
+          - unless @is_foops
+            %div.alert.alert-light
+              - mod_link =link_to t("fair_score.mod_link"), "https://github.com/sifrproject/MOD-Ontology"
+              - submission_link =link_to t("fair_score.see_the_used_properties"),@rest_uri, target: "_blank"
+              %div
+                = t("fair_score.metadata_properties", mod_link: "#{mod_link}").html_safe
+              %div
+                = t("fair_score.ontology_repository", mod_link: "#{mod_link}", submission_link: "#{submission_link}").html_safe
           %div{style:"margin-bottom:400px"}
             - @fair_scores_data[:criteria][:labels].each_with_index  do |label , index|
               %div.my-3.border{id:get_name_with_out_dot(label)}

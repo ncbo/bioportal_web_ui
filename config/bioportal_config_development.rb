@@ -53,6 +53,9 @@ $NCBO_API_KEY = ENV['NCBO_API_KEY']
 $FAIRNESS_DISABLED = ENV['FAIRNESS_DISABLED']
 $FAIRNESS_URL = ENV['FAIRNESS_URL']
 
+# FOOPS! FAIR assessment endpoint.
+$FOOPS_URL = ENV['FOOPS_URL'] || 'https://foops.linkeddata.es/assessOntology'
+
 # Used to define other bioportal that can be mapped to
 # Example to map to ncbo bioportal : {"ncbo" => {"api" => "http://data.bioontology.org", "ui" => "http://bioportal.bioontology.org", "apikey" => ""}
 # Then create the mapping using the following class in JSON : "http://purl.bioontology.org/ontology/MESH/C585345": "ncbo:MESH"
