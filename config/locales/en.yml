@@ -1541,9 +1541,9 @@ en:
     accounts_allowed: Add or remove accounts that are allowed to see this ontology
       in %{portal_name}.
     administrators: Administrators
-    contact: contact
-    contact_email: "%{name} Email"
-    contact_name: "%{name} Name"
+    contact: Contact
+    contact_email: "%{name} email"
+    contact_name: "%{name} name"
     deprecated_help: An ontology with status retired shall necessarily be also deprecated, but not the opposite.
     edit_metadata_instruction: Edit the metadata of your ontology here. Some of these
       values are used by %{portal_name} functionalities, including for FAIRness assessment.
