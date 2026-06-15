@@ -1678,6 +1678,7 @@ fr:
     modified: Modifié
     no_submissions_for_ontology: 'Aucune soumission pour l''ontologie : %{ontology}'
     save_button: Sauvegarder
+    submission: Soumission
     submission_updated_successfully: Soumission mise à jour
     submitted: Soumis
     toggle_dropdown: Basculer le menu déroulant

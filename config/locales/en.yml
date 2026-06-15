@@ -1628,6 +1628,7 @@ en:
     modified: Modified
     no_submissions_for_ontology: 'No submissions for ontology: %{ontology}'
     save_button: Save
+    submission: Submission
     submission_updated_successfully: Submission updated successfully
     submitted: Submitted
     toggle_dropdown: Toggle dropdown
