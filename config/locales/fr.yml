@@ -1591,7 +1591,7 @@ fr:
     accounts_allowed: Ajouter ou supprimer des comptes autorisés à voir cette ontologie
       dans %{portal_name}.
     administrators: Administrateurs
-    contact: Contact
+    contact: contact
     contact_email: Email de %{name}
     contact_name: Nom du %{name}
     deprecated_help: Une ontologie avec le statut retired (retirée) doit nécessairement être également deprecated (dépréciée), mais pas l'inverse.
