@@ -110,6 +110,9 @@ application.register('parent-categories-selector', ParentCategoriesSelectorContr
 import SubjectsController from "./subjects_controller.js"
 application.register("subjects", SubjectsController)
 
+import ClassPickerController from "./class_picker_controller.js"
+application.register("class-picker", ClassPickerController)
+
 import CarouselController from "./carousel_controller.js"
 application.register("carousel", CarouselController)
 
