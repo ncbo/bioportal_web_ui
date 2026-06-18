@@ -184,7 +184,7 @@ class SubmissionFlowsTest < ApplicationSystemTestCase
     # end
 
     submission_2.depiction.map do |d|
-      assert_selector "img[src=\"#{d}\"]"
+      assert_selector "img[src=\"#{d}\"]", visible: :all
     end
 
     assert_selector "img[src=\"#{submission_2.logo}\"]"
