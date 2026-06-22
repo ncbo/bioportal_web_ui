@@ -13,7 +13,6 @@
 //= require bioportal
 //= require admin/licenses
 //= require bp_ajax_controller
-//= require bp_notes
 //= require bp_form_complete
 //= require bp_create_mappings
 //= require bp_analytics
