@@ -61,6 +61,9 @@ application.register("ontology-delete", OntologyDeleteController)
 import MappingCountTableController from "./mapping_count_table_controller"
 application.register("mapping-count-table", MappingCountTableController)
 
+import RecommenderTableController from "./recommender_table_controller"
+application.register("recommender-table", RecommenderTableController)
+
 import ProjectsTableController from "./projects_table_controller"
 application.register("projects-table", ProjectsTableController)
 
