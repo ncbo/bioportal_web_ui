@@ -259,6 +259,17 @@ export default class extends Controller {
       id = { class: id, ontology: ontologyId };
     }
 
+    const payload = { parent: id, type: type, subject: subject, body: body, creator: user['id'] };
+
+    // Only attach a proposal when the user is actually creating one. A plain
+    // comment has no proposal form, so proposalMap() has no type; sending an
+    // empty/typeless proposal object makes the API 500 (it cannot build a
+    // Proposal without a valid type).
+    const proposal = this.proposalMap(button);
+    if (proposal.type) {
+      payload.proposal = proposal;
+    }
+
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
     fetch('/notes', {
       method: 'POST',
@@ -268,14 +279,7 @@ export default class extends Controller {
         'X-CSRF-Token': csrf,
         'X-Requested-With': 'XMLHttpRequest',
       },
-      body: JSON.stringify({
-        parent: id,
-        type: type,
-        subject: subject,
-        body: body,
-        proposal: this.proposalMap(button),
-        creator: user['id'],
-      }),
+      body: JSON.stringify(payload),
     })
       .then(async (r) => {
         const note = await r.json().catch(() => ({}));
