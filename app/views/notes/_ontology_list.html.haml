@@ -1,4 +1,4 @@
-.notes_list_container
+.notes_list_container{'data-controller': 'notes'}
   %div{class: 'd-inline-flex justify-content-between px-2'}
     .add_comment
       - if session[:user].nil?
@@ -87,22 +87,3 @@
                             data: { turbo_prefetch: false })
               %td
                 = DateTime.parse(note.created).strftime("%Y-%m-%d")
-:javascript
-  jQuery(".ontologies.show").ready(function(){
-    setupNotesFacebox()
-    setupNotesFaceboxSizing();
-    bindAddCommentClick();
-    bindAddProposalClick();
-    bindProposalChange();
-    bindReplyClick();
-    bindReplyCancelClick();
-    bindReplySaveClick();
-
-    jQuery("a.subscribe_to_notes").live("click", function(){
-      subscribeToNotes(this);
-    });
-
-    jQuery("#hide_archived_ont").click(function(){
-      hideOrUnhideArchivedOntNotes();
-    });
-  });
