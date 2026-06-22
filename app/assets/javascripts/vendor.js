@@ -14,8 +14,6 @@
 //= require jquery.blockUI
 //= require facebox
 //= require thickbox
-//= require jquery.dataTables
-//= require dataTables.fixedHeader
 //= require chosen.jquery
 //= require ajax-chosen
 //= require jquery.cookie

@@ -24,6 +24,5 @@
 //= require bp_property_tree
 //= require concepts
 //= require home
-//= require projects
 
 

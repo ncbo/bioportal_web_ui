@@ -91,10 +91,10 @@ function get_annotations() {
 
   if (jQuery("#semantic_types").val() !== null) {
     params.semantic_types = jQuery("#semantic_types").val();
-    annotationsTable.fnSetColumnVis(BP_COLUMNS.sem_types, true);
+    annotationsTable.column(BP_COLUMNS.sem_types).visible(true);
     jQuery("#results_error").html("Only results from ontologies with semantic types available are displayed.");
   } else {
-    annotationsTable.fnSetColumnVis(BP_COLUMNS.sem_types, false);
+    annotationsTable.column(BP_COLUMNS.sem_types).visible(false);
   }
 
   params["recognizer"] = jQuery("#recognizer").val();
@@ -197,9 +197,9 @@ var filter_ontologies = {
     });
     displayFilteredColumnNames();
     if (search_regex.length === 0) {
-      annotationsTable.fnFilter("", BP_COLUMNS.ontologies);
+      annotationsTable.column(BP_COLUMNS.ontologies).search("").draw();
     } else {
-      annotationsTable.fnFilter(search_regex.join("|"), BP_COLUMNS.ontologies, true, false);
+      annotationsTable.column(BP_COLUMNS.ontologies).search(search_regex.join("|"), true, false).draw();
     }
   }
 };
@@ -240,9 +240,9 @@ var filter_classes = {
     });
     displayFilteredColumnNames();
     if (search_regex.length === 0) {
-      annotationsTable.fnFilter("", BP_COLUMNS.classes);
+      annotationsTable.column(BP_COLUMNS.classes).search("").draw();
     } else {
-      annotationsTable.fnFilter("^" + search_regex.join("(?!.)|^") + "(?!.)", BP_COLUMNS.classes, true, false);
+      annotationsTable.column(BP_COLUMNS.classes).search("^" + search_regex.join("(?!.)|^") + "(?!.)", true, false).draw();
     }
   }
 };
@@ -282,9 +282,9 @@ var filter_matched_ontologies = {
     });
     displayFilteredColumnNames();
     if (search_regex.length === 0) {
-      annotationsTable.fnFilter("", BP_COLUMNS.matched_ontologies);
+      annotationsTable.column(BP_COLUMNS.matched_ontologies).search("").draw();
     } else {
-      annotationsTable.fnFilter(search_regex.join("|"), BP_COLUMNS.matched_ontologies, true, false);
+      annotationsTable.column(BP_COLUMNS.matched_ontologies).search(search_regex.join("|"), true, false).draw();
     }
   }
 };
@@ -325,9 +325,9 @@ var filter_matched_classes = {
     });
     displayFilteredColumnNames();
     if (search_regex.length === 0) {
-      annotationsTable.fnFilter("", BP_COLUMNS.matched_classes);
+      annotationsTable.column(BP_COLUMNS.matched_classes).search("").draw();
     } else {
-      annotationsTable.fnFilter("^" + search_regex.join("(?!.)|^") + "(?!.)", BP_COLUMNS.matched_classes, true, false);
+      annotationsTable.column(BP_COLUMNS.matched_classes).search("^" + search_regex.join("(?!.)|^") + "(?!.)", true, false).draw();
     }
   }
 };
@@ -368,9 +368,9 @@ var filter_match_type = {
     });
     displayFilteredColumnNames();
     if (search_regex.length === 0) {
-      annotationsTable.fnFilter("", BP_COLUMNS.types);
+      annotationsTable.column(BP_COLUMNS.types).search("").draw();
     } else {
-      annotationsTable.fnFilter("^" + search_regex.join("(?!.)|^") + "(?!.)", BP_COLUMNS.types, true, false);
+      annotationsTable.column(BP_COLUMNS.types).search("^" + search_regex.join("(?!.)|^") + "(?!.)", true, false).draw();
     }
   }
 };
@@ -382,30 +382,13 @@ var removeFilters = function() {
   jQuery(".filter_match_type_checkboxes").attr("checked", false);
   jQuery(".filter_matched_classes_checkboxes").attr("checked", false);
   jQuery(".filter_matched_ontologies_checkboxes").attr("checked", false);
-  annotationsTable.fnFilter("", BP_COLUMNS.classes);
-  annotationsTable.fnFilter("", BP_COLUMNS.ontologies);
-  annotationsTable.fnFilter("", BP_COLUMNS.types);
-  annotationsTable.fnFilter("", BP_COLUMNS.matched_classes);
-  annotationsTable.fnFilter("", BP_COLUMNS.matched_ontologies);
+  annotationsTable
+    .columns([BP_COLUMNS.classes, BP_COLUMNS.ontologies, BP_COLUMNS.types,
+              BP_COLUMNS.matched_classes, BP_COLUMNS.matched_ontologies])
+    .search("")
+    .draw();
   jQuery("#filter_list").hide();
 };
-
-// Datatables reset sort extension
-jQuery.fn.dataTableExt.oApi.fnSortNeutral = function(oSettings) {
-  "use strict";
-  /* Remove any current sorting */
-  oSettings.aaSorting = [];
-  /* Sort display arrays so we get them in numerical order */
-  oSettings.aiDisplay.sort(function(x, y) {
-    return x - y;
-  });
-  oSettings.aiDisplayMaster.sort(function(x, y) {
-    return x - y;
-  });
-  /* Redraw */
-  oSettings.oApi._fnReDraw(oSettings);
-};
-
 
 function annotatorFormatLink(param_string, format) {
   "use strict";
@@ -457,31 +440,8 @@ jQuery(document).ready(function() {
     search_contains: true
   });
   jQuery("#insert_text_link").click(insertSampleText);
-  // Init annotation table
-  annotationsTable = jQuery("#annotations").dataTable({
-    bPaginate: false,
-    bAutoWidth: false,
-    aaSorting: [],
-    oLanguage: {
-      sZeroRecords: "No annotations found"
-    },
-    "aoColumns": [{
-      "sWidth": "15%"
-    }, {
-      "sWidth": "15%"
-    }, {
-      "sWidth": "5%"
-    }, {
-      "sWidth": "5%",
-      "bVisible": false
-    }, {
-      "sWidth": "30%"
-    }, {
-      "sWidth": "15%"
-    }, {
-      "sWidth": "15%"
-    }]
-  });
+  // The annotations table is initialized by the annotator-table Stimulus
+  // controller, which assigns the DataTables API instance to annotationsTable.
   filter_ontologies.init();
   filter_classes.init();
   filter_match_type.init();
@@ -707,9 +667,8 @@ function update_annotations_table(rowsArray) {
   createFilterCheckboxes(matched_ontologies, "filter_matched_ontology_checkboxes", "matched_ontology_filter_list");
   createFilterCheckboxes(matched_classes, "filter_matched_classes_checkboxes", "matched_classes_filter_list");
 
-  // Reset table
-  annotationsTable.fnClearTable();
-  annotationsTable.fnSortNeutral();
+  // Reset table (clear rows and any sorting)
+  annotationsTable.clear().order([]).draw();
   removeFilters();
 
   // Need to re-init because we're not using "live" because of propagation issues
@@ -721,19 +680,19 @@ function update_annotations_table(rowsArray) {
 
   // Add data
   if (rowsArray.length > 0) {
-    annotationsTable.fnAddData(rowsArray);
+    annotationsTable.rows.add(rowsArray).draw();
   }
 
   // Hide columns as necessary
   if (context_count == 0) {
-    annotationsTable.fnSetColumnVis(4, false);
+    annotationsTable.column(4).visible(false);
   } else {
-    annotationsTable.fnSetColumnVis(4, true);
+    annotationsTable.column(4).visible(true);
   }
 
   var match_keys = Object.keys(match_types);
   if (match_keys.length == 1 && match_keys[0] === "")
-    annotationsTable.fnSetColumnVis(2, false);
+    annotationsTable.column(2).visible(false);
 }
 
 

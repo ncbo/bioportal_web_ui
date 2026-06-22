@@ -57,3 +57,21 @@ application.register("submissions-list", SubmissionsListController)
 
 import OntologyDeleteController from "./ontology_delete_controller"
 application.register("ontology-delete", OntologyDeleteController)
+
+import MappingCountTableController from "./mapping_count_table_controller"
+application.register("mapping-count-table", MappingCountTableController)
+
+import RecommenderTableController from "./recommender_table_controller"
+application.register("recommender-table", RecommenderTableController)
+
+import ProjectsTableController from "./projects_table_controller"
+application.register("projects-table", ProjectsTableController)
+
+import AnnotatorTableController from "./annotator_table_controller"
+application.register("annotator-table", AnnotatorTableController)
+
+import AnnotatorPlusTableController from "./annotator_plus_table_controller"
+application.register("annotator-plus-table", AnnotatorPlusTableController)
+
+import OntologyNotesTableController from "./ontology_notes_table_controller"
+application.register("ontology-notes-table", OntologyNotesTableController)

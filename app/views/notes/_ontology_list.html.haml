@@ -24,8 +24,9 @@
     %label{:for => "hide_archived_ont"} Hide Archived
   %div.create_note_form{style: "display: none; clear: both;"}
 
-  .ont_notes_table_container{:style => "clear: both;"}
-    %table.zebra.notes_ont_list_table{:id => "ontology_notes_list", :style => "width: 100%; clear: both;", :width => "100%"}
+  .ont_notes_table_container{:style => "clear: both;", 'data-controller': 'ontology-notes-table'}
+    %table.zebra.notes_ont_list_table{:id => "ontology_notes_list", :style => "width: 100%; clear: both;", :width => "100%",
+                                      'data-ontology-notes-table-target': 'table'}
       %thead
         %tr
           %th.notes_delete
@@ -104,6 +105,4 @@
     jQuery("#hide_archived_ont").click(function(){
       hideOrUnhideArchivedOntNotes();
     });
-
-    wireOntTable(jQuery("#ontology_notes_list"));
   });

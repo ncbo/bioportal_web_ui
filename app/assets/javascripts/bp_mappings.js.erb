@@ -34,21 +34,6 @@ function loadMappings(value) {
 
     jQuery('#mappingCount').load('/mappings/' + value + '/count', function () {
         jQuery('#mapping_load').hide();
-        jQuery("#mapping_count_table").dataTable({
-            "paging": false,
-            "info": false,
-            "searching": false,
-            "columns": [
-                {
-                    "className": "text-left"
-                },
-                {
-                    "type": "num-fmt",
-                    "orderSequence": ["desc", "asc"],
-                    "className": "text-right"
-                }
-            ]
-        });
     });
 }
 
