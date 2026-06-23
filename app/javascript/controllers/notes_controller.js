@@ -1,20 +1,34 @@
 import { Controller } from '@hotwired/stimulus';
 
+// Tracks every connected notes controller so the document-level handlers needed
+// for the facebox note modal are installed exactly once across all instances.
+const liveControllers = new Set();
+let documentClick = null;
+let faceboxReveal = null;
+
 // Connects to data-controller="notes" on the .notes_list_container in both the
 // ontology Notes tab (notes/_ontology_list) and the concept Notes sub-tab
 // (notes/_list). Owns the note/comment/proposal/reply interactions that used to
 // live in app/assets/javascripts/bp_notes.js plus the inline :javascript blocks
 // in those partials.
 //
-// Why document-level delegation with explicit teardown:
-// The note-view and reply forms are rendered inside a facebox modal that facebox
-// appends to <body> — i.e. outside this.element. So the click handlers have to be
-// delegated from document. The original code bound them with jQuery's deprecated
-// .live() (a document-level delegate) and re-ran the binders on every partial
-// render without ever removing them; the handlers stacked, so a single "save"
-// click fired N POST /notes requests and created N duplicate notes (issue #401).
-// Here each controller instance adds exactly one set of listeners in connect()
-// and removes them in disconnect(), so only one is ever live at a time.
+// Two scopes of event handling (issue #401 duplicate-note fix):
+//
+// 1. In-container interactions (add comment/proposal, create-form save/cancel,
+//    proposal-type change, subscribe, archived filter) are bound to THIS.ELEMENT.
+//    The ontology Notes tab and the concept Notes sub-tab can both be live in the
+//    DOM at once (tab switches hide rather than remove them). The original code,
+//    and a naive document-level delegate, would then fire one handler per live
+//    container for a single click — two containers => two POST /notes => two
+//    notes. Scoping to this.element means only the container actually clicked in
+//    responds, so exactly one note is created regardless of how many are live.
+//
+// 2. The note-view and reply forms render inside a facebox modal appended to
+//    <body>, outside every container. Those clicks are handled by a single
+//    document-level listener shared across all instances via the module-level
+//    registry above (ref-counted in connect/disconnect), so the modal can't
+//    double-fire either. The shared handler is instance-agnostic — it reads
+//    global state (jQuery(document).data().bp) — so any live instance can serve.
 //
 // jQuery is still used for the DOM-building helpers and facebox (a jQuery plugin),
 // so it stays loaded regardless. The network calls have been moved to fetch.
@@ -30,64 +44,86 @@ export default class extends Controller {
   connect() {
     this.$ = window.jQuery;
 
-    this.onClick = this.onClick.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.faceboxSizing = this.faceboxSizing.bind(this);
-
-    document.addEventListener('click', this.onClick);
-    document.addEventListener('change', this.onChange);
+    this.onContainerClick = this.onContainerClick.bind(this);
+    this.onContainerChange = this.onContainerChange.bind(this);
+    this.element.addEventListener('click', this.onContainerClick);
+    this.element.addEventListener('change', this.onContainerChange);
 
     this.setupFacebox();
-    this.$(document).on('afterReveal.facebox', this.faceboxSizing);
+    this.acquireDocumentHandlers();
   }
 
   disconnect() {
-    document.removeEventListener('click', this.onClick);
-    document.removeEventListener('change', this.onChange);
-    this.$(document).off('afterReveal.facebox', this.faceboxSizing);
+    this.element.removeEventListener('click', this.onContainerClick);
+    this.element.removeEventListener('change', this.onContainerChange);
+    this.releaseDocumentHandlers();
+  }
+
+  // --- Shared document handlers (facebox modal) -----------------------------
+
+  // Install the document-level click and facebox-sizing handlers once, the first
+  // time any controller connects; remove them when the last one disconnects.
+  acquireDocumentHandlers() {
+    liveControllers.add(this);
+    if (liveControllers.size > 1) return;
+
+    documentClick = (event) => {
+      const controller = liveControllers.values().next().value;
+      if (controller) controller.onModalClick(event);
+    };
+    faceboxReveal = () => {
+      const controller = liveControllers.values().next().value;
+      if (controller) controller.faceboxSizing();
+    };
+    document.addEventListener('click', documentClick);
+    this.$(document).on('afterReveal.facebox', faceboxReveal);
+  }
+
+  releaseDocumentHandlers() {
+    liveControllers.delete(this);
+    if (liveControllers.size > 0) return;
+
+    if (documentClick) document.removeEventListener('click', documentClick);
+    if (faceboxReveal) this.$(document).off('afterReveal.facebox', faceboxReveal);
+    documentClick = null;
+    faceboxReveal = null;
   }
 
   // --- Event delegation -----------------------------------------------------
 
-  onClick(event) {
+  // Bound to this.element: only fires for clicks inside this container.
+  onContainerClick(event) {
     const target = event.target;
 
     const addComment = target.closest('a.add_comment');
-    if (addComment && this.element.contains(addComment)) {
+    if (addComment) {
       this.addCommentBox(addComment.dataset.parentId, addComment.dataset.parentType, addComment);
       return;
     }
 
     const addProposal = target.closest('a.add_proposal');
-    if (addProposal && this.element.contains(addProposal)) {
+    if (addProposal) {
       this.addProposalBox(addProposal.dataset.parentId, addProposal.dataset.parentType, addProposal);
       return;
     }
 
-    if (target.closest('.reply .save, .create_note_form .save')) {
+    if (target.closest('.create_note_form .save')) {
       this.save(target.closest('.save'));
       return;
     }
 
-    if (target.closest('.reply .cancel, .create_note_form .cancel')) {
+    if (target.closest('.create_note_form .cancel')) {
       this.removeReplyBox(target.closest('.cancel'));
       return;
     }
 
-    const replyLink = target.closest('a.reply_reply');
-    if (replyLink) {
-      this.addReplyBox(replyLink);
-      replyLink.style.display = 'none';
-      return;
-    }
-
     const subscribe = target.closest('a.subscribe_to_notes');
-    if (subscribe && this.element.contains(subscribe)) {
+    if (subscribe) {
       this.subscribe(subscribe);
     }
   }
 
-  onChange(event) {
+  onContainerChange(event) {
     const target = event.target;
 
     if (target.closest('.create_note_form .proposal_type')) {
@@ -98,6 +134,28 @@ export default class extends Controller {
 
     if (target.id === 'hide_archived_ont') {
       this.hideOrUnhideArchivedOntNotes();
+    }
+  }
+
+  // Bound to document via the shared handler: clicks inside the facebox note
+  // modal, which renders outside every container's element.
+  onModalClick(event) {
+    const target = event.target;
+
+    if (target.closest('.reply .save')) {
+      this.save(target.closest('.save'));
+      return;
+    }
+
+    if (target.closest('.reply .cancel')) {
+      this.removeReplyBox(target.closest('.cancel'));
+      return;
+    }
+
+    const replyLink = target.closest('a.reply_reply');
+    if (replyLink) {
+      this.addReplyBox(replyLink);
+      replyLink.style.display = 'none';
     }
   }
 
