@@ -372,15 +372,23 @@ export default class extends Controller {
     const created = note['created'].split('T')[0];
     const noteType = this.getNoteType(note);
 
-    // Add note to concept table (if we're on a concept page)
-    if ($(button).closest('#notes_content').length > 0) {
+    // Concept Notes sub-tab: a plain HTML table, present only when this
+    // controller is the concept container (notes/_list). Prepend the new row to
+    // its tbody and bump the tab's note count. (The previous closest('#notes_content')
+    // test never matched for concept notes — #notes_content wraps only the
+    // ontology Notes tab — so this row was never added.)
+    const conceptTable = this.element.querySelector('table.concept_notes_list');
+    if (conceptTable) {
+      const tbody = conceptTable.querySelector('tbody');
+      $(tbody).children('#concept_no_notes').remove();
       const jRow = $('<tr>');
+      jRow.append($('<td>').addClass('notes_delete')); // Delete column (matches server-rendered rows)
       jRow.append($('<td>').html(this.generateNoteLink('concept_' + id, note)));
       jRow.append($('<td>').html(user['username']));
       jRow.append($('<td>').html(noteType));
       jRow.append($('<td>').html(created));
-      $('table.concept_notes_list').prepend(jRow);
-      $('#note_count').html(parseInt($('#note_count').html()) + 1);
+      $(tbody).prepend(jRow);
+      $('#note_count').html(parseInt($('#note_count').html(), 10) + 1);
       $('a#concept_' + id).facebox();
     }
 
