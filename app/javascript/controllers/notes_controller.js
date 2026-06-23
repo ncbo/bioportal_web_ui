@@ -456,8 +456,14 @@ export default class extends Controller {
   }
 
   getNoteType(note) {
-    if (typeof note['proposal'] !== 'undefined') {
-      return this.constructor.PROPOSAL_TYPES[note['proposal'][0]];
+    const proposal = note['proposal'];
+    if (proposal) {
+      // The API returns proposal as an object with a `type`; the legacy code
+      // assumed an array and indexed [0], which yielded undefined. An undefined
+      // cell makes the notes DataTable throw "Requested unknown parameter", so
+      // resolve the type for both shapes and always return a string.
+      const type = Array.isArray(proposal) ? proposal[0] : proposal['type'];
+      return this.constructor.PROPOSAL_TYPES[type] || 'Proposal';
     }
     return 'Comment';
   }
