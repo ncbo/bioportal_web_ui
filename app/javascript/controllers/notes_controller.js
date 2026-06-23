@@ -439,10 +439,28 @@ export default class extends Controller {
     const replyBody = $('<div>').addClass('reply_body').html(note.body);
     const replyMeta = $('<div>').addClass('reply_meta');
     replyMeta.append(
-      $('<a>').addClass('reply_reply').attr('data-parent-id', note['id']).attr('href', '#reply').html('reply'),
+      $('<a>')
+        .addClass('reply_reply')
+        .attr('data-parent-id', note['id'])
+        .attr('data-parent-type', 'reply')
+        .attr('href', '#reply')
+        .html('reply'),
     );
     reply.append(replyAuthor).append(replyBody).append(replyMeta);
-    $(button).closest('div.reply').children('.discussion').children('.discussion_container').prepend(reply);
+    // Match the server-rendered markup so a reply to this new reply has a container.
+    reply.append($('<div>').addClass('discussion').append($('<div>').addClass('discussion_container')));
+
+    // The discussion container is only server-rendered once a note already has
+    // replies, so the first reply to a note has nowhere to go (it appears only
+    // after closing and reopening the modal, which re-fetches the thread).
+    // Create the container if it's missing.
+    const replyDiv = $(button).closest('div.reply');
+    let container = replyDiv.children('.discussion').children('.discussion_container');
+    if (container.length === 0) {
+      container = $('<div>').addClass('discussion_container');
+      replyDiv.append($('<div>').addClass('discussion').append(container));
+    }
+    container.prepend(reply);
   }
 
   addReplyBox(button) {
