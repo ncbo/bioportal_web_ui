@@ -29,6 +29,11 @@ module OntologyUpdater
     p = params.require(:ontology).permit(:name, :acronym, { administeredBy: [] }, :viewingRestriction, { acl: [] },
                                          { hasDomain: [] }, :viewOf, :isView, :subscribe_notifications, { group: [] })
 
+    # Only BioPortal admins may assign ontologies to groups through the UI.
+    # Dropping the param for non-admins leaves any existing group assignments
+    # untouched rather than clearing them.
+    p.delete(:group) unless current_user_admin?
+
     p[:administeredBy].reject!(&:blank?) if p[:administeredBy]
     p[:acl].reject!(&:blank?) if p[:acl]
     p[:hasDomain].reject!(&:blank?) if p[:hasDomain]

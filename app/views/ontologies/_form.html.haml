@@ -8,7 +8,8 @@
   = ontology_administered_by_input
 .upload-ontology-input-field-container
   = ontology_categories_input
-.upload-ontology-field-container
-  = ontology_groups_input
+- if current_user_admin?
+  .upload-ontology-field-container
+    = ontology_groups_input
 .upload-ontology-input-field-container.mt-2
   = ontology_view_of_input
