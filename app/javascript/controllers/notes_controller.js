@@ -394,8 +394,9 @@ export default class extends Controller {
       $('a#concept_' + id).facebox();
     }
 
-    // Add note to main ontology notes table (DataTable owned by
-    // ontology_notes_table_controller, exposed as window.ontNotesTable).
+    // The ontology Notes tab lists every note for the ontology, including
+    // concept-level ones. Add the new note to that DataTable too (when loaded)
+    // so it appears without a full page reload.
     if (typeof window.ontNotesTable !== 'undefined' && window.ontNotesTable) {
       const noteLink = this.generateNoteLink(id, note);
       const noteLinkHTML = $('<div>').append(noteLink).html();
@@ -406,12 +407,26 @@ export default class extends Controller {
         'false', // Archived
         user['username'],
         noteType,
-        '', // Class
+        this.relatedClassCell(button), // Class
         created,
       ];
       window.ontNotesTable.row.add(noteRow).draw();
     }
     $('a#' + id).facebox();
+  }
+
+  // Build the ontology notes table's "Class" cell. A concept-level note links to
+  // the class it was created on (matching the server-rendered rows); an
+  // ontology-level note has no related class.
+  relatedClassCell(button) {
+    const $ = this.$;
+    if ($(button).data('parent_type') !== 'class') return '';
+
+    const classId = $(button).data('parent_id');
+    const acronym = $(document).data().bp.ont_viewer.ontology_id;
+    const href = '/ontologies/' + acronym + '?p=classes&conceptid=' + encodeURIComponent(classId);
+    const link = $('<a>').attr('href', href).attr('data-turbo-prefetch', 'false').text(classId);
+    return $('<div>').append(link).html();
   }
 
   addReply(button, note) {
