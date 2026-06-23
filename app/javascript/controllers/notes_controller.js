@@ -162,8 +162,20 @@ export default class extends Controller {
   // --- Facebox (view note / replies modal) ----------------------------------
 
   setupFacebox() {
-    this.$('a.notes_list_link', this.element).attr('rel', 'facebox[.facebox_note]');
-    this.$('a.notes_list_link', this.element).each(function () {
+    const $ = this.$;
+
+    // facebox builds the #facebox element once, guarded by a persistent
+    // $.facebox.settings.inited flag on the global jQuery. A Turbo.visit (e.g. the
+    // "Jump to" class search) replaces <body> — removing #facebox — without
+    // resetting that flag, so facebox never rebuilds it and every later reveal
+    // operates on a missing #facebox (no dialog, and faceboxSizing throws) until a
+    // full page refresh. Clear the stale flag here so facebox rebuilds on next use.
+    if ($.facebox?.settings?.inited && $('#facebox').length === 0) {
+      $.facebox.settings.inited = false;
+    }
+
+    $('a.notes_list_link', this.element).attr('rel', 'facebox[.facebox_note]');
+    $('a.notes_list_link', this.element).each(function () {
       if (!window.jQuery(this).data().faceboxInit) {
         window.jQuery(this).facebox();
         window.jQuery(this).data().faceboxInit = true;
@@ -173,12 +185,13 @@ export default class extends Controller {
 
   faceboxSizing() {
     const $ = this.$;
-    $('div.facebox_note').parents('div#facebox').width('850px');
+    const facebox = $('#facebox');
+    if (facebox.length === 0 || $('div.facebox_note').length === 0) return;
+
+    facebox.width('850px');
     $('div.facebox_note').width('820px');
-    $('div.facebox_note')
-      .parents('div#facebox')
-      .css('max-height', $(window).height() - ($('#facebox').offset().top - $(window).scrollTop()) * 2 + 'px');
-    $('div.facebox_note').parents('div#facebox').centerElement();
+    facebox.css('max-height', $(window).height() - (facebox.offset().top - $(window).scrollTop()) * 2 + 'px');
+    facebox.centerElement();
   }
 
   // --- Comment / proposal forms ---------------------------------------------
