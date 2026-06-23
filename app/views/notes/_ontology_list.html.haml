@@ -86,4 +86,4 @@
                             ontology_path(id: @ontology.acronym, p: 'classes', conceptid: related_class),
                             data: { turbo_prefetch: false })
               %td
-                = DateTime.parse(note.created).strftime("%Y-%m-%d")
+                = DateTime.parse(note.created).strftime("%Y-%m-%d %H:%M:%S")

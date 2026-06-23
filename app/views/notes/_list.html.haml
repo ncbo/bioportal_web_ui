@@ -58,4 +58,4 @@
               %td
                 = note.proposal ? get_note_type_text(note.proposal.type) : "Comment"
               %td
-                = DateTime.parse(note.created).strftime("%Y-%m-%d")
+                = DateTime.parse(note.created).strftime("%Y-%m-%d %H:%M:%S")

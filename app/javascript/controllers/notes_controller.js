@@ -369,7 +369,9 @@ export default class extends Controller {
     const $ = this.$;
     const user = this.getUser();
     const id = note['id'].split('/').pop();
-    const created = note['created'].split('T')[0];
+    // "2026-06-23T14:30:05Z" -> "2026-06-23 14:30:05", matching the server-rendered
+    // rows' strftime("%Y-%m-%d %H:%M:%S") so the Created column stays sortable.
+    const created = note['created'].replace('T', ' ').slice(0, 19);
     const noteType = this.getNoteType(note);
 
     // Concept Notes sub-tab: a plain HTML table, present only when this
