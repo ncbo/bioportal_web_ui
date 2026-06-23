@@ -3,6 +3,12 @@
 class NotesController < ApplicationController
   layout 'ontology'
 
+  # The notes Stimulus controller posts JSON. Rails' default JSON parameter
+  # wrapping would duplicate the body under a :note key (which the actions don't
+  # use), producing a noisy "Unpermitted parameter: :note" log line. We read
+  # top-level params directly, so disable wrapping for this controller.
+  wrap_parameters false
+
   def show
     id = clean_note_id(params[:id])
 
