@@ -172,7 +172,7 @@ module SubmissionsHelper
       output += ontology_categories_input
     end
 
-    if selected_attribute?('groups')
+    if selected_attribute?('groups') && current_user_admin?
       output += ontology_groups_input
     end
 
