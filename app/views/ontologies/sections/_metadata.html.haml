@@ -80,7 +80,7 @@
             = render partial: "visits"
 
       - unless @ontology.view?
-        = render DropdownContainerComponent.new(id: 'views', is_open: false) do |d|
+        = render DropdownContainerComponent.new(id: 'views', is_open: true) do |d|
           - d.title do
             = render Display::HeaderComponent.new do
               = t("ontologies.sections.views", acronym: @ontology.acronym)
