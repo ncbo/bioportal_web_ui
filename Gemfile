@@ -173,6 +173,11 @@ group :development do
 end
 
 group :test do
+  # Pin minitest to the 5.x series: minitest 6.x changed run_suite's calling
+  # convention, which is incompatible with the Rails 8.0.x test runner
+  # (railties test_unit/line_filtering) and crashes `bin/rails test`.
+  gem 'minitest', '~> 5.25'
+
   # System testing
   # [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
