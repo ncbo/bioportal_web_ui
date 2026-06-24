@@ -27,6 +27,7 @@ shared:
 development:
   google_analytics:
     tag_id: null
+  google_site_verification: null
   links:
     cookies: 'https://www.bioontology.org/terms/#use-of-cookies'
     release_notes: 'https://github.com/ncbo/bioportal_web_ui/releases'
@@ -38,6 +39,7 @@ development:
 test:
   google_analytics:
     tag_id: null
+  google_site_verification: null
   purl:
     enabled: false
     host: 'stagepurl.bioontology.org'
@@ -46,6 +48,7 @@ test:
 staging:
   google_analytics:
     tag_id: 'G-KF3SKHPEGW'
+  google_site_verification: 'IBxfKu6VbYH9atd5OLu2zXVD2ZRWi9SgMKTi8nvw3ks'
   links:
     cookies: 'https://www.bioontology.org/terms/#use-of-cookies'
     release_notes: 'https://github.com/ncbo/bioportal_web_ui/releases'
@@ -57,6 +60,7 @@ staging:
 production:
   google_analytics:
     tag_id: 'G-KF3SKHPEGW'
+  google_site_verification: 'IBxfKu6VbYH9atd5OLu2zXVD2ZRWi9SgMKTi8nvw3ks'
   links:
     cookies: 'https://www.bioontology.org/terms/#use-of-cookies'
     release_notes: 'https://github.com/ncbo/bioportal_web_ui/releases'
@@ -68,6 +72,7 @@ production:
 appliance:
   google_analytics:
     tag_id: null
+  google_site_verification: null
   links:
     cookies: 'https://www.bioontology.org/terms/#use-of-cookies'
     release_notes: 'https://www.bioontology.org/wiki/BioPortal_Virtual_Appliance_Release_Notes'
