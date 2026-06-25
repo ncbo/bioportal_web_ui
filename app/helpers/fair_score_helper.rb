@@ -163,10 +163,8 @@ module FairScoreHelper
           'explanation' => check['explanation'],
           'score'       => check['total_passed_tests'].to_f,
           'maxCredits'  => check['total_tests_run'].to_f,
-          'points'      => [],
-          'properties'  => {
-            'references' => check['reference_resources']&.join(', ')
-          }.compact
+          'points'      => nil,
+          'properties'  => nil
         }
       end
       out[:criteria][:questions] << questions

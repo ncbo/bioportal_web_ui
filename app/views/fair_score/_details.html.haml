@@ -68,7 +68,7 @@
                             %div.btn.text-white{class:"#{(
                                                if question[1]["score"] > 0
                                                    'bg-obtained_color'
-                                               elsif not_implemented?(question[1])
+                                               elsif !@is_foops && not_implemented?(question[1])
                                                   'bg-non-applicable_color'
                                                else
                                                   'bg-not-obtained_color'
@@ -77,10 +77,10 @@
                               %span.badge.badge-pill.badge-light
                                 #{ print_score(question[1]["score"])} / #{print_score(question[1]["maxCredits"])}
                         %div.mb-3
-                          -if not_implemented?(question[1])
+                          -if !@is_foops && not_implemented?(question[1])
                             %span.badge.badge-pill.badge-danger{style:"white-space:normal;font-size:14px"}
                               #{question[1]["explanation"]}
-                          -elsif default_score?(question[1])
+                          -elsif !@is_foops && default_score?(question[1])
                             %span.badge.badge-pill.badge-success{style:"white-space:normal;font-size:14px"}
                               #{question[1]["explanation"]}
                         %div
@@ -92,15 +92,16 @@
                               %button.btn.btn-outline-primary{'data-toggle':"collapse" ,'data-target':"#collapse-properties-"+get_name_with_out_dot(question[0])}
                                 = t("fair_score.see_metadata_used_properties")
                         %div.mt-2
-                          %div.collapse{id:"collapse-credits-"+get_name_with_out_dot(question[0])}
-                            %div.card.p-3
-                              - question[1]["points"].each do |point|
-                                %ul.list-group.list-group-flush
-                                  %li.list-group-item.d-flex.justify-content-between.align-items-center
-                                    %div.mr-2
-                                      = point["explanation"]
-                                    %span.badge.badge-pill.badge-primary
-                                      = point["score"]
+                          -if question[1]["points"]
+                            %div.collapse{id:"collapse-credits-"+get_name_with_out_dot(question[0])}
+                              %div.card.p-3
+                                - question[1]["points"].each do |point|
+                                  %ul.list-group.list-group-flush
+                                    %li.list-group-item.d-flex.justify-content-between.align-items-center
+                                      %div.mr-2
+                                        = point["explanation"]
+                                      %span.badge.badge-pill.badge-primary
+                                        = point["score"]
                           -if question[1]["properties"]
                             %div.collapse{id:"collapse-properties-"+get_name_with_out_dot(question[0])}
                               %div.card.p-3{style:"font-size:18px"}
