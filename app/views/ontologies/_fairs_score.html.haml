@@ -11,11 +11,12 @@
 %div.text-center
   - text = " <span>#{t("ontologies.see_details")}</span>"
   - combined_param = id_prefix == "ont-foops" ? "&foops=true" : ""
+  - modal_title_key = id_prefix == "ont-foops" ? "ontologies.fairness_assessment_questions_foops" : "ontologies.fairness_assessment_questions_ofaire"
   = link_to_modal(text.html_safe,
                 "/ajax/fair_score/html/?ontologies=#{@ontology.acronym}#{combined_param}",
                 class: "btn",
                 id:"#{id_prefix}-details-link",
-                data: { show_modal_title_value: t("ontologies.fairness_assessment_questions"), show_modal_size_value: 'modal-xl' },
+                data: { show_modal_title_value: t(modal_title_key), show_modal_size_value: 'modal-xl' },
                 )
 
 

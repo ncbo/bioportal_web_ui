@@ -1046,7 +1046,8 @@ en:
       ontology.
 
       '
-    fairness_assessment_questions: O'FAIRe FAIRness assessment questions
+    fairness_assessment_questions_ofaire: O'FAIRe FAIRness assessment questions
+    fairness_assessment_questions_foops: FOOPS! FAIRness assessment questions
     filters: Filters
     formality_levels: Formality levels
     general_information: General information

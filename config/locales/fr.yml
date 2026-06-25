@@ -1077,7 +1077,8 @@ fr:
     exploring_and_searching: |-
       dans notre liste d'ontologies mais ils ne peuvent pas l'explorer ou la rechercher. Pour permettre l'exploration et la recherche,
       veuillez télécharger une version complète de votre ontologie.
-    fairness_assessment_questions: Questions d'évaluation du nveau de FAIRness O'FAIRe
+    fairness_assessment_questions_ofaire: Questions d'évaluation du niveau de FAIRness O'FAIRe
+    fairness_assessment_questions_foops: Questions d'évaluation du niveau de FAIRness FOOPS!
     filters: Filtres
     formality_levels: Niveaux de formalité
     general_information: Informations générales
