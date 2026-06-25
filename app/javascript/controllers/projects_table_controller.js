@@ -21,7 +21,6 @@ export default class extends Controller {
       searching: false,
       info: false,
       paging: false,
-      stripeClasses: ['', 'alt'],
       fixedHeader: { header: true, headerOffset },
     });
     // Restore full width after DataTables adjusts the table layout.

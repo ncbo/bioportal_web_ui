@@ -747,7 +747,6 @@ function displayOntologies(data, ontology) {
       "paging": true,
       "pageLength": 100,
       "ordering": true,
-      "stripeClasses": ["", "alt"],
       "dom": '<"ontology_nav"><"top"fi>rtip',
       "customAllowOntologiesFilter": true
     });
@@ -988,7 +987,6 @@ function displayUsers() {
             "ordering": true,
             "order": [[2, "asc"]],
             "responsive": true,
-            "stripeClasses": ["", "alt"],
         });
 }
 
