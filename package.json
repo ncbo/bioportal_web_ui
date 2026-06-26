@@ -9,7 +9,6 @@
     "chart.js": "^4.4.1",
     "d3": "^7.8.5",
     "datatables.net-bs5": "^2.3.8",
-    "datatables.net-fixedheader-bs5": "^4.0.6",
     "debounce": "^1.2.1",
     "esbuild": "~0.25.11",
     "flatpickr": "^4.6.13",

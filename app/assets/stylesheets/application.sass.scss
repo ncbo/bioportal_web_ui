@@ -14,7 +14,6 @@
 @use 'tippy.js/dist/tippy';
 @use 'tippy.js/themes/light-border';
 @use 'datatables.net-bs5/css/dataTables.bootstrap5';
-@use 'datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5';
 
 // BioPortal
 @use 'account';
@@ -32,6 +31,7 @@
 @use 'notice';
 @use 'ontologies';
 @use 'ontology_viewer';
+@use 'projects';
 @use 'recommender';
 @use 'search';
 @use 'submissions';

@@ -1,0 +1,21 @@
+// Sticky header for the Projects listing table. Replaces the DataTables
+// FixedHeader plugin, whose 4.x/DataTables 2 combination failed to restore the
+// header when scrolling back to the top of the page.
+//
+// The top offset is the height of the fixed navbar, measured at runtime by
+// projects_table_controller.js and exposed as the --bp-sticky-top custom
+// property on the table element (custom properties inherit down to the th).
+#projects thead th {
+  position: sticky;
+  top: var(--bp-sticky-top, 0px);
+  z-index: 2;
+  // Opaque background (matches the .zebra header) so scrolled rows don't show
+  // through the sticky header.
+  background-color: #e2ebf0;
+  // A sticky cell's top/bottom borders do not repaint as the table scrolls
+  // under it, so the .zebra borders flicker out. Draw them with inset
+  // box-shadows instead — they travel with the sticky element.
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  box-shadow: inset 0 1px 0 #C1DAD7, inset 0 -1px 0 #C1DAD7;
+}
