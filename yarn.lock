@@ -953,6 +953,14 @@ data-uri-to-buffer@^4.0.0:
   resolved "https://registry.yarnpkg.com/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz#d8feb2b2881e6a4f58c2e08acfd0e2834e26222e"
   integrity sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==
 
+datatables.net-bs5@^2, datatables.net-bs5@^2.3.8:
+  version "2.3.8"
+  resolved "https://registry.yarnpkg.com/datatables.net-bs5/-/datatables.net-bs5-2.3.8.tgz#7266636ff488429988ca664bc8cb0b7c5e48c563"
+  integrity sha512-TbFH99QSWm93Kn3teHLFKeyOqYbaiddlHvRFdXUwAvh/fjTMhACWmHG+I43ss8d23OEFHV0WIbN4lpPusZm5zw==
+  dependencies:
+    datatables.net "2.3.8"
+    jquery ">=1.7"
+
 datatables.net-dt@^1.10.24:
   version "1.13.11"
   resolved "https://registry.yarnpkg.com/datatables.net-dt/-/datatables.net-dt-1.13.11.tgz#931e01e3fa9ec2f44d7d5ea87e91fb4ffb8eaaae"
@@ -961,20 +969,12 @@ datatables.net-dt@^1.10.24:
     datatables.net "1.13.11"
     jquery "1.8 - 4"
 
-datatables.net-dt@^2, datatables.net-dt@^2.3.8:
-  version "2.3.8"
-  resolved "https://registry.yarnpkg.com/datatables.net-dt/-/datatables.net-dt-2.3.8.tgz#570de00b82dfbdc97aa245fbb0ec5bc51c17226b"
-  integrity sha512-GD4on0YvNlUS/l+mrXeA1OC2JDzF2/GGbehVv4AacwtiFaoTwqxZseiR0cED6w59u/lgpVrZRC2RwuubUX996Q==
-  dependencies:
-    datatables.net "2.3.8"
-    jquery ">=1.7"
-
-datatables.net-fixedheader-dt@^4.0.6:
+datatables.net-fixedheader-bs5@^4.0.6:
   version "4.0.6"
-  resolved "https://registry.yarnpkg.com/datatables.net-fixedheader-dt/-/datatables.net-fixedheader-dt-4.0.6.tgz#7503b2930afc2ddc3535b230b840f8482ee7d198"
-  integrity sha512-xt3ZH1es0TLen2HXwjzyst0BJH1LeHIzFT0zVIUNQ4xRUhnPIbQuJi8lUxkIFyKK06si6fVn65pZbLEtE+VBXA==
+  resolved "https://registry.yarnpkg.com/datatables.net-fixedheader-bs5/-/datatables.net-fixedheader-bs5-4.0.6.tgz#25bc9d2d5f9ded665ea4915b26a433f74e3c2979"
+  integrity sha512-V5KhTssDq2osUG8aXur5wf8j6tXE9kSP/34C5k0DKIFkHjvZiK1yWPyadP6/T9JJRKWuJppPaLiJ1PzB+nlwPw==
   dependencies:
-    datatables.net-dt "^2"
+    datatables.net-bs5 "^2"
     datatables.net-fixedheader "4.0.6"
     jquery ">=1.7"
 

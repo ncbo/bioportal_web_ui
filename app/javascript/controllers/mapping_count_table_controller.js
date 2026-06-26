@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import DataTable from 'datatables.net-dt';
+import DataTable from 'datatables.net-bs5';
 
 // Connects to data-controller="mapping-count-table" on the static #mappingCount container.
 // The <table> arrives dynamically (jQuery `.load()`); `tableTargetConnected` fires when it appears.

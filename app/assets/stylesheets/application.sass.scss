@@ -13,7 +13,8 @@
 @use 'tom-select/dist/scss/tom-select';
 @use 'tippy.js/dist/tippy';
 @use 'tippy.js/themes/light-border';
-@use 'datatables.net-fixedheader-dt/css/fixedHeader.dataTables';
+@use 'datatables.net-bs5/css/dataTables.bootstrap5';
+@use 'datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5';
 
 // BioPortal
 @use 'account';

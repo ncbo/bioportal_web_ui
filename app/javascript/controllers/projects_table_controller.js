@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
-import DataTable from 'datatables.net-dt';
-import 'datatables.net-fixedheader-dt';
+import DataTable from 'datatables.net-bs5';
+import 'datatables.net-fixedheader-bs5';
 
 // Connects to data-controller="projects-table" on the static wrapper around #projects.
 // data-controller sits on the wrapper (not the <table>) because DataTables wraps the
