@@ -1,5 +1,5 @@
 import {Controller} from "@hotwired/stimulus"
-import DataTable from 'datatables.net-dt';
+import DataTable from 'datatables.net-bs5';
 
 
 // Connects to data-controller="table-component"
