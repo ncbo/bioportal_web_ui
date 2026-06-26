@@ -979,10 +979,9 @@ function displayUsers() {
                 }
             ],
             "autoWidth": false,
-            "lengthChange": false,
+            "lengthChange": true,
             "searching": true,
             "language": {
-                "search": "Filter: ",
                 "emptyTable": "No users available"
             },
             "info": true,

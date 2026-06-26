@@ -57,44 +57,6 @@ table.dataTable tbody tr.selected {
   clear: both;
 }
 
-.ontologies_list_container .dataTables_length {
-  float: left;
-  padding: 1em 0;
-}
-
-.ontologies_list_container .dataTables_filter {
-  float: right;
-  padding-top: 3px;
-  padding-bottom: 5px;
-}
-
-.ontologies_list_container .dataTables_filter input {
-  width: 200px;
-}
-
-.ontologies_list_container .dataTables_info {
-  text-align: center;
-  padding: .5em;
-}
-
-.ontologies_list_container .dataTables_paginate {
-  text-align: center;
-}
-
-.ontologies_list_container .dataTables_paginate .paginate_button {
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 0 .5em;
-}
-
-.ontologies_list_container .dataTables_paginate .paginate_button:hover {
-  text-decoration: none;
-}
-
-.ontologies_list_container .first, .ontologies_list_container .previous, .ontologies_list_container .next, .ontologies_list_container .last {
-  padding: 0 .5em;
-}
-
 .ontology_nav {
   float: left;
   padding: 0 0 1em 0;
