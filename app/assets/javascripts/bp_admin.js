@@ -824,8 +824,12 @@ jQuery(".admin.index").ready(function() {
         return true;
       }
 
-      var row = settings.aoData[dataIndex].nTr;
-      if (!problemOnly || row.classList.contains("problem") || data[data.length - 1] === "true") {
+      // Determine "problem" status from the row data, not the rendered <tr>.
+      // In DataTables 2.x the row node (settings.aoData[dataIndex].nTr) may be
+      // null at filter time (it is created later during draw), so reading
+      // .classList threw. data[last] is the hidden "problem" column, a
+      // stringified boolean ("true"/"false").
+      if (!problemOnly || data[data.length - 1] === "true") {
         return true;
       }
       return false;
