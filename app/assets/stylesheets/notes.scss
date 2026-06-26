@@ -340,48 +340,6 @@ textarea.reply_body {
   padding: 1em;
 }
 
-/* Datatables */
-.notes_list_table {
-  clear: both;
-}
-
-.notes_list_container .dataTables_length {
-  float: left;
-  padding: 1em 0;
-}
-
-.notes_list_container .dataTables_filter {
-  float: right;
-  padding: 1em 0;
-}
-
-.notes_list_container .dataTables_filter input {
-  width: 200px;
-}
-
-.notes_list_container .dataTables_info {
-  text-align: center;
-  padding: .5em;
-}
-
-.notes_list_container .dataTables_paginate {
-  text-align: center;
-}
-
-.notes_list_container .dataTables_paginate .paginate_button {
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 0 .5em;
-}
-
-.notes_list_container .dataTables_paginate .paginate_button:hover {
-  text-decoration: none;
-}
-
-.notes_list_container .first, .notes_list_container .previous, .notes_list_container .next, .notes_list_container .last {
-  padding: 0 .5em;
-}
-
 .notes_delete {
   display: none;
 }
