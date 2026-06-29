@@ -238,7 +238,7 @@ class FairScorePrincipleBar extends  FairScoreChart{
                 label: 'Obtained score',
                 data: scores,
                 fill: true,
-                backgroundColor: 'rgba(102, 187, 106, 0.5)',
+                backgroundColor: 'rgba(102, 187, 106, 0.2)',
                 borderColor: 'rgba(102, 187, 106, 1)',
                 pointBorderColor: 'rgba(102, 187, 106, 1)',
                 pointBackgroundColor: 'rgba(102, 187, 106, 1)'
@@ -247,7 +247,7 @@ class FairScorePrincipleBar extends  FairScoreChart{
                 label: 'Not obtained score',
                 data: notObtained,
                 fill: true,
-                backgroundColor: 'rgba(251, 192, 45, 0.5)',
+                backgroundColor: 'rgba(251, 192, 45, 0.2)',
                 borderColor: 'rgba(251, 192, 45, 1)',
                 pointBorderColor: 'rgba(251, 192, 45, 1)',
                 pointBackgroundColor: 'rgba(251, 192, 45, 1)'
@@ -256,7 +256,7 @@ class FairScorePrincipleBar extends  FairScoreChart{
                 label: 'Not yet supported',
                 data: na,
                 fill: true,
-                backgroundColor: 'rgba(176, 190, 197, 0.5)',
+                backgroundColor: 'rgba(176, 190, 197, 0.2)',
                 borderColor: 'rgba(176, 190, 197, 1)',
                 pointBorderColor: 'rgba(176, 190, 197, 1)',
                 pointBackgroundColor: 'rgba(176, 190, 197, 1)'
@@ -396,7 +396,7 @@ class FairScoreCriteriaRadar extends FairScoreChart{
                 label: 'Fair score',
                 data: scores,
                 fill: true,
-                backgroundColor: 'rgba(151, 187, 205, 0.5)',
+                backgroundColor: 'rgba(151, 187, 205, 0.2)',
                 borderColor: 'rgba(151, 187, 205, 1)',
                 pointBorderColor: 'rgba(151, 187, 205, 1)',
                 pointBackgroundColor: 'rgba(151, 187, 205, 1)'
@@ -582,7 +582,7 @@ class FairScoreCriteriaBar extends  FairScoreChart{
                 label: 'Obtained score',
                 data: scores ,
                 fill: true,
-                backgroundColor: 'rgba(102, 187, 106, 0.5)',
+                backgroundColor: 'rgba(102, 187, 106, 0.2)',
                 borderColor: 'rgba(102, 187, 106, 1)',
                 pointBorderColor: 'rgba(102, 187, 106, 1)',
                 pointBackgroundColor: 'rgba(102, 187, 106, 1)'
@@ -591,7 +591,7 @@ class FairScoreCriteriaBar extends  FairScoreChart{
                 label: 'Not obtained score',
                 data:  notObtained,
                 fill: true,
-                backgroundColor: 'rgba(251, 192, 45, 0.5)',
+                backgroundColor: 'rgba(251, 192, 45, 0.2)',
                 borderColor: 'rgba(251, 192, 45, 1)',
                 pointBorderColor: 'rgba(251, 192, 45, 1)',
                 pointBackgroundColor: 'rgba(251, 192, 45, 1)',
@@ -600,7 +600,7 @@ class FairScoreCriteriaBar extends  FairScoreChart{
                 label: 'Not yet supported',
                 data: na,
                 fill: true,
-                backgroundColor: 'rgba(176, 190, 197, 0.5)',
+                backgroundColor: 'rgba(176, 190, 197, 0.2)',
                 borderColor: 'rgba(176, 190, 197, 1)',
                 pointBorderColor: 'rgba(176, 190, 197, 1)',
                 pointBackgroundColor: 'rgba(176, 190, 197, 1)'

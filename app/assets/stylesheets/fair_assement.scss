@@ -1,6 +1,6 @@
-$obtained_color : rgba(102, 187, 106, 0.7);
-$not_obtained_color : rgba(251, 192, 45, 0.7);
-$non_applicable_color :  rgba(176, 190, 197, 0.7);
+$obtained_color : rgba(102, 187, 106, 0.4);
+$not_obtained_color : rgba(251, 192, 45, 0.4);
+$non_applicable_color :  rgba(176, 190, 197, 0.4);
 
 .bg-obtained_color{
   background-color: $obtained_color !important;
