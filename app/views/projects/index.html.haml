@@ -74,5 +74,5 @@
           - if current_user_admin?
             %td
               = project.creator.map {|c| c.split("/").last}.join(", ")
-            %td
-              = project.created
+            %td{style: "white-space: nowrap;"}
+              = project.created&.to_date
