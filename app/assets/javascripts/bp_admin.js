@@ -746,6 +746,21 @@ function displayOntologies(data, ontology) {
       "paging": true,
       "pageLength": 100,
       "ordering": true,
+      // Mirror the default controls above and below the table (DataTables'
+      // "multiple controls" layout pattern). This is a large table (100 rows
+      // per page by default), so having page length, search, info, and paging
+      // at both ends — and the filtered count visible up top when toggling
+      // All/Problem-Only — is worth the extra rows.
+      "layout": {
+        "top2Start": "pageLength",
+        "top2End": "search",
+        "topStart": "info",
+        "topEnd": "paging",
+        "bottomStart": "pageLength",
+        "bottomEnd": "search",
+        "bottom2Start": "info",
+        "bottom2End": "paging"
+      },
       "customAllowOntologiesFilter": true
     });
   }
