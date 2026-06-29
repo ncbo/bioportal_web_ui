@@ -73,7 +73,11 @@
                 %a#refresh_report_action{href: 'javascript:;', class: 'btn btn-outline-primary btn-sm ms-2'}
                   %span{class: 'report_date_generated_button'}
           %p.tab_description{:style => "clear:both;"}
-          %table#adminOntologies.zebra{:cellpadding => "0", :cellspacing => "0", :width => "100%"}
+          -# Toolbar (All/Problem-Only toggle + bulk action select) populated by bp_admin.js.
+          -# Previously injected via the DataTables `dom` string; now a plain div so the
+          -# table can use the default DataTables 2.x / Bootstrap 5 layout.
+          %div.ontology_nav
+          %table#adminOntologies.table.table-striped{:cellpadding => "0", :cellspacing => "0", :width => "100%"}
 
       -# Licensing tab
       %div.tab-pane.fade{id: "licensing", role: "tabpanel", aria: { labelledby: "licensing-admin-tab" }}

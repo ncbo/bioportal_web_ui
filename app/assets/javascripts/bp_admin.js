@@ -737,17 +737,15 @@ function displayOntologies(data, ontology) {
         }
       ],
       "autoWidth": false,
-      "lengthChange": false,
+      "lengthChange": true,
       "searching": true,
       "language": {
-        "search": "Filter: ",
         "emptyTable": "No ontologies available"
       },
       "info": true,
       "paging": true,
       "pageLength": 100,
       "ordering": true,
-      "dom": '<"ontology_nav"><"top"fi>rtip',
       "customAllowOntologiesFilter": true
     });
   }
