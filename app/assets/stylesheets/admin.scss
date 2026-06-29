@@ -43,8 +43,12 @@
   clear: both;
 }
 
-table.dataTable tbody tr.selected {
-  background-color: #D7E3EA;
+// Soften DataTables' selected-row highlight. The bs5 styling defaults it to the
+// bright primary blue (rgb(13,110,253)); override the library's own theming
+// variables on the admin ontologies table (the only one using row selection).
+#adminOntologies {
+  --dt-row-selected: 215, 227, 234; // #D7E3EA, a soft blue
+  --dt-row-selected-text: 35, 73, 121; // readable text on the soft blue
 }
 
 .ontologies_list_container {
