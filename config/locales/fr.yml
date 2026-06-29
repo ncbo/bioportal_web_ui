@@ -522,10 +522,9 @@ fr:
     fairness_unreachable_warning: Problème d'accès au service d'évaluation du niveau
       de FAIRness
     foops_unreachable_warning: Problème d'accès au service d'évaluation FOOPS!
-    foops_description: 'FOOPS! (Ontology Pitfall Scanner for FAIR) évalue la FAIRness
-      des ontologies en exécutant des tests pour chaque principe FAIR (Findable, Accessible,
-      Interoperable, Reusable). Chaque test donne un ratio de tests passés sur le total.
-      Plus de détails sur : https://foops.linkeddata.es/'
+    foops_description: 'Score d''évaluation FAIR calculé avec l''outil FOOPS! (Ontology
+      Pitfall Scanner for FAIR) à partir du fichier déposé dans le portail. Plus de détails
+      ici : https://foops.linkeddata.es/'
     description: 'Le score FAIR évalue dans quelle mesure cette ontologie respecte
       les principes FAIR (Findable, Accessible, Interoperable, Reusable). Deux évaluations
       complémentaires sont disponibles : O''FAIRe et FOOPS!'
@@ -540,9 +539,9 @@ fr:
     see_metadata_used_properties: Voir les propriétés de métadonnées utilisées
     see_possible_credits: Voir les crédits possibles
     see_the_used_properties: voir les propriétés utilisées
-    view_fair_scores_definitions: 'Vous voyez le score d''évaluation de l''adéquation
-      avec les principes FAIR pour cette ontologie dans AgroPortal. Les scores FAIR
-      sont calculés avec la méthodologie O''FAIRe. Plus de détails ici : https://github.com/agroportal/fairness'
+    view_fair_scores_definitions: 'Score d''évaluation FAIR calculé avec la méthodologie
+      O''FAIRe (Ontology FAIRness Evaluator) à partir de l''enregistrement de métadonnées
+      local. Plus de détails ici : https://github.com/agroportal/fairness'
   federation:
     check_status: Vérification de la disponibilité de %{portal}
     not_responding: ne répond pas.

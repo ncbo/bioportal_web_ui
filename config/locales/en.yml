@@ -509,10 +509,9 @@ en:
   fair_score:
     fairness_unreachable_warning: FAIRness assessment service unreachable
     foops_unreachable_warning: FOOPS! assessment service unreachable
-    foops_description: 'FOOPS! (Ontology Pitfall Scanner for FAIR) assesses ontology
-      FAIRness by running checks against each FAIR principle (Findable, Accessible,
-      Interoperable, Reusable). Each check scores the ratio of passed vs total tests.
-      More details at: https://foops.linkeddata.es/'
+    foops_description: 'FAIRness assessment score computed with the FOOPS! tool (Ontology
+      Pitfall Scanner for FAIR) based on the file loaded in the portal. More details
+      here: https://foops.linkeddata.es/'
     description: 'The FAIR score evaluates how well this ontology follows the FAIR
       principles (Findable, Accessible, Interoperable, Reusable). Two complementary
       assessments are available: O''FAIRe and FOOPS!'
@@ -527,8 +526,8 @@ en:
     see_metadata_used_properties: See metadata used properties
     see_possible_credits: See possible credits
     see_the_used_properties: see the used properties
-    view_fair_scores_definitions: 'You are seeing the FAIRness assessment score for
-      this ontology in AgroPortal. FAIR scores are computed with the O''FAIRe methodology.
+    view_fair_scores_definitions: 'FAIRness assessment score computed with the O''FAIRe
+      methodology (Ontology FAIRness Evaluator) based on the local metadata record.
       More details here: https://github.com/agroportal/fairness'
   federation:
     check_status: Checking %{portal} availability
