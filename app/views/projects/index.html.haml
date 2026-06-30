@@ -8,13 +8,11 @@
     %i{class: 'fas fa-question-circle fa-lg ps-1', 'aria-hidden': 'true'}
 
 %div{:style => "padding:10px;", 'data-controller': 'projects-table'}
-  %span
+  %div.mb-4
     - if session[:user].nil?
       = button_to "Create new project", login_index_path, method: :get, class: 'btn btn-primary'
     - else
       = button_to "Create new project", new_project_path, method: :get, class: 'btn btn-primary'
-  %br/
-  %br/
   %table#projects.table.table-striped{:cellpadding => "0", :cellspacing => "0", 'data-projects-table-target': 'table'}
     %thead
       %tr
