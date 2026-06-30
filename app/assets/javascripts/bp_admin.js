@@ -1002,6 +1002,18 @@ function displayUsers() {
             "pageLength": 50,
             "ordering": true,
             "order": [[2, "asc"]],
+            // Mirror the controls above and below the table to match the Admin
+            // Ontologies table, so both admin-console tables look consistent.
+            "layout": {
+                "top2Start": "pageLength",
+                "top2End": "search",
+                "topStart": "info",
+                "topEnd": "paging",
+                "bottomStart": "pageLength",
+                "bottomEnd": "search",
+                "bottom2Start": "info",
+                "bottom2End": "paging"
+            },
             "responsive": true,
         });
 }
