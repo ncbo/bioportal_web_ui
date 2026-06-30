@@ -1,8 +1,8 @@
-- @title = "Project Listing"
+- @title = 'Project Listing'
 
 %h1.tab_header Projects
 %p.tab_description
-  = t(".intro", site: "#{$SITE}")
+  = t('.intro', site: "#{$SITE}")
   = link_to(Rails.configuration.settings.links[:help_projects],
             data: {controller: 'popup', action: 'click->popup#open'}, 'aria-label': 'View projects help') do
     %i{class: 'fas fa-question-circle fa-lg ps-1', 'aria-hidden': 'true'}
@@ -10,10 +10,10 @@
 %div{class: 'mx-2 mt-2 mb-4', 'data-controller': 'projects-table'}
   %div.mb-4
     - if session[:user].nil?
-      = button_to "Create new project", login_index_path, method: :get, class: 'btn btn-primary'
+      = button_to 'Create new project', login_index_path, method: :get, class: 'btn btn-primary'
     - else
-      = button_to "Create new project", new_project_path, method: :get, class: 'btn btn-primary'
-  %table#projects.table.table-striped{:cellpadding => "0", :cellspacing => "0", 'data-projects-table-target': 'table'}
+      = button_to 'Create new project', new_project_path, method: :get, class: 'btn btn-primary'
+  %table#projects{class: 'table table-striped', 'data-projects-table-target': 'table'}
     %thead
       %tr
         %th Project
@@ -28,49 +28,48 @@
       - for project in @projects
         %tr
           / Project name, home page, and controls for editors
-          %td{:style => "vertical-align:top;", :width => "30%"}
+          %td{width: '30%'}
             %strong= link_to(project.name, project_path(project.acronym))
             %br/
-            %span{:style => "font-size:75%; vertical-align:bottom;"}
-              = link_to("Home Page", project.homePage, target: "_blank", rel: "nofollow")
-              %span.ui-icon.ui-icon-extlink{:style => "display: inline-block; vertical-align: text-bottom;"}
+            %span{style: 'font-size: 75%; vertical-align: bottom;'}
+              = link_to('Home page', project.homePage, target: '_blank', rel: 'nofollow')
+              %span.ui-icon.ui-icon-extlink{style: 'display: inline-block; vertical-align: text-bottom;'}
               \&nbsp;&nbsp;
               - if session[:user] && (project.creator == session[:user].id || session[:user].admin?)
-                = link_to("Edit", edit_project_path(project.acronym))
-                / TODO_REV: Enable delete project for admins
+                = link_to('Edit', edit_project_path(project.acronym))
               - if current_user_admin?
                 &nbsp;&nbsp;
-                = link_to("Delete (admin only)", project_path(project.acronym), method: :delete,
-                          data: {confirm: "Are you sure?"})
+                = link_to('Delete (admin only)', project_path(project.acronym), method: :delete,
+                          data: {confirm: 'Are you sure?'})
           / Project description (may be truncated with a dialog)
-          %td{:style => "vertical-align:top;", :width => "50%"}
+          %td{width: '50%'}
             - if ! project.description.nil?
               - descLength = 250
               - if project.description.length < descLength
                 = project.description
               - else
-                - descShort = smart_truncate(project.description, :words => 20)
-                %span{:style => "cursor:help;", :title => project.description}
+                - descShort = smart_truncate(project.description, words: 20)
+                %span{style: 'cursor: help;', title: project.description}
                   = descShort
           / Contacts
-          %td{:style => "vertical-align:top;", :width => "10%"}
+          %td{width: '10%'}
             = raw project.contacts
           / Institutions
-          %td{:style => "vertical-align:top;", :width => "8%"}
+          %td{width: '8%'}
             = raw project.institution
           / Ontologies
-          %td{:style => "vertical-align:top;", :width => "2%"}
+          %td{width: '2%'}
             - ontologyCount = 0
-            - ontologyLabels = ""
+            - ontologyLabels = ''
             - for ontology in project.ontologyUsed
               - ontologyLabels += @ontologies_hash[ontology].name + "\n" rescue next
               - ontologyCount += 1
             - if ontologyCount > 0
-              %span{:style => "cursor:help;text-decoration: none; border-bottom:1px dotted;", :title => ontologyLabels}= ontologyCount
+              %span{style: 'cursor: help; text-decoration: none; border-bottom: 1px dotted;', title: ontologyLabels}= ontologyCount
             - else
               = ontologyCount
           - if current_user_admin?
             %td
-              = project.creator.map {|c| c.split("/").last}.join(", ")
-            %td{style: "white-space: nowrap;"}
+              = project.creator.map {|c| c.split('/').last}.join(', ')
+            %td{style: 'white-space: nowrap;'}
               = project.created&.to_date
