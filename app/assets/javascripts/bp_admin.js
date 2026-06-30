@@ -924,7 +924,7 @@ function displayUsers() {
                 "url": "/admin/users",
                 "contentType": "application/json",
                 "data": function (d) {
-                    var columnToAttr = ['firstName', 'lastName', 'username', 'email', 'role', null, 'created', null];
+                    var columnToAttr = ['firstName', 'lastName', 'username', 'email', 'role', null, 'created', 'lastLoginAt', null];
                     var params = {
                         draw: d.draw,
                         page: Math.floor(d.start / d.length) + 1,
@@ -987,6 +987,12 @@ function displayUsers() {
                 },
                 {
                     "targets": 7,
+                    "searchable": true,
+                    "orderable": true,
+                    "title": "Last login",
+                },
+                {
+                    "targets": 8,
                     "searchable": false,
                     "orderable": false,
                     "title": "Actions",
