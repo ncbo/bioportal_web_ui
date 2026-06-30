@@ -744,7 +744,7 @@ function displayOntologies(data, ontology) {
       },
       "info": true,
       "paging": true,
-      "pageLength": 100,
+      "pageLength": 50,
       "ordering": true,
       // Mirror the default controls above and below the table (DataTables'
       // "multiple controls" layout pattern). This is a large table (100 rows
@@ -999,7 +999,7 @@ function displayUsers() {
             },
             "info": true,
             "paging": true,
-            "pageLength": 100,
+            "pageLength": 50,
             "ordering": true,
             "order": [[2, "asc"]],
             "responsive": true,
