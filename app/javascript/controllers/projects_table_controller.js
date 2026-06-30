@@ -8,12 +8,12 @@ export default class extends Controller {
   static targets = ['table'];
 
   tableTargetConnected(table) {
+    // Use the default DataTables controls (paging, search, info, length menu) —
+    // there are hundreds of projects, so showing 25 per page with search is far
+    // more usable than one long list.
     new DataTable(table, {
       autoWidth: false,
-      lengthChange: false,
-      searching: false,
-      info: false,
-      paging: false,
+      pageLength: 25,
     });
     // Restore full width after DataTables adjusts the table layout.
     table.style.width = '100%';
