@@ -7,7 +7,7 @@
             data: {controller: 'popup', action: 'click->popup#open'}, 'aria-label': 'View projects help') do
     %i{class: 'fas fa-question-circle fa-lg ps-1', 'aria-hidden': 'true'}
 
-%div{:style => "padding:10px;", 'data-controller': 'projects-table'}
+%div{class: 'mx-2 mt-2 mb-4', 'data-controller': 'projects-table'}
   %div.mb-4
     - if session[:user].nil?
       = button_to "Create new project", login_index_path, method: :get, class: 'btn btn-primary'
