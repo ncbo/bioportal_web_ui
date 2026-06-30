@@ -697,14 +697,16 @@ function displayOntologies(data, ontology) {
           "searchable": true,
           "title": "Date Created",
           "type": "date",
-          "width": "170px"
+          "width": "170px",
+          "className": "text-nowrap"
         },
         {
           "targets": 4,
           "searchable": true,
           "title": "Report Date",
           "type": "date",
-          "width": "170px"
+          "width": "170px",
+          "className": "text-nowrap"
         },
         {
           "targets": 5,
