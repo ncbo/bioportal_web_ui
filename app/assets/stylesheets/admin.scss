@@ -49,6 +49,8 @@
 #adminOntologies {
   --dt-row-selected: 215, 227, 234; // #D7E3EA, a soft blue
   --dt-row-selected-text: 35, 73, 121; // readable text on the soft blue
+  --dt-row-selected-link: 13, 110, 253; // Bootstrap link blue; the library default
+                                         // (pale gray) is invisible on the soft blue
 }
 
 .ontologies_list_container {
