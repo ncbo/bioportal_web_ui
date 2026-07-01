@@ -14,7 +14,8 @@ module Admin
         h(user['email']),
         h(Array(user['role']).join(', ')),
         link_to(user_id, user_id),
-        user_created_at_cell(user['created']),
+        user_date_cell(user['created']),
+        user_date_cell(user['lastLoginAt']),
         user_datatable_actions(username)
       ]
     end
@@ -29,12 +30,12 @@ module Admin
       safe_join(links, '|')
     end
 
-    def user_created_at_cell(created)
-      return '' if created.blank?
+    def user_date_cell(value)
+      return '' if value.blank?
 
-      Time.parse(created).strftime('%Y-%m-%d %H:%M')
+      Time.parse(value).strftime('%Y-%m-%d %H:%M')
     rescue ArgumentError
-      h(created)
+      h(value)
     end
   end
 end
