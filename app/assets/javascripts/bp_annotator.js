@@ -119,281 +119,6 @@ function get_annotations() {
   });
 } // get_annotations
 
-var displayFilteredColumnNames = function() {
-  "use strict";
-  var column_names = [];
-  var header_text;
-  jQuery(".bp_popup_list input:checked").closest("th").each(function() {
-    // DataTables 2.x wraps the header content in a .dt-column-title span; read the
-    // column label from there (falling back to the th itself for older markup) so
-    // we don't pick up the filter popup's contents.
-    var titleEl = this.querySelector(".dt-column-title") || this;
-    header_text = titleEl.childNodes[0].textContent.trim();
-    column_names.push(header_text);
-  });
-  jQuery("#filter_names").html(column_names.join(", "));
-  if (column_names.length > 0) {
-    jQuery("#filter_list").show();
-  } else {
-    jQuery("#filter_list").hide();
-  }
-};
-
-function createFilterCheckboxes(filter_items, checkbox_class, checkbox_location) {
-  "use strict";
-  var for_sort = [],
-    sorted = [];
-
-  // Sort ontologies by number of results
-  jQuery.each(filter_items, function(k, v) {
-    for_sort.push({
-      label: k + " (" + v + ")",
-      count: v,
-      value: k,
-      value_encoded: encodeURIComponent(k)
-    });
-  });
-  for_sort.sort(function(a, b) {
-    return jQuery.trim(a.label) > jQuery.trim(b.label)
-  });
-
-  // Create checkboxes for ontology filter
-  jQuery.each(for_sort, function() {
-    var checkbox = jQuery("<input/>").attr("class", checkbox_class).attr("type", "checkbox").attr("value", this.value).attr("id", checkbox_class + this.value_encoded);
-    var label = jQuery("<label/>").attr("for", checkbox_class + this.value_encoded).html(" " + this.label);
-    sorted.push(jQuery("<span/>").append(checkbox).append(label).html());
-  });
-  jQuery("#" + checkbox_location).html(sorted.join("<br/>"));
-}
-
-var filter_ontologies = {
-  init: function() {
-    "use strict";
-    jQuery("#filter_ontologies").bind("click", function(e) {
-      bp_popup_init(e)
-    });
-    // Need to use bind to avoid "live" propogation issues
-    jQuery(".filter_ontology_checkboxes").bind("click", function(e) {
-      filter_ontologies.filterOntology(e)
-    });
-    jQuery("#ontology_filter_list").click(function(e) {
-      e.stopPropagation()
-    });
-    this.cleanup();
-  },
-
-  cleanup: function() {
-    "use strict";
-    jQuery("html").click(bp_popup_cleanup);
-    jQuery(document).keyup(function(e) {
-      if (e.keyCode == 27) {
-        bp_popup_cleanup();
-      } // esc
-    });
-  },
-
-  filterOntology: function(e) {
-    "use strict";
-    e.stopPropagation();
-    var search_regex = [];
-    jQuery(".filter_ontology_checkboxes:checked").each(function() {
-      search_regex.push(jQuery(this).val());
-    });
-    displayFilteredColumnNames();
-    if (search_regex.length === 0) {
-      annotationsTable.column(BP_COLUMNS.ontologies).search("").draw();
-    } else {
-      annotationsTable.column(BP_COLUMNS.ontologies).search(search_regex.join("|"), true, false).draw();
-    }
-  }
-};
-
-var filter_classes = {
-  init: function() {
-    "use strict";
-    jQuery("#filter_classes").bind("click", function(e) {
-      bp_popup_init(e)
-    });
-    // Need to use bind to avoid "live" propogation issues
-    jQuery(".filter_classes_checkboxes").bind("click", function(e) {
-      filter_classes.filterClasses(e)
-    });
-    jQuery("#classes_filter_list").click(function(e) {
-      e.stopPropagation()
-    });
-    this.cleanup();
-  },
-
-  cleanup: function() {
-    "use strict";
-    jQuery("html").click(bp_popup_cleanup);
-    jQuery(document).keyup(function(e) {
-      if (e.keyCode == 27) {
-        bp_popup_cleanup();
-      } // esc
-    });
-  },
-
-  filterClasses: function(e) {
-    "use strict";
-    e.stopPropagation();
-    var search_regex = [];
-    jQuery(".filter_classes_checkboxes:checked").each(function() {
-      // Escape characters used in regex
-      search_regex.push(jQuery(this).val().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"));
-    });
-    displayFilteredColumnNames();
-    if (search_regex.length === 0) {
-      annotationsTable.column(BP_COLUMNS.classes).search("").draw();
-    } else {
-      annotationsTable.column(BP_COLUMNS.classes).search("^" + search_regex.join("(?!.)|^") + "(?!.)", true, false).draw();
-    }
-  }
-};
-
-var filter_matched_ontologies = {
-  init: function() {
-    "use strict";
-    jQuery("#filter_matched_ontologies").bind("click", function(e) {
-      bp_popup_init(e);
-    });
-    // Need to use bind to avoid "live" propogation issues
-    jQuery(".filter_matched_ontology_checkboxes").bind("click", function(e) {
-      filter_matched_ontologies.filter(e);
-    });
-    jQuery("#ontology_matched_filter_list").click(function(e) {
-      e.stopPropagation();
-    });
-    this.cleanup();
-  },
-
-  cleanup: function() {
-    "use strict";
-    jQuery("html").click(bp_popup_cleanup);
-    jQuery(document).keyup(function(e) {
-      if (e.keyCode == 27) {
-        bp_popup_cleanup();
-      } // esc
-    });
-  },
-
-  filter: function(e) {
-    "use strict";
-    e.stopPropagation();
-    var search_regex = [];
-    jQuery(".filter_matched_ontology_checkboxes:checked").each(function() {
-      search_regex.push(jQuery(this).val());
-    });
-    displayFilteredColumnNames();
-    if (search_regex.length === 0) {
-      annotationsTable.column(BP_COLUMNS.matched_ontologies).search("").draw();
-    } else {
-      annotationsTable.column(BP_COLUMNS.matched_ontologies).search(search_regex.join("|"), true, false).draw();
-    }
-  }
-};
-
-var filter_matched_classes = {
-  init: function() {
-    "use strict";
-    jQuery("#filter_matched_classes").bind("click", function(e) {
-      bp_popup_init(e)
-    });
-    // Need to use bind to avoid "live" propogation issues
-    jQuery(".filter_matched_classes_checkboxes").bind("click", function(e) {
-      filter_matched_classes.filter(e)
-    });
-    jQuery("#matched_classes_filter_list").click(function(e) {
-      e.stopPropagation()
-    });
-    this.cleanup();
-  },
-
-  cleanup: function() {
-    "use strict";
-    jQuery("html").click(bp_popup_cleanup);
-    jQuery(document).keyup(function(e) {
-      if (e.keyCode == 27) {
-        bp_popup_cleanup();
-      } // esc
-    });
-  },
-
-  filter: function(e) {
-    "use strict";
-    e.stopPropagation();
-    var search_regex = [];
-    jQuery(".filter_matched_classes_checkboxes:checked").each(function() {
-      // Escape characters used in regex
-      search_regex.push(jQuery(this).val().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"));
-    });
-    displayFilteredColumnNames();
-    if (search_regex.length === 0) {
-      annotationsTable.column(BP_COLUMNS.matched_classes).search("").draw();
-    } else {
-      annotationsTable.column(BP_COLUMNS.matched_classes).search("^" + search_regex.join("(?!.)|^") + "(?!.)", true, false).draw();
-    }
-  }
-};
-
-var filter_match_type = {
-  init: function() {
-    "use strict";
-    jQuery("#filter_match_type").bind("click", function(e) {
-      bp_popup_init(e)
-    });
-    // Need to use bind to avoid "live" propogation issues
-    jQuery(".filter_match_type_checkboxes").bind("click", function(e) {
-      filter_match_type.filterMatchType(e)
-    });
-    jQuery("#match_type_filter_list").click(function(e) {
-      e.stopPropagation()
-    });
-    this.cleanup();
-  },
-
-  cleanup: function() {
-    "use strict";
-    jQuery("html").click(bp_popup_cleanup);
-    jQuery(document).keyup(function(e) {
-      if (e.keyCode == 27) {
-        bp_popup_cleanup();
-      } // esc
-    });
-  },
-
-  filterMatchType: function(e) {
-    "use strict";
-    e.stopPropagation();
-    var search_regex = [];
-    jQuery(".filter_match_type_checkboxes:checked").each(function() {
-      // Escape characters used in regex
-      search_regex.push(jQuery(this).val().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"));
-    });
-    displayFilteredColumnNames();
-    if (search_regex.length === 0) {
-      annotationsTable.column(BP_COLUMNS.types).search("").draw();
-    } else {
-      annotationsTable.column(BP_COLUMNS.types).search("^" + search_regex.join("(?!.)|^") + "(?!.)", true, false).draw();
-    }
-  }
-};
-
-var removeFilters = function() {
-  "use strict";
-  jQuery(".filter_ontology_checkboxes").attr("checked", false);
-  jQuery(".filter_classes_checkboxes").attr("checked", false);
-  jQuery(".filter_match_type_checkboxes").attr("checked", false);
-  jQuery(".filter_matched_classes_checkboxes").attr("checked", false);
-  jQuery(".filter_matched_ontologies_checkboxes").attr("checked", false);
-  annotationsTable
-    .columns([BP_COLUMNS.classes, BP_COLUMNS.ontologies, BP_COLUMNS.types,
-              BP_COLUMNS.matched_classes, BP_COLUMNS.matched_ontologies])
-    .search("")
-    .draw();
-  jQuery("#filter_list").hide();
-};
-
 function annotatorFormatLink(param_string, format) {
   "use strict";
   // TODO: Check whether 'text' and 'tabDelimited' could work.
@@ -446,11 +171,7 @@ jQuery(document).ready(function() {
   jQuery("#insert_text_link").click(insertSampleText);
   // The annotations table is initialized by the annotator-table Stimulus
   // controller, which assigns the DataTables API instance to annotationsTable.
-  filter_ontologies.init();
-  filter_classes.init();
-  filter_match_type.init();
-  filter_matched_ontologies.init();
-  filter_matched_classes.init();
+  // Column filtering is handled by the DataTables ColumnControl extension.
 
   jQuery("#annotations_container").hide();
 }); // doc ready
@@ -608,48 +329,19 @@ function get_annotation_rows_from_raw(annotation, params) {
 
 function update_annotations_table(rowsArray) {
   "use strict";
-  var ontologies = {},
-    classes = {},
-    match_types = {},
-    matched_ontologies = {},
-    matched_classes = {},
+  var match_types = {},
     context_count = 0;
 
   jQuery(rowsArray).each(function() {
     // [ cls_link, ont_link, match_type, semantic_types, text_markup, cls_link, ont_link ];
     var row = this,
-      cls_link = row[0],
-      ont_link = row[1],
-      match_type = row[2], // direct, ancestors, mapping
-      //semantic_type = row[3],
-      //match_text = row[4],
-      match_cls_link = row[5],
-      match_ont_link = row[6];
-    // Extract labels from links (using non-greedy regex).
-    var cls_label = cls_link.replace(/^<a.*?>/, '').replace('</a>', '').toLowerCase(),
-      ont_label = ont_link.replace(/^<a.*?>/, '').replace('</a>', ''),
-      match_cls_label = match_cls_link.replace(/^<a.*?>/, '').replace('</a>', '').toLowerCase(),
-      match_ont_label = match_ont_link.replace(/^<a.*?>/, '').replace('</a>', '');
-
-    // TODO: Gather sem types for display
-    //    var semantic_types = [];
-    //    jQuery.each(annotation.concept.semantic_types, function () {
-    //      semantic_types.push(this.description);
-    //    });
+      match_type = row[2]; // direct, ancestors, mapping
 
     // Keep track of contexts. If there are none (IE when using mallet), hide the column
     if (row[4] !== "") context_count++;
 
-    // Keep track of how many results are associated with each ontology
-    ontologies[ont_label] = (ont_label in ontologies) ? ontologies[ont_label] + 1 : 1;
-    // Keep track of how many results are associated with each class
-    classes[cls_label] = (cls_label in classes) ? classes[cls_label] + 1 : 1;
     // Keep track of match types
     match_types[match_type] = (match_type in match_types) ? match_types[match_type] + 1 : 1;
-    // Keep track of matched classes
-    matched_classes[match_cls_label] = (match_cls_label in matched_classes) ? matched_classes[match_cls_label] + 1 : 1;
-    // Keep track of matched ontologies
-    matched_ontologies[match_ont_label] = (match_ont_label in matched_ontologies) ? matched_ontologies[match_ont_label] + 1 : 1;
   });
 
   // Add result counts
@@ -664,28 +356,19 @@ function update_annotations_table(rowsArray) {
   jQuery("#result_counts").append("&nbsp;/&nbsp;" + "mapping " + count_span + mapping_count + "</span>");
   jQuery("#result_counts").append(")");
 
-  // Add checkboxes to filters
-  createFilterCheckboxes(ontologies, "filter_ontology_checkboxes", "ontology_filter_list");
-  createFilterCheckboxes(classes, "filter_classes_checkboxes", "classes_filter_list");
-  createFilterCheckboxes(match_types, "filter_match_type_checkboxes", "match_type_filter_list");
-  createFilterCheckboxes(matched_ontologies, "filter_matched_ontology_checkboxes", "matched_ontology_filter_list");
-  createFilterCheckboxes(matched_classes, "filter_matched_classes_checkboxes", "matched_classes_filter_list");
-
-  // Reset table (clear rows and any sorting)
-  annotationsTable.clear().order([]).draw();
-  removeFilters();
-
-  // Need to re-init because we're not using "live" because of propagation issues
-  filter_ontologies.init();
-  filter_classes.init();
-  filter_match_type.init();
-  filter_matched_ontologies.init();
-  filter_matched_classes.init();
+  // Reset table (clear rows, sorting, and any ColumnControl column filters)
+  annotationsTable.clear().order([]);
+  annotationsTable.columns().columnControl.searchClear();
+  annotationsTable.draw();
 
   // Add data
   if (rowsArray.length > 0) {
     annotationsTable.rows.add(rowsArray).draw();
   }
+
+  // Rebuild the searchList filter options from the new data (they are only
+  // refreshed automatically for Ajax-loaded tables)
+  annotationsTable.columns().columnControl.searchList('refresh');
 
   // Hide columns as necessary
   if (context_count == 0) {

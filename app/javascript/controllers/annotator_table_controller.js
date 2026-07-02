@@ -9,13 +9,23 @@ export default class extends Controller {
   static targets = ['table'];
 
   tableTargetConnected(table) {
+    // Filterable columns get a ColumnControl dropdown (hamburger icon) holding a
+    // searchList of the column's values. Cells contain HTML links, so the list
+    // labels use the 'filter' orthogonal data (tags stripped) instead of the
+    // default 'display'.
+    const searchListDropdown = ['order', [{ extend: 'searchList', orthogonal: 'filter' }]];
+
     window.annotationsTable = new DataTable(table, {
       paging: false,
       autoWidth: false,
       order: [],
+      // Ordering is handled by the ColumnControl 'order' buttons, so DataTables'
+      // own header click handler and sort indicators are turned off.
+      ordering: { indicators: false, handler: false },
+      columnControl: ['order'],
       // Suppress DataTables' built-in chrome (global search box, info line, etc.).
-      // The annotator has its own per-column filter popups and #result_counts;
-      // searching stays enabled so those column filters keep working.
+      // The annotator has its own #result_counts; searching stays enabled so the
+      // ColumnControl column filters keep working.
       layout: {
         topStart: null,
         topEnd: null,
@@ -24,13 +34,13 @@ export default class extends Controller {
       },
       language: { zeroRecords: 'No annotations found' },
       columns: [
-        { width: '15%' },
-        { width: '15%' },
-        { width: '5%' },
+        { width: '15%', columnControl: searchListDropdown },
+        { width: '15%', columnControl: searchListDropdown },
+        { width: '5%', columnControl: searchListDropdown },
         { width: '5%', visible: false },
         { width: '30%' },
-        { width: '15%' },
-        { width: '15%' },
+        { width: '15%', columnControl: searchListDropdown },
+        { width: '15%', columnControl: searchListDropdown },
       ],
     });
   }
