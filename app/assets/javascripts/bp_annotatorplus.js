@@ -165,7 +165,11 @@ var displayFilteredColumnNames = function() {
   var column_names = [];
   var header_text;
   jQuery(".bp_popup_list input:checked").closest("th").each(function() {
-    header_text = this.childNodes[0].textContent.trim();
+    // DataTables 2.x wraps the header content in a .dt-column-title span; read the
+    // column label from there (falling back to the th itself for older markup) so
+    // we don't pick up the filter popup's contents.
+    var titleEl = this.querySelector(".dt-column-title") || this;
+    header_text = titleEl.childNodes[0].textContent.trim();
     column_names.push(header_text);
   });
   jQuery("#filter_names").html(column_names.join(", "));

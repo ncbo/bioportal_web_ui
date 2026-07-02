@@ -13,7 +13,7 @@
 @use 'tom-select/dist/scss/tom-select';
 @use 'tippy.js/dist/tippy';
 @use 'tippy.js/themes/light-border';
-@use 'datatables.net-fixedheader-dt/css/fixedHeader.dataTables';
+@use 'datatables.net-bs5/css/dataTables.bootstrap5';
 
 // BioPortal
 @use 'account';
@@ -31,6 +31,7 @@
 @use 'notice';
 @use 'ontologies';
 @use 'ontology_viewer';
+@use 'projects';
 @use 'recommender';
 @use 'search';
 @use 'submissions';

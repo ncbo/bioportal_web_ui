@@ -1,0 +1,20 @@
+// Sticky header for the Projects listing table. Replaces the DataTables
+// FixedHeader plugin, whose 4.x/DataTables 2 combination failed to restore the
+// header when scrolling back to the top of the page.
+//
+// The top offset is the height of the fixed navbar, measured at runtime by
+// projects_table_controller.js and exposed as the --bp-sticky-top custom
+// property on the table element (custom properties inherit down to the th).
+#projects thead th {
+  position: sticky;
+  top: var(--bp-sticky-top, 0px);
+  z-index: 2;
+  // Opaque background so scrolled rows don't show through the sticky header.
+  // Use the Bootstrap body background to match the .table styling.
+  background-color: var(--bs-body-bg);
+  // A sticky cell's bottom border does not repaint as the table scrolls under
+  // it, so the Bootstrap header border flickers out. Draw it with an inset
+  // box-shadow instead — it travels with the sticky element.
+  border-bottom-color: transparent;
+  box-shadow: inset 0 -1px 0 var(--bs-border-color);
+}

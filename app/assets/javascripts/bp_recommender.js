@@ -199,7 +199,7 @@ rec.getRecommendations = function() {
                         else {
                             ontologyHeader = "Ontologies";
                         }
-                        var table = $('<table id="recommendations" class="zebra" width="100%" data-recommender-table-target="table"></table>');
+                        var table = $('<table id="recommendations" class="table table-striped" width="100%" data-recommender-table-target="table"></table>');
                         var header = $('<thead><tr><th title="Position of the ontology in the ranking">POS.</th>'
                         + '<th title="Ontology acronym">' + ontologyHeader + '</th>'
                         + '<th title="Final recommendation score for the ontology. It represents the appropriateness of the ontology to describe the input data">Final score</th>'

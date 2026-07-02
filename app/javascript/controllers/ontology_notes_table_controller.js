@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import DataTable from 'datatables.net-dt';
+import DataTable from 'datatables.net-bs5';
 
 // Connects to data-controller="ontology-notes-table" on the notes table container
 // (AJAX-loaded with the ontology Notes tab). Exposes the DataTables API instance as

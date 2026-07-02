@@ -1,7 +1,7 @@
 // Entry point for the build script in your package.json
 
 import { Turbo } from '@hotwired/turbo-rails';
-import DataTable from 'datatables.net-dt';
+import DataTable from 'datatables.net-bs5';
 import './controllers';
 import './component_controllers';
 import * as bootstrap from 'bootstrap';

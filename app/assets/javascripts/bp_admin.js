@@ -697,14 +697,16 @@ function displayOntologies(data, ontology) {
           "searchable": true,
           "title": "Date Created",
           "type": "date",
-          "width": "170px"
+          "width": "170px",
+          "className": "text-nowrap"
         },
         {
           "targets": 4,
           "searchable": true,
           "title": "Report Date",
           "type": "date",
-          "width": "170px"
+          "width": "170px",
+          "className": "text-nowrap"
         },
         {
           "targets": 5,
@@ -737,18 +739,30 @@ function displayOntologies(data, ontology) {
         }
       ],
       "autoWidth": false,
-      "lengthChange": false,
+      "lengthChange": true,
       "searching": true,
       "language": {
-        "search": "Filter: ",
         "emptyTable": "No ontologies available"
       },
       "info": true,
       "paging": true,
-      "pageLength": 100,
+      "pageLength": 50,
       "ordering": true,
-      "stripeClasses": ["", "alt"],
-      "dom": '<"ontology_nav"><"top"fi>rtip',
+      // Mirror the default controls above and below the table (DataTables'
+      // "multiple controls" layout pattern). This is a large table (100 rows
+      // per page by default), so having page length, search, info, and paging
+      // at both ends — and the filtered count visible up top when toggling
+      // All/Problem-Only — is worth the extra rows.
+      "layout": {
+        "top2Start": "pageLength",
+        "top2End": "search",
+        "topStart": "info",
+        "topEnd": "paging",
+        "bottomStart": "pageLength",
+        "bottomEnd": "search",
+        "bottom2Start": "info",
+        "bottom2End": "paging"
+      },
       "customAllowOntologiesFilter": true
     });
   }
@@ -825,8 +839,12 @@ jQuery(".admin.index").ready(function() {
         return true;
       }
 
-      var row = settings.aoData[dataIndex].nTr;
-      if (!problemOnly || row.classList.contains("problem") || data[data.length - 1] === "true") {
+      // Determine "problem" status from the row data, not the rendered <tr>.
+      // In DataTables 2.x the row node (settings.aoData[dataIndex].nTr) may be
+      // null at filter time (it is created later during draw), so reading
+      // .classList threw. data[last] is the hidden "problem" column, a
+      // stringified boolean ("true"/"false").
+      if (!problemOnly || data[data.length - 1] === "true") {
         return true;
       }
       return false;
@@ -906,7 +924,7 @@ function displayUsers() {
                 "url": "/admin/users",
                 "contentType": "application/json",
                 "data": function (d) {
-                    var columnToAttr = ['firstName', 'lastName', 'username', 'email', 'role', null, 'created', null];
+                    var columnToAttr = ['firstName', 'lastName', 'username', 'email', 'role', null, 'created', 'lastLoginAt', null];
                     var params = {
                         draw: d.draw,
                         page: Math.floor(d.start / d.length) + 1,
@@ -969,6 +987,12 @@ function displayUsers() {
                 },
                 {
                     "targets": 7,
+                    "searchable": true,
+                    "orderable": true,
+                    "title": "Last login",
+                },
+                {
+                    "targets": 8,
                     "searchable": false,
                     "orderable": false,
                     "title": "Actions",
@@ -976,19 +1000,29 @@ function displayUsers() {
                 }
             ],
             "autoWidth": false,
-            "lengthChange": false,
+            "lengthChange": true,
             "searching": true,
             "language": {
-                "search": "Filter: ",
                 "emptyTable": "No users available"
             },
             "info": true,
             "paging": true,
-            "pageLength": 100,
+            "pageLength": 50,
             "ordering": true,
             "order": [[2, "asc"]],
+            // Mirror the controls above and below the table to match the Admin
+            // Ontologies table, so both admin-console tables look consistent.
+            "layout": {
+                "top2Start": "pageLength",
+                "top2End": "search",
+                "topStart": "info",
+                "topEnd": "paging",
+                "bottomStart": "pageLength",
+                "bottomEnd": "search",
+                "bottom2Start": "info",
+                "bottom2End": "paging"
+            },
             "responsive": true,
-            "stripeClasses": ["", "alt"],
         });
 }
 
