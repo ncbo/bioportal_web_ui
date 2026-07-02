@@ -2,6 +2,7 @@
 
 import { Turbo } from '@hotwired/turbo-rails';
 import DataTable from 'datatables.net-bs5';
+import 'datatables.net-columncontrol-bs5';
 import './controllers';
 import './component_controllers';
 import * as bootstrap from 'bootstrap';
