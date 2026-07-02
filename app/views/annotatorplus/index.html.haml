@@ -127,46 +127,17 @@
     #annotations_container{'data-controller': 'annotator-plus-table'}
       #result_counts
       %h4 Annotations
-      #filter_list{:style => "font-size: 9pt; color: gray; display: none; clear: both; margin: 0 0 5px"}
-        %span#filter_title> Results are filtered by:
-        \&nbsp;
-        %span#filter_names
       #results_error{:style => "color: red; margin-bottom: 7px;"}
       %table#annotations.table.table-striped{:style => "min-width: 700px; width: 100%;", 'data-annotator-plus-table-target': 'table'}
         %thead
           %tr
-            %th
-              Class
-              %span.popup_container
-                %span.bp_popup_link_container
-                  %a#filter_classes.bp_popup_link{:href => "javascript:void(0);"} filter
-                %div#classes_filter_list.bp_popup_list
-            %th
-              Ontology
-              %span.popup_container
-                %span.bp_popup_link_container
-                  %a#filter_ontologies.bp_popup_link{:href => "javascript:void(0);"} filter
-                %div#ontology_filter_list.bp_popup_list
-            %th{class: "match_type"}
-              Type
-              %span.popup_container
-                %span.bp_popup_link_container
-                  %a#filter_match_type.bp_popup_link{:href => "javascript:void(0);"} filter
-                %div#match_type_filter_list.bp_popup_list
+            %th Class
+            %th Ontology
+            %th{class: "match_type"} Type
             %th UMLS Sem Type
             %th{class: "match_context"} Context
-            %th
-              Matched Class
-              %span.popup_container
-                %span.bp_popup_link_container
-                  %a#filter_matched_classes.bp_popup_link{:href => "javascript:void(0);"} filter
-                %div#matched_classes_filter_list.bp_popup_list
-            %th
-              Matched Ontology
-              %span.popup_container
-                %span.bp_popup_link_container
-                  %a#filter_matched_ontologies.bp_popup_link{:href => "javascript:void(0);"} filter
-                %div#matched_ontology_filter_list.bp_popup_list
+            %th Matched Class
+            %th Matched Ontology
             %th Score
             %th Negation
             %th Experiencer
