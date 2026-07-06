@@ -2,20 +2,8 @@ select#semantic_types + .chosen-container {
   display: block;
 }
 
-div#annotations_filter, div#annotations_info {
-  display: none;
-}
-
-.result_count {
-  font-weight: bold;
-}
-
 #annotations th {
 	padding-right: 6px;
-}
-
-#annotations span[class="popup_container"] {
-  padding-left: 1.7em;
 }
 
 #annotator_parameters {
@@ -24,15 +12,9 @@ div#annotations_filter, div#annotations_info {
 }
 
 #annotations_container {
-  display: none; 
-  margin-top: 10px; 
+  display: none;
+  margin-top: 10px;
   margin-bottom: 25px;
-}
-
-#annotations_container #result_counts {
-  float: right; 
-  font-style: oblique; 
-  color: gray;
 }
 
 /* AnnotatorPlus */
