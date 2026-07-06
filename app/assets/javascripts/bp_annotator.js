@@ -344,18 +344,6 @@ function update_annotations_table(rowsArray) {
     match_types[match_type] = (match_type in match_types) ? match_types[match_type] + 1 : 1;
   });
 
-  // Add result counts
-  var count_span = '<span class="result_count">'
-  jQuery("#result_counts").html("total results " + count_span + rowsArray.length + "</span>&nbsp;");
-  var direct_count = ("direct" in match_types) ? match_types["direct"] : 0,
-    ancestor_count = ("ancestor" in match_types) ? match_types["ancestor"] : 0,
-    mapping_count = ("mapping" in match_types) ? match_types["mapping"] : 0;
-  jQuery("#result_counts").append("(");
-  jQuery("#result_counts").append("direct " + count_span + direct_count + "</span>");
-  jQuery("#result_counts").append("&nbsp;/&nbsp;" + "ancestor " + count_span + ancestor_count + "</span>");
-  jQuery("#result_counts").append("&nbsp;/&nbsp;" + "mapping " + count_span + mapping_count + "</span>");
-  jQuery("#result_counts").append(")");
-
   // Reset table (clear rows, sorting, and any ColumnControl column filters)
   annotationsTable.clear().order([]);
   annotationsTable.columns().columnControl.searchClear();
