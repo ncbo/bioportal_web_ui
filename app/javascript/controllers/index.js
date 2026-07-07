@@ -25,6 +25,9 @@ application.register("fair-score-landscape", FairScoreLandscapeController)
 import FairScoreSummaryController from "./fair_score_summary_controller"
 application.register("fair-score-summary", FairScoreSummaryController)
 
+import FoopsScoreSummaryController from "./foops_score_summary_controller"
+application.register("foops-score-summary", FoopsScoreSummaryController)
+
 import FormAutoCompleteController from "./form_auto_complete_controller"
 application.register("form-auto-complete", FormAutoCompleteController)
 
@@ -106,6 +109,8 @@ application.register('concepts-json', ConceptsJsonButtonController)
 import ParentCategoriesSelectorController from "./parent_categories_selector_controller.js"
 application.register('parent-categories-selector', ParentCategoriesSelectorController)
 
+import ClassPickerController from "./class_picker_controller.js"
+application.register("class-picker", ClassPickerController)
 
 import SubjectsController from "./subjects_controller.js"
 application.register("subjects", SubjectsController)
