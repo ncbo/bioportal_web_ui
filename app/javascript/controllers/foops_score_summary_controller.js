@@ -14,6 +14,7 @@ export default class extends Controller {
             const badge = document.getElementById('foops-total-score')
             if (badge) {
               badge.textContent = `Total score : ${data.score} ( ${data.normalizedScore}%)`
+              badge.closest('.right-button')?.classList.remove('d-none')
             }
             resolve(data)
           } else {

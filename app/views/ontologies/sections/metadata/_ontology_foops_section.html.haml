@@ -5,7 +5,7 @@
         = image_tag "logos/foopsLogo.png", height: "25", class: "mr-2", style: "vertical-align: middle;"
         = info_tooltip(content_tag(:div, t("fair_score.foops_description"), style: "width: 320px"), interactive: false)
         = render IconWithTooltipComponent.new(icon: 'json.svg', link: "/ajax/fair_score/foops_json?ontologies=#{acronym}", target: '_blank', title: t('fair_score.go_to_api'), size: 'small', style: 'vertical-align: middle;')
-    .btn.btn-primary.rounded-pill.right-button
+    .btn.btn-primary.rounded-pill.right-button{class: ('d-none' unless @foops_scores_data)}
       %span#foops-total-score{ style: 'cursor: default;' }
         - if @foops_scores_data
           = t("ontologies.sections.metadata.total_score", score: @foops_scores_data[:score], normalized_score: @foops_scores_data[:normalizedScore])
