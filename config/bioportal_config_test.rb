@@ -10,6 +10,9 @@ $REST_URL = ENV['API_URL']
 $BIOMIXER_URL = ENV['BIOMIXER_URL']
 $ANNOTATOR_URL = $PROXY_URL = ENV['ANNOTATOR_URL'].blank? ? "https://services.tesportal.lirmm.fr/annotator" : ENV['ANNOTATOR_URL']
 $FAIRNESS_URL = ENV['FAIRNESS_URL']
+
+# FOOPS! FAIR assessment endpoint.
+$FOOPS_URL = ENV['FOOPS_URL'] || 'https://foops.linkeddata.es/assessOntology'
 $AGENTS_ENABLED = ENV["AGENTS_ENABLED"].to_s.downcase == "true"
 $SPARQL_ENDPOINT_URL = ENV['SPARQL_ENDPOINT_URL'] || nil
 

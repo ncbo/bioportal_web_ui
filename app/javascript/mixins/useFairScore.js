@@ -37,10 +37,14 @@ class FairScoreChartContainer{
         this.requestLink = jQuery("#fairness-service-url")
         this.requestHrefBase = (this.requestLink != null ?this.requestLink.attr("href") : "")
 
-        this.fairSpinner = jQuery("<div id='fair-spinner-container' class='w-100 text-center'> <div class='spinner-grow'></div> </div>")
+        // A server-rendered skeleton sibling, when present, replaces the generic spinner
+        this.fairSpinner = this.fairChartsContainer.siblings('.fair-score-skeleton').first()
+        if (!this.fairSpinner.length) {
+            this.fairSpinner = jQuery("<div id='fair-spinner-container' class='w-100 text-center'> <div class='spinner-grow'></div> </div>")
+            this.fairChartsContainer.before(this.fairSpinner)
+        }
         this.fairMsgErr =  jQuery("<div id='fair-msg-container' class='w-100 text-center'>" + (this.fairChartsContainer.data('error-message') || 'We could not collect the data from the fairness service') + "</div>")
         this.fairMsgErr.hide()
-        this.fairChartsContainer.before(this.fairSpinner)
         this.fairChartsContainer.before(this.fairMsgErr)
         this.charts = charts
     }
