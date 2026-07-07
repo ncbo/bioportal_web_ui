@@ -14,6 +14,7 @@ class FairScoreController < ApplicationController
   end
 
   def foops_json
+    return render json: { error: 'FOOPS feature is disabled' }, status: :not_found unless foops_enabled?
     ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontologies])&.first
     return render json: { error: 'not found' }, status: :not_found if ontology.nil?
     render json: get_foops_score(ontology)
