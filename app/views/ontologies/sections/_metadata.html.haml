@@ -4,26 +4,30 @@
     .summary-page-first-row
       = render partial: 'ontologies/sections/metadata/ontology_description_section'
       = render partial: 'ontologies/sections/metadata/ontology_metrics_section'
-      .fairness-section{data: {controller: "fairness-carousel"}}
-        %h2.card_title
-          %span.mr-2= t("ontologies.sections.metadata.fair_score_title")
-          = info_tooltip(t("fair_score.description"))
-        - has_fairness = @fair_scores_data.present?
-        .fairness-tabs
-          - if has_fairness
-            %button.fairness-tab.active{data: {action: "fairness-carousel#goTo", "fairness-carousel-target": "tab"}} O'FAIRe
-          %button.fairness-tab{class: has_fairness ? '' : 'active', data: {action: "fairness-carousel#goTo", "fairness-carousel-target": "tab"}} FOOPS!
-        .fairness-carousel
-          .fairness-carousel-viewport
-            .fairness-carousel-track{data: {"fairness-carousel-target": "container"}}
-              - if has_fairness
-                = render partial: 'ontologies/sections/metadata/ontology_fairness_section'
-              = render partial: 'ontologies/sections/metadata/ontology_foops_section', locals: { acronym: @ontology.acronym }
-          - if has_fairness
-            %button.fairness-carousel-btn.fairness-carousel-btn-prev.disabled{data: {action: "fairness-carousel#prev"}}
-              = inline_svg_tag("icons/chevron-left.svg", width: 8, height: 12)
-            %button.fairness-carousel-btn.fairness-carousel-btn-next{data: {action: "fairness-carousel#next"}}
-              = inline_svg_tag("icons/chevron-left.svg", width: 8, height: 12, class: "flip-x")
+      - has_fairness = @fair_scores_data.present?
+      - has_foops = foops_enabled?
+      - if has_fairness || has_foops
+        .fairness-section{data: {controller: "fairness-carousel"}}
+          %h2.card_title
+            %span.mr-2= t("ontologies.sections.metadata.fair_score_title")
+            = info_tooltip(t("fair_score.description"))
+          .fairness-tabs
+            - if has_fairness
+              %button.fairness-tab.active{data: {action: "fairness-carousel#goTo", "fairness-carousel-target": "tab"}} O'FAIRe
+            - if has_foops
+              %button.fairness-tab{class: has_fairness ? '' : 'active', data: {action: "fairness-carousel#goTo", "fairness-carousel-target": "tab"}} FOOPS!
+          .fairness-carousel
+            .fairness-carousel-viewport
+              .fairness-carousel-track{data: {"fairness-carousel-target": "container"}}
+                - if has_fairness
+                  = render partial: 'ontologies/sections/metadata/ontology_fairness_section'
+                - if has_foops
+                  = render partial: 'ontologies/sections/metadata/ontology_foops_section', locals: { acronym: @ontology.acronym }
+            - if has_fairness && has_foops
+              %button.fairness-carousel-btn.fairness-carousel-btn-prev.disabled{data: {action: "fairness-carousel#prev"}}
+                = inline_svg_tag("icons/chevron-left.svg", width: 8, height: 12)
+              %button.fairness-carousel-btn.fairness-carousel-btn-next{data: {action: "fairness-carousel#next"}}
+                = inline_svg_tag("icons/chevron-left.svg", width: 8, height: 12, class: "flip-x")
       = render partial: 'ontologies/sections/metadata/ontology_relations_network'
       = render partial: 'ontologies/sections/metadata/ontology_submissions_section'
     .summary-page-second-row

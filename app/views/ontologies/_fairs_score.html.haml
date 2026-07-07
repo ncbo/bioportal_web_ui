@@ -6,8 +6,6 @@
     = render partial: "shared/fair_score_radar" , locals: {data: scores_data, id_prefix: id_prefix}
   %div.w-50
     = render partial: "shared/fair_score_bars" , locals: {data: scores_data, id_prefix: id_prefix}
-  - unless scores_data
-    %p.font-italic= t("ontologies.collecting_data", acronym: @ontology.acronym)
 %div.text-center
   - text = " <span>#{t("ontologies.see_details")}</span>"
   - combined_param = id_prefix == "ont-foops" ? "&foops=true" : ""

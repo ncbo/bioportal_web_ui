@@ -9,17 +9,20 @@ export default class extends Controller {
 
     fairContainer.ajaxCall = function(ontologies) {
       return new Promise((resolve, reject) => {
+        const badge = document.getElementById('foops-total-score')
+        const hideBadge = () => badge?.closest('.right-button')?.classList.add('d-none')
         $.get(`/ajax/fair_score/json/?ontologies=${ontologies}&foops=true`, (data) => {
           if (data) {
-            const badge = document.getElementById('foops-total-score')
             if (badge) {
               badge.textContent = `Total score : ${data.score} ( ${data.normalizedScore}%)`
+              badge.closest('.right-button')?.classList.remove('fair-score-skeleton-pill')
             }
             resolve(data)
           } else {
+            hideBadge()
             reject('no data')
           }
-        }).fail(() => reject('error'))
+        }).fail(() => { hideBadge(); reject('error') })
       })
     }
 

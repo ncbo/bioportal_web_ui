@@ -176,3 +176,90 @@ $non_applicable_color :  rgba(176, 190, 197, 0.4);
 #fair-summary, #foops-summary {
   padding: 0 16px 16px;
 }
+
+// Loading skeleton mirroring the FAIR charts layout (radar + principle bars +
+// details link) until the async scores arrive. Animated with the global
+// `skeleton` keyframes from browse.scss.
+.fair-score-skeleton {
+  padding: 16px 0 8px;
+
+  .fair-skeleton-shape {
+    background: linear-gradient(-90deg, #EEE, #F5F5F5, #EEE);
+    background-size: 400% 400%;
+    animation: skeleton 3s ease-in-out infinite;
+    border-radius: 5px;
+  }
+
+  .fair-score-skeleton-charts {
+    display: flex;
+    align-items: center;
+  }
+
+  .fair-score-skeleton-radar,
+  .fair-score-skeleton-bars {
+    width: 50%;
+  }
+
+  .fair-skeleton-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    margin: 10px auto;
+  }
+
+  .fair-score-skeleton-legend {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 18px;
+
+    .fair-skeleton-chip {
+      width: 70px;
+      height: 12px;
+    }
+  }
+
+  .fair-score-skeleton-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+
+    .fair-skeleton-label {
+      width: 80px;
+      height: 12px;
+    }
+
+    .fair-skeleton-bar {
+      flex-grow: 1;
+      height: 16px;
+    }
+  }
+
+  .fair-score-skeleton-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+
+    .fair-skeleton-link {
+      width: 110px;
+      height: 14px;
+    }
+  }
+}
+
+.right-button.fair-score-skeleton-pill {
+  background: linear-gradient(-90deg, #EEE, #F5F5F5, #EEE) !important;
+  background-size: 400% 400% !important;
+  animation: skeleton 3s ease-in-out infinite;
+  border-color: transparent !important;
+  min-width: 170px;
+  min-height: 30px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fair-score-skeleton .fair-skeleton-shape,
+  .right-button.fair-score-skeleton-pill {
+    animation: none;
+  }
+}

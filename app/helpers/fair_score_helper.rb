@@ -8,6 +8,11 @@ module FairScoreHelper
     $FAIRNESS_DISABLED == 'false' || !$FAIRNESS_DISABLED
   end
 
+  def foops_enabled?
+    user = session[:user] rescue nil
+    Flipper.enabled?('FOOPS', user) && $FOOPS_URL.present?
+  end
+
   def get_fairness_service_url(apikey = user_apikey)
     "#{$FAIRNESS_URL}?portal=#{$HOSTNAME.split('.')[0]}#{apikey.nil? || apikey.empty? ? '' : "&apikey=#{apikey}"}"
   end
@@ -47,6 +52,8 @@ module FairScoreHelper
   end
 
   def get_foops_score(ontology)
+    return {} unless foops_enabled?
+
     ontology_uri = "#{$UI_URL}/ontologies/#{ontology.acronym}"
     cache_key = "foops-#{ontology.acronym}"
     fail_cache_key = "#{cache_key}-fail"
