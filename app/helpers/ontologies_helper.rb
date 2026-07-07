@@ -651,11 +651,18 @@ module OntologiesHelper
   end
 
   def ontology_depiction_card
-    return if Array(@submission_latest&.depiction).empty?
+    depictions = Array(@submission_latest&.depiction)
+    return if depictions.empty?
 
     render Layout::CardComponent.new do
-      list_container(@submission_latest.depiction) do |depiction_url|
-        render Display::ImageComponent.new(src: depiction_url)
+      if depictions.size == 1
+        render Display::ImageComponent.new(src: depictions.first)
+      else
+        render CarouselComponent.new(images: true) do |c|
+          depictions.each do |url|
+            c.slide { render Display::ImageComponent.new(src: url) }
+          end
+        end
       end
     end
   end

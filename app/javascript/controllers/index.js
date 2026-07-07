@@ -115,10 +115,20 @@ application.register("class-picker", ClassPickerController)
 import SubjectsController from "./subjects_controller.js"
 application.register("subjects", SubjectsController)
 
+import ClassPickerController from "./class_picker_controller.js"
+application.register("class-picker", ClassPickerController)
+
+import CarouselController from "./carousel_controller.js"
+application.register("carousel", CarouselController)
+
 import FairnessCarouselController from "./fairness_carousel_controller.js"
 application.register("fairness-carousel", FairnessCarouselController)
 
+import FoopsScoreSummaryController from "./foops_score_summary_controller"
+application.register("foops-score-summary", FoopsScoreSummaryController)
+
 import PasswordToggleController from "./password_toggle_controller.js"
 application.register("password-toggle", PasswordToggleController)
+
 import RorSearchController from "./ror_search_controller.js"
 application.register("ror-search", RorSearchController)

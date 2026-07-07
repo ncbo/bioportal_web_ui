@@ -1,0 +1,11 @@
+%div{class: css_class, data: { controller: 'carousel', carousel_loop_value: @loop.to_s }}
+  .carousel-viewport
+    .carousel-track{data: { carousel_target: 'container' }}
+      - slides.each do |slide|
+        %div= slide
+
+  %button.carousel-btn.carousel-btn-prev.disabled{type: 'button', aria: { label: 'Previous' }, data: { action: 'carousel#prev' }}
+    = inline_svg_tag('icons/chevron-left.svg', width: 8, height: 12)
+
+  %button.carousel-btn.carousel-btn-next{type: 'button', aria: { label: 'Next' }, data: { action: 'carousel#next' }}
+    = inline_svg_tag('icons/chevron-left.svg', width: 8, height: 12, class: 'flip-x')
