@@ -5,12 +5,27 @@
         = image_tag "logos/foopsLogo.png", height: "25", class: "mr-2", style: "vertical-align: middle;"
         = info_tooltip(content_tag(:div, t("fair_score.foops_description"), style: "width: 320px"), interactive: false)
         = render IconWithTooltipComponent.new(icon: 'json.svg', link: "/ajax/fair_score/foops_json?ontologies=#{acronym}", target: '_blank', title: t('fair_score.go_to_api'), size: 'small', style: 'vertical-align: middle;')
-    .btn.btn-primary.rounded-pill.right-button{class: ('d-none' unless @foops_scores_data)}
+    .btn.btn-primary.rounded-pill.right-button{class: ('fair-score-skeleton-pill' unless @foops_scores_data)}
       %span#foops-total-score{ style: 'cursor: default;' }
         - if @foops_scores_data
           = t("ontologies.sections.metadata.total_score", score: @foops_scores_data[:score], normalized_score: @foops_scores_data[:normalizedScore])
 
   %section#foops-summary
-    %div#foops-score-charts-container{data: { error_message: t('fair_score.foops_unreachable_warning') }}
+    - unless @foops_scores_data
+      .fair-score-skeleton{ 'aria-hidden': 'true' }
+        .fair-score-skeleton-charts
+          .fair-score-skeleton-radar
+            .fair-skeleton-shape.fair-skeleton-circle
+          .fair-score-skeleton-bars
+            .fair-score-skeleton-legend
+              - 3.times do
+                .fair-skeleton-shape.fair-skeleton-chip
+            - 4.times do
+              .fair-score-skeleton-row
+                .fair-skeleton-shape.fair-skeleton-label
+                .fair-skeleton-shape.fair-skeleton-bar
+        .fair-score-skeleton-footer
+          .fair-skeleton-shape.fair-skeleton-link
+    %div#foops-score-charts-container{data: { error_message: t('fair_score.foops_unreachable_warning') }, style: ('display: none;' unless @foops_scores_data)}
       = render partial: "fairs_score", locals: { id_prefix: "ont-foops", stimulus_controller: "foops-score-summary", scores_data: @foops_scores_data }
     .account-page-card-sub-container
