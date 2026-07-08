@@ -1,6 +1,6 @@
 %div#qsearch.input-group
   %span.input-group-text
-    %i.fas.fa-search
+    = inline_svg_tag 'icons/search.svg', class: 'svg-icon'
   = text_field_tag("search_box", nil, class: "form-control rounded-end", placeholder: t("ontologies.concepts_browsers.placeholder_jump"), aria: {label: t("ontologies.concepts_browsers.label_jump")},
     data: { controller: 'class-search-auto-complete',
       'class-search-auto-complete-ontology-acronym-value': @ontology.acronym,
@@ -12,5 +12,5 @@
   = hidden_field_tag("jump_to_concept_id")
   - if skos? && false  # disabled for now as no time to test #TODO
     %button.btn.btn-outline-primary.dropdown-toggle.ms-2{ "data-bs-toggle": "collapse", href: id }
-      %i.fas.fa-sliders-h.mx-1
+      = inline_svg_tag 'icons/sliders-h.svg', class: 'svg-icon mx-1'
       = t("ontologies.concepts_browsers.filter")
