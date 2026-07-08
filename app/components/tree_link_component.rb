@@ -56,7 +56,9 @@ class TreeLinkComponent < ViewComponent::Base
   end
 
   def self.tree_close_icon
-    "<i class='fas fa-chevron-down' data-action='click->simple-tree#toggleChildren'></i>".html_safe
+    ApplicationController.helpers.inline_svg_tag('icons/chevron-right.svg',
+                                                 class: 'svg-icon tree-chevron open',
+                                                 data: { action: 'click->simple-tree#toggleChildren' })
   end
 
   def open_children_link
@@ -71,7 +73,7 @@ class TreeLinkComponent < ViewComponent::Base
                   turbo_frame: "#{child_id + '_childs'}",
                   turbo_prefetch: false
                 } do
-          content_tag(:i, nil, class: "fas fa-chevron-right")
+          helpers.inline_svg_tag('icons/chevron-right.svg', class: 'svg-icon tree-chevron')
         end
       end
     end
