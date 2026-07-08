@@ -79,7 +79,7 @@ module OntologiesHelper
   end
 
   def private_ontology_icon(is_private)
-    raw(content_tag(:i, '', class: 'fas fa-key', title: t('ontologies.private_ontology'))) if is_private
+    inline_svg_tag('icons/key.svg', class: 'svg-icon', title: t('ontologies.private_ontology')) if is_private
   end
 
   def error_message_text(errors = @errors)
@@ -282,11 +282,11 @@ module OntologiesHelper
   def new_view_link
     if session[:user].nil?
       link_to(login_index_path(redirect: new_ontology_path), { 'aria-label': 'Create view', title: 'Create view' }) do
-        content_tag(:i, '', class: 'fas fa-lg fa-plus-circle', aria: { hidden: 'true' }).html_safe
+        inline_svg_tag('icons/plus-circle.svg', class: 'svg-icon svg-icon-lg', aria_hidden: true)
       end
     else
       link_to(new_ontology_path, { 'aria-label': 'Create view', title: 'Create view' }) do
-        content_tag(:i, '', class: 'fas fa-lg fa-plus-circle', aria: { hidden: 'true' }).html_safe
+        inline_svg_tag('icons/plus-circle.svg', class: 'svg-icon svg-icon-lg', aria_hidden: true)
       end
     end
   end
