@@ -235,14 +235,14 @@ module OntologiesHelper
   end
 
   # Creates a link based on the status of an ontology submission
-  def download_link(submission, ontology = nil)
+  def download_link(submission, ontology = nil, latest_ready = nil)
     ontology ||= @ontology
     if submission.ontology.summaryOnly
       link = 'N/A - metadata only'
     else
       uri = submission.id + "/download?apikey=#{get_apikey}"
       link = "<a href='#{uri}' 'rel='nofollow'>#{submission.pretty_format}</a>"
-      latest = ontology.explore.latest_submission({ include_status: 'ready' })
+      latest = latest_ready || ontology.explore.latest_submission({ include_status: 'ready' })
       if latest && latest.submissionId == submission.submissionId
         link += " | <a href='#{ontology.id}/download?apikey=#{get_apikey}&download_format=csv' rel='nofollow'>CSV</a>"
         if !latest.hasOntologyLanguage.eql?('UMLS')

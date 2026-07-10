@@ -28,7 +28,7 @@
           = xmldatetime_to_date(sub.creationDate)
         - unless @ont_restricted
           %td
-            = raw download_link(sub)
+            = raw download_link(sub, nil, submission_ready)
     - if @submissions.length >= 5
       %tr
         %td{colspan: more_colspan, class: "show_more_subs"}
