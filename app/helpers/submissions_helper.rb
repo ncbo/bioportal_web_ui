@@ -92,7 +92,7 @@ module SubmissionsHelper
   def save_button
     content_tag :div do
       button_tag({ data: { controller: 'tooltip' }, title: 'Save', class: 'btn btn-sm btn-light mx-1' }) do
-        content_tag(:i, "", class: 'fas fa-check')
+        inline_svg_tag('icons/check.svg', class: 'svg-icon')
       end
     end
 
@@ -105,7 +105,7 @@ module SubmissionsHelper
   def cancel_button(href)
     content_tag :div do
       link_to(href, { data: { turbo: true, controller: 'tooltip', turbo_frame: '_self' }, title: 'Cancel', class: 'btn btn-sm btn-light mx-1' }) do
-        content_tag(:i, "", class: 'fas fa-times')
+        inline_svg_tag('icons/times.svg', class: 'svg-icon')
       end
     end
   end

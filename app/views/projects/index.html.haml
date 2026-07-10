@@ -5,7 +5,7 @@
   = t('.intro', site: "#{$SITE}")
   = link_to(Rails.configuration.settings.links[:help_projects],
             data: {controller: 'popup', action: 'click->popup#open'}, 'aria-label': 'View projects help') do
-    %i{class: 'fas fa-question-circle fa-lg ps-1', 'aria-hidden': 'true'}
+    = inline_svg_tag 'icons/question-circle.svg', class: 'svg-icon svg-icon-lg ps-1', aria_hidden: true
 
 %div{class: 'mx-2 mt-2 mb-4', 'data-controller': 'projects-table'}
   %div.mb-4

@@ -56,10 +56,10 @@
         %header.pb-2.fw-bold Submissions
         - if @ontology.admin?(session[:user])
           = link_to(new_ontology_submission_path(@ontology.acronym), "aria-label": "Add submission", title: "Add submission") do
-            %i.fas.fa-lg.fa-plus-circle{"aria-hidden": "true", style: "margin-left: 0.75rem;"}
+            = inline_svg_tag 'icons/plus-circle.svg', class: 'svg-icon svg-icon-lg', aria_hidden: true, style: 'margin-left: 0.75rem;'
           - unless (@submission_latest.nil? || (@submission_latest.respond_to?(:status) && @submission_latest.status == 404))
             = link_to(edit_ontology_submission_path(@ontology.acronym, @submission_latest.submissionId), "aria-label": "Edit latest submission", title: "Edit latest submission") do
-              %i.fas.fa-user-edit{"aria-hidden": "true", style: "margin-left: 0.5rem;"}
+              = inline_svg_tag 'icons/user-edit.svg', class: 'svg-icon', aria_hidden: true, style: 'margin-left: 0.5rem;'
       = render partial: "submissions"
 
     -# Views pane (don't show if the ontology is a view - we don't allow views of views).
@@ -84,7 +84,7 @@
         %div.ont-section-toolbar
           %header.pb-2.fw-bold Metrics
           = link_to(Rails.configuration.settings.links[:metrics], target: "_blank", "aria-label": "View individual metrics definitions", title: "View individual metrics definitions") do
-            %i.fas.fa-lg.fa-question-circle{"aria-hidden": "true", style: "margin-left: 0.5rem"}
+            = inline_svg_tag 'icons/question-circle.svg', class: 'svg-icon svg-icon-lg', aria_hidden: true, style: 'margin-left: 0.5rem'
         - if @metrics.nil? || (@metrics.is_a?(Array) && @metrics.empty?) || (@metrics.respond_to?(:status) && @metrics.status == 404)
           %p.font-italic= "We have not yet calculated metrics for #{@ontology.acronym}"
         - else
@@ -123,7 +123,7 @@
           %header.pb-2.fw-bold Visits
           - if visits_data(@ontology)
             = link_to(@ontology.links["analytics"] + "?apikey=#{get_apikey}&format=csv", "aria-label": "Download as CSV", title: "Download as CSV") do
-              %i.fas.fa-lg.fa-download{"aria-hidden": "true", style: "margin-left: 0.5rem"}
+              = inline_svg_tag 'icons/download.svg', class: 'svg-icon svg-icon-lg', aria_hidden: true, style: 'margin-left: 0.5rem'
         = render partial: "visits"
 
       -# Projects pane
@@ -131,7 +131,7 @@
         %div.ont-section-toolbar
           %header.pb-2.fw-bold= "Projects using #{@ontology.acronym}"
           = link_to(new_project_path(), "aria-label": "Create new project", title: "Create new project") do
-            %i.fas.fa-lg.fa-plus-circle{"aria-hidden": "true", style: "margin-left: 0.5rem"}
+            = inline_svg_tag 'icons/plus-circle.svg', class: 'svg-icon svg-icon-lg', aria_hidden: true, style: 'margin-left: 0.5rem'
         - if @projects.empty?
           %p.font-italic= "No projects using #{@ontology.acronym}"
         - else

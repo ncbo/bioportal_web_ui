@@ -1,3 +1,21 @@
+/* Inline SVG icons (replacement for the Font Awesome icon font).
+   Sizing mirrors Font Awesome: base = 1em, -lg = fa-lg, -2x = fa-2x */
+.svg-icon {
+  height: 1em;
+  vertical-align: -0.125em;
+  fill: currentColor;
+}
+
+.svg-icon-lg {
+  height: 1.3333em;
+  vertical-align: -0.25em;
+}
+
+.svg-icon-2x {
+  height: 2em;
+  vertical-align: -0.3em;
+}
+
 /* Basic styling for disabled inputs */
 input:disabled {
   background-color: #f2f2f2;

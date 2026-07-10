@@ -11,11 +11,11 @@
           %ul.list-inline.mb-0
             %li.list-inline-item #{$RELEASE_VERSION}
             %li.list-inline-item
-              %i.fas.fa-ellipsis-v{"aria-hidden": "true"}
+              = inline_svg_tag 'icons/ellipsis-v.svg', class: 'svg-icon', aria_hidden: true
             %li.list-inline-item
               = link_to("Powered by BioPortal", "https://bioportal.bioontology.org/", target: "_blank")
             %li.list-inline-item
-              %i.fas.fa-ellipsis-v{"aria-hidden": "true"}
+              = inline_svg_tag 'icons/ellipsis-v.svg', class: 'svg-icon', aria_hidden: true
             %li.list-inline-item
               = link_to("Projects", projects_path())
 

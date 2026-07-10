@@ -2,7 +2,7 @@
   %div.d-flex.align-items-center{data: {toggle: "dropdown"}}
     %div
       = header
-    %i.fas.fa-chevron-down.ms-1
+    = helpers.inline_svg_tag 'icons/chevron-down.svg', class: 'svg-icon ms-1'
   %div.dropdown-menu
     - sections.each do |s|
       = s

@@ -49,13 +49,13 @@
         %ul.list-inline
           %li.list-inline-item
             = link_to(Rails.configuration.settings.links[:facebook], target: '_blank') do
-              %i.fab.fa-2x.fa-facebook-f
+              = inline_svg_tag 'icons/facebook-f.svg', class: 'svg-icon svg-icon-2x'
           %li.list-inline-item
             = link_to(Rails.configuration.settings.links[:twitter], target: '_blank') do
-              %i.fab.fa-2x.fa-twitter
+              = inline_svg_tag 'icons/twitter.svg', class: 'svg-icon svg-icon-2x'
           %li.list-inline-item
             = link_to(Rails.configuration.settings.links[:github], target: '_blank') do
-              %i.fab.fa-2x.fa-github
+              = inline_svg_tag 'icons/github.svg', class: 'svg-icon svg-icon-2x'
     %div.row.legal-text
       %div.col
         = t('.grant_html')
@@ -74,17 +74,17 @@
           %li.list-inline-item.nav-item
             = link_to('Cite Us', Rails.configuration.settings.links[:cite], class: 'nav-link p-0', target: '_blank')
           %li.list-inline-item
-            %i.fas.fa-ellipsis-v{"aria-hidden" => "true"}
+            = inline_svg_tag 'icons/ellipsis-v.svg', class: 'svg-icon', aria_hidden: true
           %li.list-inline-item
             = link_to('Privacy Policy', Rails.configuration.settings.links[:privacy_policy],class: 'nav-link p-0',
                       target: '_blank')
           %li.list-inline-item
-            %i.fas.fa-ellipsis-v{"aria-hidden" => "true"}
+            = inline_svg_tag 'icons/ellipsis-v.svg', class: 'svg-icon', aria_hidden: true
           %li.list-inline-item
             = link_to('Terms of Use', Rails.configuration.settings.links[:terms], class: 'nav-link p-0',
                       target: '_blank')
           %li.list-inline-item
-            %i.fas.fa-ellipsis-v{"aria-hidden" => "true"}
+            = inline_svg_tag 'icons/ellipsis-v.svg', class: 'svg-icon', aria_hidden: true
           %li.list-inline-item
             = link_to('Use of Cookies', Rails.configuration.settings.links[:cookies], class: 'nav-link p-0',
                       target: '_blank')

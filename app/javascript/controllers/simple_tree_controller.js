@@ -21,9 +21,9 @@ export default class extends Controller {
 
   toggleChildren (event) {
     event.preventDefault()
-    event.target.classList.toggle('fa-chevron-right')
-    event.target.classList.toggle('fa-chevron-down')
-    event.target.nextElementSibling.nextElementSibling.classList.toggle('hidden')
+    // currentTarget is the SVG the action is bound to; target can be its inner <path>
+    event.currentTarget.classList.toggle('open')
+    event.currentTarget.nextElementSibling.nextElementSibling.classList.toggle('hidden')
   }
 
   #centerTreeView() {

@@ -31,7 +31,7 @@
             %div.input-group.mb-3
               = text_field_tag('query', nil, class: 'form-control', placeholder: t('.query_placeholder'))
               = button_tag(class: 'btn btn-outline-primary') do
-                %i.fas.fa-search.fa-lg{'aria-hidden': 'true'}
+                = inline_svg_tag 'icons/search.svg', class: 'svg-icon svg-icon-lg', aria_hidden: true
             = link_to('Advanced search', search_path(opt: 'advanced'), class: 'btn btn-link')
     %div.col
       -# Search for an ontology
@@ -43,7 +43,7 @@
             = text_field_tag('ontology', nil, id: 'find_ontology', class: 'form-control',
                              data: {ontologynames: @ontology_names}, placeholder: t('.find_ontology_placeholder'))
             = button_tag(class: 'btn btn-outline-primary', onclick: 'jumpToValueOntology()') do
-              %i.fas.fa-search.fa-lg{'aria-hidden': 'true'}
+              = inline_svg_tag 'icons/search.svg', class: 'svg-icon svg-icon-lg', aria_hidden: true
           %div.dropdown
             %div.btn-group
               = tag.button('Browse ontologies', class: 'btn btn-outline-primary dropdown-toggle', type: 'button',

@@ -1,6 +1,11 @@
 /********************
 ## TREE VIEW
 *********************/
+/* Expand/collapse chevron: one chevron-right SVG, rotated when open */
+.tree-chevron.open {
+  transform: rotate(90deg);
+}
+
 #tree_wrapper {
   max-height: 75vh;
   overflow-y: auto;
