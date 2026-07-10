@@ -11,7 +11,7 @@ class OntologiesController < ApplicationController
   helper :concepts
   layout :determine_layout
 
-  before_action :authorize_and_redirect, :only=>[:edit, :update, :create, :new]
+  before_action :authorize_and_redirect, only: [:edit, :update, :create, :new]
 
   KNOWN_PAGES = Set.new(['terms', 'classes', 'mappings', 'notes', 'widgets', 'summary', 'properties', 'schemes', 'collections'])
 
@@ -63,8 +63,8 @@ class OntologiesController < ApplicationController
         o[:class_count] = 0
         o[:individual_count] = 0
       end
-      o[:class_count_formatted] = number_with_delimiter(o[:class_count], :delimiter => ',')
-      o[:individual_count_formatted] = number_with_delimiter(o[:individual_count], :delimiter => ',')
+      o[:class_count_formatted] = number_with_delimiter(o[:class_count], delimiter: ',')
+      o[:individual_count_formatted] = number_with_delimiter(o[:individual_count], delimiter: ',')
 
       o[:id]               = ont.id
       o[:type]             = ont.viewOf.nil? ? 'ontology' : 'ontology_view'
@@ -150,9 +150,9 @@ class OntologiesController < ApplicationController
 
   def properties
     if request.xhr?
-      return render 'properties', :layout => false
+      return render 'properties', layout: false
     else
-      return render 'properties', :layout => 'ontology_viewer'
+      return render 'properties', layout: 'ontology_viewer'
     end
   end
 
@@ -218,7 +218,7 @@ class OntologiesController < ApplicationController
       else
         params[:conceptid] = params.delete(:purl_conceptid)
       end
-      redirect_to "/ontologies/#{params[:acronym]}?p=classes#{params_string_for_redirect(params, prefix: "&")}", :status => :moved_permanently
+      redirect_to "/ontologies/#{params[:acronym]}?p=classes#{params_string_for_redirect(params, prefix: "&")}", status: :moved_permanently
       return
     end
 
@@ -267,7 +267,7 @@ class OntologiesController < ApplicationController
     case params[:p]
       when 'terms'
         params[:p] = 'classes'
-        redirect_to "/ontologies/#{params[:ontology]}#{params_string_for_redirect(params)}", :status => :moved_permanently
+        redirect_to "/ontologies/#{params[:ontology]}#{params_string_for_redirect(params)}", status: :moved_permanently
         return
       when 'classes'
         self.classes #rescue self.summary
@@ -497,9 +497,9 @@ class OntologiesController < ApplicationController
 
   def widgets
     if request.xhr?
-      render :partial => 'widgets', :layout => false
+      render partial: 'widgets', layout: false
     else
-      render :partial => 'widgets', :layout => 'ontology_viewer'
+      render partial: 'widgets', layout: 'ontology_viewer'
     end
   end
 
