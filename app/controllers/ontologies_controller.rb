@@ -240,7 +240,8 @@ class OntologiesController < ApplicationController
     # (include=all) drags in a fully-expanded nested ontology per submission, which for large
     # ontologies is tens of MB. Rich per-submission metadata is shown from @submission_latest below.
     submissions_include = 'submissionId,version,released,creationDate,submissionStatus,hasOntologyLanguage,diffFilePath'
-    @submissions = @ontology.explore.submissions(include: submissions_include).sort { |a, b| b.submissionId.to_i <=> a.submissionId.to_i } || []
+    @submissions = @ontology.explore.submissions(include: submissions_include)
+                            .sort { |a, b| b.submissionId.to_i <=> a.submissionId.to_i } || []
     Log.add :error, "No submissions for ontology: #{@ontology.id}" if @submissions.empty?
 
     # Get the latest submission (not necessarily the latest 'ready' submission)
