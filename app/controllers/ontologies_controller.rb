@@ -5,7 +5,7 @@ class OntologiesController < ApplicationController
   include MultiLanguagesHelper
   include OntologyUpdater
 
-  require "multi_json"
+  require 'multi_json'
   require 'cgi'
 
   helper :concepts
@@ -13,7 +13,7 @@ class OntologiesController < ApplicationController
 
   before_action :authorize_and_redirect, :only=>[:edit,:update,:create,:new]
 
-  KNOWN_PAGES = Set.new(["terms", "classes", "mappings", "notes", "widgets", "summary", "properties", "schemes", "collections"])
+  KNOWN_PAGES = Set.new(['terms', 'classes', 'mappings', 'notes', 'widgets', 'summary', 'properties', 'schemes', 'collections'])
 
   ONTOLOGY_REST_URL = "#{LinkedData::Client.settings.rest_url}/ontologies/:acronym"
   SUBMISSIONS_REST_URL = "#{ONTOLOGY_REST_URL}/submissions"
@@ -23,15 +23,15 @@ class OntologiesController < ApplicationController
   include ActionView::Helpers::NumberHelper
   include OntologiesHelper
   def index
-    @app_name = "FacetedBrowsing"
-    @app_dir = "/browse"
+    @app_name = 'FacetedBrowsing'
+    @app_dir = '/browse'
     @base_path = @app_dir
-    ontologies = LinkedData::Client::Models::Ontology.all(include: LinkedData::Client::Models::Ontology.include_params + ",viewOf", include_views: true, display_context: false)
+    ontologies = LinkedData::Client::Models::Ontology.all(include: LinkedData::Client::Models::Ontology.include_params + ',viewOf', include_views: true, display_context: false)
     ontologies_hash = Hash[ontologies.map {|o| [o.id, o] }]
     @admin = session[:user] ? session[:user].admin? : false
     @development = Rails.env.development?
 
-    submissions = LinkedData::Client::Models::OntologySubmission.all(include_views: true, display_links: false, display_context: false, include: "submissionStatus,hasOntologyLanguage,pullLocation,description,creationDate,status")
+    submissions = LinkedData::Client::Models::OntologySubmission.all(include_views: true, display_links: false, display_context: false, include: 'submissionStatus,hasOntologyLanguage,pullLocation,description,creationDate,status')
     submissions_map = submissions.each_with_object({}) do |sub, h|
       ontology_id = sub.id.sub(%r{/submissions/[^/]+$}, '')
       if (ontology = ontologies_hash[ontology_id])
@@ -63,11 +63,11 @@ class OntologiesController < ApplicationController
         o[:class_count] = 0
         o[:individual_count] = 0
       end
-      o[:class_count_formatted] = number_with_delimiter(o[:class_count], :delimiter => ",")
-      o[:individual_count_formatted] = number_with_delimiter(o[:individual_count], :delimiter => ",")
+      o[:class_count_formatted] = number_with_delimiter(o[:class_count], :delimiter => ',')
+      o[:individual_count_formatted] = number_with_delimiter(o[:individual_count], :delimiter => ',')
 
       o[:id]               = ont.id
-      o[:type]             = ont.viewOf.nil? ? "ontology" : "ontology_view"
+      o[:type]             = ont.viewOf.nil? ? 'ontology' : 'ontology_view'
       o[:show]             = ont.viewOf.nil? ? true : false # show ontologies only by default
       o[:groups]           = ont.group || []
       o[:categories]       = ont.hasDomain || []
@@ -82,7 +82,7 @@ class OntologiesController < ApplicationController
       o[:projects]         = ont.projects
       o[:notes]            = ont.notes
 
-      if o[:type].eql?("ontology_view")
+      if o[:type].eql?('ontology_view')
         unless ontologies_hash[ont.viewOf].blank?
           o[:viewOfOnt] = {
             name: ontologies_hash[ont.viewOf].name,
@@ -92,9 +92,9 @@ class OntologiesController < ApplicationController
       end
 
       o[:artifacts] = []
-      o[:artifacts] << "notes" if ont.notes.length > 0
-      o[:artifacts] << "projects" if ont.projects.length > 0
-      o[:artifacts] << "summary_only" if ont.summaryOnly
+      o[:artifacts] << 'notes' if ont.notes.length > 0
+      o[:artifacts] << 'projects' if ont.projects.length > 0
+      o[:artifacts] << 'summary_only' if ont.summaryOnly
 
       sub = submissions_map[ont.acronym]
       if sub
@@ -109,7 +109,7 @@ class OntologiesController < ApplicationController
         @formats << sub.hasOntologyLanguage
       else
         # Used to sort ontologies without subnissions to the end when sorting on upload date
-        o[:creationDate] = DateTime.parse("19900601")
+        o[:creationDate] = DateTime.parse('19900601')
       end
 
       @ontologies << o
@@ -129,22 +129,22 @@ class OntologiesController < ApplicationController
       @collections = get_collections(@ontology, add_colors: true)
     end
 
-    if ["application/ld+json", "application/json"].include?(request.accept)
+    if ['application/ld+json', 'application/json'].include?(request.accept)
       render plain: @concept.to_jsonld, content_type: request.accept and return
     end
 
     @current_purl = @concept.purl if Rails.configuration.settings.purl[:enabled]
 
-    unless @concept.id == "bp_fake_root"
+    unless @concept.id == 'bp_fake_root'
       @notes = @concept.explore.notes
     end
     
     update_tab(@ontology, @concept.id)
 
     if request.xhr?
-      render "ontologies/sections/visualize", layout: false
+      render 'ontologies/sections/visualize', layout: false
     else
-      render "ontologies/sections/visualize", layout: "ontology_viewer"
+      render 'ontologies/sections/visualize', layout: 'ontology_viewer'
     end
   end
 
@@ -152,7 +152,7 @@ class OntologiesController < ApplicationController
     if request.xhr?
       return render 'properties', :layout => false
     else
-      return render 'properties', :layout => "ontology_viewer"
+      return render 'properties', :layout => 'ontology_viewer'
     end
   end
 
@@ -212,7 +212,7 @@ class OntologiesController < ApplicationController
 
     # PURL-specific redirect to handle /ontologies/{ACR}/{CLASS_ID} paths
     if params[:purl_conceptid]
-      params[:purl_conceptid] = "root" if params[:purl_conceptid].eql?("classes")
+      params[:purl_conceptid] = 'root' if params[:purl_conceptid].eql?('classes')
       if params[:conceptid]
         params.delete(:purl_conceptid)
       else
@@ -229,7 +229,7 @@ class OntologiesController < ApplicationController
     # Handle the case where an ontology is converted to summary only.
     # See: https://github.com/ncbo/bioportal_web_ui/issues/133.
     if @ontology.summaryOnly && params[:p].present?
-      pages = KNOWN_PAGES - ["summary", "notes"]
+      pages = KNOWN_PAGES - ['summary', 'notes']
       if pages.include?(params[:p])
         redirect_to(ontology_path(params[:ontology]), status: :temporary_redirect) and return
       end
@@ -244,7 +244,7 @@ class OntologiesController < ApplicationController
     Log.add :error, "No submissions for ontology: #{@ontology.id}" if @submissions.empty?
 
     # Get the latest submission (not necessarily the latest 'ready' submission)
-    @submission_latest = @ontology.explore.latest_submission rescue @ontology.explore.latest_submission(include: "")
+    @submission_latest = @ontology.explore.latest_submission rescue @ontology.explore.latest_submission(include: '')
 
     # show summary only for ontologies without any submissions in ready state
     unless helpers.submission_ready?(@submission_latest)
@@ -252,7 +252,7 @@ class OntologiesController < ApplicationController
       if submissions.any?{|x| helpers.submission_ready?(x)}
         @old_submission_ready = true
       elsif !params[:p].blank?
-        params[:p] = "summary"
+        params[:p] = 'summary'
       end
     end
 
@@ -265,26 +265,26 @@ class OntologiesController < ApplicationController
 
     # This action is now a router using the 'p' parameter as the page to show
     case params[:p]
-      when "terms"
+      when 'terms'
         params[:p] = 'classes'
         redirect_to "/ontologies/#{params[:ontology]}#{params_string_for_redirect(params)}", :status => :moved_permanently
         return
-      when "classes"
+      when 'classes'
         self.classes #rescue self.summary
         return
-      when "mappings"
+      when 'mappings'
         self.mappings #rescue self.summary
         return
-      when "notes"
+      when 'notes'
         self.notes #rescue self.summary
         return
-      when "widgets"
+      when 'widgets'
         self.widgets #rescue self.summary
         return
-      when "properties"
+      when 'properties'
         self.properties #rescue self.summary
         return
-      when "summary"
+      when 'summary'
         self.summary
         return
       when 'schemes'
@@ -351,7 +351,7 @@ class OntologiesController < ApplicationController
     Log.add :error, "No submissions found for ontology: #{@ontology.id}" if @submissions.empty?
 
     # Get the latest submission (not necessarily the latest 'ready' submission)
-    @submission_latest = @ontology.explore.latest_submission rescue @ontology.explore.latest_submission(include: "")
+    @submission_latest = @ontology.explore.latest_submission rescue @ontology.explore.latest_submission(include: '')
 
     render template: 'ontologies/admin', layout: 'ontology_viewer'
   end
@@ -359,7 +359,7 @@ class OntologiesController < ApplicationController
   def submission_rows
     @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:acronym]).first
     @submissions = uncached_sorted_submissions_for(@ontology.acronym)
-    render partial: "ontologies/submission_rows", formats: [:html]
+    render partial: 'ontologies/submission_rows', formats: [:html]
   end
 
   def submission_log
@@ -381,10 +381,10 @@ class OntologiesController < ApplicationController
   def submissions
     acronym = params[:acronym]
     ids = Array(params[:ontology_submission_ids]).map(&:to_s).reject(&:blank?).uniq
-    return render json: { error: "ontology_submission_ids required" }, status: :unprocessable_entity if ids.empty?
+    return render json: { error: 'ontology_submission_ids required' }, status: :unprocessable_entity if ids.empty?
 
     unless ids.all? { |id| id =~ /\A\d+\z/ }
-      return render json: { error: "ontology_submission_ids must be integers" }, status: :unprocessable_entity
+      return render json: { error: 'ontology_submission_ids must be integers' }, status: :unprocessable_entity
     end
 
     path = SUBMISSIONS_REST_URL.sub(':acronym', acronym)
@@ -392,13 +392,13 @@ class OntologiesController < ApplicationController
     begin
       res = LinkedData::Client::HTTP.delete(path, { ontology_submission_ids: "[#{ids.join(',')}]" }, parse: true)
     rescue StandardError => e
-      return render json: { error: "Delete request failed", detail: e.message }, status: :bad_gateway
+      return render json: { error: 'Delete request failed', detail: e.message }, status: :bad_gateway
     end
     process_id = res&.process_id
 
     if process_id.blank?
       # If the service returned a structured error, surface it
-      err_msg = (res.respond_to?(:error) && res.error) ? res.error : "process_id not returned"
+      err_msg = (res.respond_to?(:error) && res.error) ? res.error : 'process_id not returned'
       return render json: { error: err_msg }, status: :bad_gateway
     end
     render json: { process_id: process_id }
@@ -453,7 +453,7 @@ class OntologiesController < ApplicationController
 
   def summary
     # Check to see if user is requesting RDF+XML. If so, return the file from the REST service.
-    if request.accept.to_s.eql?("application/ld+json") || request.accept.to_s.eql?("application/json")
+    if request.accept.to_s.eql?('application/ld+json') || request.accept.to_s.eql?('application/json')
       headers['Content-Type'] = request.accept.to_s
       render plain: @ontology.to_jsonld
       return
@@ -461,14 +461,14 @@ class OntologiesController < ApplicationController
     
     @metrics = @ontology.explore.metrics rescue []
     @projects = @ontology.explore.projects.sort { |a,b| a.name.downcase <=> b.name.downcase } || []
-    @analytics = LinkedData::Client::HTTP.get(@ontology.links["analytics"])
+    @analytics = LinkedData::Client::HTTP.get(@ontology.links['analytics'])
     @views = get_views(@ontology)
     @view_decorators = @views.map{ |view| ViewDecorator.new(view, view_context) }
     
     if request.xhr?
-      render partial: "metadata", layout: false
+      render partial: 'metadata', layout: false
     else
-      render partial: "metadata", layout: "ontology_viewer"
+      render partial: 'metadata', layout: 'ontology_viewer'
     end
   end
 
@@ -485,7 +485,7 @@ class OntologiesController < ApplicationController
     if response_error?(error_response)
       @categories = LinkedData::Client::Models::Category.all
       @errors = response_errors(error_response)
-      @errors = {acronym: "Acronym already exists, please use another"} if error_response.status == 409
+      @errors = {acronym: 'Acronym already exists, please use another'} if error_response.status == 409
     else
       # TODO_REV: Enable subscriptions
       # if params["ontology"]["subscribe_notifications"].eql?("1")
@@ -499,7 +499,7 @@ class OntologiesController < ApplicationController
     if request.xhr?
       render :partial => 'widgets', :layout => false
     else
-      render :partial => 'widgets', :layout => "ontology_viewer"
+      render :partial => 'widgets', :layout => 'ontology_viewer'
     end
   end
 
