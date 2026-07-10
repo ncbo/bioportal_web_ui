@@ -235,8 +235,12 @@ class OntologiesController < ApplicationController
       end
     end
 
-    # Retrieve submissions in descending submissionId order (should be reverse chronological order)
-    @submissions = @ontology.explore.submissions.sort {|a,b| b.submissionId.to_i <=> a.submissionId.to_i } || []
+    # Retrieve submissions in descending submissionId order (should be reverse chronological order).
+    # Only request the attributes the submissions/versions table renders; the model default
+    # (include=all) drags in a fully-expanded nested ontology per submission, which for large
+    # ontologies is tens of MB. Rich per-submission metadata is shown from @submission_latest below.
+    submissions_include = 'submissionId,version,released,creationDate,submissionStatus,hasOntologyLanguage,diffFilePath'
+    @submissions = @ontology.explore.submissions(include: submissions_include).sort {|a,b| b.submissionId.to_i <=> a.submissionId.to_i } || []
     Log.add :error, "No submissions for ontology: #{@ontology.id}" if @submissions.empty?
 
     # Get the latest submission (not necessarily the latest 'ready' submission)
