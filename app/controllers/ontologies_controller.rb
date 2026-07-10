@@ -27,7 +27,7 @@ class OntologiesController < ApplicationController
     @app_dir = '/browse'
     @base_path = @app_dir
     ontologies = LinkedData::Client::Models::Ontology.all(include: LinkedData::Client::Models::Ontology.include_params + ',viewOf', include_views: true, display_context: false)
-    ontologies_hash = Hash[ontologies.map {|o| [o.id, o] }]
+    ontologies_hash = Hash[ontologies.map { |o| [o.id, o] }]
     @admin = session[:user] ? session[:user].admin? : false
     @development = Rails.env.development?
 
@@ -40,13 +40,13 @@ class OntologiesController < ApplicationController
     end
 
     @categories = LinkedData::Client::Models::Category.all(display_links: false, display_context: false)
-    @categories_hash = Hash[@categories.map {|c| [c.id, c] }]
+    @categories_hash = Hash[@categories.map { |c| [c.id, c] }]
 
     @groups = LinkedData::Client::Models::Group.all(display_links: false, display_context: false)
-    @groups_hash = Hash[@groups.map {|g| [g.id, g] }]
+    @groups_hash = Hash[@groups.map { |g| [g.id, g] }]
 
     analytics = LinkedData::Client::Analytics.last_month
-    @analytics = Hash[analytics.onts.map {|o| [o[:ont].to_s, o[:views]]}]
+    @analytics = Hash[analytics.onts.map { |o| [o[:ont].to_s, o[:views]] }]
 
     metrics_hash = get_metrics_hash
 
@@ -115,7 +115,7 @@ class OntologiesController < ApplicationController
       @ontologies << o
     end
 
-    @ontologies.sort! {|a, b| b[:popularity] <=> a[:popularity]}
+    @ontologies.sort! { |a, b| b[:popularity] <=> a[:popularity] }
 
     render 'browse'
   end
@@ -138,7 +138,7 @@ class OntologiesController < ApplicationController
     unless @concept.id == 'bp_fake_root'
       @notes = @concept.explore.notes
     end
-    
+
     update_tab(@ontology, @concept.id)
 
     if request.xhr?
@@ -150,9 +150,9 @@ class OntologiesController < ApplicationController
 
   def properties
     if request.xhr?
-      return render 'properties', layout: false
+      render 'properties', layout: false
     else
-      return render 'properties', layout: 'ontology_viewer'
+      render 'properties', layout: 'ontology_viewer'
     end
   end
 
@@ -176,7 +176,7 @@ class OntologiesController < ApplicationController
   end
 
   def edit
-    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:id], {include: 'all', display_links: false, display_context: false}).first
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:id], { include: 'all', display_links: false, display_context: false }).first
     return unless authorize_ontology_admin(@ontology)
 
     submission = @ontology.explore.latest_submission(include: 'submissionId')
@@ -240,7 +240,7 @@ class OntologiesController < ApplicationController
     # (include=all) drags in a fully-expanded nested ontology per submission, which for large
     # ontologies is tens of MB. Rich per-submission metadata is shown from @submission_latest below.
     submissions_include = 'submissionId,version,released,creationDate,submissionStatus,hasOntologyLanguage,diffFilePath'
-    @submissions = @ontology.explore.submissions(include: submissions_include).sort {|a, b| b.submissionId.to_i <=> a.submissionId.to_i } || []
+    @submissions = @ontology.explore.submissions(include: submissions_include).sort { |a, b| b.submissionId.to_i <=> a.submissionId.to_i } || []
     Log.add :error, "No submissions for ontology: #{@ontology.id}" if @submissions.empty?
 
     # Get the latest submission (not necessarily the latest 'ready' submission)
@@ -249,7 +249,7 @@ class OntologiesController < ApplicationController
     # show summary only for ontologies without any submissions in ready state
     unless helpers.submission_ready?(@submission_latest)
       submissions = @ontology.explore.submissions(include: 'submissionId,submissionStatus')
-      if submissions.any?{|x| helpers.submission_ready?(x)}
+      if submissions.any? { |x| helpers.submission_ready?(x) }
         @old_submission_ready = true
       elsif !params[:p].blank?
         params[:p] = 'summary'
@@ -270,19 +270,19 @@ class OntologiesController < ApplicationController
         redirect_to "/ontologies/#{params[:ontology]}#{params_string_for_redirect(params)}", status: :moved_permanently
         return
       when 'classes'
-        self.classes #rescue self.summary
+        self.classes # rescue self.summary
         return
       when 'mappings'
-        self.mappings #rescue self.summary
+        self.mappings # rescue self.summary
         return
       when 'notes'
-        self.notes #rescue self.summary
+        self.notes # rescue self.summary
         return
       when 'widgets'
-        self.widgets #rescue self.summary
+        self.widgets # rescue self.summary
         return
       when 'properties'
-        self.properties #rescue self.summary
+        self.properties # rescue self.summary
         return
       when 'summary'
         self.summary
@@ -364,12 +364,12 @@ class OntologiesController < ApplicationController
 
   def submission_log
     acronym = params[:acronym]
-    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(acronym, {include: 'all'}).first
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(acronym, { include: 'all' }).first
     not_found if @ontology.nil? || (@ontology.errors && [401, 403, 404].include?(@ontology.status))
     return unless authorize_ontology_admin(@ontology)
 
     uri = URI.parse("#{USER_ONTOLOGY_ADMIN_URL.sub(':acronym', acronym)}/log")
-    payload = LinkedData::Client::HTTP.get(uri, {severity: 'ERROR'}, raw: true)
+    payload = LinkedData::Client::HTTP.get(uri, { severity: 'ERROR' }, raw: true)
 
     text = fetch_log_text(payload).to_s
     text = "The processing log for the latest submission of ontology #{acronym} contains no errors" if text.strip.empty?
@@ -458,13 +458,13 @@ class OntologiesController < ApplicationController
       render plain: @ontology.to_jsonld
       return
     end
-    
+
     @metrics = @ontology.explore.metrics rescue []
     @projects = @ontology.explore.projects.sort { |a, b| a.name.downcase <=> b.name.downcase } || []
     @analytics = LinkedData::Client::HTTP.get(@ontology.links['analytics'])
     @views = get_views(@ontology)
-    @view_decorators = @views.map{ |view| ViewDecorator.new(view, view_context) }
-    
+    @view_decorators = @views.map { |view| ViewDecorator.new(view, view_context) }
+
     if request.xhr?
       render partial: 'metadata', layout: false
     else
@@ -485,7 +485,7 @@ class OntologiesController < ApplicationController
     if response_error?(error_response)
       @categories = LinkedData::Client::Models::Category.all
       @errors = response_errors(error_response)
-      @errors = {acronym: 'Acronym already exists, please use another'} if error_response.status == 409
+      @errors = { acronym: 'Acronym already exists, please use another' } if error_response.status == 409
     else
       # TODO_REV: Enable subscriptions
       # if params["ontology"]["subscribe_notifications"].eql?("1")
@@ -524,8 +524,8 @@ class OntologiesController < ApplicationController
 
   def get_views(ontology)
     views = ontology.explore.views || []
-    views.select!{ |view| view.access?(session[:user]) }
-    views.sort{ |a, b| a.acronym.downcase <=> b.acronym.downcase }
+    views.select! { |view| view.access?(session[:user]) }
+    views.sort { |a, b| a.acronym.downcase <=> b.acronym.downcase }
   end
 
   # Accepts an already-fetched payload (String or parsed JSON) and normalizes it to text
@@ -565,5 +565,4 @@ class OntologiesController < ApplicationController
     # Fallback for anything else
     json.to_s
   end
-
 end
