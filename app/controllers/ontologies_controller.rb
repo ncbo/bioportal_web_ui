@@ -11,7 +11,7 @@ class OntologiesController < ApplicationController
   helper :concepts
   layout :determine_layout
 
-  before_action :authorize_and_redirect, :only=>[:edit,:update,:create,:new]
+  before_action :authorize_and_redirect, :only=>[:edit, :update, :create, :new]
 
   KNOWN_PAGES = Set.new(['terms', 'classes', 'mappings', 'notes', 'widgets', 'summary', 'properties', 'schemes', 'collections'])
 
@@ -115,7 +115,7 @@ class OntologiesController < ApplicationController
       @ontologies << o
     end
 
-    @ontologies.sort! {|a,b| b[:popularity] <=> a[:popularity]}
+    @ontologies.sort! {|a, b| b[:popularity] <=> a[:popularity]}
 
     render 'browse'
   end
@@ -240,7 +240,7 @@ class OntologiesController < ApplicationController
     # (include=all) drags in a fully-expanded nested ontology per submission, which for large
     # ontologies is tens of MB. Rich per-submission metadata is shown from @submission_latest below.
     submissions_include = 'submissionId,version,released,creationDate,submissionStatus,hasOntologyLanguage,diffFilePath'
-    @submissions = @ontology.explore.submissions(include: submissions_include).sort {|a,b| b.submissionId.to_i <=> a.submissionId.to_i } || []
+    @submissions = @ontology.explore.submissions(include: submissions_include).sort {|a, b| b.submissionId.to_i <=> a.submissionId.to_i } || []
     Log.add :error, "No submissions for ontology: #{@ontology.id}" if @submissions.empty?
 
     # Get the latest submission (not necessarily the latest 'ready' submission)
@@ -460,7 +460,7 @@ class OntologiesController < ApplicationController
     end
     
     @metrics = @ontology.explore.metrics rescue []
-    @projects = @ontology.explore.projects.sort { |a,b| a.name.downcase <=> b.name.downcase } || []
+    @projects = @ontology.explore.projects.sort { |a, b| a.name.downcase <=> b.name.downcase } || []
     @analytics = LinkedData::Client::HTTP.get(@ontology.links['analytics'])
     @views = get_views(@ontology)
     @view_decorators = @views.map{ |view| ViewDecorator.new(view, view_context) }
@@ -525,7 +525,7 @@ class OntologiesController < ApplicationController
   def get_views(ontology)
     views = ontology.explore.views || []
     views.select!{ |view| view.access?(session[:user]) }
-    views.sort{ |a,b| a.acronym.downcase <=> b.acronym.downcase }
+    views.sort{ |a, b| a.acronym.downcase <=> b.acronym.downcase }
   end
 
   # Accepts an already-fetched payload (String or parsed JSON) and normalizes it to text
