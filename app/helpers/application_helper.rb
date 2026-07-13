@@ -427,4 +427,17 @@ module ApplicationHelper
   def analytics_consent?
     cookies[:allow_cookies].present? && cookies[:allow_cookies] == 'true'
   end
+
+  # Google Search Console (Webmaster Tools) site-verification meta tag.
+  # Configurable per environment via settings.yml (google_site_verification)
+  # instead of being hard-coded; omitted entirely on the appliance and when
+  # no token is configured. (closes ncbo#90)
+  def google_site_verification_meta_tag
+    return if Rails.env.appliance?
+
+    token = Rails.configuration.settings.dig(:google_site_verification)
+    return if token.blank?
+
+    tag.meta(name: 'google-site-verification', content: token)
+  end
 end
