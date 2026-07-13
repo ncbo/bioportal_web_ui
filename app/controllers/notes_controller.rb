@@ -27,25 +27,11 @@ class NotesController < ApplicationController
   end
 
   def virtual_show
-    note_id = params[:noteid]
-    concept_id = params[:conceptid]
-    ontology_acronym = params[:ontology]
+    id = clean_note_id(params[:noteid])
 
-    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(ontology_acronym).first
-
-    if note_id
-      id = clean_note_id(note_id)
-      @note = LinkedData::Client::Models::Note.get(id, include_threads: true)
-      @note_decorator = NoteDecorator.new(@note, view_context)
-    elsif concept_id
-      @notes = @ontology.explore.single_class(concept_id).explore.notes
-      render partial: 'list', layout: 'ontology'
-      return
-    else
-      @notes = @ontology.explore.notes
-      render partial: 'list', layout: 'ontology'
-      return
-    end
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology]).first
+    @note = LinkedData::Client::Models::Note.get(id, include_threads: true)
+    @note_decorator = NoteDecorator.new(@note, view_context)
 
     if request.xhr?
       render partial: 'thread'
