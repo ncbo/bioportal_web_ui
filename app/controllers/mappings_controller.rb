@@ -98,10 +98,6 @@ class MappingsController < ApplicationController
     end
     not_found if @concept_from.nil?
 
-    # The target side of the form always starts empty
-    @ontology_to = LinkedData::Client::Models::Ontology.new
-    @concept_to = LinkedData::Client::Models::Class.new
-
     @mapping_relation_options = [
       ['Identical (skos:exactMatch)', 'http://www.w3.org/2004/02/skos/core#exactMatch'],
       ['Similar (skos:closeMatch)',   'http://www.w3.org/2004/02/skos/core#closeMatch'],

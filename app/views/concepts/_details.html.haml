@@ -1,4 +1,4 @@
-= turbo_frame_tag(params[:modal] ? 'application_modal_content' : 'concept_details', class: 'd-block p-2') do
+= turbo_frame_tag(params[:frame_id].presence || (params[:modal] ? 'application_modal_content' : 'concept_details'), class: 'd-block p-2') do
   %div.p-1
     %div#change-request-notice
     - if change_requests_enabled?(@ontology.acronym)

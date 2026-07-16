@@ -81,3 +81,9 @@ application.register("notes", NotesController)
 
 import ModalController from "./modal_controller"
 application.register("modal", ModalController)
+
+import MappingFormController from "./mapping_form_controller"
+application.register("mapping-form", MappingFormController)
+
+import MappingTargetAutocompleteController from "./mapping_target_autocomplete_controller"
+application.register("mapping-target-autocomplete", MappingTargetAutocompleteController)

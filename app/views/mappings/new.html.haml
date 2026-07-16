@@ -7,5 +7,4 @@
           %h5#new_mapping_modal_label.modal-title
             = t('mappings.create_new_mapping_for', label: @concept_from.prefLabel)
           %button.btn-close{type: 'button', data: { bs_dismiss: 'modal' }, aria: { label: 'Close' }}
-        .modal-body
-          = render 'form'
+        = render 'form'
