@@ -47,14 +47,6 @@ div#mappingCount {
 
 /* Create New Mapping dialog */
 
-div#map_from_picker_container, div#map_to_picker_container {
-  margin-bottom: 7px;
-}
-
-div#map_from_picker_chosen, div#map_to_picker_chosen {
-  width: 100% !important;
-}
-
 turbo-frame#map_to_details {
   display: block;
   border: thin solid lightgray;
@@ -62,16 +54,9 @@ turbo-frame#map_to_details {
   overflow: auto;
 }
 
-#map_to_picker, .select2-container {
+/* select2 is still used by AnnotatorPlus */
+.select2-container {
   width: 100% !important;
-}
-
-#create_mapping_error {
-  color: red;
-}
-
-#create_mapping_spinner {
-  display: none;
 }
 
 /* Concept mappings table */
