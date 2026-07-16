@@ -1,6 +1,7 @@
 = form_with url: mappings_path, data: { controller: 'mapping-form',
                                         action: 'mapping-target-autocomplete:selected->mapping-form#targetClassSelected' } do
   .modal-body
+    #new_mapping_errors
     .mb-3
       %label.form-label{for: 'map_to_bioportal_ontology_id'}= t('mappings.form.target_ontology')
       = select_tag :map_to_bioportal_ontology_id, options_for_select(onts_and_views_for_select),

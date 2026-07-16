@@ -268,6 +268,9 @@ en:
       relation: Mapping relation type
       close: Close
       create: Create mapping
+      target_class_required: Please select a target class
+      create_error: There was a problem creating the mapping, please try again
+      create_success: Mapping created successfully
 
   submissions:
     submission_updated_successfully: "Metadata updated successfully"

@@ -110,12 +110,18 @@ class MappingsController < ApplicationController
   end
 
   # POST /mappings
-  # POST /mappings.xml
   def create
+    if params[:map_to_bioportal_ontology_id].blank? || params[:map_to_bioportal_full_id].blank?
+      return render_new_mapping_error(t('mappings.form.target_class_required'))
+    end
+
     source_ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:map_from_bioportal_ontology_id]).first
     target_ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:map_to_bioportal_ontology_id]).first
-    source = source_ontology.explore.single_class(params[:map_from_bioportal_full_id])
-    target = target_ontology.explore.single_class(params[:map_to_bioportal_full_id])
+    source = source_ontology&.explore&.single_class({ full: true }, params[:map_from_bioportal_full_id])
+    target = target_ontology&.explore&.single_class(params[:map_to_bioportal_full_id])
+
+    return render_new_mapping_error(t('mappings.form.create_error')) if source&.id.nil? || target&.id.nil?
+
     values = {
       classes: {
         source.id => source_ontology.id,
@@ -125,14 +131,15 @@ class MappingsController < ApplicationController
       relation: params[:mapping_relation],
       comment: params[:mapping_comment]
     }
-    @mapping = LinkedData::Client::Models::Mapping.new(values: values)
-    @mapping_saved = @mapping.save
-    if @mapping_saved.errors
-      raise Exception, @mapping_saved.errors
-    else
-      @delete_mapping_permission = check_delete_mapping_permission(@mapping_saved)
-      render json: @mapping_saved
-    end
+    mapping = LinkedData::Client::Models::Mapping.new(values: values)
+    mapping_saved = mapping.save
+    return render_new_mapping_error(t('mappings.form.create_error')) if mapping_saved.errors
+
+    # Refresh the Mappings tab of the source class
+    @ontology = source_ontology
+    @concept = source
+    @mappings = get_concept_mappings(@concept)
+    @delete_mapping_permission = check_delete_mapping_permission(@mappings)
   end
 
   def destroy
@@ -151,5 +158,14 @@ class MappingsController < ApplicationController
       end
     end
     render json: { success: successes, error: errors }
+  end
+
+  private
+
+  def render_new_mapping_error(message)
+    render turbo_stream: turbo_stream.update('new_mapping_errors',
+                                             partial: 'mappings/form_error',
+                                             locals: { message: message }),
+           status: :unprocessable_entity
   end
 end

@@ -1,0 +1,8 @@
+= turbo_stream.update 'mapping_count' do
+  = @mappings.size
+
+= turbo_stream.update 'concept_mappings' do
+  .alert.alert-success.alert-dismissible.fade.show.mx-3.mt-3{role: 'alert'}
+    = t('mappings.form.create_success')
+    %button.btn-close{type: 'button', data: { bs_dismiss: 'alert' }, aria: { label: 'Close' }}
+  = render 'mappings/concept_mappings_content'
