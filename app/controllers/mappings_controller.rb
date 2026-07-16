@@ -90,16 +90,17 @@ class MappingsController < ApplicationController
   end
 
   def new
-    @ontology_from = LinkedData::Client::Models::Ontology.find(params[:ontology_from])
-    @ontology_to = LinkedData::Client::Models::Ontology.find(params[:ontology_to])
-    @concept_from = @ontology_from.explore.single_class({ full: true }, params[:conceptid_from]) if @ontology_from
-    @concept_to = @ontology_to.explore.single_class({ full: true }, params[:conceptid_to]) if @ontology_to
+    if params[:ontology_from].present?
+      @ontology_from = LinkedData::Client::Models::Ontology.find(params[:ontology_from])
+    end
+    if @ontology_from && params[:conceptid_from].present?
+      @concept_from = @ontology_from.explore.single_class({ full: true }, params[:conceptid_from])
+    end
+    not_found if @concept_from.nil?
 
-    # Defaults just in case nothing gets provided
-    @ontology_from ||= LinkedData::Client::Models::Ontology.new
-    @ontology_to ||= LinkedData::Client::Models::Ontology.new
-    @concept_from ||= LinkedData::Client::Models::Class.new
-    @concept_to ||= LinkedData::Client::Models::Class.new
+    # The target side of the form always starts empty
+    @ontology_to = LinkedData::Client::Models::Ontology.new
+    @concept_to = LinkedData::Client::Models::Class.new
 
     @mapping_relation_options = [
       ['Identical (skos:exactMatch)', 'http://www.w3.org/2004/02/skos/core#exactMatch'],
@@ -109,9 +110,7 @@ class MappingsController < ApplicationController
       ['Narrower (skos:narrowMatch)', 'http://www.w3.org/2004/02/skos/core#narrowMatch']
     ]
 
-    respond_to do |format|
-      format.js
-    end
+    render layout: false
   end
 
   # POST /mappings

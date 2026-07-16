@@ -1,0 +1,11 @@
+= turbo_frame_tag 'modal' do
+  #new_mapping_modal.modal.fade{tabindex: '-1', data: { controller: 'modal', action: 'turbo:submit-end->modal#submitEnd' },
+    aria: { labelledby: 'new_mapping_modal_label' }}
+    .modal-dialog.modal-lg
+      .modal-content
+        .modal-header
+          %h5#new_mapping_modal_label.modal-title
+            = t('mappings.create_new_mapping_for', label: @concept_from.prefLabel)
+          %button.btn-close{type: 'button', data: { bs_dismiss: 'modal' }, aria: { label: 'Close' }}
+        .modal-body
+          = render 'form'

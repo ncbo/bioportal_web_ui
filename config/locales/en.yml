@@ -257,6 +257,7 @@ en:
   mappings:
     intro: Browse mappings between classes in different ontologies
     create_new_mapping: Create new mapping
+    create_new_mapping_for: Create a new mapping for %{label}
 
   submissions:
     submission_updated_successfully: "Metadata updated successfully"
