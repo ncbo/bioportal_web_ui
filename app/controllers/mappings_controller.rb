@@ -122,18 +122,23 @@ class MappingsController < ApplicationController
 
     return render_new_mapping_error(t('mappings.form.create_error')) if source&.id.nil? || target&.id.nil?
 
+    # Acronyms and username, not URIs: the API decides URI vs. acronym/username
+    # with start_with?("http://"), which misclassifies https URIs (e.g. staging)
     values = {
       classes: {
-        source.id => source_ontology.id,
-        target.id => target_ontology.id
+        source.id => source_ontology.acronym,
+        target.id => target_ontology.acronym
       },
-      creator: session[:user].id,
+      creator: session[:user].username,
       relation: params[:mapping_relation],
       comment: params[:mapping_comment]
     }
     mapping = LinkedData::Client::Models::Mapping.new(values: values)
     mapping_saved = mapping.save
-    return render_new_mapping_error(t('mappings.form.create_error')) if mapping_saved.errors
+    if mapping_saved.errors
+      Rails.logger.error("Mapping creation failed: #{Array(mapping_saved.errors).join('; ')}")
+      return render_new_mapping_error(t('mappings.form.create_error'))
+    end
 
     # Refresh the Mappings tab of the source class
     @ontology = source_ontology
