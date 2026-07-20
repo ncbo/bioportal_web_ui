@@ -18,11 +18,11 @@ class SearchController < ApplicationController
     query = params[:q].to_s.strip
     return render json: [] if query.length < 2
 
-    # The trailing wildcard makes partial words match, but wildcard queries
-    # bypass the API's exact-match boosting ("Contributory benefit" would
-    # outrank "Contributor"), so results are re-ranked below
-    wildcard_query = query.end_with?('*') ? query : "#{query}*"
-    search_page = LinkedData::Client::Models::Class.search(wildcard_query, { pagesize: 20 })
+    # suggest is the API's type-ahead mode (matches partial words), but it
+    # must be the string 'true': the API ignores a JSON boolean. It doesn't
+    # boost exact matches ("Contributory benefit" would outrank
+    # "Contributor"), so results are re-ranked below
+    search_page = LinkedData::Client::Models::Class.search(query, { pagesize: 20, suggest: 'true' })
     results = Array(search_page.collection).filter_map do |cls|
       next if cls.prefLabel.nil?
 
@@ -113,7 +113,7 @@ class SearchController < ApplicationController
   # rest. Ties keep the search API's own ordering.
   def label_match_rank(label, query)
     label = label.to_s.downcase
-    query = query.downcase.delete_suffix('*')
+    query = query.downcase
     return 0 if label == query
     return 3 unless label.start_with?(query)
 
