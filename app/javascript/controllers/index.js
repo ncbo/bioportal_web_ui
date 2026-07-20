@@ -84,6 +84,3 @@ application.register("modal", ModalController)
 
 import MappingFormController from "./mapping_form_controller"
 application.register("mapping-form", MappingFormController)
-
-import MappingTargetAutocompleteController from "./mapping_target_autocomplete_controller"
-application.register("mapping-target-autocomplete", MappingTargetAutocompleteController)

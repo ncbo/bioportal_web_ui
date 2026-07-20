@@ -1,24 +1,14 @@
-= form_with url: mappings_path, data: { controller: 'mapping-form',
-                                        action: 'mapping-target-autocomplete:selected->mapping-form#targetClassSelected' } do
+= form_with url: mappings_path, data: { controller: 'mapping-form' } do
   .modal-body
     #new_mapping_errors
     .mb-3
-      %label.form-label{for: 'map_to_bioportal_ontology_id'}= t('mappings.form.target_ontology')
-      = select_tag :map_to_bioportal_ontology_id, options_for_select(onts_and_views_for_select),
-                   include_blank: true, required: true,
-                   data: { mapping_form_target: 'ontologySelect', placeholder: t('mappings.form.select_ontology') }
-    .mb-3
-      %label.form-label{for: 'map_to'}= t('mappings.form.target_class')
-      = text_field_tag :map_to, nil, class: 'form-control', autocomplete: 'off', required: true, disabled: true,
-                       placeholder: t('mappings.form.target_class_placeholder'),
-                       data: { controller: 'mapping-target-autocomplete',
-                               mapping_target_autocomplete_object_types_value: 'class',
-                               mapping_form_target: 'classInput' }
-      = hidden_field_tag :map_to_bioportal_full_id, nil, data: { mapping_form_target: 'classId' }
+      %label.form-label{for: 'map_to_bioportal_full_id'}= t('mappings.form.target_class')
+      = select_tag :map_to_bioportal_full_id, nil, required: true,
+                   data: { mapping_form_target: 'classSelect', placeholder: t('mappings.form.target_class_placeholder') }
+      = hidden_field_tag :map_to_bioportal_ontology_id, nil, data: { mapping_form_target: 'ontologyId' }
       = hidden_field_tag :map_from_bioportal_full_id, @concept_from.id
       = hidden_field_tag :map_from_bioportal_ontology_id, @ontology_from.acronym
     .mb-3
-      %label.form-label{for: 'map_to_details'}= t('mappings.form.details')
       = turbo_frame_tag 'map_to_details', data: { mapping_form_target: 'detailsFrame' }
     .mb-3
       %label.form-label{for: 'mapping_comment'}= t('mappings.form.comment')
