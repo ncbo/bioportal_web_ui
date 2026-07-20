@@ -48,9 +48,7 @@ class MappingsControllerNewTest < ActionDispatch::IntegrationTest
   test 'renders the modal form when only source params are given' do
     login_fake_user
     LinkedData::Client::Models::Ontology.stub(:find, @fake_ontology) do
-      LinkedData::Client::Models::Ontology.stub(:all, []) do
-        get new_mapping_url(ontology_from: @fake_ontology.id, conceptid_from: @fake_concept.id)
-      end
+      get new_mapping_url(ontology_from: @fake_ontology.id, conceptid_from: @fake_concept.id)
     end
     assert_response :success
     assert_includes response.body, 'turbo-frame id="modal"'
@@ -61,6 +59,23 @@ class MappingsControllerNewTest < ActionDispatch::IntegrationTest
   test 'returns 404 when the source class is not provided' do
     login_fake_user
     get new_mapping_url
+    assert_response :not_found
+  end
+
+  test 'target_details renders minimal class details in the map_to_details frame' do
+    @fake_concept.definition = ['A test definition.']
+    @fake_concept.synonym = ['Test Synonym']
+    LinkedData::Client::Models::Ontology.stub(:find_by_acronym, [@fake_ontology]) do
+      get target_details_mappings_url(ontology: 'TST', conceptid: @fake_concept.id)
+    end
+    assert_response :success
+    assert_includes response.body, 'turbo-frame id="map_to_details"'
+    assert_includes response.body, 'A test definition.'
+    assert_includes response.body, 'Test Synonym'
+  end
+
+  test 'target_details returns 404 without a conceptid' do
+    get target_details_mappings_url(ontology: 'TST')
     assert_response :not_found
   end
 end
