@@ -14,6 +14,9 @@ Rails.application.routes.draw do
   end
 
   resources :mappings do
+    collection do
+      get 'target_details'
+    end
     member do
       get 'count'
     end
@@ -151,6 +154,7 @@ Rails.application.routes.draw do
 
   # Search
   get 'search', to: 'search#index'
+  get 'search/classes', to: 'search#classes'
   get 'search/json_search(/:id)', to: 'search#json_search'
 
   # Admin

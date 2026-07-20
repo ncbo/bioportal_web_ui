@@ -11,6 +11,27 @@ class SearchController < ApplicationController
     @search_query ||= ""
   end
 
+  # Relevance-ranked class search across all ontologies, as plain JSON.
+  # Backs autocomplete widgets (e.g. the new-mapping dialog's target class
+  # picker), unlike json_search's legacy pipe-separated format.
+  def classes
+    query = params[:q].to_s.strip
+    return render json: [] if query.length < 2
+
+    query += '*' unless query.end_with?('*')
+    search_page = LinkedData::Client::Models::Class.search(query, { pagesize: 20 })
+    results = Array(search_page.collection).filter_map do |cls|
+      next if cls.prefLabel.nil?
+
+      {
+        id: cls.id,
+        prefLabel: cls.prefLabel,
+        acronym: cls.links['ontology'].to_s.split('/').last
+      }
+    end
+    render json: results
+  end
+
   def json_search
     if params[:q].nil?
       render :text => "No search class provided"
