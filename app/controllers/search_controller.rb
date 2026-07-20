@@ -11,15 +11,18 @@ class SearchController < ApplicationController
     @search_query ||= ""
   end
 
-  # Relevance-ranked class search across all ontologies, as plain JSON.
-  # Backs autocomplete widgets (e.g. the new-mapping dialog's target class
-  # picker), unlike json_search's legacy pipe-separated format.
+  # Class search across all ontologies, as plain JSON. Backs autocomplete
+  # widgets (e.g. the new-mapping dialog's target class picker), unlike
+  # json_search's legacy pipe-separated format.
   def classes
     query = params[:q].to_s.strip
     return render json: [] if query.length < 2
 
-    query += '*' unless query.end_with?('*')
-    search_page = LinkedData::Client::Models::Class.search(query, { pagesize: 20 })
+    # The trailing wildcard makes partial words match, but wildcard queries
+    # bypass the API's exact-match boosting ("Contributory benefit" would
+    # outrank "Contributor"), so results are re-ranked below
+    wildcard_query = query.end_with?('*') ? query : "#{query}*"
+    search_page = LinkedData::Client::Models::Class.search(wildcard_query, { pagesize: 20 })
     results = Array(search_page.collection).filter_map do |cls|
       next if cls.prefLabel.nil?
 
@@ -29,6 +32,7 @@ class SearchController < ApplicationController
         acronym: cls.links['ontology'].to_s.split('/').last
       }
     end
+    results = results.sort_by.with_index { |r, i| [label_match_rank(r[:prefLabel], query), i] }
     render json: results
   end
 
@@ -103,6 +107,18 @@ class SearchController < ApplicationController
 
 
   private
+
+  # Ranks a label against the typed query: exact match, then a whole-word
+  # prefix ("Contributor Role"), then any prefix ("Contributory"), then the
+  # rest. Ties keep the search API's own ordering.
+  def label_match_rank(label, query)
+    label = label.to_s.downcase
+    query = query.downcase.delete_suffix('*')
+    return 0 if label == query
+    return 3 unless label.start_with?(query)
+
+    label[query.length]&.match?(/[[:alnum:]]/) ? 2 : 1
+  end
 
   def check_params_query(params)
     params[:q] = params[:q].strip
