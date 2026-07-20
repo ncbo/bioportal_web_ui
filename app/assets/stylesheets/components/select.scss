@@ -59,11 +59,3 @@
     width: unset !important;
 }
 
-/* tom-select's own rule is right: max(var(--ts-pr-caret), 8px) with a
-   unitless --ts-pr-caret: 0, which is invalid CSS, so the button falls back
-   to static position over the item text. Place it left of the caret arrow
-   drawn above. */
-.ts-wrapper.plugin-clear_button.single .clear-button {
-    right: 1.5rem;
-}
-

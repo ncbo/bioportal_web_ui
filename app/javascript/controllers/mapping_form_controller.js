@@ -14,7 +14,7 @@ export default class extends Controller {
     this.classPicker = useTomSelect(
       this.classSelectTarget,
       {
-        plugins: ['clear_button'],
+        plugins: ['remove_button'],
         valueField: 'id',
         labelField: 'prefLabel',
         searchField: [], // results come relevance-ranked from the server
