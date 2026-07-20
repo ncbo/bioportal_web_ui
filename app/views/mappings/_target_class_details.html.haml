@@ -1,0 +1,15 @@
+= turbo_frame_tag 'map_to_details' do
+  %label.form-label= t('mappings.form.details')
+  %dl.small.border.rounded.p-2.mb-0
+    %dt= t('mappings.form.details_id')
+    %dd
+      = link_to @concept.id, ontology_path(@ontology.acronym, p: 'classes', conceptid: @concept.id),
+                target: '_blank', rel: 'noopener'
+    - definitions = Array(@concept.definition).reject(&:blank?)
+    - unless definitions.empty?
+      %dt= t('mappings.form.details_definitions')
+      %dd= definitions.join('. ')
+    - synonyms = Array(@concept.synonym).reject(&:blank?)
+    - unless synonyms.empty?
+      %dt= t('mappings.form.details_synonyms')
+      %dd.mb-0= synonyms.join('; ')

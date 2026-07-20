@@ -49,9 +49,11 @@ div#mappingCount {
 
 turbo-frame#map_to_details {
   display: block;
-  border: thin solid lightgray;
-  height: 200px;
-  overflow: auto;
+
+  dl {
+    max-height: 200px;
+    overflow: auto;
+  }
 }
 
 /* select2 is still used by AnnotatorPlus */

@@ -264,6 +264,9 @@ en:
       target_class: Target class
       target_class_placeholder: Start typing to select a class
       details: Details
+      details_id: ID
+      details_definitions: Definitions
+      details_synonyms: Synonyms
       comment: Comment
       relation: Mapping relation type
       close: Close

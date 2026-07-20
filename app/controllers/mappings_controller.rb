@@ -89,6 +89,15 @@ class MappingsController < ApplicationController
     render partial: 'mappings/concept_mappings', layout: false
   end
 
+  # Minimal details of the class selected in the new-mapping dialog
+  def target_details
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology]).first
+    @concept = @ontology&.explore&.single_class(params[:conceptid]) if params[:conceptid].present?
+    not_found if @concept.nil? || @concept.errors
+
+    render partial: 'target_class_details', layout: false
+  end
+
   def new
     if params[:ontology_from].present?
       @ontology_from = LinkedData::Client::Models::Ontology.find(params[:ontology_from])
