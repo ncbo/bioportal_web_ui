@@ -326,7 +326,10 @@ $bd-bottom-gap: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5em;
+  // Reserve just enough width for a single-digit count or the (slightly wider)
+  // busy spinner, so the two swap without a jump while the parentheses stay
+  // snug. min-width (not width) lets longer counts expand instead of clipping.
+  min-width: 1.25em;
 
   > .d-flex.flex-column {
     width: 100%;
