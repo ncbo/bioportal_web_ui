@@ -13,7 +13,7 @@
                    data: {action: 'changed->turbo-frame#updateFrame'}}
 
   - unless no_collections?
-    %div#sd_content.card.p-1{style: 'overflow-y: auto; height: 60vh;'}
+    %div#sd_content.card.p-1
       = render TurboFrameComponent.new(id: 'concepts_list_view-page-1', data: {'turbo-frame-target': 'frame'}, src:params[:concept_collections] ? "/ajax/classes/list?ontology_id=#{@ontology.acronym}&collectionid=#{params[:concept_collections]}" : '') do
         .select-collection-placeholder
           = t("ontologies.concepts_browsers.select_collection") 

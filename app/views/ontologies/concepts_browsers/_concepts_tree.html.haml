@@ -15,7 +15,9 @@
                        data: {action: 'changed->skos-collection-colors#updateCollectionTags' ,
                         'skos-collections-selector-enable-colors-value': 'true'}}
   -# Class tree
-  %div#sd_content.px-1{style: 'overflow-y: scroll; height: 60vh;'}
+  -# Height + overflow are handled by the #sd_content rule in ontologies.scss
+  -# so the tree fills its column and scrolls independently.
+  %div#sd_content.px-1
     - if skos? && @roots&.empty?
       %div.text-wrap
         = render Display::AlertComponent.new do

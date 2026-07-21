@@ -6,9 +6,11 @@
   transform: rotate(90deg);
 }
 
+// The tree scrolls inside #sd_content (see the Classes-pane rules in
+// ontologies.scss), so the wrapper itself must not impose its own height or a
+// second scrollbar — let it grow to its natural content height.
 #tree_wrapper {
-  max-height: 75vh;
-  overflow-y: auto;
+  min-height: 0;
 }
 
 div.tree_error {

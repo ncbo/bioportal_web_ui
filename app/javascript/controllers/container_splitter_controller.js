@@ -6,6 +6,18 @@ export default class extends Controller {
 
   connect() {
     this.element.style.display = 'flex';
+
+    // Publish the distance from the top of the viewport to the top of
+    // #bd_content as a CSS custom property, so the layout can size the class
+    // browser to `calc(100dvh - var(--bd-content-top) - gap)` and keep both
+    // columns scrolling internally instead of the whole page. Measured now, once
+    // more after layout settles (fonts/images above can shift the offset), and
+    // kept current on resize.
+    this.updateTopOffset = this.updateTopOffset.bind(this);
+    this.updateTopOffset();
+    requestAnimationFrame(this.updateTopOffset);
+    window.addEventListener('resize', this.updateTopOffset);
+
     if (this.element.getAttribute('splitter-data-initial') == 0) {
       return;
     }
@@ -27,5 +39,16 @@ export default class extends Controller {
       cursor: "col-resize"
     });
     this.element.setAttribute('splitter-data-initial', 0);
+  }
+
+  disconnect() {
+    if (this.updateTopOffset) {
+      window.removeEventListener('resize', this.updateTopOffset);
+    }
+  }
+
+  updateTopOffset() {
+    const top = Math.round(this.element.getBoundingClientRect().top + window.scrollY);
+    this.element.style.setProperty('--bd-content-top', `${top}px`);
   }
 }
