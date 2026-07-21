@@ -285,6 +285,25 @@ $bd-bottom-gap: 30px;
   overscroll-behavior: contain;
 }
 
+// Keep the details pane from collapsing while a concept's Turbo frame reloads.
+// TurboFrameComponent normally hides .hide-if-loading and shows a small centered
+// loader while the frame is [busy]. Because the flex-chain rule above forces
+// .hide-if-loading to display:flex, that swap was left in an inconsistent state
+// and the pane visibly shrank then re-expanded ("jump") on every concept select.
+// Here we make the busy state explicit: hide the content, and let the loader
+// fill the pane's full height (centered) so its dimensions stay stable through
+// the load. Scoped to the details frame so nested frames are unaffected.
+#bd_content #concept_content > .d-flex > turbo-frame#concept_show[busy] > .hide-if-loading {
+  display: none !important;
+}
+#bd_content #concept_content > .d-flex > turbo-frame#concept_show[busy] ~ .show-if-loading {
+  display: flex !important;
+  flex: 1 1 auto;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+}
+
 // The tree tab's content wrapper is a Bootstrap .p-1 (padding: .25rem !important),
 // so the "Jump to" search box sat cramped against the tab bar and pane edges.
 // Give it comfortable room; !important is needed to beat the .p-1 utility.
