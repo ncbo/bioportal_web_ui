@@ -89,17 +89,23 @@ class MappingsController < ApplicationController
     render partial: 'mappings/concept_mappings', layout: false
   end
 
-  def new
-    @ontology_from = LinkedData::Client::Models::Ontology.find(params[:ontology_from])
-    @ontology_to = LinkedData::Client::Models::Ontology.find(params[:ontology_to])
-    @concept_from = @ontology_from.explore.single_class({ full: true }, params[:conceptid_from]) if @ontology_from
-    @concept_to = @ontology_to.explore.single_class({ full: true }, params[:conceptid_to]) if @ontology_to
+  # Minimal details of the class selected in the new-mapping dialog
+  def target_details
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology]).first
+    @concept = @ontology&.explore&.single_class(params[:conceptid]) if params[:conceptid].present?
+    not_found if @concept.nil? || @concept.errors
 
-    # Defaults just in case nothing gets provided
-    @ontology_from ||= LinkedData::Client::Models::Ontology.new
-    @ontology_to ||= LinkedData::Client::Models::Ontology.new
-    @concept_from ||= LinkedData::Client::Models::Class.new
-    @concept_to ||= LinkedData::Client::Models::Class.new
+    render partial: 'target_class_details', layout: false
+  end
+
+  def new
+    if params[:ontology_from].present?
+      @ontology_from = LinkedData::Client::Models::Ontology.find(params[:ontology_from])
+    end
+    if @ontology_from && params[:conceptid_from].present?
+      @concept_from = @ontology_from.explore.single_class({ full: true }, params[:conceptid_from])
+    end
+    not_found if @concept_from.nil?
 
     @mapping_relation_options = [
       ['Identical (skos:exactMatch)', 'http://www.w3.org/2004/02/skos/core#exactMatch'],
@@ -109,35 +115,45 @@ class MappingsController < ApplicationController
       ['Narrower (skos:narrowMatch)', 'http://www.w3.org/2004/02/skos/core#narrowMatch']
     ]
 
-    respond_to do |format|
-      format.js
-    end
+    render layout: false
   end
 
   # POST /mappings
-  # POST /mappings.xml
   def create
+    if params[:map_to_bioportal_ontology_id].blank? || params[:map_to_bioportal_full_id].blank?
+      return render_new_mapping_error(t('mappings.form.target_class_required'))
+    end
+
     source_ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:map_from_bioportal_ontology_id]).first
     target_ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:map_to_bioportal_ontology_id]).first
-    source = source_ontology.explore.single_class(params[:map_from_bioportal_full_id])
-    target = target_ontology.explore.single_class(params[:map_to_bioportal_full_id])
+    source = source_ontology&.explore&.single_class({ full: true }, params[:map_from_bioportal_full_id])
+    target = target_ontology&.explore&.single_class(params[:map_to_bioportal_full_id])
+
+    return render_new_mapping_error(t('mappings.form.create_error')) if source&.id.nil? || target&.id.nil?
+
+    # Acronyms and username, not URIs: the API decides URI vs. acronym/username
+    # with start_with?("http://"), which misclassifies https URIs (e.g. staging)
     values = {
       classes: {
-        source.id => source_ontology.id,
-        target.id => target_ontology.id
+        source.id => source_ontology.acronym,
+        target.id => target_ontology.acronym
       },
-      creator: session[:user].id,
+      creator: session[:user].username,
       relation: params[:mapping_relation],
       comment: params[:mapping_comment]
     }
-    @mapping = LinkedData::Client::Models::Mapping.new(values: values)
-    @mapping_saved = @mapping.save
-    if @mapping_saved.errors
-      raise Exception, @mapping_saved.errors
-    else
-      @delete_mapping_permission = check_delete_mapping_permission(@mapping_saved)
-      render json: @mapping_saved
+    mapping = LinkedData::Client::Models::Mapping.new(values: values)
+    mapping_saved = mapping.save
+    if mapping_saved.errors
+      Rails.logger.error("Mapping creation failed: #{Array(mapping_saved.errors).join('; ')}")
+      return render_new_mapping_error(t('mappings.form.create_error'))
     end
+
+    # Refresh the Mappings tab of the source class
+    @ontology = source_ontology
+    @concept = source
+    @mappings = get_concept_mappings(@concept)
+    @delete_mapping_permission = check_delete_mapping_permission(@mappings)
   end
 
   def destroy
@@ -156,5 +172,14 @@ class MappingsController < ApplicationController
       end
     end
     render json: { success: successes, error: errors }
+  end
+
+  private
+
+  def render_new_mapping_error(message)
+    render turbo_stream: turbo_stream.update('new_mapping_errors',
+                                             partial: 'mappings/form_error',
+                                             locals: { message: message }),
+           status: :unprocessable_entity
   end
 end

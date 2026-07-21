@@ -1,41 +1,21 @@
-- ontology_from_id = @ontology_from.acronym.nil? ? "all" : @ontology_from.acronym
-- ontology_to_id = @ontology_to.acronym.nil? ? "all" : @ontology_to.acronym
-
-:javascript
-  var BP_INTERNAL_SEARCH_SERVER = "#{$UI_URL}";
-
-%div.form
-  %div.mb-3
-    %label{for: "map_to_picker", class: 'form-label'} Target ontology or view
-    = select_tag("map_to_picker", options_for_select(onts_and_views_for_select()), class: "form-control")
-  %div.mb-3
-    %label{for: "map_to", class: 'form-label'} Target class
-    = text_field_tag(:map_to, @concept_to.label,
-                     class: "bp_internal_form_complete-#{ontology_to_id}-name search_autocomplete form-control",
-                     placeholder: "Start typing to select a class")
-    = hidden_field_tag :map_to_bioportal_full_id, @concept_to.id
-    = hidden_field_tag :map_to_bioportal_ontology_id, @ontology_to.acronym
-    = hidden_field_tag :map_from_bioportal_full_id, @concept_from.id
-    = hidden_field_tag :map_from_bioportal_ontology_id, @ontology_from.acronym
-  %div.mb-3
-    %label{for: "map_to_concept_details_table", class: 'form-label'} Details
-    %div#map_to_concept_details_table.form-control
-  %div.mb-3
-    %label{for: "mapping_comment", class: 'form-label'} Comment
-    = text_area(:mapping, :comment, rows: 5, class: "form-control")
-  %div.mb-3
-    %label{for: "mapping_relation", class: 'form-label'} Mapping relation type
-    = select("mapping", "relation", options_for_select(@mapping_relation_options, @mapping_relation_options.first), {},
-             class: "form-control")
-  %div.mb-1
-    %span#create_mapping_spinner
-      = loading_spinner
-    #create_mapping_error
-    #create_mapping_success_messages
-
-:javascript
-  bp_internal_formComplete_setup_functions();
-
-  jQuery("#map_to_picker").select2({
-    dropdownParent: jQuery("#createNewMappingModal"),
-  });
+= form_with url: mappings_path, data: { controller: 'mapping-form' } do
+  .modal-body
+    #new_mapping_errors
+    .mb-3
+      %label.form-label{for: 'map_to_bioportal_full_id'}= t('mappings.form.target_class')
+      = select_tag :map_to_bioportal_full_id, nil, required: true,
+                   data: { mapping_form_target: 'classSelect', placeholder: t('mappings.form.target_class_placeholder') }
+      = hidden_field_tag :map_to_bioportal_ontology_id, nil, data: { mapping_form_target: 'ontologyId' }
+      = hidden_field_tag :map_from_bioportal_full_id, @concept_from.id
+      = hidden_field_tag :map_from_bioportal_ontology_id, @ontology_from.acronym
+    .mb-3
+      = turbo_frame_tag 'map_to_details', data: { mapping_form_target: 'detailsFrame' }
+    .mb-3
+      %label.form-label{for: 'mapping_comment'}= t('mappings.form.comment')
+      = text_area_tag :mapping_comment, nil, rows: 5, class: 'form-control'
+    .mb-3
+      %label.form-label{for: 'mapping_relation'}= t('mappings.form.relation')
+      = select_tag :mapping_relation, options_for_select(@mapping_relation_options), class: 'form-select'
+  .modal-footer
+    %button.btn.btn-secondary{type: 'button', data: { bs_dismiss: 'modal' }}= t('mappings.form.close')
+    = submit_tag t('mappings.form.create'), class: 'btn btn-primary'

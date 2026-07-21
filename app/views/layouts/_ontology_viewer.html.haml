@@ -40,18 +40,6 @@
     jQuery(document).data().bp.ont_viewer.submission_lang = #{submission_languages(sub).to_json.html_safe};
     jQuery(document).data().bp.ont_viewer.lang_sections = #{ontology_data_sections.to_json.html_safe};
 
-  -# Modal dialog for creating a new mapping (must reside in a top-level position in the document to display properly).
-  %div#createNewMappingModal{class: "modal fade", tabindex: "-1", "aria-labelledby": "createNewMappingLabel"}
-    %div.modal-dialog.modal-lg
-      %div.modal-content
-        %div.modal-header
-          %h4#createNewMappingLabel.modal-title
-          %button.btn-close{type: "button", "data-bs-dismiss": "modal", "aria-label": "Close"}
-        %div.createNewMappingModalBody.modal-body
-        %div.modal-footer
-          %button{type: "button", class: "btn btn-secondary", "data-bs-dismiss": "modal"} Close
-          = submit_tag("Create Mapping", class: "btn btn-primary", id: "create_mapping_button")
-
   -# Modal dialog for getting a permanent link to a class (must reside in a top-level position in the document to display properly).
   %div#classPermalinkModal{class: "modal fade", tabindex: "-1", aria: {labelledby: "classPermalinkLabel", hidden: "true"}}
     %div.modal-dialog.modal-dialog-centered.modal-lg

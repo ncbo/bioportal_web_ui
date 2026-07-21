@@ -257,6 +257,21 @@ en:
   mappings:
     intro: Browse mappings between classes in different ontologies
     create_new_mapping: Create new mapping
+    create_new_mapping_for: Create a new mapping for %{label}
+    form:
+      target_class: Target class
+      target_class_placeholder: Start typing to search for a class
+      details: Details
+      details_id: ID
+      details_definitions: Definitions
+      details_synonyms: Synonyms
+      comment: Comment
+      relation: Mapping relation type
+      close: Close
+      create: Create mapping
+      target_class_required: Please select a target class
+      create_error: There was a problem creating the mapping, please try again
+      create_success: Mapping created successfully
 
   submissions:
     submission_updated_successfully: "Metadata updated successfully"

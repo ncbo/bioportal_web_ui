@@ -78,3 +78,9 @@ application.register("ontology-notes-table", OntologyNotesTableController)
 
 import NotesController from "./notes_controller"
 application.register("notes", NotesController)
+
+import ModalController from "./modal_controller"
+application.register("modal", ModalController)
+
+import MappingFormController from "./mapping_form_controller"
+application.register("mapping-form", MappingFormController)

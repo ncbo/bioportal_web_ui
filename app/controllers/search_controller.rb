@@ -11,6 +11,31 @@ class SearchController < ApplicationController
     @search_query ||= ""
   end
 
+  # Class search across all ontologies, as plain JSON. Backs autocomplete
+  # widgets (e.g. the new-mapping dialog's target class picker), unlike
+  # json_search's legacy pipe-separated format.
+  def classes
+    query = params[:q].to_s.strip
+    return render json: [] if query.length < 2
+
+    # suggest is the API's type-ahead mode (matches partial words), but it
+    # must be the string 'true': the API ignores a JSON boolean. It doesn't
+    # boost exact matches ("Contributory benefit" would outrank
+    # "Contributor"), so results are re-ranked below
+    search_page = LinkedData::Client::Models::Class.search(query, { pagesize: 20, suggest: 'true' })
+    results = Array(search_page.collection).filter_map do |cls|
+      next if cls.prefLabel.nil?
+
+      {
+        id: cls.id,
+        prefLabel: cls.prefLabel,
+        acronym: cls.links['ontology'].to_s.split('/').last
+      }
+    end
+    results = results.sort_by.with_index { |r, i| [label_match_rank(r[:prefLabel], query), i] }
+    render json: results
+  end
+
   def json_search
     if params[:q].nil?
       render :text => "No search class provided"
@@ -82,6 +107,18 @@ class SearchController < ApplicationController
 
 
   private
+
+  # Ranks a label against the typed query: exact match, then a whole-word
+  # prefix ("Contributor Role"), then any prefix ("Contributory"), then the
+  # rest. Ties keep the search API's own ordering.
+  def label_match_rank(label, query)
+    label = label.to_s.downcase
+    query = query.downcase
+    return 0 if label == query
+    return 3 unless label.start_with?(query)
+
+    label[query.length]&.match?(/[[:alnum:]]/) ? 2 : 1
+  end
 
   def check_params_query(params)
     params[:q] = params[:q].strip

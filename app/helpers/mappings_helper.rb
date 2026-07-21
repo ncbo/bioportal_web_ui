@@ -26,19 +26,6 @@ module MappingsHelper
     "<a href='#{uri}' target='_blank'>#{name}</a>"
   end
 
-  def onts_and_views_for_select
-    @onts_and_views_for_select = []
-    ontologies = LinkedData::Client::Models::Ontology.all(include: "acronym,name", include_views: true)
-    ontologies.each do |ont|
-      next if (ont.acronym.nil? || ont.acronym.empty?)
-      ont_acronym = ont.acronym
-      ont_display_name = "#{ont.name.strip} (#{ont_acronym})"
-      @onts_and_views_for_select << [ont_display_name, ont_acronym]
-    end
-    @onts_and_views_for_select.sort! { |a,b| a[0].downcase <=> b[0].downcase }
-    return @onts_and_views_for_select
-  end
-
   def get_concept_mappings(concept)
     mappings = concept.explore.mappings
     all_ontologies = LinkedData::Client::Models::Ontology.all(include: "acronym", display_links: false, display_context: false)
