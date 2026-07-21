@@ -285,23 +285,32 @@ $bd-bottom-gap: 30px;
   overscroll-behavior: contain;
 }
 
-// Keep the details pane from collapsing while a concept's Turbo frame reloads.
+// Keep the details pane stable while a concept's Turbo frame reloads.
 // TurboFrameComponent normally hides .hide-if-loading and shows a small centered
-// loader while the frame is [busy]. Because the flex-chain rule above forces
-// .hide-if-loading to display:flex, that swap was left in an inconsistent state
-// and the pane visibly shrank then re-expanded ("jump") on every concept select.
-// Here we make the busy state explicit: hide the content, and let the loader
-// fill the pane's full height (centered) so its dimensions stay stable through
-// the load. Scoped to the details frame so nested frames are unaffected.
+// loader while the frame is [busy]. With the viewport-bounding layout that made
+// the pane collapse to the loader's height and then re-expand ("jump") on every
+// concept select — and hiding the content also blanked the whole pane.
+// Instead, while #concept_show is [busy] we keep the previous content in place
+// and float the loader over it as a full-pane overlay with a translucent
+// backdrop. The pane keeps its dimensions and never goes blank; the outgoing
+// content is simply veiled until the new content swaps in. The positioning
+// context is the .d-flex wrapper (position: relative below). Scoped via the
+// direct-child path so nested mapping/notes frames are unaffected.
+#bd_content #concept_content > .d-flex {
+  position: relative;
+}
 #bd_content #concept_content > .d-flex > turbo-frame#concept_show[busy] > .hide-if-loading {
-  display: none !important;
+  display: flex !important;
 }
 #bd_content #concept_content > .d-flex > turbo-frame#concept_show[busy] ~ .show-if-loading {
   display: flex !important;
-  flex: 1 1 auto;
-  min-height: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  margin: 0;
   align-items: center;
   justify-content: center;
+  background: rgba(255, 255, 255, 0.65);
 }
 
 // The tree tab's content wrapper is a Bootstrap .p-1 (padding: .25rem !important),
