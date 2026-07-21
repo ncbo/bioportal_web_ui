@@ -313,6 +313,32 @@ $bd-bottom-gap: 30px;
   background: rgba(255, 255, 255, 0.65);
 }
 
+// The Mappings tab shows a lazy count (#mapping_count Turbo frame). Two issues
+// on every concept select:
+//  - the count's TurboFrameComponent wrapper is a flex COLUMN holding both the
+//    frame (with its own busy spinner) and a sibling .show-if-loading loader;
+//    during a real fetch both showed, stacking TWO circular spinners vertically
+//    below the tab label. Suppress the redundant sibling loader — the frame's
+//    own busy spinner is enough.
+//  - the number<->spinner swap changed the label width and jumped the tab bar;
+//    a fixed footprint keeps the label width constant.
+#concept_content .concepts-mapping-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5em;
+
+  > .d-flex.flex-column {
+    width: 100%;
+    align-items: center;
+
+    // the redundant second loader that stacked below the count
+    > .show-if-loading {
+      display: none !important;
+    }
+  }
+}
+
 // The tree tab's content wrapper is a Bootstrap .p-1 (padding: .25rem !important),
 // so the "Jump to" search box sat cramped against the tab bar and pane edges.
 // Give it comfortable room; !important is needed to beat the .p-1 utility.

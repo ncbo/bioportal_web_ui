@@ -28,8 +28,8 @@ module ComponentsHelper
     render LabelFetcherComponent.new(id: id, label: label, link: link, open_in_modal: open_in_modal, ajax_src: ajax_src, target: target, external: external)
   end
 
-  def tab_item_component(container_tabs:, title:, path:, selected: false, json_link: "", &content)
-    container_tabs.with_item(title: title.html_safe, path: path, selected: selected, json_link: json_link)
+  def tab_item_component(container_tabs:, title:, path:, id: nil, selected: false, json_link: "", &content)
+    container_tabs.with_item(id: id, title: title.html_safe, path: path, selected: selected, json_link: json_link)
     container_tabs.with_item_content { capture(&content) }
   end
 
