@@ -258,7 +258,11 @@ $bd-bottom-gap: 30px;
 #bd_content .sidebar #concept_browser .tab-content,
 #bd_content .sidebar #concept_browser .tab-pane.active,
 #bd_content .sidebar #concept_browser .tab-pane.active > .p-1,
-#bd_content .sidebar #concept_browser .tab-pane.active > .p-1 > [data-controller~="skos-collection-colors"],
+// The direct-child wrapper inside .p-1 that holds the search box + #sd_content.
+// On the hierarchy tab this is a [data-controller~="skos-collection-colors"] div;
+// on the list (Collections) and date tabs it's a plain <div>. Both must become
+// flex columns or #sd_content can't flex and the list clips with no scroll.
+#bd_content .sidebar #concept_browser .tab-pane.active > .p-1 > div,
 #bd_content #concept_content > .d-flex,
 #bd_content #concept_content turbo-frame#concept_show,
 #bd_content #concept_content .hide-if-loading,
