@@ -12,7 +12,7 @@ config( ['$locationProvider', function ($locationProvider) {
 
 var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ngAnimate', 'pasvaz.bindonce'])
 
-.controller('OntologyList', ['$scope', '$animate', '$timeout', '$filter', function($scope, $animate, $timeout, $filter) {
+.controller('OntologyList', ['$scope', '$timeout', '$filter', function($scope, $timeout, $filter) {
   // Default values
   $scope.visible_ont_count = 0;
 
@@ -30,7 +30,6 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
 
   $scope.ontology_sort_order = initialSort;
   $scope.previous_sort_order = initialSort;
-  $scope.show_highlight = false;
 
   // Data transfer from Rails
   $scope.debug = jQuery(document).data().bp.development;
@@ -347,12 +346,10 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
   });
 
   var filterOntologies = function() {
-    var key, i, ontology, facet, facet_count, show, other_facets, count = 0;
+    var key, i, ontology, facet, facet_count, show, other_facets;
     // A changed search/facet set is a fresh result list — scroll the render
     // window back to the top so the user sees the best matches first.
     $scope.render_limit = RENDER_LIMIT_INITIAL;
-    $scope.show_highlight = false;
-    $scope.show_highlight = true;
 
     // Reset facet counts
     Object.keys($scope.facet_counts).forEach(function(key) {
@@ -402,14 +399,6 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
 
     // Refresh the active-filter chips whenever the filters/search change.
     rebuildActiveFilterChips();
-
-    // Highlight the count
-    count = $("#visible_ont_count");
-    if (count.hasClass("trigger_highlight")) {
-      $animate.removeClass(count, "trigger_highlight");
-    } else {
-      $animate.addClass(count, "trigger_highlight");
-    }
   }
 
   var filterSearch = function() {
