@@ -12,7 +12,7 @@ config( ['$locationProvider', function ($locationProvider) {
 
 var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ngAnimate', 'pasvaz.bindonce'])
 
-.controller('OntologyList', ['$scope', '$animate', '$timeout', function($scope, $animate, $timeout) {
+.controller('OntologyList', ['$scope', '$animate', '$timeout', '$filter', function($scope, $animate, $timeout, $filter) {
   // Default values
   $scope.visible_ont_count = 0;
 
@@ -49,6 +49,33 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     return 0;
   });
   $scope.groups_hash = jQuery(document).data().bp.groups_hash;
+
+  // Rendering window. The template only builds DOM for the first `render_limit`
+  // matching ontologies and grows the window as the user scrolls (or clicks
+  // "Show more"). This keeps each digest cheap regardless of catalog size —
+  // rendering the full ~1,500-item list was the cause of the typing stutter.
+  var RENDER_LIMIT_INITIAL = 40;
+  var RENDER_LIMIT_STEP = 40;
+  $scope.render_limit = RENDER_LIMIT_INITIAL;
+
+  // The concrete list ng-repeat renders (already filtered to matches and sorted).
+  // Built once per filter/sort change in rebuildFilteredList() rather than via
+  // filters in the ng-repeat expression, so the expensive filter+sort runs once
+  // per change instead of on every digest, and so ng-repeat has a stable array
+  // reference (no infinite digest).
+  $scope.filteredOntologies = [];
+
+  var rebuildFilteredList = function() {
+    var shown = $scope.ontologies.filter(function(o) { return o.show; });
+    var reverse = $scope.ontology_sort_order.charAt(0) === '-';
+    $scope.filteredOntologies =
+      $filter('orderBy')(shown, $scope.ontologySortValue, reverse);
+  };
+
+  // Reveal more matching rows (scroll handler and the "Show more" button).
+  $scope.growRenderLimit = function() {
+    $scope.render_limit += RENDER_LIMIT_STEP;
+  };
 
   // Search setup
   $scope.searchText = null;
@@ -294,13 +321,22 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
 
   // Remember the chosen sort order for next time. Only persist the real options
   // (never the transient -search_rank the search flow switches to).
-  $scope.$watch('ontology_sort_order', function(newOrder) {
+  $scope.$watch('ontology_sort_order', function(newOrder, oldOrder) {
+    // Re-sort the rendered list when the order changes (the list is now a
+    // materialised array rather than an inline orderBy in the template).
+    if (newOrder !== oldOrder) {
+      $scope.render_limit = RENDER_LIMIT_INITIAL;
+      rebuildFilteredList();
+    }
     if (VALID_SORT_ORDERS.indexOf(newOrder) === -1) return;
     try { window.localStorage.setItem(SORT_STORAGE_KEY, newOrder); } catch (e) { /* storage unavailable */ }
   });
 
   var filterOntologies = function() {
     var key, i, ontology, facet, facet_count, show, other_facets, count = 0;
+    // A changed search/facet set is a fresh result list — scroll the render
+    // window back to the top so the user sees the best matches first.
+    $scope.render_limit = RENDER_LIMIT_INITIAL;
     $scope.show_highlight = false;
     $scope.show_highlight = true;
 
@@ -346,6 +382,9 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     }
 
     $scope.visible_ont_count = $scope.ontologies.filter(function(ont) {return ont.show}).length;
+
+    // Rebuild the concrete (filtered + sorted) list ng-repeat renders.
+    rebuildFilteredList();
 
     // Refresh the active-filter chips whenever the filters/search change.
     rebuildActiveFilterChips();
@@ -438,6 +477,26 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
         name: ont.name,
         description: ont.description
       })
+    });
+
+    // Infinite scroll: grow the render window as the user nears the bottom of
+    // the (independently scrolling) results list, so long result sets fill in
+    // without ever rendering the whole catalog at once.
+    $timeout(function() {
+      var list = document.querySelector('.ontology-list');
+      if (!list) return;
+      var ticking = false;
+      list.addEventListener('scroll', function() {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(function() {
+          ticking = false;
+          var nearBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 400;
+          if (nearBottom && $scope.render_limit < $scope.filteredOntologies.length) {
+            $scope.$apply($scope.growRenderLimit);
+          }
+        });
+      });
     });
   }
   $timeout($scope.init);

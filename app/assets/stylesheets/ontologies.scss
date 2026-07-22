@@ -556,6 +556,25 @@ $browse-gap: 24px;
   }
 }
 
+// "Show more" affordance below the rendered result window. Scrolling grows the
+// window automatically; this is the explicit fallback for the remaining rows.
+.ontology-list-more {
+  text-align: center;
+  padding: 0.5rem 0 1.5rem;
+
+  .ontology-list-more-btn {
+    border: 1px solid rgba(35, 73, 121, 0.25);
+    background: #fff;
+    color: var(--primary-color);
+    border-radius: 999px;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+
+    &:hover { background: var(--bg-info-light-color); }
+  }
+}
+
 // Result count sits above the list (not in the toolbar). Quiet, slightly
 // indented to line up with the card content below.
 // Count + active-filter chips sit on one wrapping row above the list.
