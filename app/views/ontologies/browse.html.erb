@@ -218,7 +218,7 @@
               <%# Metadata + stats as one inline row of rounded pills %>
               <div class="ont-meta-pills">
                 <span class="ont-pill">
-                  <b>Uploaded</b> {{::ontology.creationDate | date:'d MMM y'}}
+                  <b>Uploaded</b> {{::ontology.creationDate | localeDate}}
                 </span>
                 <span class="ont-pill" ng-if="facets.formats.active.length > 1">
                   <b>Format</b> {{::ontology.format}}

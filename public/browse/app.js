@@ -561,4 +561,26 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     return text.split(/\.\W/)[0];
   }
 })
+
+// Format a date using the visitor's browser locale (via Intl.DateTimeFormat)
+// rather than AngularJS's built-in `date` filter, which is frozen to en-US
+// unless an angular-i18n locale bundle is loaded (we load none). This shows a
+// day/short-month/year date localised to the user — e.g. "21 Mar 2026" (en),
+// "21 mars 2026" (fr), "2026年3月21日" (ja). Falls back to the raw value if the
+// input can't be parsed or Intl is unavailable.
+.filter('localeDate', function() {
+  var formatter = null;
+  if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
+    // `undefined` locale => use the browser's default locale.
+    formatter = new Intl.DateTimeFormat(undefined, {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  }
+  return function(value) {
+    if (!value) return value;
+    var date = (value instanceof Date) ? value : new Date(value);
+    if (isNaN(date.getTime())) return value;
+    return formatter ? formatter.format(date) : date.toDateString();
+  };
+})
 ;
