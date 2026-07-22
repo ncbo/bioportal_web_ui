@@ -134,7 +134,6 @@
 
           <div id="sorting" ng-show="visible_ont_count">
             <div id="sorting_float">
-              <span id="visible_ont_count">{{visible_ont_count}} of {{ontologies.length}}</span>
               <label for="sort_order">Sort</label>
               <select ng-model="ontology_sort_order">
                 <option value="-popularity" selected="selected">Popular</option>
@@ -154,6 +153,11 @@
               <% end %>
             </div>
           </div>
+        </div>
+
+        <%# Result count sits just above the list, not in the search/sort bar. %>
+        <div id="visible_ont_count" class="results-count" ng-show="visible_ont_count">
+          <b>{{visible_ont_count}}</b> of {{ontologies.length}} ontologies
         </div>
 
         <%# The ontology cards scroll independently below the (pinned) toolbar,

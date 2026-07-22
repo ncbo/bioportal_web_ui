@@ -481,6 +481,12 @@ $browse-gap: 24px;
   box-sizing: border-box;
 }
 
+// Widen the facet column past the legacy grid-20/80 split so facet labels and
+// their counts (e.g. "Human Developmental Anatomy (46)") fit without the count
+// orphaning onto its own line.
+#facets.grid-20 { width: 30%; }
+#ontologies.grid-80 { width: 70%; }
+
 // Facet sidebar scrolls on its own when it's taller than the viewport. A little
 // right padding keeps the scrollbar off the panel edge.
 #facets {
@@ -505,6 +511,16 @@ $browse-gap: 24px;
     overscroll-behavior: contain;
     padding-right: 1rem;
   }
+}
+
+// Result count sits above the list (not in the toolbar). Quiet, slightly
+// indented to line up with the card content below.
+#ontologies .results-count {
+  margin: 0 0 0.75rem 0.25rem;
+  color: var(--gray-color);
+  font-size: 0.9rem;
+
+  b { color: #333; font-weight: 600; }
 }
 
 .ontology.grid-parent h2 {
@@ -640,15 +656,17 @@ a.ont-pill-stat {
     }
 
     // Upload glyph before the label (the component's own icon slot renders empty
-    // here, so we supply one via a masked background).
+    // here, so we supply one via a masked background). A bolder, heavier-stroke
+    // upload icon so it doesn't look thin next to the bold label.
     &::before {
       content: "";
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       flex: 0 0 auto;
       background-color: #fff;
-      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5'/%3E%3Cpath d='M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z'/%3E%3C/svg%3E") no-repeat center / contain;
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5'/%3E%3Cpath d='M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z'/%3E%3C/svg%3E") no-repeat center / contain;
+      $upload-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2'/%3E%3Cpath d='M12 15V3'/%3E%3Cpath d='m7 8 5-5 5 5'/%3E%3C/svg%3E");
+      mask: $upload-icon no-repeat center / contain;
+      -webkit-mask: $upload-icon no-repeat center / contain;
     }
   }
 
@@ -690,29 +708,47 @@ a.ont-pill-stat {
 
   // Facet rows: modern brand-accented checkbox, one per line, muted count.
   .checkbox_list {
-    span[ng-repeat] { display: block; }
     br { display: none; }
 
+    // Each facet row fills the full column width (it previously shrink-wrapped,
+    // which forced labels to wrap early and dropped the count onto its own
+    // line). The checkbox is positioned in a fixed left gutter; the label and
+    // its count then flow inline, so the count sits right after the label name
+    // — only wrapping with it if a name is genuinely too long for the column.
+    span[ng-repeat] {
+      display: block;
+      position: relative;
+      width: auto;
+      padding: 0.12rem 0 0.12rem 1.5rem; // left gutter for the checkbox
+    }
+
+    input[type="checkbox"] {
+      position: absolute;
+      left: 0;
+      top: 0.28rem;
+      width: 15px;
+      height: 15px;
+      accent-color: var(--primary-color);
+      margin: 0;
+      cursor: pointer;
+    }
+
     label {
-      display: inline;             // allow long facet names to wrap
+      display: inline;
       white-space: normal;
       font-size: 0.9rem;
       color: #333;
       cursor: pointer;
-      padding: 0.12rem 0;
       line-height: 1.4;
+      margin: 0;
     }
 
-    input[type="checkbox"] {
-      width: 15px;
-      height: 15px;
-      accent-color: var(--primary-color);
-      margin-right: 0.5rem;
-      cursor: pointer;
-      vertical-align: middle;
+    .smaller {
+      margin-left: 0.3rem;
+      color: #9aa1ac;
+      font-size: 0.8rem;
+      white-space: nowrap; // keep "(21)" itself from breaking
     }
-
-    .smaller { color: #9aa1ac; font-size: 0.8rem; margin-left: 0.25rem; }
   }
 
   .facet_disabled { opacity: 0.45; }
@@ -758,20 +794,37 @@ a.ont-pill-stat {
   flex-wrap: wrap;
   padding: 0.75rem 1rem;
   margin-bottom: 1.5rem;
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  // Match the toolbar band to the site header / Submit button (--primary-color)
+  // so the page reads as one coherent blue rather than clashing shades. The
+  // search field and select stay white (below) so they read clearly as controls.
+  background: var(--primary-color);
+  border: 1px solid var(--primary-color);
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 6px rgba(35, 73, 121, 0.2);
 
+  // On the dark band, the sort label and help icon go light.
+  #sorting label { color: rgba(255, 255, 255, 0.9); }
+  .browse-help-link {
+    color: rgba(255, 255, 255, 0.85);
+    &:hover { color: #fff; }
+  }
+
+  // The toolbar centers its items (align-items: center above); make the two
+  // wrappers flex too so the search field and the sort select share a common
+  // vertical centerline regardless of their slightly different heights.
   #searching {
     position: relative;
     flex: 1 1 320px;   // grow to fill, wrap on narrow screens
     margin: 0;
+    display: flex;
+    align-items: center;
   }
 
   #sorting {
     flex: 0 0 auto;
     margin: 0;
+    display: flex;
+    align-items: center;
   }
 
   #sorting_float {
@@ -780,6 +833,7 @@ a.ont-pill-stat {
     align-items: center;
     gap: 0.6rem;
     white-space: nowrap;
+    margin: 0; // clear a legacy 8px bottom margin that pushed the select off-centre
   }
 
   #visible_ont_count {
@@ -796,10 +850,13 @@ a.ont-pill-stat {
   }
 
   // Native select with a custom chevron so it matches the rounded controls.
+  // Borderless white on the blue band; height matched to the search field so
+  // the two controls share a centerline.
   #sorting select {
     appearance: none;
     -webkit-appearance: none;
-    border: 1px solid #d8dee4;
+    height: 44px;
+    border: 1px solid transparent;
     border-radius: 8px;
     padding: 0.45rem 2rem 0.45rem 0.7rem;
     background-color: #fff;
@@ -832,9 +889,10 @@ a.ont-pill-stat {
 // leading magnifier icon and a clear focus ring.
 .browse-toolbar #searching .search {
   width: 100%;
+  margin: 0; // clear a legacy -5px top margin that pushed it above the select
   font-size: 1rem;
   padding: 0.55rem 0.9rem 0.55rem 2.4rem; // left room for the icon
-  border: 1px solid #d8dee4;
+  border: 1px solid transparent; // white field reads cleanly on the blue band
   border-radius: 8px;
   background-color: #fff;
   background-repeat: no-repeat;
