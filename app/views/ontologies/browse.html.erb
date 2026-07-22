@@ -173,7 +173,7 @@
           <p class="browse-empty-text">Try a different search term or clear some filters.</p>
         </div>
 
-        <div class="ontology grid-parent clearfix" ng-repeat="ontology in ontologies | orderBy:ontology_sort_order" ng-if="ontology.show">
+        <div class="ontology grid-parent clearfix" ng-repeat="ontology in ontologies | orderBy:ontologySortValue:(ontology_sort_order.charAt(0) === '-')" ng-if="ontology.show">
           <div class="grid-100">
             <div ng-if="ontology.type == 'ontology_view'" class="ontology_view_badge" title="This ontology is a view of {{ontology.viewOfOnt.name}}">VIEW</div>
             <h2 style="font-size: 1.5em;">

@@ -175,6 +175,24 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     $scope.ontology_sort_order = newOrder;
   }
 
+  // Sort key for the ontology list. orderBy is given this function so we can
+  // normalise the "Name" sort: names can have stray leading whitespace and mixed
+  // case, which a plain field sort would order by raw char code (whitespace and
+  // capitals sorting before lowercase letters) — putting e.g. " Obesity..." and
+  // capitalised names out of place. For name we trim + lowercase; every other
+  // sort (popularity, counts, dates — all "[-]field") falls through to the raw
+  // field value so numeric/descending sorts are unchanged.
+  $scope.ontologySortValue = function(ontology) {
+    var order = $scope.ontology_sort_order || '';
+    var descending = order.charAt(0) === '-';
+    var field = descending ? order.substring(1) : order;
+
+    if (field === 'name') {
+      return (ontology.name || '').trim().toLowerCase();
+    }
+    return ontology[field];
+  }
+
   // This watches the facets and updates the list depending on which facets are selected
   // All facets are basically ANDed together and return true if no options under the facet are selected.
   $scope.$watch('facets', function() {
