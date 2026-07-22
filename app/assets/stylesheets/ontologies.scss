@@ -555,12 +555,68 @@ $browse-gap: 24px;
 
 // Result count sits above the list (not in the toolbar). Quiet, slightly
 // indented to line up with the card content below.
+// Count + active-filter chips sit on one wrapping row above the list.
+#ontologies .results-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: 0 0 0.85rem 0.25rem;
+}
+
 #ontologies .results-count {
-  margin: 0 0 0.75rem 0.25rem;
   color: var(--gray-color);
   font-size: 0.9rem;
+  flex: 0 0 auto;
 
   b { color: #333; font-weight: 600; }
+}
+
+#ontologies .filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+// A removable filter chip: light pill, label + × affordance, hover to hint
+// removal.
+#ontologies .filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.35rem 0.15rem 0.6rem;
+  border: 1px solid rgba(35, 73, 121, 0.2);
+  border-radius: 999px;
+  background: var(--bg-info-light-color);
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  cursor: pointer;
+
+  .filter-chip-x {
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--primary-color);
+    opacity: 0.6;
+  }
+
+  &:hover {
+    background: rgba(59, 130, 246, 0.16);
+    .filter-chip-x { opacity: 1; }
+  }
+}
+
+#ontologies .filter-clear-all {
+  border: none;
+  background: none;
+  padding: 0.15rem 0.25rem;
+  color: var(--gray-color);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover { color: var(--primary-color); }
 }
 
 .ontology.grid-parent h2 {
@@ -601,6 +657,24 @@ $browse-gap: 24px;
     margin: 0;
     font-size: 0.9rem;
     color: var(--gray-color);
+  }
+
+  .browse-empty-clear {
+    margin-top: 1.25rem;
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+
+    &:hover {
+      background: var(--primary-color);
+      color: #fff;
+    }
   }
 }
 

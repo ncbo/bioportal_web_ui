@@ -206,6 +206,82 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     return ontology[field];
   }
 
+  // --- Active-filter chips + clear-all -------------------------------------
+  // A removable chip is shown above the list for each active facet selection
+  // (and the search term), so users can see and undo what's applied without
+  // hunting the sidebar. "Ontology" under Entry Type is the default baseline and
+  // is intentionally not shown as a removable chip.
+
+  // Human-readable label for a facet value (categories/groups have names).
+  var facetValueLabel = function(facetKey, value) {
+    if (facetKey === 'categories') {
+      var cat = ($scope.categories || []).filter(function(c){ return c.id === value; })[0];
+      return cat ? cat.name : value;
+    }
+    if (facetKey === 'upload_date') {
+      var labels = { 1:'past day', 7:'past week', 30:'past month', 90:'past 3 months',
+                     180:'past 6 months', 365:'past year', 'all':'any time' };
+      return 'Uploaded: ' + (labels[value] || value);
+    }
+    if (facetKey === 'types') return value === 'ontology_view' ? 'Ontology View' : 'Ontology';
+    return value;
+  };
+
+  // Rebuild the chip list only when filters change (not on every digest) — a
+  // function returning a fresh array in an ng-repeat causes an infinite digest.
+  $scope.activeFilterChips = [];
+
+  var rebuildActiveFilterChips = function() {
+    var chips = [];
+    Object.keys($scope.facets).forEach(function(key) {
+      var active = $scope.facets[key].active;
+      if (angular.isArray(active)) {
+        active.forEach(function(v) {
+          // the default Entry Type = Ontology is the baseline, not a chip
+          if (key === 'types' && v === 'ontology') return;
+          chips.push({ facet: key, value: v, label: facetValueLabel(key, v) });
+        });
+      } else if (active !== '' && active != null) {
+        chips.push({ facet: key, value: active, label: facetValueLabel(key, active) });
+      }
+    });
+    $scope.activeFilterChips = chips;
+  };
+
+  $scope.removeFilter = function(chip) {
+    var active = $scope.facets[chip.facet].active;
+    if (angular.isArray(active)) {
+      var i = active.indexOf(chip.value);
+      if (i !== -1) active.splice(i, 1);
+    } else {
+      $scope.facets[chip.facet].active = '';
+    }
+  };
+
+  $scope.clearSearch = function() {
+    $scope.searchText = '';
+  };
+
+  // True when anything is applied beyond the defaults (so we can show a "Clear
+  // all" control and, in the empty state, nudge the user to reset). Returns a
+  // boolean (stable across digests, unlike an array).
+  $scope.hasActiveFilters = function() {
+    return $scope.activeFilterChips.length > 0 ||
+           !($scope.searchText === null || $scope.searchText === '');
+  };
+
+  $scope.clearAllFilters = function() {
+    Object.keys($scope.facets).forEach(function(key) {
+      var facet = $scope.facets[key];
+      if (angular.isArray(facet.active)) {
+        facet.active = (key === 'types') ? ['ontology'] : [];
+      } else {
+        facet.active = '';
+      }
+    });
+    $scope.searchText = '';
+  };
+
   // This watches the facets and updates the list depending on which facets are selected
   // All facets are basically ANDed together and return true if no options under the facet are selected.
   $scope.$watch('facets', function() {
@@ -270,6 +346,9 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     }
 
     $scope.visible_ont_count = $scope.ontologies.filter(function(ont) {return ont.show}).length;
+
+    // Refresh the active-filter chips whenever the filters/search change.
+    rebuildActiveFilterChips();
 
     // Highlight the count
     count = $("#visible_ont_count");

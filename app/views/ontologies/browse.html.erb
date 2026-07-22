@@ -155,9 +155,24 @@
           </div>
         </div>
 
-        <%# Result count sits just above the list, not in the search/sort bar. %>
-        <div id="visible_ont_count" class="results-count" ng-show="visible_ont_count">
-          <b>{{visible_ont_count}}</b> of {{ontologies.length}} ontologies
+        <%# Count + active-filter chips row. Chips show each applied filter (and
+            the search term); each is removable, with a "Clear all" reset. %>
+        <div class="results-bar" ng-show="visible_ont_count || hasActiveFilters()">
+          <span id="visible_ont_count" class="results-count">
+            <b>{{visible_ont_count}}</b> of {{ontologies.length}} ontologies
+          </span>
+
+          <span class="filter-chips" ng-if="hasActiveFilters()">
+            <button type="button" class="filter-chip" ng-if="searchText" ng-click="clearSearch()">
+              <span class="filter-chip-label">Search: &ldquo;{{searchText}}&rdquo;</span>
+              <span class="filter-chip-x" aria-hidden="true">&times;</span>
+            </button>
+            <button type="button" class="filter-chip" ng-repeat="chip in activeFilterChips" ng-click="removeFilter(chip)">
+              <span class="filter-chip-label">{{chip.label}}</span>
+              <span class="filter-chip-x" aria-hidden="true">&times;</span>
+            </button>
+            <button type="button" class="filter-clear-all" ng-click="clearAllFilters()">Clear all</button>
+          </span>
         </div>
 
         <%# The ontology cards scroll independently below the (pinned) toolbar,
@@ -171,6 +186,7 @@
           </svg>
           <p class="browse-empty-title">No ontologies match your filters</p>
           <p class="browse-empty-text">Try a different search term or clear some filters.</p>
+          <button type="button" class="browse-empty-clear" ng-if="hasActiveFilters()" ng-click="clearAllFilters()">Clear all filters</button>
         </div>
 
         <div class="ontology grid-parent clearfix" ng-repeat="ontology in ontologies | orderBy:ontologySortValue:(ontology_sort_order.charAt(0) === '-')" ng-if="ontology.show">
