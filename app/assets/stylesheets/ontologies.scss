@@ -467,13 +467,16 @@ $bd-bottom-gap: 30px;
 // Rails/ViewComponent pages (Classes tab etc.): framed cards, flat light stat
 // pills, and a cleaner facet sidebar — without touching the Angular logic.
 
-// Loading splash shown (via [ng-cloak]) while the Angular app boots. Replace the
-// old grey box + big "Ontologies loading" text with a clean centered spinner and
-// quiet caption. Overrides the legacy .splash box in public/browse/app.css
-// (whose [ng-cloak].splash rule forces display:block !important, hence the
-// !important on display here).
-.ontologies.index div.splash,
-.splash,
+// Loading splash shown while the Angular app boots. AngularJS hides any element
+// carrying [ng-cloak] until it has finished bootstrapping, then strips the
+// attribute. The legacy public/browse/app.css relies on this: [ng-cloak].splash
+// forces the splash visible during boot, and plain .splash { display: none }
+// hides it once Angular removes the attribute.
+//
+// The styling below must therefore only apply while the element is STILL
+// cloaked ([ng-cloak].splash); a bare .splash rule with display:flex would keep
+// the splash on screen forever, since it wins after ng-cloak is stripped. We
+// leave the legacy .splash { display: none } in place to hide it post-boot.
 [ng-cloak].splash {
   width: auto !important;
   height: auto !important;
