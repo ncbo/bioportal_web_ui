@@ -1,9 +1,12 @@
 $ont-metadata-bg-color: #e2ebf0;
 $widget-table-border-color: #EFEFEF;
 $ont-show-bg-color: #e9ecef;
+// #concept_details flows naturally inside the details column's single scroll
+// region (see the `#concept_content .tab-content` rule in the "Classes pane"
+// section). It must NOT be its own scroller, or the column gets a nested
+// scrollbar that fights the outer one.
 #concept_details {
-  max-height: 90vh;
-  overflow-y: auto;
+  min-height: 0;
 }
 .ontologies.show,
 .ontologies.admin {
@@ -181,15 +184,223 @@ $ont-show-bg-color: #e9ecef;
 /* Classes pane
 ************************************/
 
+// The main ontology-viewer tab bar (Summary / Classes / … plus the language
+// selector on the right) had no vertical padding, so the language <select> sat
+// flush against the bar's bottom border. Add symmetric vertical padding so its
+// controls breathe. Scoped to this instance so other tab bars are unaffected.
+#ontology_viewer.tabs-container {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+// The two-column class browser fills the space from its top down to a small
+// gap above the bottom of the viewport, and each column scrolls internally
+// instead of the whole page. `--bd-content-top` is the distance from the top of
+// the viewport to the top of #bd_content (site header + ontology card + tab
+// bar); it is measured and set on connect by the container-splitter Stimulus
+// controller so this stays correct across breakpoints and header changes. The
+// fallback keeps the layout sane before JS runs / if the controller is absent.
+// $bd-bottom-gap leaves visible breathing room so the region's bottom edge (and
+// both panes' lower boundaries) sit comfortably above the fold. It matches the
+// container's 30px left/right gutter so the pale page background frames the
+// panels evenly on all four sides.
+$bd-bottom-gap: 30px;
 #bd_content {
   display: flex;
   flex-direction: row;
+  align-items: stretch;
+  // Breathing room between the tab / language-selector row above and the
+  // panels, so the language box isn't cramped against the panel outline.
+  // Included in --bd-content-top (the controller measures the top edge), so
+  // the height calc stays correct.
+  margin-top: 12px;
+  height: calc(100dvh - var(--bd-content-top, 340px) - #{$bd-bottom-gap});
+  overflow: hidden;
 }
 
-#bd_content .sidebar {
+// Each column (and the resizer gutter) fills the row height. min-height:0 is
+// required so a flex child may shrink below its content and delegate the
+// overflow to the inner scroller.
+#bd_content .sidebar,
+#bd_content #concept_content {
   white-space: wrap;
-  min-height: 70vh;
-  max-height: 90vh;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// For the height to reach each column's scroll region, every wrapper between
+// the column and its scroller must be a flex column that can shrink
+// (min-height:0). The two columns share the TabsContainerComponent skeleton but
+// differ in their deeper wrappers. The wrapper chains below were verified
+// against the rendered DOM:
+//
+// Left (sidebar), scroller = #sd_content:
+//   #concept_browser
+//     └ .tab-content            (sibling of the .tabs-container tab bar)
+//         └ .tab-pane.active     (#tree_tab_content)
+//             └ .p-1
+//                 └ div[data-controller~="skos-collection-colors"]
+//                     ├ .pb-2            (the "Jump to" box — stays fixed)
+//                     └ #sd_content      (the scroller — grows)
+//
+// Right (details), scroller = .tab-content itself:
+//   #concept_content
+//     └ .d-flex[data-controller~="turbo-frame-error"]
+//         └ turbo-frame#concept_show
+//             └ .hide-if-loading
+//                 └ div[data-controller~="concepts-json"]
+//                     ├ .tabs-container   (the tab bar — stays fixed)
+//                     └ .tab-content      (the scroller — grows)
+#bd_content .sidebar #concept_browser,
+#bd_content .sidebar #concept_browser .tab-content,
+#bd_content .sidebar #concept_browser .tab-pane.active,
+#bd_content .sidebar #concept_browser .tab-pane.active > .p-1,
+// The direct-child wrapper inside .p-1 that holds the search box + #sd_content.
+// On the hierarchy tab this is a [data-controller~="skos-collection-colors"] div;
+// on the list (Collections) and date tabs it's a plain <div>. Both must become
+// flex columns or #sd_content can't flex and the list clips with no scroll.
+#bd_content .sidebar #concept_browser .tab-pane.active > .p-1 > div,
+#bd_content #concept_content > .d-flex,
+#bd_content #concept_content turbo-frame#concept_show,
+#bd_content #concept_content .hide-if-loading,
+#bd_content #concept_content [data-controller~="concepts-json"] {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+// The single scroll region per column. overscroll-behavior:contain stops a
+// scroll that reaches the end from chaining out to the page.
+#sd_content,
+#bd_content #concept_content .tab-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto !important;   // override the inline height:60vh on #sd_content
+  max-height: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+// Keep the details pane stable while a concept's Turbo frame reloads.
+// TurboFrameComponent normally hides .hide-if-loading and shows a small centered
+// loader while the frame is [busy]. With the viewport-bounding layout that made
+// the pane collapse to the loader's height and then re-expand ("jump") on every
+// concept select — and hiding the content also blanked the whole pane.
+// Instead, while #concept_show is [busy] we keep the previous content in place
+// and float the loader over it as a full-pane overlay with a translucent
+// backdrop. The pane keeps its dimensions and never goes blank; the outgoing
+// content is simply veiled until the new content swaps in. The positioning
+// context is the .d-flex wrapper (position: relative below). Scoped via the
+// direct-child path so nested mapping/notes frames are unaffected.
+#bd_content #concept_content > .d-flex {
+  position: relative;
+}
+#bd_content #concept_content > .d-flex > turbo-frame#concept_show[busy] > .hide-if-loading {
+  display: flex !important;
+}
+#bd_content #concept_content > .d-flex > turbo-frame#concept_show[busy] ~ .show-if-loading {
+  display: flex !important;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+// The Mappings tab shows a lazy count (#mapping_count Turbo frame). Two issues
+// on every concept select:
+//  - the count's TurboFrameComponent wrapper is a flex COLUMN holding both the
+//    frame (with its own busy spinner) and a sibling .show-if-loading loader;
+//    during a real fetch both showed, stacking TWO circular spinners vertically
+//    below the tab label. Suppress the redundant sibling loader — the frame's
+//    own busy spinner is enough.
+//  - the number<->spinner swap changed the label width and jumped the tab bar;
+//    a fixed footprint keeps the label width constant.
+#concept_content .concepts-mapping-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  // Reserve just enough width for a single-digit count or the (slightly wider)
+  // busy spinner, so the two swap without a jump while the parentheses stay
+  // snug. min-width (not width) lets longer counts expand instead of clipping.
+  min-width: 1.25em;
+
+  > .d-flex.flex-column {
+    width: 100%;
+    align-items: center;
+
+    // the redundant second loader that stacked below the count
+    > .show-if-loading {
+      display: none !important;
+    }
+  }
+}
+
+// The tree tab's content wrapper is a Bootstrap .p-1 (padding: .25rem !important),
+// so the "Jump to" search box sat cramped against the tab bar and pane edges.
+// Give it comfortable room; !important is needed to beat the .p-1 utility.
+#bd_content .sidebar #concept_browser .tab-pane.active > .p-1 {
+  padding: 12px !important;
+}
+
+// Small gutter at the very top of the details scroll region so the first data
+// row isn't flush against the pinned tab bar. The border matches the outline on
+// the tree column's tab bar (.outline-tabs) so the two columns read as matching
+// enclosed panels with aligned top edges. No top border: the tab bar's own
+// bottom border already draws the divider there — a top border would double it.
+// Rounded only at the bottom corners, since the tab bar caps the top.
+#bd_content #concept_content .tab-content {
+  padding-top: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+}
+
+// The details content has two inset boxes that each draw their own border,
+// which read as second/nested rectangles inside our enclosing pane outline (the
+// tree column shows only one outline):
+//   .card              — the top summary block (Id / Preferred Name / …)
+//   .dropdown-container — the collapsible "All Properties" block
+// Drop both inner borders + rounding here so the pane reads as a single enclosed
+// panel like the hierarchy. Scoped to the details pane so these shared
+// components keep their borders everywhere else.
+#bd_content #concept_content .tab-content .card,
+#bd_content #concept_content .tab-content .dropdown-container {
+  border: none;
+  border-radius: 0;
+}
+
+// The collapsible section headers (e.g. "All Properties") use .dropdown-title-bar,
+// which globally spreads its label and expand/collapse chevron to opposite ends
+// (justify-content: space-between). In the details pane that leaves the chevron
+// stranded at the far right edge, disconnected from its label. Pull them
+// together at the start and let the label size to its text so the chevron sits
+// just after it. Scoped to the details pane so other dropdowns are unaffected.
+#bd_content #concept_content .tab-content .dropdown-title-bar {
+  justify-content: flex-start;
+
+  .header-component {
+    flex: 0 0 auto;
+    width: auto;
+  }
+}
+
+// Tab bars (Hierarchy/Collection/Date on the left; Details/Visualization/Notes/
+// Mappings on the right) keep their natural height and stay pinned while the
+// content scrolls beneath them. The opaque background keeps scrolled content
+// from showing through. The pane's bottom border (above) draws the single
+// divider under the tab bar — no shadow, which otherwise doubled the line.
+#bd_content [data-controller~="tabs-container"] {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 2;
+  background: var(--bs-body-bg, #fff);
 }
 
 #search_box:focus {

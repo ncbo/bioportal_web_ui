@@ -34,19 +34,51 @@ export default class extends Controller {
 
       if (isTreeViewPage) {
         const activeElem = this.element.querySelector('.tree-link.active');
-        
+
         if (activeElem) {
-          activeElem.scrollIntoView({ block: 'center' });
-          window.scrollTo({ top: 0 });
-          
+          this.#centerWithinScrollParent(activeElem);
+
           if (this.autoClickValue) {
             activeElem.click();
           }
         }
-        
+
         this.#onClickTooManyChildrenInit();
       }
     }, 0);
+  }
+
+  // Center the active node inside the tree's own scroll container only.
+  // Using element.scrollIntoView() here would also scroll the window (it walks
+  // every scrollable ancestor), producing a visible page "jump" on load that a
+  // follow-up window.scrollTo(0) then snapped back. Scrolling the container
+  // directly avoids touching the page scroll entirely.
+  #centerWithinScrollParent (activeElem) {
+    const scroller = activeElem.closest('#sd_content') || this.#nearestScrollParent(activeElem);
+    if (!scroller) return;
+
+    // Node's top relative to the scroller's content box, independent of how many
+    // wrapper elements sit between them (offsetParent can be either).
+    const elemRect = activeElem.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
+    const offsetWithinScroller = (elemRect.top - scrollerRect.top) + scroller.scrollTop;
+
+    const target = offsetWithinScroller
+      - (scroller.clientHeight / 2)
+      + (elemRect.height / 2);
+    scroller.scrollTop = Math.max(0, target);
+  }
+
+  #nearestScrollParent (el) {
+    let node = el.parentElement;
+    while (node) {
+      const overflowY = getComputedStyle(node).overflowY;
+      if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
+        return node;
+      }
+      node = node.parentElement;
+    }
+    return null;
   }
 
   #onClickTooManyChildrenInit () {
