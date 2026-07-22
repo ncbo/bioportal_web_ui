@@ -462,11 +462,398 @@ $bd-bottom-gap: 30px;
  * Browse page (index)
  ************************************/
 
+// The browse (/ontologies) page is a legacy AngularJS view using the unsemantic
+// grid and its own class names. These rules realign its look with the modern
+// Rails/ViewComponent pages (Classes tab etc.): framed cards, flat light stat
+// pills, and a cleaner facet sidebar — without touching the Angular logic.
+
+// Bound the two-column browse area to the viewport and scroll each column
+// internally: the search/sort toolbar stays pinned, the facet sidebar stays in
+// place, and only the ontology list scrolls. $browse-top is the distance from
+// the top of the viewport to the top of the columns (site header + page top
+// padding); $browse-gap leaves a little room at the bottom.
+$browse-top: 96px;
+$browse-gap: 24px;
+
+#facets,
+#ontologies {
+  height: calc(100vh - #{$browse-top} - #{$browse-gap});
+  box-sizing: border-box;
+}
+
+// Facet sidebar scrolls on its own when it's taller than the viewport. A little
+// right padding keeps the scrollbar off the panel edge.
+#facets {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.5rem;
+}
+
+// Right column: the toolbar is fixed at the top, the ontology list scrolls.
+#ontologies {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .browse-toolbar { flex: 0 0 auto; }
+
+  // The list scrolls; the right padding keeps its scrollbar clear of the cards.
+  .ontology-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 1rem;
+  }
+}
+
 .ontology.grid-parent h2 {
   a {
     text-decoration: none;
+    color: var(--primary-color);
   }
   a:hover {
     text-decoration: underline;
   }
+}
+
+// Each ontology row as a clean, framed card that lifts on hover (the title is a
+// link, so the whole card reads as interactive).
+#ontologies .ontology.grid-parent {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 1.1rem 1.35rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: rgba(35, 73, 121, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+  }
+
+  // Description is secondary: muted, and clamped to two lines so every card
+  // keeps a consistent height regardless of how long/short the text is.
+  p {
+    color: #5c6470;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    margin-bottom: 0.6rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  // The stats used to sit in a separate .grid-25 column; now the content spans
+  // the full card width in a single column.
+  .grid-100 { width: 100%; }
+}
+
+// Card metadata + stats share one inline row of rounded pills. The metadata
+// pills (Uploaded, Format, …) are quiet light-grey chips; the stat pills
+// (classes / instances / projects / notes) use the same shape but lead with a
+// bold primary-color count and are clickable links to that section.
+.ont-meta-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.ont-stats {
+  display: contents; // let stat pills flow in the same flex row
+}
+
+.ont-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px; // fully rounded pill edges
+  background: var(--light-color);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: var(--gray-color);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-decoration: none;
+
+  b { color: #444; font-weight: 600; }
+
+  &.admin { background: var(--bg-info-light-color); }
+}
+
+// Stat pills: clickable, count-forward, with the count in brand color.
+a.ont-pill-stat {
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+
+  b { color: var(--primary-color); font-weight: 700; }
+
+  &:hover {
+    background: #e7eef5;
+    border-color: rgba(35, 73, 121, 0.25);
+  }
+}
+
+// Facet sidebar: quieter, uppercase section labels with a divider; consistent
+// control styling for the search box and selects.
+#facets {
+  // The legacy grid gave the facet column a 16px top margin, so the sidebar
+  // (and the Submit button at its top) started lower than the search toolbar in
+  // the adjacent column. Zero it so their top edges align.
+  margin-top: 0;
+
+  // "Submit Ontology" as the sidebar's clear primary action: a filled brand
+  // button with an upload glyph, instead of the empty outline box the shared
+  // secondary-button variant produced here (its icon slot wasn't rendering).
+  #upload-ontology-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    padding: 0.6rem 1rem;
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+    border: 1px solid var(--primary-color) !important;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.15s, box-shadow 0.15s;
+
+    &:hover {
+      background-color: var(--hover-color) !important;
+      border-color: var(--hover-color) !important;
+      box-shadow: 0 2px 6px rgba(35, 73, 121, 0.25);
+    }
+
+    // Upload glyph before the label (the component's own icon slot renders empty
+    // here, so we supply one via a masked background).
+    &::before {
+      content: "";
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+      background-color: #fff;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5'/%3E%3Cpath d='M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z'/%3E%3C/svg%3E") no-repeat center / contain;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5'/%3E%3Cpath d='M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z'/%3E%3C/svg%3E") no-repeat center / contain;
+    }
+  }
+
+  // The facet groups sit together on one soft surface (like the toolbar and
+  // ontology cards) instead of each being its own bordered box. Groups are
+  // separated by light dividers rather than borders.
+  .facets-panel {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 0.25rem 1rem 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .facet {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    margin: 0 0 1.25rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.07);
+
+    &:first-of-type {
+      border-top: none;
+      padding-top: 0.25rem;
+    }
+  }
+
+  .facet h4 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #8a94a3;
+    font-weight: 700;
+    margin: 0 0 0.6rem 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  // Facet rows: modern brand-accented checkbox, one per line, muted count.
+  .checkbox_list {
+    span[ng-repeat] { display: block; }
+    br { display: none; }
+
+    label {
+      display: inline;             // allow long facet names to wrap
+      white-space: normal;
+      font-size: 0.9rem;
+      color: #333;
+      cursor: pointer;
+      padding: 0.12rem 0;
+      line-height: 1.4;
+    }
+
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--primary-color);
+      margin-right: 0.5rem;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    .smaller { color: #9aa1ac; font-size: 0.8rem; margin-left: 0.25rem; }
+  }
+
+  .facet_disabled { opacity: 0.45; }
+
+  // The "Uploaded in the last" select matches the toolbar controls.
+  #upload_date_facet select {
+    width: 100%;
+    border: 1px solid #d8dee4;
+    border-radius: 8px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+    background: #fff;
+  }
+}
+
+// The "View" tag on ontology-view cards: a quiet rounded pill above the title
+// (matching the metadata pills) instead of a heavy solid dark block floated
+// against the heading.
+#ontologies .ontology_view_badge {
+  float: none;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0.35rem;
+  padding: 0.1rem 0.5rem;
+  background: var(--bg-info-light-color);
+  color: var(--primary-color);
+  border: 1px solid rgba(35, 73, 121, 0.25);
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+// Modern browse toolbar: one surface holding a prominent search on the left and
+// the result-count + sort + help grouped on the right. Replaces the old
+// loosely-floated controls that collapsed and overlapped the list.
+.browse-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  #searching {
+    position: relative;
+    flex: 1 1 320px;   // grow to fill, wrap on narrow screens
+    margin: 0;
+  }
+
+  #sorting {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  #sorting_float {
+    float: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: nowrap;
+  }
+
+  #visible_ont_count {
+    padding: 0;
+    color: var(--gray-color);
+    font-size: 0.9rem;
+  }
+
+  #sorting label {
+    margin: 0;
+    color: var(--gray-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  // Native select with a custom chevron so it matches the rounded controls.
+  #sorting select {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid #d8dee4;
+    border-radius: 8px;
+    padding: 0.45rem 2rem 0.45rem 0.7rem;
+    background-color: #fff;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    background-size: 0.7rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(35, 73, 121, 0.12);
+    }
+  }
+}
+
+// Browse-help icon: a quiet, muted control that lives inline in the toolbar.
+.browse-help-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--gray-color);
+
+  &:hover { color: var(--primary-color); }
+}
+
+// The search field: the primary control — fills the toolbar's left side, with a
+// leading magnifier icon and a clear focus ring.
+.browse-toolbar #searching .search {
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.55rem 0.9rem 0.55rem 2.4rem; // left room for the icon
+  border: 1px solid #d8dee4;
+  border-radius: 8px;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: 0.8rem center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0'/%3E%3C/svg%3E");
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder { color: #8a8a8a; }
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(35, 73, 121, 0.12);
+  }
+}
+
+#sorting select,
+#upload_date_facet select {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
 }

@@ -29,7 +29,11 @@ class OntologiesController < ApplicationController
     ontologies = LinkedData::Client::Models::Ontology.all(include: LinkedData::Client::Models::Ontology.include_params + ',viewOf', include_views: true, display_context: false)
     ontologies_hash = Hash[ontologies.map { |o| [o.id, o] }]
     @admin = session[:user] ? session[:user].admin? : false
-    @development = Rails.env.development?
+    # Drives the browse page's debug UI (Debug Info panel + result numbering).
+    # Opt-in via ?debug=1 rather than always-on in development, so the dev view
+    # normally matches production. Restricted to development so it can't be
+    # toggled on in production.
+    @development = Rails.env.development? && params[:debug].present?
 
     submissions = LinkedData::Client::Models::OntologySubmission.all(include_views: true, display_links: false, display_context: false, include: 'submissionStatus,hasOntologyLanguage,pullLocation,description,creationDate,status')
     submissions_map = submissions.each_with_object({}) do |sub, h|
