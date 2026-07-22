@@ -736,7 +736,6 @@ $browse-gap: 24px;
   color: var(--primary-color);
   font-size: 0.9em;
   font-weight: 600;
-  white-space: nowrap;
   cursor: pointer;
 
   &:hover { text-decoration: underline; }
@@ -764,17 +763,16 @@ $browse-gap: 24px;
     line-height: 1.3;
   }
 
-  // Description is secondary: muted, and clamped to two lines so every card
-  // keeps a consistent height regardless of how long/short the text is.
+  // Description is secondary: muted. Length is controlled by the
+  // descriptionSnippet filter (leading excerpt or match-centred window), and
+  // the "More" toggle expands the full text in place — so we must NOT clamp the
+  // height in CSS here (a -webkit-line-clamp both clipped the inline "More"
+  // link and would have re-truncated the expanded text).
   p {
     color: #5c6470;
     font-size: 0.9rem;
     line-height: 1.45;
     margin-bottom: 0.6rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
 
   // The stats used to sit in a separate .grid-25 column; now the content spans
