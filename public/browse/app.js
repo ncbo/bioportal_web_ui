@@ -482,23 +482,58 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
       })
     });
 
-    // Infinite scroll: grow the render window as the user nears the bottom of
-    // the (independently scrolling) results list, so long result sets fill in
-    // without ever rendering the whole catalog at once.
     $timeout(function() {
+      // Infinite scroll: grow the render window as the user nears the bottom of
+      // the (independently scrolling) results list, so long result sets fill in
+      // without ever rendering the whole catalog at once.
       var list = document.querySelector('.ontology-list');
-      if (!list) return;
-      var ticking = false;
-      list.addEventListener('scroll', function() {
-        if (ticking) return;
-        ticking = true;
-        window.requestAnimationFrame(function() {
-          ticking = false;
-          var nearBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 400;
-          if (nearBottom && $scope.render_limit < $scope.filteredOntologies.length) {
-            $scope.$apply($scope.growRenderLimit);
-          }
+      if (list) {
+        var ticking = false;
+        list.addEventListener('scroll', function() {
+          if (ticking) return;
+          ticking = true;
+          window.requestAnimationFrame(function() {
+            ticking = false;
+            var nearBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 400;
+            if (nearBottom && $scope.render_limit < $scope.filteredOntologies.length) {
+              $scope.$apply($scope.growRenderLimit);
+            }
+          });
         });
+      }
+
+      // Keyboard affordances for the search box:
+      //   - focus it on load,
+      //   - "/" from anywhere jumps to it (unless already typing in a field),
+      //   - Esc clears and blurs it.
+      var searchBox = document.getElementById('ontology_search');
+      if (!searchBox) return;
+
+      searchBox.focus();
+
+      var isTypingTarget = function(el) {
+        if (!el) return false;
+        var tag = (el.tagName || '').toLowerCase();
+        return tag === 'input' || tag === 'textarea' || tag === 'select' ||
+               el.isContentEditable;
+      };
+
+      document.addEventListener('keydown', function(e) {
+        // "/" focuses search — but not while the user is typing elsewhere, and
+        // not when a modifier is held (so browser/OS shortcuts still work).
+        if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey &&
+            !isTypingTarget(e.target)) {
+          e.preventDefault();
+          searchBox.focus();
+          return;
+        }
+        // Esc clears + blurs the search when it's focused.
+        if (e.key === 'Escape' && document.activeElement === searchBox) {
+          if ($scope.searchText) {
+            $scope.$apply(function() { $scope.searchText = ''; });
+          }
+          searchBox.blur();
+        }
       });
     });
   }
