@@ -15,8 +15,21 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
 .controller('OntologyList', ['$scope', '$animate', '$timeout', function($scope, $animate, $timeout) {
   // Default values
   $scope.visible_ont_count = 0;
-  $scope.ontology_sort_order = "-popularity";
-  $scope.previous_sort_order = "-popularity";
+
+  // Persist the chosen sort order across page views/sessions via localStorage.
+  // -search_rank is transient (only while a search is active) so it is never
+  // persisted; a stored value is only honoured if it's one of the real options.
+  var SORT_STORAGE_KEY = 'bp.ontologies.sort_order';
+  var VALID_SORT_ORDERS = [
+    '-popularity', 'name', '-class_count', '-individual_count',
+    '-project_count', '-note_count', '-creationDate'
+  ];
+  var storedSort = null;
+  try { storedSort = window.localStorage.getItem(SORT_STORAGE_KEY); } catch (e) { /* storage unavailable */ }
+  var initialSort = (VALID_SORT_ORDERS.indexOf(storedSort) !== -1) ? storedSort : "-popularity";
+
+  $scope.ontology_sort_order = initialSort;
+  $scope.previous_sort_order = initialSort;
   $scope.show_highlight = false;
 
   // Data transfer from Rails
@@ -201,6 +214,13 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
 
   $scope.$watch('searchText', function() {
     filterOntologies();
+  });
+
+  // Remember the chosen sort order for next time. Only persist the real options
+  // (never the transient -search_rank the search flow switches to).
+  $scope.$watch('ontology_sort_order', function(newOrder) {
+    if (VALID_SORT_ORDERS.indexOf(newOrder) === -1) return;
+    try { window.localStorage.setItem(SORT_STORAGE_KEY, newOrder); } catch (e) { /* storage unavailable */ }
   });
 
   var filterOntologies = function() {
