@@ -533,6 +533,57 @@ $browse-gap: 24px;
   }
 }
 
+// Empty state when no ontologies match: a calm, centered message with a muted
+// search icon — no boxed border, no exclamation mark.
+.browse-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--gray-color);
+
+  .browse-empty-icon {
+    width: 44px;
+    height: 44px;
+    color: #c2c8d0;
+    margin-bottom: 1rem;
+  }
+
+  .browse-empty-title {
+    margin: 0 0 0.35rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #444;
+  }
+
+  .browse-empty-text {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--gray-color);
+  }
+}
+
+// The ontology acronym, pulled out of the "(…)" in the title into a small
+// identifier pill beside the name. Ontologies are often known by acronym
+// (SNOMEDCT, MESH, LOINC), so a distinct, scannable tag helps. It uses the
+// Login-button gold (--login-btn-color) as a warm second accent against the
+// page's blue.
+.acronym-pill {
+  display: inline-block;
+  margin-left: 0.55rem;
+  padding: 0.12rem 0.55rem;
+  border-radius: 6px;
+  background: rgba(197, 134, 18, 0.1);
+  border: 1px solid rgba(197, 134, 18, 0.35);
+  color: var(--login-btn-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
 // Each ontology row as a clean, framed card that lifts on hover (the title is a
 // link, so the whole card reads as interactive).
 #ontologies .ontology.grid-parent {

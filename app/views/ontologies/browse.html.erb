@@ -163,10 +163,14 @@
         <%# The ontology cards scroll independently below the (pinned) toolbar,
             so the toolbar and the facet sidebar stay in place while browsing. %>
         <div class="ontology-list">
-        <div class="ontology" ng-show="visible_ont_count == 0" style="border: solid thin lightGray;">
-          <div style="text-align: center; color: gray; height: 2em; padding: 4em;">
-            <h2 style="font-weight: normal;">No matches!</h2>
-          </div>
+        <div class="browse-empty" ng-show="visible_ont_count == 0">
+          <svg class="browse-empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+          <p class="browse-empty-title">No ontologies match your filters</p>
+          <p class="browse-empty-text">Try a different search term or clear some filters.</p>
         </div>
 
         <div class="ontology grid-parent clearfix" ng-repeat="ontology in ontologies | orderBy:ontology_sort_order" ng-if="ontology.show">
@@ -175,8 +179,9 @@
             <h2 style="font-size: 1.5em;">
               <a href="/ontologies/{{ontology.acronym}}">
                 <span ng-if="debug">{{$index}} </span>
-                {{ontology.name}} ({{ontology.acronym}})
+                {{ontology.name}}
               </a>
+              <span class="acronym-pill">{{ontology.acronym}}</span>
               <i title="Private Ontology" ng-if="ontology.private" class="icon-key locked_ont"></i>
             </h2>
             <div ng-if="ontology.submission">
