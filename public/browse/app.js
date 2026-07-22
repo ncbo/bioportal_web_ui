@@ -233,6 +233,20 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     return ontology[field];
   }
 
+  // Whether an ontology's description is long enough that the collapsed card
+  // view truncates it — i.e. whether the "More" toggle should be shown. Kept in
+  // sync with descriptionSnippet's SNIPPET_LEN. The stripped length is cached on
+  // the ontology so this is cheap to call from the template each digest.
+  var DESC_SNIPPET_LEN = 260;
+  $scope.descriptionHasMore = function(ontology) {
+    if (!ontology) return false;
+    if (ontology._descTextLen == null) {
+      ontology._descTextLen = String(ontology.description || '')
+        .replace(/<[^>]+>/gm, ' ').replace(/\s+/g, ' ').trim().length;
+    }
+    return ontology._descTextLen > DESC_SNIPPET_LEN;
+  };
+
   // --- Active-filter chips + clear-all -------------------------------------
   // A removable chip is shown above the list for each active facet selection
   // (and the search term), so users can see and undo what's applied without
@@ -560,6 +574,62 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     text = String(text).replace(/<[^>]+>/gm, '');
     return text.split(/\.\W/)[0];
   }
+})
+
+// Produce the description text shown on a result card. Strips HTML, then:
+//   - expanded === true  -> the full description (used by the "More" toggle).
+//   - a search query that appears AFTER the leading excerpt -> a snippet
+//     centred on the first match (Google-style, with leading/trailing "…") so
+//     the description explains why the result matched.
+//   - otherwise -> a leading excerpt (SNIPPET_LEN chars, cut on a word
+//     boundary) with a trailing "…" when the text was truncated.
+// The result is plain text; it is highlighted separately by the `highlight`
+// filter downstream in the template.
+.filter('descriptionSnippet', function() {
+  var SNIPPET_LEN = 260;   // leading excerpt length
+  var CONTEXT_BEFORE = 60; // chars of context kept before a mid-text match
+
+  var stripAndCollapse = function(text) {
+    return String(text == null ? '' : text)
+      .replace(/<[^>]+>/gm, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  // Truncate at or before `len`, preferring the last word boundary, and append
+  // an ellipsis. `prefix` is prepended (used for the leading "…" of a snippet).
+  var clip = function(text, len, prefix) {
+    prefix = prefix || '';
+    if (text.length <= len) return prefix + text;
+    var cut = text.slice(0, len);
+    var lastSpace = cut.lastIndexOf(' ');
+    if (lastSpace > len * 0.6) cut = cut.slice(0, lastSpace);
+    return prefix + cut.replace(/[\s.,;:]+$/, '') + '…';
+  };
+
+  return function(description, query, expanded) {
+    var text = stripAndCollapse(description);
+    if (expanded) return text;
+
+    var q = (query == null ? '' : String(query)).trim().toLowerCase();
+    var matchAt = q ? text.toLowerCase().indexOf(q) : -1;
+
+    // No query, no match, or the match already falls inside the leading
+    // excerpt: just show the leading excerpt.
+    if (matchAt === -1 || matchAt < SNIPPET_LEN - 20) {
+      return clip(text, SNIPPET_LEN, '');
+    }
+
+    // Match is past the leading excerpt: window around it.
+    var start = Math.max(0, matchAt - CONTEXT_BEFORE);
+    // Back up to a word boundary so we don't start mid-word.
+    if (start > 0) {
+      var sp = text.indexOf(' ', start);
+      if (sp !== -1 && sp < matchAt) start = sp + 1;
+    }
+    var windowText = text.slice(start);
+    return clip(windowText, SNIPPET_LEN, start > 0 ? '…' : '');
+  };
 })
 
 // Highlight occurrences of the current search query within a piece of text by

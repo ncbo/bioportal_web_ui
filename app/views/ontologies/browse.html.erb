@@ -213,7 +213,12 @@
               <i title="Private Ontology" ng-if="ontology.private" class="icon-key locked_ont"></i>
             </h2>
             <div ng-if="ontology.submission">
-              <p style="margin-bottom: 5px;" ng-bind-html="ontology.description | descriptionToText | highlight:searchText"></p>
+              <p class="ont-description" style="margin-bottom: 5px;"><%#
+                %><span ng-bind-html="ontology.description | descriptionSnippet:searchText:ontology._descExpanded | highlight:searchText"></span><%#
+                %> <a href="" class="ont-description-toggle" ng-if="descriptionHasMore(ontology)"
+                     ng-click="$event.preventDefault(); ontology._descExpanded = !ontology._descExpanded"><%#
+                  %>{{ontology._descExpanded ? 'Less' : 'More'}}</a><%#
+              %></p>
 
               <%# Metadata + stats as one inline row of rounded pills %>
               <div class="ont-meta-pills">

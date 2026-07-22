@@ -730,6 +730,18 @@ $browse-gap: 24px;
   padding: 0 0.05em;
 }
 
+// Inline "More"/"Less" toggle that expands the truncated description in place.
+#ontologies .ont-description-toggle {
+  margin-left: 0.35rem;
+  color: var(--primary-color);
+  font-size: 0.9em;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+
 // Each ontology row as a clean, framed card that lifts on hover (the title is a
 // link, so the whole card reads as interactive).
 #ontologies .ontology.grid-parent {
