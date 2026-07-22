@@ -720,11 +720,11 @@ $browse-gap: 24px;
   white-space: nowrap;
 }
 
-// Search-term highlight in result names/acronyms. Soft gold wash (matching the
-// acronym pill family) so the matched substring stands out without shouting;
-// inherits the surrounding text colour so link/pill text stays readable.
+// Search-term highlight in result names/acronyms. Classic marker-yellow wash so
+// the matched substring reads like a highlighter pen; inherits the surrounding
+// text colour so link/pill text stays readable.
 #ontologies mark.search-hl {
-  background: rgba(197, 134, 18, 0.28);
+  background: #ffe94d;
   color: inherit;
   border-radius: 3px;
   padding: 0 0.05em;
