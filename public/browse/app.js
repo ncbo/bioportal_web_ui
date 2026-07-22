@@ -272,14 +272,26 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     $scope.ontologySortOrder("-search_rank");
     results = $scope.ontIndex.search($scope.searchText);
 
+    // An exact acronym match (case-insensitive) should always rank first — e.g.
+    // typing "GO" puts the GO ontology at the top, even if lunr's TF/IDF scoring
+    // would otherwise rank a name/description match higher. We add a large fixed
+    // boost so it beats any ordinary lunr score, and make sure the exact match
+    // is shown even if lunr didn't surface it.
+    var query = ($scope.searchText || "").trim().toLowerCase();
+    var EXACT_ACRONYM_BOOST = 1000;
+
     angular.forEach(results, function(r){found[r.ref] = r});
     for (i = 0; i < $scope.ontologies.length; i++) {
       ontology = $scope.ontologies[i];
       ontology.show = false;
       ontology.search_rank = 0;
-      if (found[ontology.id]) {
+      var exactAcronym = (ontology.acronym || "").toLowerCase() === query;
+      if (found[ontology.id] || exactAcronym) {
         ontology.show = true;
-        ontology.search_rank = found[ontology.id].score;
+        ontology.search_rank = (found[ontology.id] ? found[ontology.id].score : 0);
+        if (exactAcronym) {
+          ontology.search_rank += EXACT_ACRONYM_BOOST;
+        }
       }
     }
   }
