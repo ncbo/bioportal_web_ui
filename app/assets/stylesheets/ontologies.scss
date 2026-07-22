@@ -720,6 +720,16 @@ $browse-gap: 24px;
   white-space: nowrap;
 }
 
+// Search-term highlight in result names/acronyms. Soft gold wash (matching the
+// acronym pill family) so the matched substring stands out without shouting;
+// inherits the surrounding text colour so link/pill text stays readable.
+#ontologies mark.search-hl {
+  background: rgba(197, 134, 18, 0.28);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 0.05em;
+}
+
 // Each ontology row as a clean, framed card that lifts on hover (the title is a
 // link, so the whole card reads as interactive).
 #ontologies .ontology.grid-parent {

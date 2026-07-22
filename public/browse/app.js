@@ -562,6 +562,34 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
   }
 })
 
+// Highlight occurrences of the current search query within a piece of text by
+// wrapping the matched substrings in <mark>. The input text is fully HTML-escaped
+// first and only our own <mark> tags are inserted, so the result is safe to bind
+// via ng-bind-html (trusted through $sce) without pulling in ngSanitize. When
+// there is no query the text is returned escaped and unmarked (a plain no-op).
+.filter('highlight', ['$sce', function($sce) {
+  var escapeHtml = function(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  };
+  var escapeRegExp = function(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+  return function(text, query) {
+    var safe = escapeHtml(text == null ? '' : text);
+    var q = (query == null ? '' : String(query)).trim();
+    if (!q) return $sce.trustAsHtml(safe);
+    // Match the query case-insensitively; escape it so regex metacharacters in
+    // the search box are treated literally.
+    var re = new RegExp('(' + escapeRegExp(escapeHtml(q)) + ')', 'gi');
+    return $sce.trustAsHtml(safe.replace(re, '<mark class="search-hl">$1</mark>'));
+  };
+}])
+
 // Format a date using the visitor's browser locale (via Intl.DateTimeFormat)
 // rather than AngularJS's built-in `date` filter, which is frozen to en-US
 // unless an angular-i18n locale bundle is loaded (we load none). This shows a
