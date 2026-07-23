@@ -210,6 +210,8 @@
                   %><span ng-bind-html="ontology.name | highlight:searchText"></span>
               </a>
               <span class="acronym-pill" ng-bind-html="ontology.acronym | highlight:searchText"></span>
+              <span class="status-pill status-retired" ng-if="ontology.status == 'retired'">Retired</span>
+              <span class="status-pill status-deprecated" ng-if="ontology.status == 'deprecated'">Deprecated</span>
               <i title="Private Ontology" ng-if="ontology.private" class="icon-key locked_ont"></i>
             </h2>
             <div ng-if="ontology.submission">
@@ -225,6 +227,7 @@
                 <span class="ont-pill">
                   <b>Uploaded</b> {{::ontology.creationDate | localeDate}}
                 </span>
+                <span class="ont-pill ont-pill-license" ng-if="ontology.hasLicense">License</span>
                 <span class="ont-pill" ng-if="facets.formats.active.length > 1">
                   <b>Format</b> {{::ontology.format}}
                 </span>

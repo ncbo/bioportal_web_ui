@@ -720,6 +720,38 @@ $browse-gap: 24px;
   white-space: nowrap;
 }
 
+// Lifecycle status pill beside the name — a quiet warning that an ontology is
+// no longer current. Retired reads as an error (red), deprecated as a caution
+// (amber). Sits next to the acronym pill and matches its size.
+.status-pill {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.12rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.status-pill.status-retired {
+  background: rgba(200, 45, 45, 0.1);
+  border: 1px solid rgba(200, 45, 45, 0.35);
+  color: #b3261e;
+}
+.status-pill.status-deprecated {
+  background: rgba(197, 134, 18, 0.12);
+  border: 1px solid rgba(197, 134, 18, 0.4);
+  color: #9a6a05;
+}
+
+// License pill in the metadata row — a subtle positive signal that access
+// terms are declared. Quiet green so it reads as "available" without competing
+// with the count pills.
+.ont-pill.ont-pill-license {
+  color: #2f7d54;
+}
+
 // Search-term highlight in result names/acronyms. Classic marker-yellow wash so
 // the matched substring reads like a highlighter pen; inherits the surrounding
 // text colour so link/pill text stays readable.

@@ -35,7 +35,7 @@ class OntologiesController < ApplicationController
     # toggled on in production.
     @development = Rails.env.development? && params[:debug].present?
 
-    submissions = LinkedData::Client::Models::OntologySubmission.all(include_views: true, display_links: false, display_context: false, include: 'submissionStatus,hasOntologyLanguage,pullLocation,description,creationDate,status')
+    submissions = LinkedData::Client::Models::OntologySubmission.all(include_views: true, display_links: false, display_context: false, include: 'submissionStatus,hasOntologyLanguage,pullLocation,description,creationDate,status,hasLicense')
     submissions_map = submissions.each_with_object({}) do |sub, h|
       ontology_id = sub.id.sub(%r{/submissions/[^/]+$}, '')
       if (ontology = ontologies_hash[ontology_id])
@@ -108,6 +108,10 @@ class OntologiesController < ApplicationController
         o[:description]               = sub.description
         o[:creationDate]              = sub.creationDate
         o[:submissionStatusFormatted] = submission_status2string(sub)
+        # Lifecycle status ('retired' / 'deprecated') and whether the submission
+        # declares a license — surfaced as pills on the browse card.
+        o[:status]                    = sub.status
+        o[:hasLicense]                = sub.hasLicense.present?
 
         o[:format] = sub.hasOntologyLanguage
         @formats << sub.hasOntologyLanguage
