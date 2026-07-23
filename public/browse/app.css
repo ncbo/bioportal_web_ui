@@ -79,26 +79,6 @@
   float: right;
   margin-bottom: .5em;
 }
-@keyframes highlight {
-  0% {
-    background: yellow;
-  }
-  100% {
-    background: none;
-  }
-}
-@-webkit-keyframes highlight {
-  0% {
-    background: yellow;
-  }
-  100% {
-    background: none;
-  }
-}
-.trigger_highlight-add, .trigger_highlight-remove {
-  -webkit-animation: highlight 1s;
-  animation: highlight 1s;
-}
 #ontologies {
 }
 .clear {

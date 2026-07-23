@@ -462,11 +462,739 @@ $bd-bottom-gap: 30px;
  * Browse page (index)
  ************************************/
 
+// The browse (/ontologies) page is a legacy AngularJS view using the unsemantic
+// grid and its own class names. These rules realign its look with the modern
+// Rails/ViewComponent pages (Classes tab etc.): framed cards, flat light stat
+// pills, and a cleaner facet sidebar — without touching the Angular logic.
+
+// Loading splash shown while the Angular app boots. AngularJS hides any element
+// carrying [ng-cloak] until it has finished bootstrapping, then strips the
+// attribute. The legacy public/browse/app.css relies on this: [ng-cloak].splash
+// forces the splash visible during boot, and plain .splash { display: none }
+// hides it once Angular removes the attribute.
+//
+// The styling below must therefore only apply while the element is STILL
+// cloaked ([ng-cloak].splash); a bare .splash rule with display:flex would keep
+// the splash on screen forever, since it wins after ng-cloak is stripped. We
+// leave the legacy .splash { display: none } in place to hide it post-boot.
+[ng-cloak].splash {
+  width: auto !important;
+  height: auto !important;
+  margin: 5rem auto !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-color);
+
+  .splash-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(35, 73, 121, 0.15);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: bp-splash-spin 0.8s linear infinite;
+  }
+
+  .splash-text {
+    margin: 1rem 0 0 0;
+    font-size: 0.95rem;
+    color: var(--gray-color);
+  }
+}
+
+@keyframes bp-splash-spin {
+  to { transform: rotate(360deg); }
+}
+
+// Bound the two-column browse area to the viewport and scroll each column
+// internally: the search/sort toolbar stays pinned, the facet sidebar stays in
+// place, and only the ontology list scrolls. $browse-top is the distance from
+// the top of the viewport to the top of the columns (site header + page top
+// padding); $browse-gap leaves a little room at the bottom.
+$browse-top: 96px;
+$browse-gap: 24px;
+
+#facets,
+#ontologies {
+  height: calc(100vh - #{$browse-top} - #{$browse-gap});
+  box-sizing: border-box;
+}
+
+// Widen the facet column past the legacy grid-20/80 split so facet labels and
+// their counts (e.g. "Human Developmental Anatomy (46)") fit without the count
+// orphaning onto its own line.
+#facets.grid-20 { width: 30%; }
+#ontologies.grid-80 { width: 70%; }
+
+// Facet sidebar scrolls on its own when it's taller than the viewport. A little
+// right padding keeps the scrollbar off the panel edge.
+#facets {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.5rem;
+}
+
+// Right column: the toolbar is fixed at the top, the ontology list scrolls.
+#ontologies {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .browse-toolbar { flex: 0 0 auto; }
+
+  // The list scrolls; the right padding keeps its scrollbar clear of the cards.
+  .ontology-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 1rem;
+  }
+}
+
+// "Show more" affordance below the rendered result window. Scrolling grows the
+// window automatically; this is the explicit fallback for the remaining rows.
+.ontology-list-more {
+  text-align: center;
+  padding: 0.5rem 0 1.5rem;
+
+  .ontology-list-more-btn {
+    border: 1px solid rgba(35, 73, 121, 0.25);
+    background: #fff;
+    color: var(--primary-color);
+    border-radius: 999px;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+
+    &:hover { background: var(--bg-info-light-color); }
+  }
+}
+
+// Result count sits above the list (not in the toolbar). Quiet, slightly
+// indented to line up with the card content below.
+// Count + active-filter chips sit on one wrapping row above the list.
+#ontologies .results-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: 0 0 0.85rem 0.25rem;
+}
+
+#ontologies .results-count {
+  color: var(--gray-color);
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+
+  b { color: #333; font-weight: 600; }
+}
+
+#ontologies .filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+// A removable filter chip: light pill, label + × affordance, hover to hint
+// removal.
+#ontologies .filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.35rem 0.15rem 0.6rem;
+  border: 1px solid rgba(35, 73, 121, 0.2);
+  border-radius: 999px;
+  background: var(--bg-info-light-color);
+  color: var(--primary-color);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  cursor: pointer;
+
+  .filter-chip-x {
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--primary-color);
+    opacity: 0.6;
+  }
+
+  &:hover {
+    background: rgba(59, 130, 246, 0.16);
+    .filter-chip-x { opacity: 1; }
+  }
+}
+
+#ontologies .filter-clear-all {
+  border: none;
+  background: none;
+  padding: 0.15rem 0.25rem;
+  color: var(--gray-color);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover { color: var(--primary-color); }
+}
+
 .ontology.grid-parent h2 {
   a {
     text-decoration: none;
+    color: var(--primary-color);
   }
   a:hover {
     text-decoration: underline;
+  }
+}
+
+// Empty state when no ontologies match: a calm, centered message with a muted
+// search icon — no boxed border, no exclamation mark.
+.browse-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--gray-color);
+
+  .browse-empty-icon {
+    width: 44px;
+    height: 44px;
+    color: #c2c8d0;
+    margin-bottom: 1rem;
+  }
+
+  .browse-empty-title {
+    margin: 0 0 0.35rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #444;
+  }
+
+  .browse-empty-text {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--gray-color);
+  }
+
+  .browse-empty-clear {
+    margin-top: 1.25rem;
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+
+    &:hover {
+      background: var(--primary-color);
+      color: #fff;
+    }
+  }
+}
+
+// The ontology acronym, pulled out of the "(…)" in the title into a small
+// identifier pill beside the name. Ontologies are often known by acronym
+// (SNOMEDCT, MESH, LOINC), so a distinct, scannable tag helps. It uses the
+// Login-button gold (--login-btn-color) as a warm second accent against the
+// page's blue.
+.acronym-pill {
+  display: inline-block;
+  margin-left: 0.55rem;
+  padding: 0.12rem 0.55rem;
+  border-radius: 6px;
+  background: rgba(197, 134, 18, 0.1);
+  border: 1px solid rgba(197, 134, 18, 0.35);
+  color: var(--login-btn-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+// Lifecycle status pill beside the name — a quiet warning that an ontology is
+// no longer current. Retired reads as an error (red), deprecated as a caution
+// (amber). Sits next to the acronym pill and matches its size.
+.status-pill {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.12rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.status-pill.status-retired {
+  background: rgba(200, 45, 45, 0.1);
+  border: 1px solid rgba(200, 45, 45, 0.35);
+  color: #b3261e;
+}
+.status-pill.status-deprecated {
+  background: rgba(197, 134, 18, 0.12);
+  border: 1px solid rgba(197, 134, 18, 0.4);
+  color: #9a6a05;
+}
+
+// License pill in the metadata row — a subtle positive signal that access
+// terms are declared. Quiet green so it reads as "available" without competing
+// with the count pills.
+// License pill in the metadata row — a subtle positive signal that links to the
+// declared license (label derived from the URL, e.g. "CC BY 4.0"). Green-tinted
+// body so it reads as its own "available" category at a glance, without being
+// as loud as the retired/deprecated status pills.
+a.ont-pill.ont-pill-license {
+  color: #2f7d54;
+  background: rgba(47, 125, 84, 0.09);
+  border-color: rgba(47, 125, 84, 0.28);
+  text-decoration: none;
+
+  &:hover {
+    color: #235c3e;
+    background: rgba(47, 125, 84, 0.16);
+    border-color: rgba(47, 125, 84, 0.5);
+  }
+}
+
+// Search-term highlight in result names/acronyms. Classic marker-yellow wash so
+// the matched substring reads like a highlighter pen; inherits the surrounding
+// text colour so link/pill text stays readable.
+#ontologies mark.search-hl {
+  background: #ffe94d;
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 0.05em;
+}
+
+// Inline "More"/"Less" toggle that expands the truncated description in place.
+// A real <button> (in-page expand, not navigation), reset to read as inline text.
+// appearance:none is required to strip the native button chrome (grey box +
+// bevel) that persists even with background/border cleared on some platforms.
+#ontologies .ont-description-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0 0 0 0.35rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primary-color);
+  font: inherit;
+  font-size: 0.9em;
+  font-weight: 600;
+  line-height: inherit;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+
+// Each ontology row as a clean, framed card that lifts on hover (the title is a
+// link, so the whole card reads as interactive).
+#ontologies .ontology.grid-parent {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 1.1rem 1.35rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: rgba(35, 73, 121, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+  }
+
+  // Description is secondary: muted. Length is controlled by the
+  // descriptionSnippet filter (leading excerpt or match-centred window), and
+  // the "More" toggle expands the full text in place — so we must NOT clamp the
+  // height in CSS here (a -webkit-line-clamp both clipped the inline "More"
+  // link and would have re-truncated the expanded text).
+  p {
+    color: #5c6470;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    margin-bottom: 0.6rem;
+  }
+
+  // The stats used to sit in a separate .grid-25 column; now the content spans
+  // the full card width in a single column.
+  .grid-100 { width: 100%; }
+}
+
+// Card metadata + stats share one inline row of rounded pills. The metadata
+// pills (Uploaded, Format, …) are quiet light-grey chips; the stat pills
+// (classes / instances / projects / notes) use the same shape but lead with a
+// bold primary-color count and are clickable links to that section.
+.ont-meta-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.ont-stats {
+  display: contents; // let stat pills flow in the same flex row
+}
+
+.ont-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px; // fully rounded pill edges
+  background: var(--light-color);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: var(--gray-color);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-decoration: none;
+
+  b { color: #444; font-weight: 600; }
+
+  &.admin { background: var(--bg-info-light-color); }
+}
+
+// Stat pills: clickable, count-forward, with the count in brand color.
+a.ont-pill-stat {
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+
+  b { color: var(--primary-color); font-weight: 700; }
+
+  &:hover {
+    background: #e7eef5;
+    border-color: rgba(35, 73, 121, 0.25);
+  }
+}
+
+// Facet sidebar: quieter, uppercase section labels with a divider; consistent
+// control styling for the search box and selects.
+#facets {
+  // The legacy grid gave the facet column a 16px top margin, so the sidebar
+  // (and the Submit button at its top) started lower than the search toolbar in
+  // the adjacent column. Zero it so their top edges align.
+  margin-top: 0;
+
+  // "Submit Ontology" as the sidebar's clear primary action: a filled brand
+  // button with an upload glyph, instead of the empty outline box the shared
+  // secondary-button variant produced here (its icon slot wasn't rendering).
+  #upload-ontology-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    padding: 0.6rem 1rem;
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+    border: 1px solid var(--primary-color) !important;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.15s, box-shadow 0.15s;
+
+    &:hover {
+      background-color: var(--hover-color) !important;
+      border-color: var(--hover-color) !important;
+      box-shadow: 0 2px 6px rgba(35, 73, 121, 0.25);
+    }
+
+    // Upload glyph before the label (the component's own icon slot renders empty
+    // here, so we supply one via a masked background). A bolder, heavier-stroke
+    // upload icon so it doesn't look thin next to the bold label.
+    &::before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      background-color: #fff;
+      $upload-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2'/%3E%3Cpath d='M12 15V3'/%3E%3Cpath d='m7 8 5-5 5 5'/%3E%3C/svg%3E");
+      mask: $upload-icon no-repeat center / contain;
+      -webkit-mask: $upload-icon no-repeat center / contain;
+    }
+  }
+
+  // The facet groups sit together on one soft surface (like the toolbar and
+  // ontology cards) instead of each being its own bordered box. Groups are
+  // separated by light dividers rather than borders.
+  .facets-panel {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 0.25rem 1rem 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .facet {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    margin: 0 0 1.25rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.07);
+
+    &:first-of-type {
+      border-top: none;
+      padding-top: 0.25rem;
+    }
+  }
+
+  .facet h4 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #8a94a3;
+    font-weight: 700;
+    margin: 0 0 0.6rem 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  // Facet rows: modern brand-accented checkbox, one per line, muted count.
+  .checkbox_list {
+    br { display: none; }
+
+    // Each facet row fills the full column width (it previously shrink-wrapped,
+    // which forced labels to wrap early and dropped the count onto its own
+    // line). The checkbox is positioned in a fixed left gutter; the label and
+    // its count then flow inline, so the count sits right after the label name
+    // — only wrapping with it if a name is genuinely too long for the column.
+    span[ng-repeat] {
+      display: block;
+      position: relative;
+      width: auto;
+      padding: 0.12rem 0 0.12rem 1.5rem; // left gutter for the checkbox
+    }
+
+    // The single "Has a license" toggle is a standalone row, not one of a list,
+    // so lay it out as a simple centered flex row rather than the absolute-gutter
+    // treatment used for the multi-line facet lists (which left the box sitting
+    // high against a single line of text).
+    span.license-facet-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      input[type="checkbox"] {
+        position: static;
+        top: auto;
+        flex: 0 0 auto;
+      }
+
+      label { line-height: 1; }
+    }
+
+    input[type="checkbox"] {
+      position: absolute;
+      left: 0;
+      top: 0.28rem;
+      width: 15px;
+      height: 15px;
+      accent-color: var(--primary-color);
+      margin: 0;
+      cursor: pointer;
+    }
+
+    label {
+      display: inline;
+      white-space: normal;
+      font-size: 0.9rem;
+      color: #333;
+      cursor: pointer;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .smaller {
+      margin-left: 0.3rem;
+      color: #9aa1ac;
+      font-size: 0.8rem;
+      white-space: nowrap; // keep "(21)" itself from breaking
+    }
+  }
+
+  .facet_disabled { opacity: 0.45; }
+
+  // The "Uploaded in the last" select matches the toolbar controls, including a
+  // custom chevron with room from the edge (the native caret sat cramped
+  // against the right border).
+  #upload_date_facet select {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid #d8dee4;
+    border-radius: 8px;
+    padding: 0.4rem 2rem 0.4rem 0.6rem;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 0.7rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
+  }
+}
+
+// The "View" tag on ontology-view cards: a quiet rounded pill above the title
+// (matching the metadata pills) instead of a heavy solid dark block floated
+// against the heading.
+#ontologies .ontology_view_badge {
+  float: none;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0.35rem;
+  padding: 0.1rem 0.5rem;
+  background: var(--bg-info-light-color);
+  color: var(--primary-color);
+  border: 1px solid rgba(35, 73, 121, 0.25);
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+// Modern browse toolbar: one surface holding a prominent search on the left and
+// the result-count + sort + help grouped on the right. Replaces the old
+// loosely-floated controls that collapsed and overlapped the list.
+.browse-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  // Match the toolbar band to the site header / Submit button (--primary-color)
+  // so the page reads as one coherent blue rather than clashing shades. The
+  // search field and select stay white (below) so they read clearly as controls.
+  background: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(35, 73, 121, 0.2);
+
+  // On the dark band, the sort label and help icon go light.
+  #sorting label { color: rgba(255, 255, 255, 0.9); }
+  .browse-help-link {
+    color: rgba(255, 255, 255, 0.85);
+    &:hover { color: #fff; }
+  }
+
+  // The toolbar centers its items (align-items: center above); make the two
+  // wrappers flex too so the search field and the sort select share a common
+  // vertical centerline regardless of their slightly different heights.
+  #searching {
+    position: relative;
+    flex: 1 1 320px;   // grow to fill, wrap on narrow screens
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  #sorting {
+    flex: 0 0 auto;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  #sorting_float {
+    float: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: nowrap;
+    margin: 0; // clear a legacy 8px bottom margin that pushed the select off-centre
+  }
+
+  #visible_ont_count {
+    padding: 0;
+    color: var(--gray-color);
+    font-size: 0.9rem;
+  }
+
+  #sorting label {
+    margin: 0;
+    color: var(--gray-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  // Native select with a custom chevron so it matches the rounded controls.
+  // Borderless white on the blue band; height matched to the search field so
+  // the two controls share a centerline.
+  #sorting select {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 44px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.45rem 2rem 0.45rem 0.7rem;
+    background-color: #fff;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    background-size: 0.7rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(35, 73, 121, 0.12);
+    }
+  }
+}
+
+// Browse-help icon: a quiet, muted control that lives inline in the toolbar.
+.browse-help-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--gray-color);
+
+  &:hover { color: var(--primary-color); }
+}
+
+// The search field: the primary control — fills the toolbar's left side, with a
+// leading magnifier icon and a clear focus ring.
+.browse-toolbar #searching .search {
+  width: 100%;
+  margin: 0; // clear a legacy -5px top margin that pushed it above the select
+  font-size: 1rem;
+  padding: 0.55rem 0.9rem 0.55rem 2.4rem; // left room for the icon
+  border: 1px solid transparent; // white field reads cleanly on the blue band
+  border-radius: 8px;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: 0.8rem center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0'/%3E%3C/svg%3E");
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder { color: #8a8a8a; }
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(35, 73, 121, 0.12);
   }
 }

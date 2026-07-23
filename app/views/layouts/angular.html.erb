@@ -66,7 +66,10 @@
   <script src="lib/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
   <script src="lib/angular-bindonce/bindonce.min.js"></script>
   <script src="checklist-model.js"></script>
-  <script src="app.js"></script>
+  <%# Cache-bust the static Angular bundle by its file mtime so browsers pick up
+      changes without a manual version bump. %>
+  <% app_js_path = Rails.root.join('public', 'browse', 'app.js') %>
+  <script src="app.js?v=<%= (File.mtime(app_js_path).to_i rescue Rails.application.config.assets.version) %>"></script>
 
   <% if appliance_mode %>
     <%= render partial: "footer_appliance" %>

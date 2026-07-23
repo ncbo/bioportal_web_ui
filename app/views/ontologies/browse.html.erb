@@ -8,22 +8,15 @@
       <%=render partial: 'layouts/notices'%>
     </div>
     <div class="splash" ng-cloak>
-      <div style="font-size: 3em;">Ontologies loading</div>
-      <p>please wait...</p>
+      <div class="splash-spinner" aria-hidden="true"></div>
+      <p class="splash-text">Loading ontologies&hellip;</p>
     </div>
   </div>
 
   <div class="grid-container" style="margin-bottom: 1em; margin-top: 1em;" ng-cloak>
-    <h1 style="font-size: 3em;">Browse</h1>
-    <p>
-      <%= t('ontologies.intro').html_safe %>
-      <%= link_to(Rails.configuration.settings.links[:help_ontology_browse],
-                  data: {controller: 'popup', action: 'click->popup#open'},
-                  'aria-label': 'View ontology browse help') do %>
-        <%= inline_svg_tag 'icons/question-circle.svg', class: 'svg-icon svg-icon-lg ps-1', aria_hidden: true %>
-      <% end %>
-    </p>
-
+    <%# The "Browse" heading + intro subtitle were redundant (the nav already
+        labels this page and the list is self-evident) and pushed content down.
+        Removed; the browse-help link now lives in the search/sort toolbar. %>
     <div ng-controller="OntologyList">
       <div class="welcome_admin admin" ng-show="admin">
         <b>Welcome admin</b><br/>This coloring indicates admin-only features
@@ -44,6 +37,8 @@
           <%= upload_ontology_button %>
         </div>
 
+        <%# All facet groups share one soft panel (styled in ontologies.scss). %>
+        <div class="facets-panel">
         <div id="ont_view_facet" class="facet">
           <h4>Entry Type</h4>
           <div class="checkbox_list">
@@ -66,6 +61,26 @@
                 {{day | idToTitle}}
               </option>
             </select>
+          </div>
+        </div>
+
+        <div id="license_facet" class="facet">
+          <h4>License</h4>
+          <div class="checkbox_list">
+            <span class="license-facet-row">
+              <input type="checkbox" id="has_license" ng-model="facets.has_license.active" ng-true-value="'yes'" ng-false-value="''">
+              <label for="has_license">Has a license</label>
+            </span>
+          </div>
+        </div>
+
+        <div id="status_facet" class="facet">
+          <h4>Status</h4>
+          <div class="checkbox_list">
+            <span class="license-facet-row">
+              <input type="checkbox" id="show_retired" ng-model="facets.show_retired.active" ng-true-value="'yes'" ng-false-value="''">
+              <label for="show_retired">Show retired ontologies</label>
+            </span>
           </div>
         </div>
 
@@ -127,122 +142,169 @@
             </span>
           </div>
         </div>
+        </div><%# /.facets-panel %>
 
       </div>
 
       <div id="ontologies" class="grid-80">
-        <div id="searching">
-          <input type="text" placeholder="Search&hellip;" ng-model="searchText" ng-model-options="{debounce: 100}" class="search">
-        </div>
+        <div class="browse-toolbar">
+          <div id="searching">
+            <input type="text" id="ontology_search" placeholder="Search ontologies&hellip;" ng-model="searchText" ng-model-options="{debounce: 300}" class="search">
+          </div>
 
-        <div id="sorting" ng-show="visible_ont_count" style="margin-bottom: 2em;">
-          <div id="sorting_float">
-            <span style="padding: 7px 7px 4px;" id="visible_ont_count">Showing {{visible_ont_count}} of {{ontologies.length}}</span>
-            <label for="sort_order">Sort:</label>
-            <select ng-model="ontology_sort_order">
-              <option value="-popularity" selected="selected">Popular</option>
-              <option value="name">Name</option>
-              <option value="-class_count">Classes count</option>
-              <option value="-individual_count">Instances/Concepts count</option>
-              <option value="-project_count">Projects</option>
-              <option value="-note_count">Notes</option>
-              <option value="-creationDate">Upload Date</option>
-              <option value="-search_rank" ng-show="searchText.length > 0">Search Rank</option>
-            </select>
+          <div id="sorting" ng-show="visible_ont_count">
+            <div id="sorting_float">
+              <label for="sort_order">Sort</label>
+              <select ng-model="ontology_sort_order">
+                <option value="-popularity" selected="selected">Popular</option>
+                <option value="name">Name</option>
+                <option value="-class_count">Classes count</option>
+                <option value="-individual_count">Instances/Concepts count</option>
+                <option value="-project_count">Projects</option>
+                <option value="-note_count">Notes</option>
+                <option value="-creationDate">Upload Date</option>
+                <option value="-search_rank" ng-show="searchText.length > 0">Search Rank</option>
+              </select>
+              <%= link_to(Rails.configuration.settings.links[:help_ontology_browse],
+                          class: 'browse-help-link',
+                          data: {controller: 'popup', action: 'click->popup#open'},
+                          'aria-label': 'View ontology browse help') do %>
+                <%= inline_svg_tag 'icons/question-circle.svg', class: 'svg-icon svg-icon-lg', aria_hidden: true %>
+              <% end %>
+            </div>
           </div>
         </div>
 
-        <div class="ontology" ng-show="visible_ont_count == 0" style="border: solid thin lightGray;">
-          <div style="text-align: center; color: gray; height: 2em; padding: 4em;">
-            <h2 style="font-weight: normal;">No matches!</h2>
-          </div>
+        <%# Count + active-filter chips row. Chips show each applied filter (and
+            the search term); each is removable, with a "Clear all" reset. %>
+        <div class="results-bar" ng-show="visible_ont_count || hasActiveFilters()">
+          <span id="visible_ont_count" class="results-count">
+            <b>{{visible_ont_count}}</b> of {{ontologies.length}} ontologies
+          </span>
+
+          <span class="filter-chips" ng-if="hasActiveFilters()">
+            <button type="button" class="filter-chip" ng-if="searchText" ng-click="clearSearch()">
+              <span class="filter-chip-label">Search: &ldquo;{{searchText}}&rdquo;</span>
+              <span class="filter-chip-x" aria-hidden="true">&times;</span>
+            </button>
+            <button type="button" class="filter-chip" ng-repeat="chip in activeFilterChips" ng-click="removeFilter(chip)">
+              <span class="filter-chip-label">{{chip.label}}</span>
+              <span class="filter-chip-x" aria-hidden="true">&times;</span>
+            </button>
+            <button type="button" class="filter-clear-all" ng-click="clearAllFilters()">Clear all</button>
+          </span>
         </div>
 
-        <div class="ontology grid-parent clearfix" ng-repeat="ontology in ontologies | orderBy:ontology_sort_order" ng-if="ontology.show">
-          <div class="grid-75">
-            <div ng-if="ontology.type == 'ontology_view'" class="ontology_view_badge" title="This ontology is a view of {{ontology.viewOfOnt.name}}">VIEW</div>
+        <%# The ontology cards scroll independently below the (pinned) toolbar,
+            so the toolbar and the facet sidebar stay in place while browsing. %>
+        <div class="ontology-list">
+        <div class="browse-empty" ng-show="visible_ont_count == 0">
+          <svg class="browse-empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+          <p class="browse-empty-title">No ontologies match your filters</p>
+          <p class="browse-empty-text">Try a different search term or clear some filters.</p>
+          <button type="button" class="browse-empty-clear" ng-if="hasActiveFilters()" ng-click="clearAllFilters()">Clear all filters</button>
+        </div>
+
+        <%# Performance: only build DOM for ontologies that actually match the
+            current search + facets (filter:onlyShown), sorted, and capped to the
+            first `render_limit` rows (grown on scroll — see growRenderLimit).
+            Previously ng-repeat rendered ALL ~1,500 ontologies and hid the
+            non-matching ones with ng-if, so every digest reconciled thousands of
+            DOM nodes and watchers — the source of the typing stutter.
+
+            `track by ontology.id` lets ng-repeat reuse DOM rows across re-sorts
+            instead of tearing them down and rebuilding (which had also been
+            duplicating rows). Static card content uses one-time bindings (::)
+            since an ontology's name/description/counts never change after load. %>
+        <div class="ontology grid-parent clearfix"
+             ng-repeat="ontology in filteredOntologies | limitTo:render_limit track by ontology.id">
+          <div class="grid-100">
+            <div ng-if="ontology.type == 'ontology_view'" class="ontology_view_badge" title="This ontology is a view of {{::ontology.viewOfOnt.name}}">VIEW</div>
             <h2 style="font-size: 1.5em;">
-              <a href="/ontologies/{{ontology.acronym}}">
-                <span ng-if="debug">{{$index}} </span>
-                {{ontology.name}} ({{ontology.acronym}})
+              <a href="/ontologies/{{::ontology.acronym}}">
+                <span ng-if="debug">{{$index}} </span><%#
+                  %><span ng-bind-html="ontology.name | highlight:searchText"></span>
               </a>
+              <span class="acronym-pill" ng-bind-html="ontology.acronym | highlight:searchText"></span>
+              <span class="status-pill status-retired" ng-if="ontology.status == 'retired'">Retired</span>
+              <span class="status-pill status-deprecated" ng-if="ontology.status == 'deprecated'">Deprecated</span>
               <i title="Private Ontology" ng-if="ontology.private" class="icon-key locked_ont"></i>
             </h2>
             <div ng-if="ontology.submission">
-              <p style="margin-bottom: 5px;">{{ontology.description | descriptionToText}}</p>
-              <span class="ont-info">
-                <b>Uploaded</b>: {{ontology.creationDate | date:'shortDate'}}
-              </span>
-              <span class="ont-info" ng-if="facets.formats.active.length > 1">
-                <b>Format</b>: {{ontology.format}}
-              </span>
-              <span class="ont-info" ng-if="ontology.type == 'ontology_view'">
-                <b>View of</b>: <a href="/ontologies/{{ontology.viewOfOnt.acronym}}">{{ontology.viewOfOnt.acronym}}</a>
-              </span>
-              <span class="ont-info" ng-if="ontology.summaryOnly">
-                <b>Summary Only</b>
-              </span>
-              <span class="ont-info" ng-if="facets.groups.active.length > 1">
-                <b>Groups</b>: {{groupAcronyms(ontology.groups).join(', ')}}
-              </span>
-              <span class="ont-info" ng-if="facets.categories.active.length > 1">
-                <b>Categories</b>: {{categoryNames(ontology.categories).join(', ')}}
-              </span>
-              <span>
-                <span class="ont-info admin" ng-if="admin">
-                  <b>Admins</b>: {{adminUsernames(ontology.administeredBy).join(', ')}}
+              <p class="ont-description" style="margin-bottom: 5px;"><%#
+                %><span ng-bind-html="ontology.description | descriptionSnippet:searchText:ontology._descExpanded | highlight:searchText"></span><%#
+                %> <button type="button" class="ont-description-toggle" ng-if="descriptionHasMore(ontology)"
+                     ng-click="ontology._descExpanded = !ontology._descExpanded"
+                     aria-expanded="{{ontology._descExpanded ? 'true' : 'false'}}"><%#
+                  %>{{ontology._descExpanded ? 'Less' : 'More'}}</button><%#
+              %></p>
+
+              <%# Metadata + stats as one inline row of rounded pills %>
+              <div class="ont-meta-pills">
+                <span class="ont-pill">
+                  <b>Uploaded</b> {{::ontology.creationDate | localeDate}}
                 </span>
-                <span class="ont-info admin" ng-if="admin && ontology.pullLocation">
-                  <b><a href="{{ontology.pullLocation}}">Pull URL</a></b>
+                <a class="ont-pill ont-pill-license" ng-if="ontology.hasLicense"
+                   href="{{::ontology.license}}" target="_blank" rel="noopener"
+                   title="{{::ontology.license}}">{{::ontology.license | licenseLabel}}</a>
+                <span class="ont-pill" ng-if="facets.formats.active.length > 1">
+                  <b>Format</b> {{::ontology.format}}
                 </span>
-                <span class="ont-info admin" ng-if="admin && ontology.submission">
-                  <b>Status</b>: {{ontology.submissionStatusFormatted}}
+                <span class="ont-pill" ng-if="ontology.type == 'ontology_view'">
+                  <b>View of</b> <a href="/ontologies/{{::ontology.viewOfOnt.acronym}}">{{::ontology.viewOfOnt.acronym}}</a>
                 </span>
-              </span>
+                <span class="ont-pill" ng-if="ontology.summaryOnly">Summary Only</span>
+                <span class="ont-pill" ng-if="facets.groups.active.length > 1">
+                  <b>Groups</b> {{groupAcronyms(ontology.groups).join(', ')}}
+                </span>
+                <span class="ont-pill" ng-if="facets.categories.active.length > 1">
+                  <b>Categories</b> {{categoryNames(ontology.categories).join(', ')}}
+                </span>
+                <span class="ont-pill admin" ng-if="admin">
+                  <b>Admins</b> {{adminUsernames(ontology.administeredBy).join(', ')}}
+                </span>
+                <span class="ont-pill admin" ng-if="admin && ontology.pullLocation">
+                  <a href="{{::ontology.pullLocation}}">Pull URL</a>
+                </span>
+                <span class="ont-pill admin" ng-if="admin && ontology.submission">
+                  <b>Status</b> {{::ontology.submissionStatusFormatted}}
+                </span>
+
+                <%# Stat pills — same pill styling, count-forward, links to the section %>
+                <span class="ont-stats" ng-if="ontology.submission !== null && ontology.class_count > 0">
+                  <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=classes" ng-if="ontology.format !== 'SKOS'">
+                    <b>{{::ontology.class_count_formatted}}</b> classes
+                  </a>
+                  <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=classes" ng-if="ontology.individual_count > 0">
+                    <b>{{::ontology.individual_count_formatted}}</b> {{::ontology.format === 'SKOS' ? "concepts" : "instances"}}
+                  </a>
+                  <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}#projects_content" ng-if="ontology.projects.length > 0">
+                    <b>{{::ontology.projects.length}}</b> projects
+                  </a>
+                  <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=notes" ng-if="ontology.notes.length > 0">
+                    <b>{{::ontology.notes.length}}</b> notes
+                  </a>
+                </span>
+              </div>
             </div>
 
             <span ng-hide="ontology.submission">No submissions available</span>
           </div>
-
-          <div class="badges grid-25 grid-parent" ng-if="ontology.submission !== null && ontology.class_count > 0">
-            <a href="/ontologies/{{ontology.acronym}}?p=classes" ng-if="ontology.format !== 'SKOS'">
-              <div class="grid-50 badge_grid">
-                <div class="ontology_badge">
-                  <div class="badge_title">classes</div>
-                  <div class="badge_count">{{ontology.class_count_formatted}}</div>
-                </div>
-              </div>
-            </a>
-
-            <a href="/ontologies/{{ontology.acronym}}?p=classes" ng-if="ontology.individual_count > 0 ">
-              <div class="grid-50 badge_grid">
-                <div class="ontology_badge">
-                  <div class="badge_title">{{ontology.format === 'SKOS' ? "concepts" : "instances"}}</div>
-                  <div class="badge_count">{{ontology.individual_count_formatted}}</div>
-                </div>
-              </div>
-            </a>
-
-            <a href="/ontologies/{{ontology.acronym}}#projects_content">
-              <div class="grid-50 badge_grid" ng-if="ontology.projects.length > 0">
-                <div class="ontology_badge">
-                  <div class="badge_title">projects</div>
-                  <div class="badge_count">{{ontology.projects.length}}</div>
-                </div>
-              </div>
-            </a>
-
-            <a href="/ontologies/{{ontology.acronym}}?p=notes">
-              <div class="grid-50 badge_grid" ng-if="ontology.notes.length > 0">
-                <div class="ontology_badge">
-                  <div class="badge_title">notes</div>
-                  <div class="badge_count">{{ontology.notes.length}}</div>
-                </div>
-              </div>
-            </a>
-
-          </div>
         </div>
+
+        <%# When more results match than are currently rendered, reveal the rest
+            as the user scrolls near the bottom of the list (see scroll handler in
+            app.js). A lightweight fallback button also grows the limit. %>
+        <div class="ontology-list-more" ng-if="filteredOntologies.length > render_limit">
+          <button type="button" class="ontology-list-more-btn" ng-click="growRenderLimit()">
+            Show more ({{filteredOntologies.length - render_limit}} more)
+          </button>
+        </div>
+        </div><%# /.ontology-list %>
       </div>
     </div>
   </div>

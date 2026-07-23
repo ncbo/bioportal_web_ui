@@ -29,9 +29,13 @@ class OntologiesController < ApplicationController
     ontologies = LinkedData::Client::Models::Ontology.all(include: LinkedData::Client::Models::Ontology.include_params + ',viewOf', include_views: true, display_context: false)
     ontologies_hash = Hash[ontologies.map { |o| [o.id, o] }]
     @admin = session[:user] ? session[:user].admin? : false
-    @development = Rails.env.development?
+    # Drives the browse page's debug UI (Debug Info panel + result numbering).
+    # Opt-in via ?debug=1 rather than always-on in development, so the dev view
+    # normally matches production. Restricted to development so it can't be
+    # toggled on in production.
+    @development = Rails.env.development? && params[:debug].present?
 
-    submissions = LinkedData::Client::Models::OntologySubmission.all(include_views: true, display_links: false, display_context: false, include: 'submissionStatus,hasOntologyLanguage,pullLocation,description,creationDate,status')
+    submissions = LinkedData::Client::Models::OntologySubmission.all(include_views: true, display_links: false, display_context: false, include: 'submissionStatus,hasOntologyLanguage,pullLocation,description,creationDate,status,hasLicense,keywords')
     submissions_map = submissions.each_with_object({}) do |sub, h|
       ontology_id = sub.id.sub(%r{/submissions/[^/]+$}, '')
       if (ontology = ontologies_hash[ontology_id])
@@ -103,7 +107,16 @@ class OntologiesController < ApplicationController
         o[:pullLocation]              = sub.pullLocation
         o[:description]               = sub.description
         o[:creationDate]              = sub.creationDate
+        # Self-declared keywords (sparsely populated) — not displayed, but folded
+        # into the client-side search index so a keyword match surfaces the ontology.
+        o[:keywords]                  = Array(sub.keywords).join(' ')
         o[:submissionStatusFormatted] = submission_status2string(sub)
+        # Lifecycle status ('retired' / 'deprecated') and the submission's
+        # license URL (if any) — surfaced as pills on the browse card. The
+        # license is a URL; the template derives a short human label from it.
+        o[:status]                    = sub.status
+        o[:license]                   = sub.hasLicense.presence
+        o[:hasLicense]                = sub.hasLicense.present?
 
         o[:format] = sub.hasOntologyLanguage
         @formats << sub.hasOntologyLanguage
