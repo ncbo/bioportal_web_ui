@@ -108,9 +108,11 @@ class OntologiesController < ApplicationController
         o[:description]               = sub.description
         o[:creationDate]              = sub.creationDate
         o[:submissionStatusFormatted] = submission_status2string(sub)
-        # Lifecycle status ('retired' / 'deprecated') and whether the submission
-        # declares a license — surfaced as pills on the browse card.
+        # Lifecycle status ('retired' / 'deprecated') and the submission's
+        # license URL (if any) — surfaced as pills on the browse card. The
+        # license is a URL; the template derives a short human label from it.
         o[:status]                    = sub.status
+        o[:license]                   = sub.hasLicense.presence
         o[:hasLicense]                = sub.hasLicense.present?
 
         o[:format] = sub.hasOntologyLanguage

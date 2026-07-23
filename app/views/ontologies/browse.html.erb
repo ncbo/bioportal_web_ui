@@ -227,7 +227,9 @@
                 <span class="ont-pill">
                   <b>Uploaded</b> {{::ontology.creationDate | localeDate}}
                 </span>
-                <span class="ont-pill ont-pill-license" ng-if="ontology.hasLicense">License</span>
+                <a class="ont-pill ont-pill-license" ng-if="ontology.hasLicense"
+                   href="{{::ontology.license}}" target="_blank" rel="noopener"
+                   title="{{::ontology.license}}">{{::ontology.license | licenseLabel}}</a>
                 <span class="ont-pill" ng-if="facets.formats.active.length > 1">
                   <b>Format</b> {{::ontology.format}}
                 </span>

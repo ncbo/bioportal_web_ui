@@ -705,4 +705,48 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     return formatter ? formatter.format(date) : date.toDateString();
   };
 })
+
+// Derive a short, human-readable license label from a license URL (the value
+// of a submission's hasLicense, e.g. "https://creativecommons.org/licenses/by/4.0/").
+// Recognises Creative Commons and OSI URLs; otherwise falls back to the host,
+// and finally to a plain "License" when the value isn't a URL we can parse.
+.filter('licenseLabel', function() {
+  var CC_NAMES = {
+    'by': 'CC BY', 'by-sa': 'CC BY-SA', 'by-nd': 'CC BY-ND',
+    'by-nc': 'CC BY-NC', 'by-nc-sa': 'CC BY-NC-SA', 'by-nc-nd': 'CC BY-NC-ND'
+  };
+  return function(url) {
+    if (!url) return 'License';
+    var s = String(url).trim();
+    var lower = s.toLowerCase();
+
+    // Creative Commons: /licenses/<code>/<version>/ or /publicdomain/zero|mark/<version>/
+    if (lower.indexOf('creativecommons.org') !== -1) {
+      var m = lower.match(/\/licenses\/([a-z-]+)\/([0-9.]+)/);
+      if (m) {
+        var name = CC_NAMES[m[1]] || ('CC ' + m[1].toUpperCase());
+        return name + ' ' + m[2];
+      }
+      if (lower.indexOf('/publicdomain/zero') !== -1) {
+        var z = lower.match(/\/zero\/([0-9.]+)/);
+        return 'CC0' + (z ? ' ' + z[1] : '');
+      }
+      if (lower.indexOf('/publicdomain/mark') !== -1) return 'Public Domain';
+      return 'Creative Commons';
+    }
+
+    // OSI-hosted licenses: the last path segment is the license id (e.g. MIT).
+    if (lower.indexOf('opensource.org') !== -1) {
+      var seg = s.replace(/\/+$/, '').split('/').pop();
+      if (seg) return seg.toUpperCase() === seg ? seg : seg;
+    }
+
+    // Otherwise, if it's a URL, show the host without a leading "www.".
+    var host = s.match(/^https?:\/\/([^/]+)/);
+    if (host) return host[1].replace(/^www\./, '');
+
+    // Not a URL — show the raw value if short, else a generic label.
+    return s.length <= 24 ? s : 'License';
+  };
+})
 ;

@@ -748,8 +748,21 @@ $browse-gap: 24px;
 // License pill in the metadata row — a subtle positive signal that access
 // terms are declared. Quiet green so it reads as "available" without competing
 // with the count pills.
-.ont-pill.ont-pill-license {
+// License pill in the metadata row — a subtle positive signal that links to the
+// declared license (label derived from the URL, e.g. "CC BY 4.0"). Green-tinted
+// body so it reads as its own "available" category at a glance, without being
+// as loud as the retired/deprecated status pills.
+a.ont-pill.ont-pill-license {
   color: #2f7d54;
+  background: rgba(47, 125, 84, 0.09);
+  border-color: rgba(47, 125, 84, 0.28);
+  text-decoration: none;
+
+  &:hover {
+    color: #235c3e;
+    background: rgba(47, 125, 84, 0.16);
+    border-color: rgba(47, 125, 84, 0.5);
+  }
 }
 
 // Search-term highlight in result names/acronyms. Classic marker-yellow wash so
