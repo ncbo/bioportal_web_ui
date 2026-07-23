@@ -35,7 +35,7 @@ class OntologiesController < ApplicationController
     # toggled on in production.
     @development = Rails.env.development? && params[:debug].present?
 
-    submissions = LinkedData::Client::Models::OntologySubmission.all(include_views: true, display_links: false, display_context: false, include: 'submissionStatus,hasOntologyLanguage,pullLocation,description,creationDate,status,hasLicense')
+    submissions = LinkedData::Client::Models::OntologySubmission.all(include_views: true, display_links: false, display_context: false, include: 'submissionStatus,hasOntologyLanguage,pullLocation,description,creationDate,status,hasLicense,keywords')
     submissions_map = submissions.each_with_object({}) do |sub, h|
       ontology_id = sub.id.sub(%r{/submissions/[^/]+$}, '')
       if (ontology = ontologies_hash[ontology_id])
@@ -107,6 +107,9 @@ class OntologiesController < ApplicationController
         o[:pullLocation]              = sub.pullLocation
         o[:description]               = sub.description
         o[:creationDate]              = sub.creationDate
+        # Self-declared keywords (sparsely populated) — not displayed, but folded
+        # into the client-side search index so a keyword match surfaces the ontology.
+        o[:keywords]                  = Array(sub.keywords).join(' ')
         o[:submissionStatusFormatted] = submission_status2string(sub)
         # Lifecycle status ('retired' / 'deprecated') and the submission's
         # license URL (if any) — surfaced as pills on the browse card. The
