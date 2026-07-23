@@ -751,9 +751,10 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     }
 
     // OSI-hosted licenses: the last path segment is the license id (e.g. MIT).
+    // Uppercase it unless it already carries its own casing (e.g. "Apache-2.0").
     if (lower.indexOf('opensource.org') !== -1) {
       var seg = s.replace(/\/+$/, '').split('/').pop();
-      if (seg) return seg.toUpperCase() === seg ? seg : seg;
+      if (seg) return /^[a-z0-9.-]+$/.test(seg) ? seg.toUpperCase() : seg;
     }
 
     // Otherwise, if it's a URL, show the host without a leading "www.".

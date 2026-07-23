@@ -776,11 +776,21 @@ a.ont-pill.ont-pill-license {
 }
 
 // Inline "More"/"Less" toggle that expands the truncated description in place.
+// A real <button> (in-page expand, not navigation), reset to read as inline text.
+// appearance:none is required to strip the native button chrome (grey box +
+// bevel) that persists even with background/border cleared on some platforms.
 #ontologies .ont-description-toggle {
-  margin-left: 0.35rem;
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0 0 0 0.35rem;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--primary-color);
+  font: inherit;
   font-size: 0.9em;
   font-weight: 600;
+  line-height: inherit;
   cursor: pointer;
 
   &:hover { text-decoration: underline; }
@@ -1187,10 +1197,4 @@ a.ont-pill-stat {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(35, 73, 121, 0.12);
   }
-}
-
-#sorting select {
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  padding: 0.3rem 0.5rem;
 }

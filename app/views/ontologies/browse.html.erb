@@ -65,6 +65,7 @@
         </div>
 
         <div id="license_facet" class="facet">
+          <h4>License</h4>
           <div class="checkbox_list">
             <span class="license-facet-row">
               <input type="checkbox" id="has_license" ng-model="facets.has_license.active" ng-true-value="'yes'" ng-false-value="''">
@@ -226,9 +227,10 @@
             <div ng-if="ontology.submission">
               <p class="ont-description" style="margin-bottom: 5px;"><%#
                 %><span ng-bind-html="ontology.description | descriptionSnippet:searchText:ontology._descExpanded | highlight:searchText"></span><%#
-                %> <a href="" class="ont-description-toggle" ng-if="descriptionHasMore(ontology)"
-                     ng-click="$event.preventDefault(); ontology._descExpanded = !ontology._descExpanded"><%#
-                  %>{{ontology._descExpanded ? 'Less' : 'More'}}</a><%#
+                %> <button type="button" class="ont-description-toggle" ng-if="descriptionHasMore(ontology)"
+                     ng-click="ontology._descExpanded = !ontology._descExpanded"
+                     aria-expanded="{{ontology._descExpanded ? 'true' : 'false'}}"><%#
+                  %>{{ontology._descExpanded ? 'Less' : 'More'}}</button><%#
               %></p>
 
               <%# Metadata + stats as one inline row of rounded pills %>
