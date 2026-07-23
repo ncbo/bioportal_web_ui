@@ -168,6 +168,18 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
         return !!ontology.hasLicense;
       }
     },
+    // Retired ontologies are hidden by default (active "" hides them); the
+    // "Show retired" toggle sets active "yes" to include them. Same string-facet
+    // shape as has_license so it reuses the chip / remove / clear-all machinery.
+    show_retired: {
+      active: "",
+      ont_property: "status",
+      filter: function(ontology) {
+        if ($scope.facets.show_retired.active === "yes")
+          return true;
+        return ontology.status !== "retired";
+      }
+    },
     upload_date: {
       active: "",
       ont_property: "creationDate",
@@ -278,6 +290,7 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     }
     if (facetKey === 'types') return value === 'ontology_view' ? 'Ontology View' : 'Ontology';
     if (facetKey === 'has_license') return 'Has license';
+    if (facetKey === 'show_retired') return 'Including retired';
     return value;
   };
 
