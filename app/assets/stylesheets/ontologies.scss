@@ -967,12 +967,29 @@ a.ont-pill-stat {
     // line). The checkbox is positioned in a fixed left gutter; the label and
     // its count then flow inline, so the count sits right after the label name
     // — only wrapping with it if a name is genuinely too long for the column.
-    span[ng-repeat],
-    span.license-facet-row {
+    span[ng-repeat] {
       display: block;
       position: relative;
       width: auto;
       padding: 0.12rem 0 0.12rem 1.5rem; // left gutter for the checkbox
+    }
+
+    // The single "Has a license" toggle is a standalone row, not one of a list,
+    // so lay it out as a simple centered flex row rather than the absolute-gutter
+    // treatment used for the multi-line facet lists (which left the box sitting
+    // high against a single line of text).
+    span.license-facet-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      input[type="checkbox"] {
+        position: static;
+        top: auto;
+        flex: 0 0 auto;
+      }
+
+      label { line-height: 1; }
     }
 
     input[type="checkbox"] {
