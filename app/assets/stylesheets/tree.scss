@@ -1,9 +1,75 @@
 /********************
 ## TREE VIEW
 *********************/
-/* Expand/collapse chevron: one chevron-right SVG, rotated when open */
+/* Expand/collapse chevron: one chevron-right SVG, rotated when open. The
+   transition smooths both the open/close toggle and the optimistic flip below. */
+.tree-chevron {
+  transition: transform 0.15s ease;
+}
 .tree-chevron.open {
   transform: rotate(90deg);
+}
+
+/* Optimistic expand feedback. Expanding a collapsed node is a Turbo Frame
+   round-trip that can take a second or more; the chevron only flips once the
+   server response swaps it for the "open" icon. To give immediate feedback on
+   the clicked node, the simple-tree controller adds `.tree-expanding` to the
+   <li> on click and removes it when the children frame loads. While present we
+   rotate the chevron straight away and pulse it to signal "loading". (The
+   clickable chevron sits in a plain <turbo_frame> custom element that Turbo
+   never marks [busy], so this can't be keyed off [busy] in CSS — hence the
+   controller-set class.) */
+li.tree-expanding > turbo_frame[id$="_open_link"] .tree-chevron,
+li.tree-expanding > turbo-frame[id$="_open_link"] .tree-chevron {
+  transform: rotate(90deg);
+  animation: tree-chevron-pulse 0.7s ease-in-out infinite;
+}
+@keyframes tree-chevron-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+/* The per-node "loading children" indicator (Turbo's show-if-loading block) was
+   a centre-aligned, padded box that opened a large gap and shoved sibling nodes
+   down while children loaded. Render it as a compact, indent-aligned inline cue
+   under the node label instead, so nothing jumps. */
+.simpleTree .show-if-loading.my-auto { margin: 0 !important; }
+.simpleTree .show-if-loading > .p-3 {
+  padding: 0 0 0 1.7rem !important;
+  min-height: 18px;
+  display: flex;
+  align-items: center;
+}
+.simpleTree .show-if-loading .loader-component {
+  justify-content: flex-start !important;
+  display: flex;
+}
+.simpleTree .show-if-loading .lds-ellipsis {
+  transform: scale(0.42);
+  transform-origin: left center;
+  margin: 0;
+  height: 12px;
+  width: 40px;
+}
+
+/* Slide the arriving children in, so an expanded subtree feels continuous
+   rather than popping into place. */
+.simpleTree turbo-frame[id$="_childs"] > ul {
+  animation: tree-slide-in 0.18s ease-out;
+}
+@keyframes tree-slide-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-chevron,
+  li.tree-expanding > turbo_frame[id$="_open_link"] .tree-chevron,
+  li.tree-expanding > turbo-frame[id$="_open_link"] .tree-chevron,
+  .simpleTree turbo-frame[id$="_childs"] > ul {
+    transition: none;
+    animation: none;
+  }
 }
 
 // The tree scrolls inside #sd_content (see the Classes-pane rules in
