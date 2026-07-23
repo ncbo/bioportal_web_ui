@@ -155,6 +155,18 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
         return true;
       }
     },
+    // "Has license" toggle. Modelled as a string facet (active is "" when off,
+    // "yes" when on) rather than a boolean, so it reuses the existing chip /
+    // remove / clear-all machinery unchanged.
+    has_license: {
+      active: "",
+      ont_property: "hasLicense",
+      filter: function(ontology) {
+        if ($scope.facets.has_license.active !== "yes")
+          return true;
+        return !!ontology.hasLicense;
+      }
+    },
     upload_date: {
       active: "",
       ont_property: "creationDate",
@@ -264,6 +276,7 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
       return 'Uploaded: ' + (labels[value] || value);
     }
     if (facetKey === 'types') return value === 'ontology_view' ? 'Ontology View' : 'Ontology';
+    if (facetKey === 'has_license') return 'Has license';
     return value;
   };
 
