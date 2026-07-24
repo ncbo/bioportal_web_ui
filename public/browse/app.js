@@ -180,6 +180,28 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
         return ontology.status !== "retired";
       }
     },
+    // Admin-only: hide private ontologies from the list. Off by default (active
+    // "" shows everything); "yes" excludes private ontologies. Same string-facet
+    // shape so it reuses the chip / remove / clear-all machinery.
+    hide_private: {
+      active: "",
+      ont_property: "private",
+      filter: function(ontology) {
+        if ($scope.facets.hide_private.active !== "yes")
+          return true;
+        return !ontology.private;
+      }
+    },
+    // Admin-only mirror of hide_private: hide public (non-private) ontologies.
+    hide_public: {
+      active: "",
+      ont_property: "private",
+      filter: function(ontology) {
+        if ($scope.facets.hide_public.active !== "yes")
+          return true;
+        return !!ontology.private;
+      }
+    },
     upload_date: {
       active: "",
       ont_property: "creationDate",
@@ -291,6 +313,8 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     if (facetKey === 'types') return value === 'ontology_view' ? 'Ontology View' : 'Ontology';
     if (facetKey === 'has_license') return 'Has license';
     if (facetKey === 'show_retired') return 'Including retired';
+    if (facetKey === 'hide_private') return 'Hiding private';
+    if (facetKey === 'hide_public') return 'Hiding public';
     return value;
   };
 

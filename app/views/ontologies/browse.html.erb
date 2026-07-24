@@ -84,6 +84,20 @@
           </div>
         </div>
 
+        <div id="visibility_facet" class="facet admin" ng-show="admin">
+          <h4>Visibility</h4>
+          <div class="checkbox_list">
+            <span class="license-facet-row">
+              <input type="checkbox" id="hide_private" ng-model="facets.hide_private.active" ng-true-value="'yes'" ng-false-value="''">
+              <label for="hide_private">Hide private ontologies</label>
+            </span>
+            <span class="license-facet-row">
+              <input type="checkbox" id="hide_public" ng-model="facets.hide_public.active" ng-true-value="'yes'" ng-false-value="''">
+              <label for="hide_public">Hide public ontologies</label>
+            </span>
+          </div>
+        </div>
+
         <div id="category_facet" class="facet">
           <h4>Category</h4>
           <div class="checkbox_list">
