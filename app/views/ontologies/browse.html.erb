@@ -243,7 +243,7 @@
                   %>{{ontology._descExpanded ? 'Less' : 'More'}}</button><%#
               %></p>
 
-              <%# Metadata + stats as one inline row of rounded pills %>
+              <%# First line: upload date, license, and (facet-driven) metadata pills. %>
               <div class="ont-meta-pills">
                 <span class="ont-pill">
                   <b>Uploaded</b> {{::ontology.creationDate | localeDate}}
@@ -264,30 +264,35 @@
                 <span class="ont-pill" ng-if="facets.categories.active.length > 1">
                   <b>Categories</b> {{categoryNames(ontology.categories).join(', ')}}
                 </span>
-                <span class="ont-pill admin" ng-if="admin">
+              </div>
+
+              <%# Second line: ontology metrics — count-forward pills linking to the section. %>
+              <div class="ont-stat-pills" ng-if="ontology.submission !== null && ontology.class_count > 0">
+                <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=classes" ng-if="ontology.format !== 'SKOS'">
+                  <b>{{::ontology.class_count_formatted}}</b> classes
+                </a>
+                <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=classes" ng-if="ontology.individual_count > 0">
+                  <b>{{::ontology.individual_count_formatted}}</b> {{::ontology.format === 'SKOS' ? "concepts" : "instances"}}
+                </a>
+                <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}#projects_content" ng-if="ontology.projects.length > 0">
+                  <b>{{::ontology.projects.length}}</b> projects
+                </a>
+                <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=notes" ng-if="ontology.notes.length > 0">
+                  <b>{{::ontology.notes.length}}</b> notes
+                </a>
+              </div>
+
+              <%# Admin-only pills on their own last row, so admin details don't
+                  intermix with the public metadata/stats above. %>
+              <div class="ont-admin-pills" ng-if="admin">
+                <span class="ont-pill admin">
                   <b>Admins</b> {{adminUsernames(ontology.administeredBy).join(', ')}}
                 </span>
-                <span class="ont-pill admin" ng-if="admin && ontology.pullLocation">
+                <span class="ont-pill admin" ng-if="ontology.pullLocation">
                   <a href="{{::ontology.pullLocation}}">Pull URL</a>
                 </span>
-                <span class="ont-pill admin" ng-if="admin && ontology.submission">
+                <span class="ont-pill admin" ng-if="ontology.submission">
                   <b>Status</b> {{::ontology.submissionStatusFormatted}}
-                </span>
-
-                <%# Stat pills — same pill styling, count-forward, links to the section %>
-                <span class="ont-stats" ng-if="ontology.submission !== null && ontology.class_count > 0">
-                  <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=classes" ng-if="ontology.format !== 'SKOS'">
-                    <b>{{::ontology.class_count_formatted}}</b> classes
-                  </a>
-                  <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=classes" ng-if="ontology.individual_count > 0">
-                    <b>{{::ontology.individual_count_formatted}}</b> {{::ontology.format === 'SKOS' ? "concepts" : "instances"}}
-                  </a>
-                  <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}#projects_content" ng-if="ontology.projects.length > 0">
-                    <b>{{::ontology.projects.length}}</b> projects
-                  </a>
-                  <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=notes" ng-if="ontology.notes.length > 0">
-                    <b>{{::ontology.notes.length}}</b> notes
-                  </a>
                 </span>
               </div>
             </div>

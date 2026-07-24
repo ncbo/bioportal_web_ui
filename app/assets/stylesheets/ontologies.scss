@@ -752,16 +752,18 @@ $browse-gap: 24px;
 // declared license (label derived from the URL, e.g. "CC BY 4.0"). Green-tinted
 // body so it reads as its own "available" category at a glance, without being
 // as loud as the retired/deprecated status pills.
+// License pill uses a deep-purple tint — its own accent, distinct from the green
+// admin-only pills, the gold acronym pills, and the navy UI.
 a.ont-pill.ont-pill-license {
-  color: #2f7d54;
-  background: rgba(47, 125, 84, 0.09);
-  border-color: rgba(47, 125, 84, 0.28);
+  color: #6d3f9e;
+  background: rgba(109, 63, 158, 0.10);
+  border-color: rgba(109, 63, 158, 0.32);
   text-decoration: none;
 
   &:hover {
-    color: #235c3e;
-    background: rgba(47, 125, 84, 0.16);
-    border-color: rgba(47, 125, 84, 0.5);
+    color: #58318a;
+    background: rgba(109, 63, 158, 0.18);
+    border-color: rgba(109, 63, 158, 0.5);
   }
 }
 
@@ -847,8 +849,22 @@ a.ont-pill.ont-pill-license {
   margin-top: 0.5rem;
 }
 
-.ont-stats {
-  display: contents; // let stat pills flow in the same flex row
+// Ontology metrics sit on their own second row, below the upload/license line.
+.ont-stat-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+// Admin-only pills sit on their own row below the public metadata/stats.
+.ont-admin-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
 }
 
 .ont-pill {
