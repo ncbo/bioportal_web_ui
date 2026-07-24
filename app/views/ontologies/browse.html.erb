@@ -246,7 +246,7 @@
               <span class="acronym-pill" ng-bind-html="ontology.acronym | highlight:searchText"></span>
               <span class="status-pill status-retired" ng-if="ontology.status == 'retired'">Retired</span>
               <span class="status-pill status-deprecated" ng-if="ontology.status == 'deprecated'">Deprecated</span>
-              <i title="Private Ontology" ng-if="ontology.private" class="icon-key locked_ont"></i>
+              <span class="status-pill status-private" ng-if="ontology.private" title="Private Ontology">Private</span>
             </h2>
             <div ng-if="ontology.submission">
               <p class="ont-description" style="margin-bottom: 5px;"><%#
@@ -288,10 +288,13 @@
                 <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=classes" ng-if="ontology.individual_count > 0">
                   <b>{{::ontology.individual_count_formatted}}</b> {{::ontology.format === 'SKOS' ? "concepts" : "instances"}}
                 </a>
-                <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}#projects_content" ng-if="ontology.projects.length > 0">
+                <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=properties" ng-if="ontology.property_count > 0">
+                  <b>{{::ontology.property_count_formatted}}</b> properties
+                </a>
+                <a class="ont-pill ont-pill-stat ont-pill-muted" href="/ontologies/{{::ontology.acronym}}#projects_content" ng-if="ontology.projects.length > 0">
                   <b>{{::ontology.projects.length}}</b> projects
                 </a>
-                <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=notes" ng-if="ontology.notes.length > 0">
+                <a class="ont-pill ont-pill-stat ont-pill-muted" href="/ontologies/{{::ontology.acronym}}?p=notes" ng-if="ontology.notes.length > 0">
                   <b>{{::ontology.notes.length}}</b> notes
                 </a>
               </div>

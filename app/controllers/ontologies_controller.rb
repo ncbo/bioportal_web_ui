@@ -63,12 +63,15 @@ class OntologiesController < ApplicationController
       if metrics_hash[ont.id]
         o[:class_count] = metrics_hash[ont.id].classes
         o[:individual_count] = metrics_hash[ont.id].individuals
+        o[:property_count] = metrics_hash[ont.id].properties
       else
         o[:class_count] = 0
         o[:individual_count] = 0
+        o[:property_count] = 0
       end
       o[:class_count_formatted] = number_with_delimiter(o[:class_count], delimiter: ',')
       o[:individual_count_formatted] = number_with_delimiter(o[:individual_count], delimiter: ',')
+      o[:property_count_formatted] = number_with_delimiter(o[:property_count], delimiter: ',')
 
       o[:id]               = ont.id
       o[:type]             = ont.viewOf.nil? ? 'ontology' : 'ontology_view'

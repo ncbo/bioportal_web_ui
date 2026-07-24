@@ -760,6 +760,11 @@ $browse-gap: 24px;
   border: 1px solid rgba(197, 134, 18, 0.4);
   color: #9a6a05;
 }
+.status-pill.status-private {
+  background: rgba(154, 59, 90, 0.10);
+  border: 1px solid rgba(154, 59, 90, 0.38);
+  color: #9a3b5a;
+}
 
 // License pill in the metadata row — a subtle positive signal that access
 // terms are declared. Quiet green so it reads as "available" without competing
@@ -915,6 +920,23 @@ a.ont-pill-stat {
   }
 }
 
+// Projects and notes are community/activity counts, not ontology content
+// (classes/instances). Give them a distinctly lighter, outline-style pill — a
+// white body with a defined grey border and grey number — so they read as
+// clearly secondary next to the tinted, navy-numbered content-count pills.
+a.ont-pill-stat.ont-pill-muted {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.18);
+  color: var(--gray-color);
+
+  b { color: #6b7280; font-weight: 600; }
+
+  &:hover {
+    background: #f4f4f5;
+    border-color: rgba(0, 0, 0, 0.28);
+  }
+}
+
 // Facet sidebar: quieter, uppercase section labels with a divider; consistent
 // control styling for the search box and selects.
 #facets {
@@ -1024,6 +1046,7 @@ a.ont-pill-stat {
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      padding: 0.18rem 0; // vertical breathing room so stacked toggles don't touch
 
       input[type="checkbox"] {
         position: static;
@@ -1031,7 +1054,7 @@ a.ont-pill-stat {
         flex: 0 0 auto;
       }
 
-      label { line-height: 1; }
+      label { line-height: 1.2; }
     }
 
     input[type="checkbox"] {
