@@ -524,6 +524,22 @@ $browse-gap: 24px;
   box-sizing: border-box;
 }
 
+// The admin "Welcome admin" notice carries legacy positioning hacks
+// (float:right; position:relative; top:-5em; left:-33%; width:33%) meant for
+// the old Browse layout. In the redesigned two-column layout that float pushes
+// the results column (and its search toolbar) down and misaligns the columns.
+// Reset it to a normal-flow, full-width notice above the columns.
+#ontologies-page .welcome_admin,
+.ontologies.index .welcome_admin,
+[ng-controller="OntologyList"] > .welcome_admin {
+  float: none;
+  position: static;
+  top: auto;
+  left: auto;
+  width: auto;
+  margin: 0 0 0.75rem 0;
+}
+
 // Widen the facet column past the legacy grid-20/80 split so facet labels and
 // their counts (e.g. "Human Developmental Anatomy (46)") fit without the count
 // orphaning onto its own line.
