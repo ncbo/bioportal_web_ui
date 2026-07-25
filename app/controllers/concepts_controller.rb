@@ -183,6 +183,9 @@ class ConceptsController < ApplicationController
   # Safety cap on how many ancestor classes we walk, so a pathological hierarchy
   # can't fan out into hundreds of parent lookups.
   ENTITY_GRAPH_MAX_NODES = 400
+  # Relationship property labels to omit from the graph (noisy cross-cutting links
+  # that pull in large unrelated cones, e.g. the taxonomic lineage).
+  ENTITY_GRAPH_EXCLUDED_RELATIONS = ['in taxon'].freeze
 
   # Build the entity graph for `concept`:
   #   { root:, nodes:[{id,label,type,selected,hierarchyRoot}],
@@ -204,29 +207,33 @@ class ConceptsController < ApplicationController
     edges = {} # dedup by "from->to->label"
     truncated = false
 
-    add_node = lambda do |id, label, is_root: false|
+    add_node = lambda do |id, label, is_root: false, definition: nil|
       node = (nodes[id] ||= {
         id: id,
         label: label.presence || helpers.link_last_part(id),
         type: 'class',
         selected: is_root,
-        hierarchyRoot: false # set later, once we know whether it has parents
+        hierarchyRoot: false, # set later, once we know whether it has parents
+        definition: nil
       })
       node[:selected] = true if is_root
+      node[:definition] = definition if definition.present? && node[:definition].blank?
       node
     end
+
+    first_def = ->(cls) { Array(cls.respond_to?(:definition) ? cls.definition : nil).first }
 
     direct_parents = lambda do |class_id|
       Array(LinkedData::Client::Models::Ontology.explore(ontology.acronym)
                                                 .classes(class_id)
                                                 .parents
-                                                .get(display: 'prefLabel', language: request_lang))
+                                                .get(display: 'prefLabel,definition', language: request_lang))
         .reject { |p| p.respond_to?(:errors) && p.errors.present? }
     rescue StandardError
       []
     end
 
-    add_node.call(root_id, helpers.main_language_label(concept.prefLabel), is_root: true)
+    add_node.call(root_id, helpers.main_language_label(concept.prefLabel), is_root: true, definition: first_def.call(concept))
 
     add_rel_edges = lambda do |source_id|
       entity_graph_relationships(ontology, source_id).each do |rel|
@@ -257,7 +264,7 @@ class ConceptsController < ApplicationController
         nodes[id][:hierarchyRoot] = true if nodes[id] && parents.empty?
 
         parents.each do |p|
-          add_node.call(p.id, helpers.main_language_label(p.prefLabel))
+          add_node.call(p.id, helpers.main_language_label(p.prefLabel), definition: first_def.call(p))
           edges["#{id}->#{p.id}->is-a"] = { from: id, to: p.id, kind: 'is-a' } # child is-a parent
           queue << p.id unless visited[p.id]
         end
@@ -315,6 +322,10 @@ class ConceptsController < ApplicationController
     props.each do |predicate, values|
       predicate = predicate.to_s
       next unless object_props.key?(predicate)
+      # Omit noisy cross-cutting relationships (e.g. "in taxon", which drags the
+      # whole taxonomic lineage into the graph).
+      next if ENTITY_GRAPH_EXCLUDED_RELATIONS.include?(object_props[predicate].to_s.strip.downcase)
+      next if predicate.end_with?('RO_0002162') # in taxon
 
       Array(values).each do |value|
         filler = value.respond_to?(:id) ? value.id.to_s : value.to_s
