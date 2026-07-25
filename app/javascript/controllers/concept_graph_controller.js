@@ -69,7 +69,10 @@ export default class extends Controller {
     // class at the bottom, superclasses rising). dagre's own rankdir:'BT' mirrors
     // node coordinates but leaves multi-point edge waypoints on the wrong axis,
     // so BT edges bend the wrong way; laying out TB avoids that bug entirely.
-    g.setGraph({ rankdir: 'TB', ranksep: RANK_SEP, nodesep: NODE_SEP, edgesep: EDGE_SEP, marginx: 24, marginy: 24 })
+    // align:'UL' (Brandes-Köpf upper-left bias) keeps column-changing edges from
+    // bending sideways at the source — measured to remove all such stray bends on
+    // our graphs while barely affecting size or total edge length.
+    g.setGraph({ rankdir: 'TB', align: 'UL', ranksep: RANK_SEP, nodesep: NODE_SEP, edgesep: EDGE_SEP, marginx: 24, marginy: 24 })
     g.setDefaultEdgeLabel(() => ({}))
 
     this.nodes.forEach((n) => {
@@ -94,7 +97,6 @@ export default class extends Controller {
 
     dagre.layout(g)
     this.#flipVertical(g)
-    this.#tidyEdgeWaypoints(g)
     this._layout = g
 
     const svg = this.#buildSvg(g)
@@ -112,27 +114,6 @@ export default class extends Controller {
       const ed = g.edge(e)
       ed.points = ed.points.map((p) => ({ x: p.x, y: h - p.y }))
       if (ed.y != null) ed.y = h - ed.y
-    })
-  }
-
-  // Straighten stray edge waypoints. dagre occasionally routes an interior bend
-  // point OUTSIDE the horizontal span between an edge's two endpoints, which
-  // reads as the edge jogging away from its target before turning back. Clamp
-  // any such interior point's x back into the [min,max] endpoint span; endpoints
-  // and already-well-placed bends are left untouched.
-  #tidyEdgeWaypoints (g) {
-    g.edges().forEach((e) => {
-      const ed = g.edge(e)
-      const pts = ed.points
-      if (!pts || pts.length < 3) return
-      const sx = g.node(e.v).x
-      const tx = g.node(e.w).x
-      const lo = Math.min(sx, tx)
-      const hi = Math.max(sx, tx)
-      for (let i = 1; i < pts.length - 1; i++) {
-        if (pts[i].x < lo) pts[i].x = lo
-        else if (pts[i].x > hi) pts[i].x = hi
-      }
     })
   }
 
