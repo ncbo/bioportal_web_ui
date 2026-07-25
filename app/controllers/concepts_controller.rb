@@ -159,7 +159,105 @@ class ConceptsController < ApplicationController
     render partial: "biomixer", layout: false
   end
 
+  # Entity-graph data for a class: the selected class and its full is-a ancestor
+  # chain up to the ontology root(s), as a node-link graph. Mirrors the
+  # WebProtege entity graph (selected entity at the bottom, superclasses rising
+  # to the top). Rendered into the Entity Graph tab; the graph itself is drawn
+  # client-side (concept-graph Stimulus controller).
+  def entity_graph
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontologyid]).first
+    ontology_not_found(params[:ontologyid]) if @ontology.nil?
+
+    @concept = @ontology.explore.single_class({ full: true, language: request_lang }, params[:conceptid])
+    concept_not_found(params[:conceptid]) if @concept.nil?
+
+    @graph = build_entity_graph_data(@ontology, @concept)
+    render partial: 'entity_graph', layout: false
+  end
+
   private
+
+  # Past this many is-a edges the client shows a "large graph" gate rather than
+  # rendering an unreadable graph (WebProtege does the same).
+  ENTITY_GRAPH_LARGE_EDGE_COUNT = 200
+  # Safety cap on how many ancestor classes we walk, so a pathological hierarchy
+  # can't fan out into hundreds of parent lookups.
+  ENTITY_GRAPH_MAX_NODES = 400
+
+  # Build the ancestor is-a graph for `concept`:
+  #   { root:, nodes:[{id,label,selected,hierarchyRoot}], edges:[{from,to,kind}],
+  #     edge_count:, large:, truncated: }
+  # The graph is the selected class plus every class reachable by walking is-a
+  # (subClassOf) edges upward to the ontology root(s). Edges point child ->
+  # parent (is-a). Because a class can have several parents (the hierarchy is a
+  # DAG, not a tree), we walk each node's direct parents breadth-first rather
+  # than using /tree, which only returns a single root-to-node path.
+  def build_entity_graph_data(ontology, concept)
+    root_id = concept.id
+    nodes = {}
+    edges = {} # dedup by "from->to"
+    truncated = false
+
+    add_node = lambda do |id, label, is_root: false|
+      node = (nodes[id] ||= {
+        id: id,
+        label: label.presence || helpers.link_last_part(id),
+        type: 'class',
+        selected: is_root,
+        hierarchyRoot: false # set later, once we know whether it has parents
+      })
+      node[:selected] = true if is_root
+      node
+    end
+
+    direct_parents = lambda do |class_id|
+      Array(LinkedData::Client::Models::Ontology.explore(ontology.acronym)
+                                                .classes(class_id)
+                                                .parents
+                                                .get(display: 'prefLabel', language: request_lang))
+        .reject { |p| p.respond_to?(:errors) && p.errors.present? }
+    rescue StandardError
+      []
+    end
+
+    add_node.call(root_id, helpers.main_language_label(concept.prefLabel), is_root: true)
+
+    # Breadth-first walk up the parent edges. `visited` guards against re-walking
+    # a shared ancestor (and against cycles).
+    queue = [root_id]
+    visited = {}
+    until queue.empty?
+      id = queue.shift
+      next if visited[id]
+
+      visited[id] = true
+
+      if nodes.size >= ENTITY_GRAPH_MAX_NODES
+        truncated = true
+        break
+      end
+
+      parents = direct_parents.call(id)
+      # A node with no parents is a root of the hierarchy.
+      nodes[id][:hierarchyRoot] = true if nodes[id] && parents.empty?
+
+      parents.each do |p|
+        add_node.call(p.id, helpers.main_language_label(p.prefLabel))
+        edges["#{id}->#{p.id}"] = { from: id, to: p.id, kind: 'is-a' } # child is-a parent
+        queue << p.id unless visited[p.id]
+      end
+    end
+
+    edge_list = edges.values
+    {
+      root: root_id,
+      nodes: nodes.values,
+      edges: edge_list,
+      edge_count: edge_list.size,
+      truncated: truncated,
+      large: edge_list.size > ENTITY_GRAPH_LARGE_EDGE_COUNT
+    }
+  end
 
   def filter_concept_with_no_date(concepts)
     concepts.filter { |c| !concept_date(c).nil? }

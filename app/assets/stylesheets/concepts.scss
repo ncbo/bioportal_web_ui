@@ -206,3 +206,102 @@ div.synonym-change-request button {
     white-space: normal !important;
   }
 }
+
+// Entity Graph tab: a dagre-laid-out is-a neighbourhood drawn as SVG, styled
+// after the WebProtege entity graph (rounded-rect nodes, is-a arrows). The
+// controller (concept_graph_controller.js) builds the SVG and handles zoom/pan.
+.entity-graph {
+  position: relative;
+  height: 720px;
+
+  &__canvas {
+    width: 100%;
+    height: 100%;
+    background: var(--light-color);
+    border: 1px solid #e3e8ef;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  // Nodes ------------------------------------------------------------------
+  // Styled after the WebProtege entity graph: white rounded boxes with a blue
+  // border; the selected class is a solid blue box with white text.
+  &__node {
+    cursor: pointer;
+
+    &-shape {
+      fill: #ffffff;
+      stroke: var(--primary-color);
+      stroke-width: 1px;
+      transition: fill 0.1s ease, stroke-width 0.1s ease;
+    }
+
+    &-label {
+      font-family: inherit;
+      font-size: 13px;
+      fill: #222222;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    &:hover &-shape {
+      stroke-width: 2px;
+    }
+
+    // The selected class stands out (solid blue, white label).
+    &--selected &-shape {
+      fill: var(--primary-color);
+      stroke: var(--primary-color);
+    }
+
+    &--selected &-label {
+      fill: #ffffff;
+      font-weight: 600;
+    }
+  }
+
+  // Edges ------------------------------------------------------------------
+  // Amber is-a arrows, matching WebProtege.
+  &__edge {
+    stroke: #f0a848;
+    stroke-width: 1.5px;
+
+    &--is-a {
+      stroke: #f0a848;
+    }
+  }
+
+  &__arrow {
+    fill: #f0a848;
+    stroke: none;
+
+    &--rel {
+      fill: none;
+      stroke: #f0a848;
+    }
+  }
+
+  // Gate / empty states ----------------------------------------------------
+  &__gate,
+  &__empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--light-color);
+    border: 1px solid #e3e8ef;
+    border-radius: 6px;
+  }
+}

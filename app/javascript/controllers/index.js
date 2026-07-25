@@ -84,3 +84,6 @@ application.register("modal", ModalController)
 
 import MappingFormController from "./mapping_form_controller"
 application.register("mapping-form", MappingFormController)
+
+import ConceptGraphController from "./concept_graph_controller"
+application.register("concept-graph", ConceptGraphController)
