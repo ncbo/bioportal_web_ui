@@ -204,16 +204,15 @@ class ConceptsController < ApplicationController
     edges = {} # dedup by "from->to->label"
     truncated = false
 
-    add_node = lambda do |id, label, is_root: false, related: false|
+    add_node = lambda do |id, label, is_root: false|
       node = (nodes[id] ||= {
         id: id,
         label: label.presence || helpers.link_last_part(id),
-        type: related ? 'related' : 'class',
+        type: 'class',
         selected: is_root,
         hierarchyRoot: false # set later, once we know whether it has parents
       })
       node[:selected] = true if is_root
-      node[:type] = 'class' unless related # a filler later reached as an ancestor becomes a class
       node
     end
 
@@ -229,37 +228,54 @@ class ConceptsController < ApplicationController
 
     add_node.call(root_id, helpers.main_language_label(concept.prefLabel), is_root: true)
 
-    # --- is-a ancestor chain (breadth-first up the parent edges) ---
-    queue = [root_id]
+    add_rel_edges = lambda do |source_id|
+      entity_graph_relationships(ontology, source_id).each do |rel|
+        add_node.call(rel[:filler_id], rel[:filler_label])
+        edges["#{source_id}->#{rel[:filler_id]}->#{rel[:property_id]}"] =
+          { from: source_id, to: rel[:filler_id], kind: 'rel', label: rel[:property_label] }
+      end
+    end
+
+    # is-a walk up from a set of seed classes, adding parent nodes + is-a edges.
+    # `on_visit` runs for each class reached (used to pull that class's own
+    # relationships). Returns when the queue drains or the node cap is hit.
+    walk_ancestors = lambda do |seeds, visited, &on_visit|
+      queue = seeds.dup
+      until queue.empty?
+        id = queue.shift
+        next if visited[id]
+
+        visited[id] = true
+        on_visit&.call(id)
+
+        if nodes.size >= ENTITY_GRAPH_MAX_NODES
+          truncated = true
+          break
+        end
+
+        parents = direct_parents.call(id)
+        nodes[id][:hierarchyRoot] = true if nodes[id] && parents.empty?
+
+        parents.each do |p|
+          add_node.call(p.id, helpers.main_language_label(p.prefLabel))
+          edges["#{id}->#{p.id}->is-a"] = { from: id, to: p.id, kind: 'is-a' } # child is-a parent
+          queue << p.id unless visited[p.id]
+        end
+      end
+    end
+
     visited = {}
-    until queue.empty?
-      id = queue.shift
-      next if visited[id]
 
-      visited[id] = true
+    # 1) Walk the selected class's is-a spine (A ⊑ x0 ⊑ … ⊑ xn) and, for the
+    #    selected class and every ancestor on it, pull that class's relationship
+    #    edges (p -> B). Fillers B are added as nodes here.
+    walk_ancestors.call([root_id], visited) { |id| add_rel_edges.call(id) }
 
-      if nodes.size >= ENTITY_GRAPH_MAX_NODES
-        truncated = true
-        break
-      end
-
-      parents = direct_parents.call(id)
-      # A node with no parents is a root of the hierarchy.
-      nodes[id][:hierarchyRoot] = true if nodes[id] && parents.empty?
-
-      parents.each do |p|
-        add_node.call(p.id, helpers.main_language_label(p.prefLabel))
-        edges["#{id}->#{p.id}->is-a"] = { from: id, to: p.id, kind: 'is-a' } # child is-a parent
-        queue << p.id unless visited[p.id]
-      end
-    end
-
-    # --- relationship edges from the selected class ---
-    entity_graph_relationships(ontology, concept).each do |rel|
-      add_node.call(rel[:filler_id], rel[:filler_label], related: true)
-      edges["#{root_id}->#{rel[:filler_id]}->#{rel[:property_id]}"] =
-        { from: root_id, to: rel[:filler_id], kind: 'rel', label: rel[:property_label] }
-    end
+    # 2) Give every relationship filler its own is-a ancestor chain, so the
+    #    targets rise to the root too. Shared ancestors merge naturally. We do
+    #    NOT pull relationships from the fillers themselves (only A's spine does).
+    filler_seeds = nodes.keys.reject { |id| visited.key?(id) }
+    walk_ancestors.call(filler_seeds, visited)
 
     edge_list = edges.values
     {
@@ -272,17 +288,25 @@ class ConceptsController < ApplicationController
     }
   end
 
-  # Relationship edges (p -> B) asserted directly on `concept` via existential
-  # restrictions. Returns [{property_id, property_label, filler_id, filler_label}].
+  # Relationship edges (p -> B) asserted directly on the class `class_id` via
+  # existential restrictions.
+  # Returns [{property_id, property_label, filler_id, filler_label}].
   # A class `property` is a relationship iff its predicate is an object property
   # of the ontology and its value is a class IRI; annotation properties and the
   # is-a predicate (rdfs:subClassOf) are excluded.
-  def entity_graph_relationships(ontology, concept)
+  def entity_graph_relationships(ontology, class_id)
     object_props = ontology_object_properties(ontology) # { iri => label }
     return [] if object_props.empty?
 
+    cls = begin
+      ontology.explore.single_class({ full: true, language: request_lang }, class_id)
+    rescue StandardError
+      nil
+    end
+    return [] if cls.nil? || (cls.respond_to?(:errors) && cls.errors.present?)
+
     props = begin
-      concept.properties.to_h
+      cls.properties.to_h
     rescue StandardError
       {}
     end

@@ -212,7 +212,9 @@ div.synonym-change-request button {
 // controller (concept_graph_controller.js) builds the SVG and handles zoom/pan.
 .entity-graph {
   position: relative;
-  height: 720px;
+  // Fit the visible viewport so the whole graph shows without the lower half
+  // dropping below the fold; the controller re-fits the graph to this height.
+  height: clamp(480px, calc(100vh - 260px), 900px);
 
   &__canvas {
     width: 100%;
@@ -243,7 +245,7 @@ div.synonym-change-request button {
     &-shape {
       fill: #ffffff;
       stroke: var(--primary-color);
-      stroke-width: 1px;
+      stroke-width: 2px;
       transition: fill 0.1s ease, stroke-width 0.1s ease;
     }
 
@@ -256,7 +258,7 @@ div.synonym-change-request button {
     }
 
     &:hover &-shape {
-      stroke-width: 2px;
+      stroke-width: 3px;
     }
 
     // The selected class stands out (solid blue, white label).
@@ -269,23 +271,11 @@ div.synonym-change-request button {
       fill: #ffffff;
       font-weight: 600;
     }
-
-    // Relationship targets (the B in an "A p B" restriction) are drawn as
-    // related classes: a distinct blue outline so they read apart from the
-    // is-a ancestor boxes.
-    &--related &-shape {
-      fill: #ffffff;
-      stroke: #2f6fed;
-    }
-
-    &--related &-label {
-      fill: #1f4fb0;
-    }
   }
 
   // Edges ------------------------------------------------------------------
   &__edge {
-    stroke-width: 1.5px;
+    stroke-width: 2.5px;
 
     // Amber closed-arrow is-a edges, matching WebProtege.
     &--is-a {

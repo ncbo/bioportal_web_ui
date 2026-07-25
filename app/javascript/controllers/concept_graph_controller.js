@@ -47,6 +47,11 @@ export default class extends Controller {
     }
   }
 
+  disconnect () {
+    this._resizeObserver?.disconnect()
+    this._resizeObserver = null
+  }
+
   // Called from the "Show graph anyway" button on the large-graph gate.
   renderAnyway () {
     this.gateTarget.classList.add('d-none')
@@ -142,8 +147,8 @@ export default class extends Controller {
     const marker = document.createElementNS(SVG_NS, 'marker')
     marker.setAttribute('id', id)
     marker.setAttribute('viewBox', '0 0 10 10')
-    marker.setAttribute('markerWidth', '7')
-    marker.setAttribute('markerHeight', '7')
+    marker.setAttribute('markerWidth', '8')
+    marker.setAttribute('markerHeight', '8')
     marker.setAttribute('refX', '9')
     marker.setAttribute('refY', '5')
     marker.setAttribute('orient', 'auto')
@@ -196,9 +201,8 @@ export default class extends Controller {
 
   #buildNode (id, node) {
     const data = node.data || {}
-    let cls = 'entity-graph__node'
-    if (data.selected) cls += ' entity-graph__node--selected'
-    else if (data.type === 'related') cls += ' entity-graph__node--related'
+    // All classes get the same box; only the selected class is styled apart.
+    const cls = 'entity-graph__node' + (data.selected ? ' entity-graph__node--selected' : '')
     const group = document.createElementNS(SVG_NS, 'g')
     group.setAttribute('class', cls)
     group.setAttribute('data-node-id', id)
@@ -243,20 +247,54 @@ export default class extends Controller {
       viewport.setAttribute('transform', event.transform.toString())
     })
     this._svgSel = select(svg)
+    // Auto-fit stays on until the user makes a deliberate zoom/pan gesture. Only
+    // a genuine drag or wheel counts — flagged from d3-zoom's own start event
+    // when it carries a real DOM sourceEvent that is a pointer/mouse/wheel one
+    // (programmatic .transform() calls have no such sourceEvent).
+    this._userZoomed = false
+    this._zoom.on('start.userflag', (event) => {
+      const src = event.sourceEvent
+      if (src && /^(pointer|mouse|wheel|touch)/.test(src.type)) this._userZoomed = true
+    })
     this._svgSel.call(this._zoom)
-    // Fit once the canvas has its final size (rAF covers the tab becoming
-    // visible after a Bootstrap tab switch, when getBoundingClientRect is 0).
-    requestAnimationFrame(() => this.#fit())
+    // The tab pane is often display:none when the frame first loads, so the
+    // canvas has no size yet. Fit once it does, and re-fit on every resize (the
+    // pane becoming visible, its size settling) until the user zooms — the last
+    // resize carries the correct canvas dimensions.
+    this._readyFrames = 0
+    this.#fitWhenReady()
+    if (!this._resizeObserver && 'ResizeObserver' in window) {
+      this._resizeObserver = new ResizeObserver(() => this.#fit())
+      this._resizeObserver.observe(this.canvasTarget)
+    }
+  }
+
+  #fitWhenReady (attempt = 0) {
+    // The pane may stay display:none for a while (until the user opens the tab),
+    // so poll persistently — but stop a couple seconds after the canvas first
+    // has a size, by which point it has settled. The ResizeObserver handles any
+    // later size change (and re-fits) as long as the user hasn't zoomed.
+    const rect = this.canvasTarget.getBoundingClientRect()
+    const ready = rect.width && rect.height
+    if (ready) {
+      this.#fit()
+      this._readyFrames = (this._readyFrames || 0) + 1
+    }
+    if (!this._readyFrames || this._readyFrames < 30) {
+      requestAnimationFrame(() => this.#fitWhenReady(attempt + 1))
+    }
   }
 
   #fit () {
-    const box = this._contentBounds(this._layout)
+    if (this._userZoomed) return
+    const box = this.#contentBounds(this._layout)
     if (!box || !box.width || !box.height) return
     const rect = this.canvasTarget.getBoundingClientRect()
-    const cw = rect.width || box.width
-    const ch = rect.height || box.height
-    // Scale to fit, never magnifying past 1:1, leaving a small margin.
-    const scale = Math.min(1, 0.92 * Math.min(cw / box.width, ch / box.height))
+    if (!rect.width || !rect.height) return // still hidden; let #fitWhenReady retry
+    const cw = rect.width
+    const ch = rect.height
+    // Scale to fit, never magnifying past 1:1, leaving a margin around the graph.
+    const scale = Math.min(1, 0.86 * Math.min(cw / box.width, ch / box.height))
     // Translate so the content centre lands at the canvas centre.
     const tx = (cw - box.width * scale) / 2 - box.x * scale
     const ty = (ch - box.height * scale) / 2 - box.y * scale
