@@ -184,29 +184,36 @@ class ConceptsController < ApplicationController
   # can't fan out into hundreds of parent lookups.
   ENTITY_GRAPH_MAX_NODES = 400
 
-  # Build the ancestor is-a graph for `concept`:
-  #   { root:, nodes:[{id,label,selected,hierarchyRoot}], edges:[{from,to,kind}],
-  #     edge_count:, large:, truncated: }
-  # The graph is the selected class plus every class reachable by walking is-a
-  # (subClassOf) edges upward to the ontology root(s). Edges point child ->
-  # parent (is-a). Because a class can have several parents (the hierarchy is a
-  # DAG, not a tree), we walk each node's direct parents breadth-first rather
-  # than using /tree, which only returns a single root-to-node path.
+  # Build the entity graph for `concept`:
+  #   { root:, nodes:[{id,label,type,selected,hierarchyRoot}],
+  #     edges:[{from,to,kind,label?}], edge_count:, large:, truncated: }
+  # It has two kinds of edges:
+  #   * is-a edges: the selected class plus every class reachable by walking
+  #     subClassOf upward to the ontology root(s). Because a class can have
+  #     several parents (the hierarchy is a DAG, not a tree), we walk each node's
+  #     direct parents breadth-first rather than using /tree, which only returns
+  #     a single root-to-node path. Edges point child -> parent.
+  #   * relationship edges: for the selected class, each asserted
+  #     `SubClassOf(concept ObjectSomeValuesFrom(p B))` restriction. OntoPortal's
+  #     parser materialises these as a direct triple `concept p B`, which surfaces
+  #     in the class `properties`; we keep the ones whose predicate is an object
+  #     property and add B as a related node. Edges point concept -> B, labelled p.
   def build_entity_graph_data(ontology, concept)
     root_id = concept.id
     nodes = {}
-    edges = {} # dedup by "from->to"
+    edges = {} # dedup by "from->to->label"
     truncated = false
 
-    add_node = lambda do |id, label, is_root: false|
+    add_node = lambda do |id, label, is_root: false, related: false|
       node = (nodes[id] ||= {
         id: id,
         label: label.presence || helpers.link_last_part(id),
-        type: 'class',
+        type: related ? 'related' : 'class',
         selected: is_root,
         hierarchyRoot: false # set later, once we know whether it has parents
       })
       node[:selected] = true if is_root
+      node[:type] = 'class' unless related # a filler later reached as an ancestor becomes a class
       node
     end
 
@@ -222,8 +229,7 @@ class ConceptsController < ApplicationController
 
     add_node.call(root_id, helpers.main_language_label(concept.prefLabel), is_root: true)
 
-    # Breadth-first walk up the parent edges. `visited` guards against re-walking
-    # a shared ancestor (and against cycles).
+    # --- is-a ancestor chain (breadth-first up the parent edges) ---
     queue = [root_id]
     visited = {}
     until queue.empty?
@@ -243,9 +249,16 @@ class ConceptsController < ApplicationController
 
       parents.each do |p|
         add_node.call(p.id, helpers.main_language_label(p.prefLabel))
-        edges["#{id}->#{p.id}"] = { from: id, to: p.id, kind: 'is-a' } # child is-a parent
+        edges["#{id}->#{p.id}->is-a"] = { from: id, to: p.id, kind: 'is-a' } # child is-a parent
         queue << p.id unless visited[p.id]
       end
+    end
+
+    # --- relationship edges from the selected class ---
+    entity_graph_relationships(ontology, concept).each do |rel|
+      add_node.call(rel[:filler_id], rel[:filler_label], related: true)
+      edges["#{root_id}->#{rel[:filler_id]}->#{rel[:property_id]}"] =
+        { from: root_id, to: rel[:filler_id], kind: 'rel', label: rel[:property_label] }
     end
 
     edge_list = edges.values
@@ -257,6 +270,83 @@ class ConceptsController < ApplicationController
       truncated: truncated,
       large: edge_list.size > ENTITY_GRAPH_LARGE_EDGE_COUNT
     }
+  end
+
+  # Relationship edges (p -> B) asserted directly on `concept` via existential
+  # restrictions. Returns [{property_id, property_label, filler_id, filler_label}].
+  # A class `property` is a relationship iff its predicate is an object property
+  # of the ontology and its value is a class IRI; annotation properties and the
+  # is-a predicate (rdfs:subClassOf) are excluded.
+  def entity_graph_relationships(ontology, concept)
+    object_props = ontology_object_properties(ontology) # { iri => label }
+    return [] if object_props.empty?
+
+    props = begin
+      concept.properties.to_h
+    rescue StandardError
+      {}
+    end
+
+    rels = []
+    props.each do |predicate, values|
+      predicate = predicate.to_s
+      next unless object_props.key?(predicate)
+
+      Array(values).each do |value|
+        filler = value.respond_to?(:id) ? value.id.to_s : value.to_s
+        next unless filler.start_with?('http')
+
+        rels << {
+          property_id: predicate,
+          property_label: object_props[predicate].presence || helpers.link_last_part(predicate),
+          filler_id: filler,
+          filler_label: entity_graph_class_label(ontology, filler)
+        }
+      end
+    end
+    rels
+  end
+
+  # Map of { object_property_iri => label } for the ontology, built from its
+  # property tree. Memoised per request.
+  def ontology_object_properties(ontology)
+    @ontology_object_properties ||= begin
+      root = ontology.property_tree
+      flat = []
+      collect = lambda do |nodes|
+        Array(nodes).each do |n|
+          flat << n
+          collect.call(n.children) if n.respond_to?(:children) && n.children
+        end
+      end
+      collect.call(root.respond_to?(:children) ? root.children : root)
+
+      flat.each_with_object({}) do |p, acc|
+        type = (p.respond_to?(:type) ? p.type : nil) || p.instance_variable_get(:@type)
+        next unless type.to_s.include?('ObjectProperty')
+
+        label = p.respond_to?(:label) ? Array(p.label).first : nil
+        label ||= (p.respond_to?(:prefLabel) ? p.prefLabel : nil)
+        acc[p.id.to_s] = helpers.main_language_label(label)
+      end
+    rescue StandardError
+      {}
+    end
+  end
+
+  # Resolve a filler class's label. Falls back to the IRI's last segment when the
+  # class is not in this ontology (e.g. a cross-ontology filler like NCBITaxon).
+  def entity_graph_class_label(ontology, class_id)
+    (@entity_graph_label_cache ||= {})[class_id] ||= begin
+      cls = ontology.explore.single_class({ include: 'prefLabel' }, class_id)
+      if cls && !(cls.respond_to?(:errors) && cls.errors.present?)
+        helpers.main_language_label(cls.prefLabel).presence || helpers.link_last_part(class_id)
+      else
+        helpers.link_last_part(class_id)
+      end
+    rescue StandardError
+      helpers.link_last_part(class_id)
+    end
   end
 
   def filter_concept_with_no_date(concepts)

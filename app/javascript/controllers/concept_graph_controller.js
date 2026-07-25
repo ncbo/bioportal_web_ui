@@ -56,7 +56,9 @@ export default class extends Controller {
   // --- rendering ------------------------------------------------------------
 
   #render () {
-    const g = new dagre.graphlib.Graph({ multigraph: false })
+    // multigraph so a class can have several distinct edges to the same filler
+    // (e.g. two object properties pointing at the same class).
+    const g = new dagre.graphlib.Graph({ multigraph: true })
     // Bottom-to-top: the selected class ranks at the bottom, superclasses above,
     // matching the class hierarchy reading (super-classes up).
     g.setGraph({ rankdir: 'BT', ranksep: RANK_SEP, nodesep: NODE_SEP, edgesep: EDGE_SEP, marginx: 24, marginy: 24 })
@@ -66,10 +68,20 @@ export default class extends Controller {
       const w = Math.max(NODE_MIN_W, this.#measureText(n.label) + NODE_PAD_X * 2)
       g.setNode(n.id, { label: n.label, width: w, height: NODE_H, data: n })
     })
-    this.edges.forEach((e) => {
-      // Edges are {from: child, to: parent}. dagre draws tail->head with the
-      // arrow at head, so tail=child, head=parent puts the arrow on the parent.
-      if (g.hasNode(e.from) && g.hasNode(e.to)) g.setEdge(e.from, e.to, { kind: e.kind })
+    this.edges.forEach((e, i) => {
+      if (!g.hasNode(e.from) || !g.hasNode(e.to)) return
+      // Edges are {from, to}. dagre draws tail->head with the arrow at head, so
+      // tail=from, head=to puts the arrow on the target (parent for is-a, filler
+      // for a relationship). Relationship edges carry a label; reserve space for
+      // it so it doesn't overlap the edge.
+      const cfg = { kind: e.kind }
+      if (e.label) {
+        cfg.label = e.label
+        cfg.width = this.#measureText(e.label) + 8
+        cfg.height = 14
+        cfg.labelpos = 'c'
+      }
+      g.setEdge(e.from, e.to, cfg, `e${i}`)
     })
 
     dagre.layout(g)
@@ -143,20 +155,52 @@ export default class extends Controller {
   }
 
   #buildEdge (edge) {
-    const path = document.createElementNS(SVG_NS, 'path')
     const kind = edge.kind || 'is-a'
+    const group = document.createElementNS(SVG_NS, 'g')
+    group.setAttribute('class', `entity-graph__edge-group entity-graph__edge-group--${kind}`)
+
+    const path = document.createElementNS(SVG_NS, 'path')
     path.setAttribute('class', `entity-graph__edge entity-graph__edge--${kind}`)
     path.setAttribute('fill', 'none')
     const d = edge.points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x},${p.y}`).join(' ')
     path.setAttribute('d', d)
+    // Closed arrowhead for is-a, open arrowhead for a relationship (WebProtege).
     path.setAttribute('marker-end', `url(#${kind === 'is-a' ? 'eg-arrow-closed' : 'eg-arrow-open'})`)
-    return path
+    group.appendChild(path)
+
+    // Relationship edges are labelled with the property, on a small backing rect
+    // so the text stays readable over the edge line.
+    if (edge.label && edge.x != null && edge.y != null) {
+      const w = this.#measureText(edge.label) + 8
+      const h = 16
+      const bg = document.createElementNS(SVG_NS, 'rect')
+      bg.setAttribute('class', 'entity-graph__edge-label-bg')
+      bg.setAttribute('x', edge.x - w / 2)
+      bg.setAttribute('y', edge.y - h / 2)
+      bg.setAttribute('width', w)
+      bg.setAttribute('height', h)
+      bg.setAttribute('rx', '3')
+      group.appendChild(bg)
+
+      const text = document.createElementNS(SVG_NS, 'text')
+      text.setAttribute('class', 'entity-graph__edge-label')
+      text.setAttribute('x', edge.x)
+      text.setAttribute('y', edge.y)
+      text.setAttribute('text-anchor', 'middle')
+      text.setAttribute('dominant-baseline', 'central')
+      text.textContent = edge.label
+      group.appendChild(text)
+    }
+    return group
   }
 
   #buildNode (id, node) {
     const data = node.data || {}
+    let cls = 'entity-graph__node'
+    if (data.selected) cls += ' entity-graph__node--selected'
+    else if (data.type === 'related') cls += ' entity-graph__node--related'
     const group = document.createElementNS(SVG_NS, 'g')
-    group.setAttribute('class', 'entity-graph__node' + (data.selected ? ' entity-graph__node--selected' : ''))
+    group.setAttribute('class', cls)
     group.setAttribute('data-node-id', id)
 
     const rect = document.createElementNS(SVG_NS, 'rect')

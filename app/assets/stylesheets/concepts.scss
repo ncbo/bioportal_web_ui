@@ -269,26 +269,58 @@ div.synonym-change-request button {
       fill: #ffffff;
       font-weight: 600;
     }
+
+    // Relationship targets (the B in an "A p B" restriction) are drawn as
+    // related classes: a distinct blue outline so they read apart from the
+    // is-a ancestor boxes.
+    &--related &-shape {
+      fill: #ffffff;
+      stroke: #2f6fed;
+    }
+
+    &--related &-label {
+      fill: #1f4fb0;
+    }
   }
 
   // Edges ------------------------------------------------------------------
-  // Amber is-a arrows, matching WebProtege.
   &__edge {
-    stroke: #f0a848;
     stroke-width: 1.5px;
 
+    // Amber closed-arrow is-a edges, matching WebProtege.
     &--is-a {
       stroke: #f0a848;
+    }
+
+    // Blue open-arrow relationship (property) edges.
+    &--rel {
+      stroke: #2f6fed;
     }
   }
 
   &__arrow {
-    fill: #f0a848;
-    stroke: none;
+    &--is-a {
+      fill: #f0a848;
+      stroke: none;
+    }
 
     &--rel {
       fill: none;
-      stroke: #f0a848;
+      stroke: #2f6fed;
+    }
+  }
+
+  // Relationship edge property label, on a pale backing so it reads over lines.
+  &__edge-label {
+    font-family: inherit;
+    font-size: 11px;
+    fill: #1f4fb0;
+    pointer-events: none;
+    user-select: none;
+
+    &-bg {
+      fill: var(--light-color);
+      opacity: 0.9;
     }
   }
 
