@@ -186,6 +186,9 @@ class ConceptsController < ApplicationController
   # Relationship property labels to omit from the graph (noisy cross-cutting links
   # that pull in large unrelated cones, e.g. the taxonomic lineage).
   ENTITY_GRAPH_EXCLUDED_RELATIONS = ['in taxon'].freeze
+  # Annotation property carrying "example of usage" (IAO:0000112). Shown in the
+  # node hover popup when present.
+  ENTITY_GRAPH_EXAMPLE_PROPERTY = 'http://purl.obolibrary.org/obo/IAO_0000112'
 
   # Build the entity graph for `concept`:
   #   { root:, nodes:[{id,label,type,selected,hierarchyRoot}],
@@ -207,37 +210,41 @@ class ConceptsController < ApplicationController
     edges = {} # dedup by "from->to->label"
     truncated = false
 
-    add_node = lambda do |id, label, is_root: false, definition: nil|
+    add_node = lambda do |id, label, is_root: false, definition: nil, examples: nil|
       node = (nodes[id] ||= {
         id: id,
         label: label.presence || helpers.link_last_part(id),
         type: 'class',
         selected: is_root,
         hierarchyRoot: false, # set later, once we know whether it has parents
-        definition: nil
+        definition: nil,
+        examples: []
       })
       node[:selected] = true if is_root
       node[:definition] = definition if definition.present? && node[:definition].blank?
+      node[:examples] = Array(examples) if Array(examples).present? && node[:examples].blank?
       node
     end
 
     first_def = ->(cls) { Array(cls.respond_to?(:definition) ? cls.definition : nil).first }
+    class_examples = ->(cls) { entity_graph_class_examples(cls) }
 
     direct_parents = lambda do |class_id|
       Array(LinkedData::Client::Models::Ontology.explore(ontology.acronym)
                                                 .classes(class_id)
                                                 .parents
-                                                .get(display: 'prefLabel,definition', language: request_lang))
+                                                .get(display: 'prefLabel,definition,properties', language: request_lang))
         .reject { |p| p.respond_to?(:errors) && p.errors.present? }
     rescue StandardError
       []
     end
 
-    add_node.call(root_id, helpers.main_language_label(concept.prefLabel), is_root: true, definition: first_def.call(concept))
+    add_node.call(root_id, helpers.main_language_label(concept.prefLabel), is_root: true,
+                  definition: first_def.call(concept), examples: class_examples.call(concept))
 
     add_rel_edges = lambda do |source_id|
       entity_graph_relationships(ontology, source_id).each do |rel|
-        add_node.call(rel[:filler_id], rel[:filler_label])
+        add_node.call(rel[:filler_id], rel[:filler_label], examples: rel[:filler_examples])
         edges["#{source_id}->#{rel[:filler_id]}->#{rel[:property_id]}"] =
           { from: source_id, to: rel[:filler_id], kind: 'rel', label: rel[:property_label] }
       end
@@ -264,7 +271,8 @@ class ConceptsController < ApplicationController
         nodes[id][:hierarchyRoot] = true if nodes[id] && parents.empty?
 
         parents.each do |p|
-          add_node.call(p.id, helpers.main_language_label(p.prefLabel), definition: first_def.call(p))
+          add_node.call(p.id, helpers.main_language_label(p.prefLabel),
+                        definition: first_def.call(p), examples: class_examples.call(p))
           edges["#{id}->#{p.id}->is-a"] = { from: id, to: p.id, kind: 'is-a' } # child is-a parent
           queue << p.id unless visited[p.id]
         end
@@ -331,11 +339,13 @@ class ConceptsController < ApplicationController
         filler = value.respond_to?(:id) ? value.id.to_s : value.to_s
         next unless filler.start_with?('http')
 
+        filler_cls = entity_graph_filler_class(ontology, filler)
         rels << {
           property_id: predicate,
           property_label: object_props[predicate].presence || helpers.link_last_part(predicate),
           filler_id: filler,
-          filler_label: entity_graph_class_label(ontology, filler)
+          filler_label: entity_graph_class_label(ontology, filler, filler_cls),
+          filler_examples: entity_graph_class_examples(filler_cls)
         }
       end
     end
@@ -369,19 +379,49 @@ class ConceptsController < ApplicationController
     end
   end
 
+  # Fetch a relationship filler's class (prefLabel + properties, so we can also read
+  # its "example of usage"). Cached per request. Returns nil if the class can't be
+  # loaded (e.g. a cross-ontology filler not present in this ontology).
+  def entity_graph_filler_class(ontology, class_id)
+    cache = (@entity_graph_filler_cache ||= {})
+    return cache[class_id] if cache.key?(class_id)
+
+    cache[class_id] = begin
+      cls = ontology.explore.single_class({ display: 'prefLabel,properties' }, class_id)
+      cls && !(cls.respond_to?(:errors) && cls.errors.present?) ? cls : nil
+    rescue StandardError
+      nil
+    end
+  end
+
   # Resolve a filler class's label. Falls back to the IRI's last segment when the
   # class is not in this ontology (e.g. a cross-ontology filler like NCBITaxon).
-  def entity_graph_class_label(ontology, class_id)
-    (@entity_graph_label_cache ||= {})[class_id] ||= begin
-      cls = ontology.explore.single_class({ include: 'prefLabel' }, class_id)
-      if cls && !(cls.respond_to?(:errors) && cls.errors.present?)
-        helpers.main_language_label(cls.prefLabel).presence || helpers.link_last_part(class_id)
-      else
-        helpers.link_last_part(class_id)
-      end
-    rescue StandardError
-      helpers.link_last_part(class_id)
-    end
+  # `cls` may be passed in to avoid a second fetch.
+  def entity_graph_class_label(ontology, class_id, cls = nil)
+    cls ||= entity_graph_filler_class(ontology, class_id)
+    return helpers.link_last_part(class_id) if cls.nil?
+
+    helpers.main_language_label(cls.prefLabel).presence || helpers.link_last_part(class_id)
+  rescue StandardError
+    helpers.link_last_part(class_id)
+  end
+
+  # "example of usage" (IAO:0000112) values from a class's properties hash. The
+  # OBO->OWL conversion often prefixes each value with "example of usage: " — strip
+  # it. Returns [] when the class is nil or carries no examples.
+  def entity_graph_class_examples(cls)
+    return [] if cls.nil?
+
+    props = (cls.respond_to?(:properties) ? cls.properties : nil)
+    props = (props.respond_to?(:to_h) ? props.to_h : props) || {}
+    # properties come back as an OpenStruct-derived hash whose keys are SYMBOLS
+    # (e.g. :"http://…/IAO_0000112"), so look the property up by both symbol and string.
+    values = props[ENTITY_GRAPH_EXAMPLE_PROPERTY.to_sym] || props[ENTITY_GRAPH_EXAMPLE_PROPERTY]
+    Array(values).map do |v|
+      v.to_s.sub(/\Aexample of usage:\s*/i, '').strip
+    end.reject(&:blank?)
+  rescue StandardError
+    []
   end
 
   def filter_concept_with_no_date(concepts)
