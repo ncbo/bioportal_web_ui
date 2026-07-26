@@ -537,15 +537,27 @@ div.synonym-change-request button {
     min-width: 54px;
   }
 
-  // Legend -----------------------------------------------------------------
-  // Key / shortcuts: collapsed behind a help icon (in the toolbar) that toggles a
-  // small popover, so the key no longer takes up a full row.
+  // Options + legend icons ------------------------------------------------
+  // Display toggles and the key/shortcuts each collapse behind a small icon
+  // button (gear and "?") that toggles a popover, so the toolbar row stays just
+  // the search box plus these two icons.
+  &__opts,
   &__help {
     position: relative;
     display: inline-flex;
-    margin-left: auto; // push the help icon to the far end of the toolbar row
   }
 
+  // push the icon cluster to the far end of the row; the gear starts it, help
+  // sits right after with a small gap
+  &__opts {
+    margin-left: auto;
+  }
+
+  &__opts + &__help {
+    margin-left: 6px;
+  }
+
+  &__opts-btn,
   &__help-btn {
     width: 22px;
     height: 22px;
@@ -562,6 +574,36 @@ div.synonym-change-request button {
     justify-content: center;
 
     &:hover { background: #eef3f8; }
+  }
+
+  // options popover: the stacked display-toggle checkboxes
+  &__options-pop {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 20;
+    width: 240px;
+    padding: 8px 12px;
+    background: #ffffff;
+    border: 1px solid #cfd8e2;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+    font-size: 13px;
+    color: #4a5b6e;
+
+    &[hidden] { display: none; }
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 4px 0;
+    cursor: pointer;
+    user-select: none;
+
+    input { cursor: pointer; }
   }
 
   &__help-pop {

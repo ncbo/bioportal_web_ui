@@ -100,6 +100,8 @@ export default class extends Controller {
     search.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => this.#runSearch(), 180) })
     search.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') { search.value = ''; this.#runSearch(); search.blur() } })
 
+    // Display toggles live in a popover behind a gear icon (keeps the row to just
+    // the search box + the gear/help icons, so the bar doesn't crowd the graph).
     const toggles = [
       ['isaOnly', 'Only show is-a'],
       ['transitiveReduction', 'Transitive reduction'],
@@ -109,24 +111,52 @@ export default class extends Controller {
       ['showPills', 'Show short-id pills'],
       ['showAcronym', 'Show ontology acronym']
     ]
+    const cbByKey = {}
+    const optsPop = document.createElement('div')
+    optsPop.className = 'entity-graph__options-pop'
+    optsPop.hidden = true
     toggles.forEach(([key, text]) => {
       const label = document.createElement('label')
-      label.style.cssText = 'display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none'
+      label.className = 'entity-graph__option'
       const cb = document.createElement('input')
-      cb.type = 'checkbox'; cb.checked = !!this.opts[key]; cb.style.cursor = 'pointer'
+      cb.type = 'checkbox'; cb.checked = !!this.opts[key]
+      cbByKey[key] = cb
       cb.addEventListener('change', () => {
         this.opts[key] = cb.checked
-        // pills and acronym are mutually exclusive
-        if (key === 'showPills' && cb.checked) { this.opts.showAcronym = false }
-        if (key === 'showAcronym' && cb.checked) { this.opts.showPills = false }
-        this.#buildToolbar() // reflect the mutual-exclusion in the checkboxes
+        // pills and acronym are mutually exclusive — sync the other box in place
+        // (no toolbar rebuild, so the popover stays open)
+        if (key === 'showPills' && cb.checked) { this.opts.showAcronym = false; cbByKey.showAcronym.checked = false }
+        if (key === 'showAcronym' && cb.checked) { this.opts.showPills = false; cbByKey.showPills.checked = false }
         this.#render()
         this.#runSearch()
       })
       label.append(cb, document.createTextNode(' ' + text))
-      t.append(label)
+      optsPop.append(label)
     })
-    // the key/shortcuts help icon sits at the end of the same row
+
+    // gear button + its popover, pushed to the far end of the row (before help)
+    const gearHolder = document.createElement('span')
+    gearHolder.className = 'entity-graph__opts'
+    const gearBtn = document.createElement('button')
+    gearBtn.type = 'button'
+    gearBtn.className = 'entity-graph__opts-btn'
+    gearBtn.title = 'Display options'
+    gearBtn.setAttribute('aria-label', 'Display options')
+    // flat, simple gear: one ring of short teeth + a hollow hub, thin strokes
+    gearBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></svg>'
+    gearHolder.append(gearBtn, optsPop)
+    const closeOpts = () => { optsPop.hidden = true; document.removeEventListener('click', onDoc, true) }
+    const onDoc = (ev) => { if (!gearHolder.contains(ev.target)) closeOpts() }
+    gearBtn.addEventListener('click', (ev) => {
+      ev.stopPropagation()
+      const open = optsPop.hidden
+      optsPop.hidden = !open
+      if (open) setTimeout(() => document.addEventListener('click', onDoc, true), 0)
+      else document.removeEventListener('click', onDoc, true)
+    })
+    t.append(gearHolder)
+
+    // the key/shortcuts help icon sits at the very end of the row
     this.#buildLegend()
   }
 
