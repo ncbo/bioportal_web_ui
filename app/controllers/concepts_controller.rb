@@ -189,6 +189,15 @@ class ConceptsController < ApplicationController
   # Annotation property carrying "example of usage" (IAO:0000112). Shown in the
   # node hover popup when present.
   ENTITY_GRAPH_EXAMPLE_PROPERTY = 'http://purl.obolibrary.org/obo/IAO_0000112'
+  # Upper ontologies whose terms are often imported as bare stubs (IRI + maybe a
+  # label, no definition/examples). When such a term appears in a graph we fetch its
+  # authoritative label/definition/examples from the source ontology so the popup can
+  # show them (attributed to that ontology). Each entry: acronym + IRI matcher.
+  # (DOLCE can be added here once it is loaded; it uses different IRIs.)
+  ENTITY_GRAPH_UPPER_ONTOLOGIES = [
+    { acronym: 'BFO', match: ->(iri) { iri =~ %r{[#/]BFO_\d+$} } },
+    { acronym: 'COB', match: ->(iri) { iri =~ %r{[#/]COB_\d+$} } }
+  ].freeze
 
   # Build the entity graph for `concept`:
   #   { root:, nodes:[{id,label,type,selected,hierarchyRoot}],
@@ -210,7 +219,7 @@ class ConceptsController < ApplicationController
     edges = {} # dedup by "from->to->label"
     truncated = false
 
-    add_node = lambda do |id, label, is_root: false, definition: nil, examples: nil|
+    add_node = lambda do |id, label, is_root: false, definition: nil, examples: nil, synonyms: nil|
       node = (nodes[id] ||= {
         id: id,
         label: label.presence || helpers.link_last_part(id),
@@ -218,33 +227,42 @@ class ConceptsController < ApplicationController
         selected: is_root,
         hierarchyRoot: false, # set later, once we know whether it has parents
         definition: nil,
-        examples: []
+        examples: [],
+        synonyms: [],
+        # `upper` holds authoritative info from the source ontology (BFO/COB) when this
+        # is an upper-ontology term imported here as a stub; nil otherwise. The client
+        # shows it (attributed) so imported stubs still surface a real name + definition.
+        upper: nil
       })
       node[:selected] = true if is_root
       node[:definition] = definition if definition.present? && node[:definition].blank?
       node[:examples] = Array(examples) if Array(examples).present? && node[:examples].blank?
+      node[:synonyms] = Array(synonyms) if Array(synonyms).present? && node[:synonyms].blank?
+      node[:upper] = entity_graph_upper_info(id) if node[:upper].nil?
       node
     end
 
     first_def = ->(cls) { Array(cls.respond_to?(:definition) ? cls.definition : nil).first }
     class_examples = ->(cls) { entity_graph_class_examples(cls) }
+    class_synonyms = ->(cls) { Array(cls.respond_to?(:synonym) ? cls.synonym : nil).map(&:to_s).reject(&:blank?) }
 
     direct_parents = lambda do |class_id|
       Array(LinkedData::Client::Models::Ontology.explore(ontology.acronym)
                                                 .classes(class_id)
                                                 .parents
-                                                .get(display: 'prefLabel,definition,properties', language: request_lang))
+                                                .get(display: 'prefLabel,definition,synonym,properties', language: request_lang))
         .reject { |p| p.respond_to?(:errors) && p.errors.present? }
     rescue StandardError
       []
     end
 
     add_node.call(root_id, helpers.main_language_label(concept.prefLabel), is_root: true,
-                  definition: first_def.call(concept), examples: class_examples.call(concept))
+                  definition: first_def.call(concept), examples: class_examples.call(concept),
+                  synonyms: class_synonyms.call(concept))
 
     add_rel_edges = lambda do |source_id|
       entity_graph_relationships(ontology, source_id).each do |rel|
-        add_node.call(rel[:filler_id], rel[:filler_label], examples: rel[:filler_examples])
+        add_node.call(rel[:filler_id], rel[:filler_label], examples: rel[:filler_examples], synonyms: rel[:filler_synonyms])
         edges["#{source_id}->#{rel[:filler_id]}->#{rel[:property_id]}"] =
           { from: source_id, to: rel[:filler_id], kind: 'rel', label: rel[:property_label] }
       end
@@ -272,7 +290,8 @@ class ConceptsController < ApplicationController
 
         parents.each do |p|
           add_node.call(p.id, helpers.main_language_label(p.prefLabel),
-                        definition: first_def.call(p), examples: class_examples.call(p))
+                        definition: first_def.call(p), examples: class_examples.call(p),
+                        synonyms: class_synonyms.call(p))
           edges["#{id}->#{p.id}->is-a"] = { from: id, to: p.id, kind: 'is-a' } # child is-a parent
           queue << p.id unless visited[p.id]
         end
@@ -345,7 +364,8 @@ class ConceptsController < ApplicationController
           property_label: object_props[predicate].presence || helpers.link_last_part(predicate),
           filler_id: filler,
           filler_label: entity_graph_class_label(ontology, filler, filler_cls),
-          filler_examples: entity_graph_class_examples(filler_cls)
+          filler_examples: entity_graph_class_examples(filler_cls),
+          filler_synonyms: (filler_cls && Array(filler_cls.respond_to?(:synonym) ? filler_cls.synonym : nil).map(&:to_s).reject(&:blank?)) || []
         }
       end
     end
@@ -387,7 +407,7 @@ class ConceptsController < ApplicationController
     return cache[class_id] if cache.key?(class_id)
 
     cache[class_id] = begin
-      cls = ontology.explore.single_class({ display: 'prefLabel,properties' }, class_id)
+      cls = ontology.explore.single_class({ display: 'prefLabel,synonym,properties' }, class_id)
       cls && !(cls.respond_to?(:errors) && cls.errors.present?) ? cls : nil
     rescue StandardError
       nil
@@ -422,6 +442,35 @@ class ConceptsController < ApplicationController
     end.reject(&:blank?)
   rescue StandardError
     []
+  end
+
+  # For an upper-ontology (BFO/COB) term, fetch its AUTHORITATIVE label, definition and
+  # examples from the source ontology (so a graph that only imported the bare term can
+  # still show real details, attributed). Returns a hash { source:, label:, definition:,
+  # examples: } or nil when the IRI isn't upper-ontology / can't be resolved. Cached
+  # per request so each unique upper term is fetched at most once.
+  def entity_graph_upper_info(class_id)
+    onto = ENTITY_GRAPH_UPPER_ONTOLOGIES.find { |o| o[:match].call(class_id.to_s) }
+    return nil if onto.nil?
+
+    cache = (@entity_graph_upper_cache ||= {})
+    return cache[class_id] if cache.key?(class_id)
+
+    cache[class_id] = begin
+      src = LinkedData::Client::Models::Ontology.find_by_acronym(onto[:acronym]).first
+      cls = src && src.explore.single_class({ display: 'prefLabel,definition,synonym,properties' }, class_id)
+      if cls && !(cls.respond_to?(:errors) && cls.errors.present?)
+        {
+          source: onto[:acronym],
+          label: helpers.main_language_label(cls.prefLabel).presence,
+          definition: (Array(cls.respond_to?(:definition) ? cls.definition : nil).first).presence,
+          examples: entity_graph_class_examples(cls),
+          synonyms: Array(cls.respond_to?(:synonym) ? cls.synonym : nil).map(&:to_s).reject(&:blank?)
+        }
+      end
+    rescue StandardError
+      nil
+    end
   end
 
   def filter_concept_with_no_date(concepts)
