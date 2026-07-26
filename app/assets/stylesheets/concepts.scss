@@ -503,7 +503,12 @@ div.synonym-change-request button {
   }
 
   // Toolbar (search + option toggles) --------------------------------------
+  // Pinned to the top of the scroll container so it stays reachable no matter how
+  // far the graph below is scrolled.
   &__toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 15;
     display: flex;
     flex-wrap: wrap;
     align-items: center;

@@ -801,14 +801,14 @@ export default class extends Controller {
         zoomAt(ev.clientX - r.left, ev.clientY - r.top, Math.exp(-ev.deltaY * 0.0015))
         return
       }
-      // Plain wheel = pan the graph — but ONLY while the WHOLE widget (toolbar +
-      // canvas) is fully in view. If any part has scrolled off (e.g. the toolbar
-      // above the canvas), capturing the wheel would trap the user: scrolling back
-      // up would pan the graph instead of scrolling the page to reveal the toolbar.
-      // So when the widget isn't fully visible, let the wheel scroll the page.
-      const wr = this.element.getBoundingClientRect()
+      // Plain wheel = pan the graph — but ONLY while the canvas is fully in view.
+      // If it's partly scrolled off, capturing the wheel would trap the user
+      // (scrolling back up would pan instead of scrolling the page), so let the
+      // wheel scroll the page normally until the canvas is fully visible again.
+      // The toolbar is sticky, so it stays reachable regardless.
+      const cr = canvas.getBoundingClientRect()
       const vh = window.innerHeight || document.documentElement.clientHeight
-      const fullyInView = wr.top >= -1 && wr.bottom <= vh + 1
+      const fullyInView = cr.top >= -1 && cr.bottom <= vh + 1
       if (!fullyInView) return
       const dx = ev.shiftKey ? ev.deltaY : ev.deltaX // shift+wheel scrolls horizontally
       const dy = ev.shiftKey ? 0 : ev.deltaY
