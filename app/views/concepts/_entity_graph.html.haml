@@ -10,6 +10,11 @@
                        'concept-graph-ontology-value': @ontology.acronym,
                        'concept-graph-large-value': @graph[:large].to_s}}
 
+    -# Toolbar (node search + display toggles) and legend — the controller fills
+    -# these in once it renders (they stay empty for the empty/gate states).
+    .entity-graph__toolbar{data: {'concept-graph-target': 'toolbar'}}
+    .entity-graph__legend{data: {'concept-graph-target': 'legend'}}
+
     -# Large-graph gate: shown when the neighbourhood exceeds the threshold. The
     -# controller hides this and reveals the canvas when the user chooses to render.
     .entity-graph__gate.d-none{data: {'concept-graph-target': 'gate'}}

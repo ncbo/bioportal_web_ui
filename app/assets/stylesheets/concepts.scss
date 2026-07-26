@@ -212,20 +212,26 @@ div.synonym-change-request button {
 // controller (concept_graph_controller.js) builds the SVG and handles zoom/pan.
 .entity-graph {
   position: relative;
+  display: flex;
+  flex-direction: column;
   // Fit the visible viewport so the whole graph shows without the lower half
   // dropping below the fold; the controller re-fits the graph to this height.
   height: clamp(480px, calc(100vh - 260px), 900px);
 
   &__canvas {
+    position: relative;
+    // fill the height left over after the toolbar/legend (which sit above it)
+    flex: 1 1 auto;
+    min-height: 0;
     width: 100%;
-    height: 100%;
     background: var(--light-color);
     border: 1px solid #e3e8ef;
     border-radius: 6px;
     overflow: hidden;
     cursor: grab;
 
-    &:active {
+    &:active,
+    &--panning {
       cursor: grabbing;
     }
   }
@@ -313,6 +319,200 @@ div.synonym-change-request button {
       opacity: 0.9;
     }
   }
+
+  // Collector (upper-ontology BFO/COB) nodes: thinner + lighter, so the abstract
+  // scaffolding recedes behind the real structure (matches faded collector edges).
+  &__node--collector &-shape {
+    stroke: #c3ccd8;
+    stroke-width: 1.2px;
+  }
+
+  &__node--collector &-label {
+    fill: #9aa5b3;
+  }
+
+  // Explicitly click-selected node: accent outline so it reads as chosen.
+  &__node--sel &-shape {
+    stroke: #e07b2f;
+    stroke-width: 3px;
+  }
+
+  // Search match: green ring, and stays visible even when a selection dims the rest.
+  &__node--match &-shape {
+    stroke: #1f9d57;
+    stroke-width: 3px;
+  }
+
+  &__node--match#{&}__node--dim {
+    opacity: 1;
+  }
+
+  // Edges ------------------------------------------------------------------
+  // (base &__edge / &__arrow rules above.) Curves are drawn by the tidy-tree
+  // router; only the visible line catches no pointer events — a wide transparent
+  // hit-area path does (see &__edge-hit).
+  &__edge {
+    fill: none;
+    pointer-events: none;
+    transition: stroke-width 0.1s ease;
+  }
+
+  // Edge into a collector (abstract upper hub): faded + thin so long unavoidable
+  // cross-graph lines recede behind the real structure.
+  &__edge--to-collector {
+    stroke: #e6c79a;
+    stroke-width: 1.6px;
+  }
+
+  // Wide transparent hover/click target laid over each edge (thin lines are hard
+  // to hit).
+  &__edge-hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 22px;
+    cursor: pointer;
+  }
+
+  // Hovered / selected edge: thickened and always full opacity.
+  &__edge--hover { stroke-width: 4px; }
+  &__edge--sel { stroke-width: 4px; }
+  &__edge--to-collector#{&}__edge--hover { stroke-width: 3px; }
+
+  // Background-coloured break where an edge tunnels under an unrelated node box.
+  &__edge-knockout {
+    fill: none;
+    stroke: var(--light-color);
+    stroke-width: 4px;
+    stroke-linecap: butt;
+  }
+
+  // Click-to-focus dimming.
+  &__edge,
+  &__node,
+  &__edge-label,
+  &__edge-label-bg {
+    transition: opacity 0.15s ease;
+  }
+
+  &__edge--dim { opacity: 0.1; }
+  &__edge--dim#{&}__edge--hover { opacity: 1; }
+  &__node--dim { opacity: 0.16; }
+  &__edge-label--dim,
+  &__edge-label-bg--dim { opacity: 0.12; }
+
+  // Zoom controls (top-right of the canvas) --------------------------------
+  &__zoom {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid #cfd8e2;
+    border-radius: 7px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+
+    button {
+      width: 28px;
+      height: 26px;
+      border: none;
+      background: #ffffff;
+      color: #33465e;
+      font-size: 15px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      & + button { border-top: 1px solid #e6ecf2; }
+      &:hover { background: #eef3f8; }
+      &:active { background: #e2e9f1; }
+    }
+  }
+
+  // Context thumbnail / minimap (bottom-right) ------------------------------
+  &__minimap {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #cfd8e2;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    cursor: pointer;
+
+    svg { display: block; }
+
+    &-view {
+      fill: rgba(47, 111, 237, 0.14);
+      stroke: #2f6fed;
+      stroke-width: 1.5;
+      vector-effect: non-scaling-stroke;
+    }
+  }
+
+  // Toolbar (search + option toggles) --------------------------------------
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 10px;
+    padding: 7px 12px;
+    background: #ffffff;
+    border: 1px solid #dfe6ec;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #4a5b6e;
+
+    &:empty { display: none; }
+
+    label { margin: 0; }
+  }
+
+  &__search {
+    width: 190px;
+    padding: 5px 9px;
+    border: 1px solid #cfd8e2;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+  }
+
+  &__search-count {
+    margin-left: 8px;
+    color: #8794a5;
+    font-size: 12px;
+    min-width: 54px;
+  }
+
+  // Legend -----------------------------------------------------------------
+  &__legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 10px;
+    padding: 7px 12px;
+    background: #ffffff;
+    border: 1px solid #dfe6ec;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #4a5b6e;
+
+    span { display: inline-flex; align-items: center; gap: 6px; }
+    &-hint { color: #8794a5; }
+    &:empty { display: none; }
+  }
+
+  // The toolbar/legend live above the canvas; the canvas keeps its own fixed
+  // height (set on .entity-graph) so add flex column layout so it fills the rest.
 
   // Gate / empty states ----------------------------------------------------
   &__gate,
