@@ -18,7 +18,7 @@ const MINIMAP_MAX = 240 // longest edge of the minimap thumbnail
 // The full graph is delivered in one payload from the server (no client fetches).
 // Connects to data-controller="concept-graph".
 export default class extends Controller {
-  static targets = ['canvas', 'gate', 'empty', 'toolbar', 'legend']
+  static targets = ['canvas', 'gate', 'empty', 'toolbar']
   static values = {
     graph: Object,
     ontology: String,
@@ -70,7 +70,6 @@ export default class extends Controller {
 
   #boot () {
     this.#buildToolbar()
-    this.#buildLegend()
     this.#render()
     if (!this._resizeObserver && 'ResizeObserver' in window) {
       // re-fit while the pane settles / becomes visible, until the user zooms
@@ -127,19 +126,49 @@ export default class extends Controller {
       label.append(cb, document.createTextNode(' ' + text))
       t.append(label)
     })
+    // the key/shortcuts help icon sits at the end of the same row
+    this.#buildLegend()
   }
 
+  // The key/legend is collapsed behind a help icon in the toolbar so it doesn't
+  // eat a full row; clicking the icon toggles a small popover with the full key.
   #buildLegend () {
-    if (!this.hasLegendTarget) return
-    const key = (svg, text) => `<span><svg width="30" height="14" style="overflow:visible">${svg}</svg>${text}</span>`
-    this.legendTarget.innerHTML =
+    if (!this.hasToolbarTarget) return
+    const key = (svg, text) => `<span class="entity-graph__legend-item"><svg width="30" height="14" style="overflow:visible">${svg}</svg>${text}</span>`
+    const content =
       key('<line x1="1" y1="7" x2="22" y2="7" stroke="#f0a848" stroke-width="2.5"/><path d="M20,3 L27,7 L20,11 Z" fill="#f0a848"/>', 'is-a (subclass)') +
       key('<line x1="1" y1="7" x2="22" y2="7" stroke="#2f6fed" stroke-width="2.5"/><path d="M20,3 L27,7 L20,11" fill="none" stroke="#2f6fed"/>', 'relationship') +
       key('<line x1="1" y1="7" x2="22" y2="7" stroke="#e6c79a" stroke-width="1.6"/><path d="M21,4 L27,7 L21,10 Z" fill="#e6c79a"/>', 'to upper ontology') +
       key('<circle cx="6" cy="7" r="3.4" fill="#2f6fed"/><line x1="9" y1="7" x2="28" y2="7" stroke="#2f6fed" stroke-width="2"/>', '● = source end') +
       key('<rect x="1" y="2" width="26" height="10" rx="2.5" fill="#fff" stroke="#234979" stroke-width="1.6"/>', 'class') +
       key('<rect x="1" y="2" width="26" height="10" rx="2.5" fill="#fff" stroke="#c3ccd8" stroke-width="1.2"/>', 'upper ontology (faded)') +
-      '<span class="entity-graph__legend-hint">·  double-click a node = open it  ·  ⌘/Ctrl+scroll = zoom  ·  F = fit selection</span>'
+      '<div class="entity-graph__legend-hint">Double-click a node to open it · ⌘/Ctrl+scroll to zoom · F to fit selection</div>'
+
+    const holder = document.createElement('span')
+    holder.className = 'entity-graph__help'
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'entity-graph__help-btn'
+    btn.title = 'Graph key & shortcuts'
+    btn.setAttribute('aria-label', 'Graph key and shortcuts')
+    btn.textContent = '?'
+    const pop = document.createElement('div')
+    pop.className = 'entity-graph__help-pop'
+    pop.hidden = true
+    pop.innerHTML = content
+    holder.append(btn, pop)
+
+    const close = () => { pop.hidden = true; document.removeEventListener('click', onDoc, true) }
+    const onDoc = (ev) => { if (!holder.contains(ev.target)) close() }
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation()
+      const open = pop.hidden
+      pop.hidden = !open
+      if (open) setTimeout(() => document.addEventListener('click', onDoc, true), 0)
+      else document.removeEventListener('click', onDoc, true)
+    })
+    // sits at the end of the toolbar row
+    this.toolbarTarget.append(holder)
   }
 
   // --- rendering ------------------------------------------------------------
