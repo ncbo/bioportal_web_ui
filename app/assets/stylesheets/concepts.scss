@@ -382,15 +382,6 @@ div.synonym-change-request button {
     stroke-width: 3px;
   }
 
-  // Search match: green ring, and stays visible even when a selection dims the rest.
-  &__node--match &-shape {
-    stroke: #1f9d57;
-    stroke-width: 3px;
-  }
-
-  &__node--match#{&}__node--dim {
-    opacity: 1;
-  }
 
   // Edges ------------------------------------------------------------------
   // (base &__edge / &__arrow rules above.) Curves are drawn by the tidy-tree
@@ -526,21 +517,6 @@ div.synonym-change-request button {
     label { margin: 0; }
   }
 
-  &__search {
-    width: 190px;
-    padding: 5px 9px;
-    border: 1px solid #cfd8e2;
-    border-radius: 6px;
-    font-size: 13px;
-    outline: none;
-  }
-
-  &__search-count {
-    margin-left: 8px;
-    color: #8794a5;
-    font-size: 12px;
-    min-width: 54px;
-  }
 
   // Options + legend icons ------------------------------------------------
   // Display toggles and the key/shortcuts each collapse behind a small icon

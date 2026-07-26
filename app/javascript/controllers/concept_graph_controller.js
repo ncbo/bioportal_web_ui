@@ -86,19 +86,6 @@ export default class extends Controller {
     if (!this.hasToolbarTarget) return
     const t = this.toolbarTarget
     t.replaceChildren()
-    const wrap = document.createElement('span')
-    wrap.style.cssText = 'position:relative;display:inline-flex;align-items:center'
-    const search = document.createElement('input')
-    search.type = 'search'; search.placeholder = 'Search nodes…'; search.autocomplete = 'off'
-    search.className = 'entity-graph__search'
-    const count = document.createElement('span')
-    count.className = 'entity-graph__search-count'
-    wrap.append(search, count)
-    t.append(wrap)
-    this._search = search; this._searchCount = count
-    let timer = null
-    search.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => this.#runSearch(), 180) })
-    search.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') { search.value = ''; this.#runSearch(); search.blur() } })
 
     // Display toggles live in a popover behind a gear icon (keeps the row to just
     // the search box + the gear/help icons, so the bar doesn't crowd the graph).
@@ -128,7 +115,6 @@ export default class extends Controller {
         if (key === 'showPills' && cb.checked) { this.opts.showAcronym = false; cbByKey.showAcronym.checked = false }
         if (key === 'showAcronym' && cb.checked) { this.opts.showPills = false; cbByKey.showPills.checked = false }
         this.#render()
-        this.#runSearch()
       })
       label.append(cb, document.createTextNode(' ' + text))
       optsPop.append(label)
@@ -728,28 +714,6 @@ export default class extends Controller {
     return Array.isArray(s) ? s.filter(Boolean) : []
   }
 
-  // --- search ---------------------------------------------------------------
-
-  #runSearch () {
-    const R = this._render; if (!R) return
-    const q = (this._search?.value || '').trim().toLowerCase()
-    let total = 0
-    R.nodeEls.forEach((g, id) => {
-      const n = this._layout.nodes.get(id)
-      const match = q && (this.#effLabel(n) || '').toLowerCase().includes(q)
-      g.classList.toggle('entity-graph__node--match', !!match)
-      if (match) total++
-    })
-    if (this._searchCount) this._searchCount.textContent = q ? (total ? `${total} match${total > 1 ? 'es' : ''}` : 'no matches') : ''
-    if (q && total) {
-      const ids = new Set()
-      R.nodeEls.forEach((g, id) => { if (g.classList.contains('entity-graph__node--match')) ids.add(id) })
-      const L = this._layout; const nodeH = this.#effNodeH()
-      let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity
-      ids.forEach((id) => { const n = L.nodes.get(id); if (!n) return; x0 = Math.min(x0, n.x - n.width / 2); x1 = Math.max(x1, n.x + n.width / 2); y0 = Math.min(y0, n.y - nodeH / 2); y1 = Math.max(y1, n.y + nodeH / 2) })
-      if (x1 >= x0) this._zoomApi && this._zoomApi.fitTo({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 })
-    }
-  }
 
   // --- zoom / pan / minimap -------------------------------------------------
 
