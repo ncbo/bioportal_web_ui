@@ -13,7 +13,7 @@ class OntologiesController < ApplicationController
 
   before_action :authorize_and_redirect, only: [:edit, :update, :create, :new]
 
-  KNOWN_PAGES = Set.new(['terms', 'classes', 'mappings', 'notes', 'widgets', 'summary', 'properties', 'schemes', 'collections'])
+  KNOWN_PAGES = Set.new(['terms', 'classes', 'mappings', 'notes', 'widgets', 'summary', 'properties', 'schemes', 'collections', 'graph'])
 
   ONTOLOGY_REST_URL = "#{LinkedData::Client.settings.rest_url}/ontologies/:acronym"
   SUBMISSIONS_REST_URL = "#{ONTOLOGY_REST_URL}/submissions"
@@ -156,6 +156,17 @@ class OntologiesController < ApplicationController
     end
   end
 
+  # Search-driven Entity Graph tab: pick a class within this ontology and its
+  # graph is loaded into the concept_entity_graph frame (reusing #entity_graph).
+  def graph
+    @submission = get_ontology_submission_ready(@ontology)
+    if request.xhr?
+      render 'ontologies/sections/graph', layout: false
+    else
+      render 'ontologies/sections/graph', layout: 'ontology_viewer'
+    end
+  end
+
   def create
     @is_update_ontology = false
     @ontology = ontology_from_params.save(cache_refresh_all: false)
@@ -284,6 +295,9 @@ class OntologiesController < ApplicationController
         return
       when 'properties'
         self.properties # rescue self.summary
+        return
+      when 'graph'
+        self.graph # rescue self.summary
         return
       when 'summary'
         self.summary

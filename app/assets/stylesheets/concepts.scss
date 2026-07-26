@@ -210,6 +210,21 @@ div.synonym-change-request button {
 // Entity Graph tab: a dagre-laid-out is-a neighbourhood drawn as SVG, styled
 // after the WebProtege entity graph (rounded-rect nodes, is-a arrows). The
 // controller (concept_graph_controller.js) builds the SVG and handles zoom/pan.
+// Search-driven Graph tab (per-ontology): a class search box above the entity
+// graph frame.
+.ontology-graph-section {
+  &__search {
+    max-width: 520px;
+    margin-bottom: 14px;
+  }
+
+  &__prompt {
+    border: 1px dashed #d7dee6;
+    border-radius: 6px;
+    background: var(--light-color);
+  }
+}
+
 .entity-graph {
   position: relative;
   display: flex;

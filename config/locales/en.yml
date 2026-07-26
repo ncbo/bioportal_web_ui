@@ -148,6 +148,7 @@ en:
       mappings: Mappings
       widgets: Widgets
       concepts: Concepts
+      graph: Graph
 
   concepts:
     error_valid_concept: "Error: You must provide a valid concept id"

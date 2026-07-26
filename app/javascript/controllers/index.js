@@ -87,3 +87,6 @@ application.register("mapping-form", MappingFormController)
 
 import ConceptGraphController from "./concept_graph_controller"
 application.register("concept-graph", ConceptGraphController)
+
+import GraphSearchController from "./graph_search_controller"
+application.register("graph-search", GraphSearchController)
