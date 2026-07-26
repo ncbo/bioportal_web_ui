@@ -801,16 +801,20 @@ export default class extends Controller {
         zoomAt(ev.clientX - r.left, ev.clientY - r.top, Math.exp(-ev.deltaY * 0.0015))
         return
       }
-      // Plain wheel = pan the graph, so scrolling over the canvas moves the graph
-      // rather than the page. Apply the delta, clamp, and see if anything actually
-      // moved: if the graph is already pinned at the edge in that direction (or fits
-      // entirely), nothing moves — so let the event through and the page scrolls
-      // normally. This keeps the user from ever being trapped at the graph's edge.
+      // Plain wheel = pan the graph — but ONLY while the WHOLE widget (toolbar +
+      // canvas) is fully in view. If any part has scrolled off (e.g. the toolbar
+      // above the canvas), capturing the wheel would trap the user: scrolling back
+      // up would pan the graph instead of scrolling the page to reveal the toolbar.
+      // So when the widget isn't fully visible, let the wheel scroll the page.
+      const wr = this.element.getBoundingClientRect()
+      const vh = window.innerHeight || document.documentElement.clientHeight
+      const fullyInView = wr.top >= -1 && wr.bottom <= vh + 1
+      if (!fullyInView) return
       const dx = ev.shiftKey ? ev.deltaY : ev.deltaX // shift+wheel scrolls horizontally
       const dy = ev.shiftKey ? 0 : ev.deltaY
       const beforeX = tx; const beforeY = ty
       tx -= dx; ty -= dy; clampPan()
-      if (tx === beforeX && ty === beforeY) return // couldn't move → page scrolls
+      if (tx === beforeX && ty === beforeY) return // pinned at the edge → page scrolls
       ev.preventDefault()
       userZoomed = true; apply()
     }, { passive: false })
