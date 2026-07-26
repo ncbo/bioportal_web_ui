@@ -142,7 +142,7 @@ export default class extends Controller {
       key('<circle cx="6" cy="7" r="3.4" fill="#2f6fed"/><line x1="9" y1="7" x2="28" y2="7" stroke="#2f6fed" stroke-width="2"/>', '● = source end') +
       key('<rect x="1" y="2" width="26" height="10" rx="2.5" fill="#fff" stroke="#234979" stroke-width="1.6"/>', 'class') +
       key('<rect x="1" y="2" width="26" height="10" rx="2.5" fill="#fff" stroke="#c3ccd8" stroke-width="1.2"/>', 'upper ontology (faded)') +
-      '<div class="entity-graph__legend-hint">Double-click a node to open it · ⌘/Ctrl+scroll to zoom · F to fit selection</div>'
+      '<div class="entity-graph__legend-hint">Double-click a node to open it · scroll or drag to pan · ⌘/Ctrl+scroll to zoom · F to fit selection</div>'
 
     const holder = document.createElement('span')
     holder.className = 'entity-graph__help'
@@ -764,10 +764,25 @@ export default class extends Controller {
     }
 
     svg.addEventListener('wheel', (ev) => {
-      if (!(ev.ctrlKey || ev.metaKey)) return
+      // Ctrl/⌘ + wheel (and trackpad pinch, which arrives as ctrl+wheel) = zoom.
+      if (ev.ctrlKey || ev.metaKey) {
+        ev.preventDefault()
+        const r = svg.getBoundingClientRect()
+        zoomAt(ev.clientX - r.left, ev.clientY - r.top, Math.exp(-ev.deltaY * 0.0015))
+        return
+      }
+      // Plain wheel = pan the graph, so scrolling over the canvas moves the graph
+      // rather than the page. Apply the delta, clamp, and see if anything actually
+      // moved: if the graph is already pinned at the edge in that direction (or fits
+      // entirely), nothing moves — so let the event through and the page scrolls
+      // normally. This keeps the user from ever being trapped at the graph's edge.
+      const dx = ev.shiftKey ? ev.deltaY : ev.deltaX // shift+wheel scrolls horizontally
+      const dy = ev.shiftKey ? 0 : ev.deltaY
+      const beforeX = tx; const beforeY = ty
+      tx -= dx; ty -= dy; clampPan()
+      if (tx === beforeX && ty === beforeY) return // couldn't move → page scrolls
       ev.preventDefault()
-      const r = svg.getBoundingClientRect()
-      zoomAt(ev.clientX - r.left, ev.clientY - r.top, Math.exp(-ev.deltaY * 0.0015))
+      userZoomed = true; apply()
     }, { passive: false })
 
     let dragging = false; let moved = false; let lastX = 0; let lastY = 0

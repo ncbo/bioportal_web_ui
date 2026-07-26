@@ -268,6 +268,11 @@ div.synonym-change-request button {
     border-radius: 6px;
     overflow: hidden;
     cursor: grab;
+    // keep drag/scroll gestures inside the graph: the controller owns panning &
+    // (Ctrl/⌘) zoom, so the browser must not also treat them as a page scroll, and
+    // any residual scroll must not chain up to the page.
+    touch-action: none;
+    overscroll-behavior: contain;
 
     &:active,
     &--panning {
@@ -279,6 +284,7 @@ div.synonym-change-request button {
     display: block;
     width: 100%;
     height: 100%;
+    touch-action: none;
   }
 
   // Nodes ------------------------------------------------------------------
