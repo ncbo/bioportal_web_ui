@@ -282,6 +282,12 @@ export default class extends Controller {
     </defs>`
   }
 
+  // "Bridge" knockouts: where an edge passes UNDER a node it is not attached to,
+  // punch a short background-coloured dash on each side of that node so the eye reads
+  // the edge as tunnelling past, not connecting to, the node. GAP is a fixed dash
+  // half-length IN PIXELS along the local path tangent (not a sample-index count), and
+  // a dash is placed only at the ENTRY and EXIT of each contiguous run of samples inside
+  // the node's box — so the break sits tight against the box, not out in open space.
   #drawKnockouts (kg, edgeSegs, L, nodeH) {
     const bg = getComputedStyle(this.canvasTarget).backgroundColor || '#ffffff'
     const GAP = 5; const INFL = 3
@@ -291,19 +297,26 @@ export default class extends Controller {
         if (n.id === from || n.id === to) continue
         const x0 = n.x - n.width / 2 - INFL; const x1 = n.x + n.width / 2 + INFL
         const y0 = n.y - nodeH / 2 - INFL; const y1 = n.y + nodeH / 2 + INFL
-        // find where the sampled path crosses this box; punch a short gap there
-        for (let i = 1; i < pts.length; i++) {
-          const p = pts[i]
-          if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1) {
-            const a = pts[Math.max(0, i - GAP)]; const b = pts[Math.min(pts.length - 1, i + GAP)]
+        const inside = (p) => p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1
+        // contiguous runs of sample points inside this node's inflated rect
+        let i = 0
+        while (i < pts.length) {
+          if (!inside(pts[i])) { i++; continue }
+          let j = i
+          while (j + 1 < pts.length && inside(pts[j + 1])) j++
+          // knock out at the entry (i) and exit (j) of the run
+          for (const idx of (i === j ? [i] : [i, j])) {
+            const a = pts[Math.max(0, idx - 1)]; const b = pts[Math.min(pts.length - 1, idx + 1)]
+            const dx = b.x - a.x; const dy = b.y - a.y; const len = Math.hypot(dx, dy) || 1
+            const ux = dx / len; const uy = dy / len; const c = pts[idx]
             const k = document.createElementNS(SVG, 'path')
             k.setAttribute('class', 'entity-graph__edge-knockout')
             k.setAttribute('stroke', bg)
-            k.setAttribute('d', `M ${a.x},${a.y} L ${p.x},${p.y} L ${b.x},${b.y}`)
+            k.setAttribute('d', `M ${c.x - ux * GAP},${c.y - uy * GAP} L ${c.x + ux * GAP},${c.y + uy * GAP}`)
             kg.append(k)
             rec.knockouts.push(k)
-            break
           }
+          i = j + 1
         }
       }
     })

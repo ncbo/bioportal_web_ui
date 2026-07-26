@@ -20,9 +20,15 @@
     = hidden_field_tag('jump_to_concept_id')
 
   -# The graph frame. Empty until a class is chosen; the graph-search controller
-  -# sets its src to /ajax/entity_graph on selection.
-  = turbo_frame_tag 'concept_entity_graph' do
-    .ontology-graph-section__prompt.text-center.py-5.text-muted
-      = inline_svg_tag 'icons/search.svg', class: 'svg-icon mb-2', style: 'width:28px;height:28px;opacity:.5'
-      %p.mb-0
-        Search for a class above to see its entity graph.
+  -# sets its src to /ajax/entity_graph on selection. The busy overlay is a sibling
+  -# (not inside the frame, which swaps its whole content) and is shown by CSS while
+  -# the frame is fetching (Turbo sets [busy] on the frame during a load).
+  .ontology-graph-section__frame
+    = turbo_frame_tag 'concept_entity_graph' do
+      .ontology-graph-section__prompt.text-center.py-5.text-muted
+        = inline_svg_tag 'icons/search.svg', class: 'svg-icon mb-2', style: 'width:28px;height:28px;opacity:.5'
+        %p.mb-0
+          Search for a class above to see its entity graph.
+    .ontology-graph-section__loading
+      = image_tag('spinners/spinner_000000_16px.gif', style: 'vertical-align:text-bottom')
+      %span.ms-2 Loading graph…

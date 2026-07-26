@@ -223,6 +223,30 @@ div.synonym-change-request button {
     border-radius: 6px;
     background: var(--light-color);
   }
+
+  &__frame {
+    position: relative;
+  }
+
+  // Loading overlay: shown only while the graph frame is fetching. Turbo sets
+  // [busy] on the <turbo-frame> during a load; the overlay is a sibling of the
+  // frame (the frame swaps its whole content, so an inside spinner would vanish).
+  &__loading {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+    color: #5a6b82;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+  }
+
+  &__frame:has(turbo-frame[busy]) &__loading {
+    display: flex;
+  }
 }
 
 .entity-graph {
