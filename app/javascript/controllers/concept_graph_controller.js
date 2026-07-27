@@ -372,6 +372,7 @@ export default class extends Controller {
         if (key === 'showPills' && cb.checked) { this.opts.showAcronym = false; cbByKey.showAcronym.checked = false }
         if (key === 'showAcronym' && cb.checked) { this.opts.showPills = false; cbByKey.showPills.checked = false }
         this.#saveOpts()
+        this.#refreshGearBadge()
         this.#render()
       })
       label.append(cb, document.createTextNode(' ' + text))
@@ -404,8 +405,25 @@ export default class extends Controller {
     // round body with a hollow hub — reads as a gear at 16px without looking lumpy.
     btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.62.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7 7 0 00-1.62-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.58.24-1.12.56-1.62.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 00-.12.64l1.92 3.32c.13.23.4.32.63.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.25.42.5.42h3.84c.25 0 .45-.18.5-.42l.36-2.54c.58-.24 1.12-.56 1.62-.94l2.39.96c.23.1.5.01.63-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg>'
     holder.append(btn, pop)
+    // Flag the gear when a CONTENT-HIDING option is active (is-a-only, or upper
+    // ontology hidden) — these silently remove edges/nodes, and because settings
+    // persist they can carry over from a previous session; the dot makes that
+    // visible instead of leaving the user staring at a graph with no relationships.
+    this._gearBtn = btn
+    this.#refreshGearBadge()
     this.#wirePopover(holder, btn, pop)
     return holder
+  }
+
+  #refreshGearBadge () {
+    const btn = this._gearBtn; if (!btn) return
+    const hiding = !!this.opts.isaOnly || !!this.opts.hideUpper
+    btn.classList.toggle('is-filtered', hiding)
+    const why = this.opts.isaOnly
+      ? 'showing is-a only — relationships hidden'
+      : (this.opts.hideUpper ? 'upper ontology hidden' : '')
+    btn.title = hiding ? `Display options (${why})` : 'Display options'
+    btn.setAttribute('aria-label', btn.title)
   }
 
   // Segmented control for the upper-ontology (BFO/COB) display: Show / Fade / Hide.
@@ -432,6 +450,7 @@ export default class extends Controller {
         seg.querySelectorAll('.entity-graph__seg-btn').forEach((x) => x.classList.remove('is-active'))
         b.classList.add('is-active')
         this.#saveOpts()
+        this.#refreshGearBadge()
         this.#render()
       })
       seg.append(b)
