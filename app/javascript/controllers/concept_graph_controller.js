@@ -270,10 +270,12 @@ export default class extends Controller {
     this.#wireNodeInteractions(nodeEls, incidentEdges)
     this.#wireBackground(svg)
 
-    // content bounds (world rect)
-    const world = this.#worldBounds(vp, L)
-
+    // Attach FIRST, then measure content bounds: getBBox() only reports real
+    // geometry once the SVG is in the document, so world must be computed after
+    // replaceChildren (measuring a detached SVG returned a truncated box, which
+    // made fit-to-view mis-scale).
     this.canvasTarget.replaceChildren(svg)
+    const world = this.#worldBounds(vp, L)
     this.#installZoom(svg, vp, world)
     this.#applyFocus()
   }
@@ -419,15 +421,23 @@ export default class extends Controller {
     })
   }
 
+  // Content bounds ("world"). The layout's own width/height are the authoritative
+  // extent and are always available (DOM-independent); getBBox is used only to
+  // EXPAND them for edge curves that bow beyond the node box — and only when it
+  // returns a valid (non-degenerate) box, since a detached or display:none SVG
+  // reports a zero/truncated box that would otherwise corrupt the fit scale.
   #worldBounds (vp, L) {
-    let world = { x: 0, y: 0, w: L.width, h: L.height }
+    const PAD = 10
+    let x0 = -PAD; let y0 = -PAD; let x1 = L.width + PAD; let y1 = L.height + PAD
     try {
-      const bb = vp.getBBox(); const PAD = 10
-      const x0 = Math.floor(Math.min(0, bb.x) - PAD); const y0 = Math.floor(Math.min(0, bb.y) - PAD)
-      const x1 = Math.ceil(Math.max(L.width, bb.x + bb.width) + PAD); const y1 = Math.ceil(Math.max(L.height, bb.y + bb.height) + PAD)
-      world = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }
-    } catch (_) { /* getBBox throws if not laid out; ignore */ }
-    return world
+      const bb = vp.getBBox()
+      // trust getBBox only if it plausibly covers the laid-out content
+      if (bb.width >= L.width * 0.5 && bb.height >= L.height * 0.5) {
+        x0 = Math.floor(Math.min(0, bb.x) - PAD); y0 = Math.floor(Math.min(0, bb.y) - PAD)
+        x1 = Math.ceil(Math.max(L.width, bb.x + bb.width) + PAD); y1 = Math.ceil(Math.max(L.height, bb.y + bb.height) + PAD)
+      }
+    } catch (_) { /* getBBox throws if not laid out; keep the layout-dim fallback */ }
+    return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }
   }
 
   // --- node label / id helpers ---------------------------------------------
