@@ -973,7 +973,12 @@ export default class extends Controller {
       if (ev.ctrlKey || ev.metaKey) {
         ev.preventDefault()
         const r = svg.getBoundingClientRect()
-        zoomAt(ev.clientX - r.left, ev.clientY - r.top, Math.exp(-ev.deltaY * 0.0015))
+        // Trackpad pinch sends many small-delta ctrl+wheel events, so a small
+        // coefficient felt sluggish. Use a larger step, but clamp each event's
+        // factor so a discrete mouse ctrl+wheel (delta ~±100+) doesn't over-zoom
+        // in one jump.
+        const factor = Math.min(1.5, Math.max(1 / 1.5, Math.exp(-ev.deltaY * 0.01)))
+        zoomAt(ev.clientX - r.left, ev.clientY - r.top, factor)
         return
       }
       // Plain wheel / two-finger trackpad scroll = pan the graph. The user isn't
