@@ -249,32 +249,36 @@ div.synonym-change-request button {
   }
 }
 
-// While the Entity Graph frame is fetching, the pane collapses to just the loader.
-// The TabsContainerComponent renders an <hr> per tab item (styled full-width by
-// `.tabs-container hr`), which showed through as a faint line across the middle of
-// the loading pane. Give the graph pane a clean, full-height centred loader and
-// suppress any such stray line while it loads.
+// The graph pane fills its scroll container (.tab-content) exactly, rather than the
+// widget setting its own viewport-based height. The container is already flex-sized to
+// the space below the page chrome, so a `100vh - Npx` guess only ever mismatched it by
+// a few pixels (the container's content box is its height minus its 4px padding-top),
+// which popped an overflow scrollbar while panning. Make the pane chain — graph pane →
+// its flex wrapper → the turbo-frame → .entity-graph — fill 100% of the container
+// instead. Scoped to the graph pane so the other tabs (Details, etc.) keep auto height.
 #concept_graph_content {
-  > .d-flex.flex-column {
-    min-height: clamp(360px, calc(100vh - 348px), 820px);
-    justify-content: center;
+  height: 100%;
+
+  > .d-flex.flex-column,
+  > .d-flex.flex-column > turbo-frame,
+  > .d-flex.flex-column > turbo-frame > .entity-graph {
+    height: 100%;
+    min-height: 0;
   }
 
+  // While the frame is fetching, the pane collapses to just the loader. The
+  // TabsContainerComponent renders an <hr> per tab item (styled full-width by
+  // `.tabs-container hr`), which showed as a faint line across the loading pane —
+  // suppress it, and centre the loader in the (now full-height) wrapper.
+  > .d-flex.flex-column { justify-content: center; }
   .show-if-loading hr,
-  > hr {
-    display: none;
-  }
+  > hr { display: none; }
 }
 
 .entity-graph {
   position: relative;
   display: flex;
   flex-direction: column;
-  // Size to the space between where the widget sits (below the page header, ontology
-  // tab bar and concept sub-tabs — roughly 330px of chrome) and the bottom of the
-  // viewport, so the whole graph stays on-screen. The earlier `100vh - 260px`
-  // under-counted that chrome and pushed the bottom ~64px below the fold.
-  height: clamp(360px, calc(100vh - 348px), 820px);
 
   // Full-window overlay (popout): the graph takes over the whole browser window.
   &--fullscreen {
