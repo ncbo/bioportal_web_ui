@@ -362,6 +362,14 @@ $bd-bottom-gap: 30px;
   border-radius: 0 0 4px 4px;
 }
 
+// The Entity Graph canvas fills its pane exactly (absolutely positioned, its own
+// borderless edge-to-edge box), so the 4px top gutter above pushes it past the
+// viewport and produces a few-pixel scrollbar when panning. Drop the gutter only
+// while the graph pane is the active tab — Details/Visualization keep theirs.
+#bd_content #concept_content .tab-content:has(> #concept_graph_content.active) {
+  padding-top: 0;
+}
+
 // The details content has two inset boxes that each draw their own border,
 // which read as second/nested rectangles inside our enclosing pane outline (the
 // tree column shows only one outline):

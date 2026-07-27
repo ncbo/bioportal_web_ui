@@ -31,7 +31,9 @@ export default class extends Controller {
     this.nodes = graph.nodes || []
     this.edges = graph.edges || []
 
-    // display options (toolbar toggles)
+    // display options (toolbar toggles). Defaults, overlaid with any the user has
+    // saved before — persisted in localStorage so they survive reloads and new
+    // sessions. These toggles are ontology-independent, so they're stored globally.
     this.opts = {
       hideUpper: false,
       isaOnly: false,
@@ -39,11 +41,12 @@ export default class extends Controller {
       useUpperInfo: true,
       transitiveReduction: true,
       showPills: false,
-      showAcronym: true
+      showAcronym: true,
+      ...this.#loadOpts()
     }
     // relationship properties toggled OFF (by property key); is-a is never hidden here.
-    // Persisted per ontology (property names differ across ontologies) for the session,
-    // so browsing several classes in the same ontology keeps your selection.
+    // Persisted per ontology (property names differ across ontologies), in localStorage
+    // so the selection survives reloads and new sessions, not just the current tab.
     this._hiddenProps = this.#loadHiddenProps()
 
     if (this.nodes.length <= 1 && this.edges.length === 0) {
@@ -145,6 +148,17 @@ export default class extends Controller {
     // funnel/filter glyph
     btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z"/></svg>'
 
+    // A dot on the button flags that some relationships are currently hidden, so
+    // the filtered state is visible without opening the popover. Counts only the
+    // hidden properties that actually exist in this graph.
+    const keysHere = new Set(props.map((p) => p.key))
+    const refreshBadge = () => {
+      const n = [...this._hiddenProps].filter((k) => keysHere.has(k)).length
+      btn.classList.toggle('is-filtered', n > 0)
+      btn.title = n > 0 ? `Choose relationships (${n} hidden)` : 'Choose relationships'
+      btn.setAttribute('aria-label', btn.title)
+    }
+
     const pop = document.createElement('div')
     pop.className = 'entity-graph__filter-pop'
     pop.hidden = true
@@ -181,6 +195,7 @@ export default class extends Controller {
       const cnt = document.createElement('span'); cnt.className = 'entity-graph__filter-count'; cnt.textContent = count
       cb.addEventListener('change', () => {
         if (cb.checked) this._hiddenProps.delete(key); else this._hiddenProps.add(key)
+        refreshBadge()
       })
       label.append(cb, text, cnt)
       list.append(label)
@@ -192,6 +207,7 @@ export default class extends Controller {
         if (on) this._hiddenProps.delete(key); else this._hiddenProps.add(key)
         const r = rowByKey.get(key); if (r) r.cb.checked = on
       })
+      refreshBadge()
     }
     allBtn.addEventListener('click', (ev) => { ev.stopPropagation(); setAll(true) })
     noneBtn.addEventListener('click', (ev) => { ev.stopPropagation(); setAll(false) })
@@ -205,6 +221,7 @@ export default class extends Controller {
     }
 
     holder.append(btn, pop)
+    refreshBadge() // reflect any persisted filter state on first paint
     // snapshot the selection when the popover opens; on close, if it changed, persist
     // and re-render once.
     let openSnapshot = null
@@ -294,24 +311,47 @@ export default class extends Controller {
     }
   }
 
-  // sessionStorage key for the hidden-property set, scoped to this ontology (property
-  // names aren't comparable across ontologies).
+  // Settings and filters persist in localStorage so they survive reloads and new
+  // sessions (previously sessionStorage, which was cleared on tab close).
+  #storageGet (key) {
+    try { return window.localStorage.getItem(key) } catch (_) { return null }
+  }
+
+  #storageSet (key, value) {
+    try { window.localStorage.setItem(key, value) } catch (_) { /* storage unavailable */ }
+  }
+
+  // Display options are ontology-independent, so they share one global key.
+  #optsKey () { return 'entity-graph:opts' }
+
+  #loadOpts () {
+    try {
+      const raw = this.#storageGet(this.#optsKey())
+      if (raw) return JSON.parse(raw)
+    } catch (_) { /* bad JSON — fall back to defaults */ }
+    return {}
+  }
+
+  #saveOpts () {
+    this.#storageSet(this.#optsKey(), JSON.stringify(this.opts))
+  }
+
+  // The hidden-property set is scoped to this ontology (property names aren't
+  // comparable across ontologies).
   #hiddenPropsKey () {
     return 'entity-graph:hidden-props:' + (this.ontologyValue || '_')
   }
 
   #loadHiddenProps () {
     try {
-      const raw = window.sessionStorage.getItem(this.#hiddenPropsKey())
+      const raw = this.#storageGet(this.#hiddenPropsKey())
       if (raw) return new Set(JSON.parse(raw))
-    } catch (_) { /* storage unavailable or bad JSON — start empty */ }
+    } catch (_) { /* bad JSON — start empty */ }
     return new Set()
   }
 
   #saveHiddenProps () {
-    try {
-      window.sessionStorage.setItem(this.#hiddenPropsKey(), JSON.stringify([...this._hiddenProps]))
-    } catch (_) { /* storage unavailable — filter still works for this graph */ }
+    this.#storageSet(this.#hiddenPropsKey(), JSON.stringify([...this._hiddenProps]))
   }
 
   #buildGear () {
@@ -331,6 +371,7 @@ export default class extends Controller {
         // pills and acronym are mutually exclusive — sync the other box in place
         if (key === 'showPills' && cb.checked) { this.opts.showAcronym = false; cbByKey.showAcronym.checked = false }
         if (key === 'showAcronym' && cb.checked) { this.opts.showPills = false; cbByKey.showPills.checked = false }
+        this.#saveOpts()
         this.#render()
       })
       label.append(cb, document.createTextNode(' ' + text))
@@ -359,9 +400,9 @@ export default class extends Controller {
     btn.className = 'entity-graph__icon-btn'
     btn.title = 'Display options'
     btn.setAttribute('aria-label', 'Display options')
-    // A gear: a cog with 8 trapezoidal teeth around a hollow hub (filled outline so
-    // it reads as a gear, not a sun-burst of thin rays).
-    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.32 2h3.36l.53 2.32c.6.2 1.17.53 1.66.95l2.27-.72 1.68 2.9-1.74 1.6c.06.31.1.63.1.95s-.04.64-.1.95l1.74 1.6-1.68 2.9-2.27-.72c-.49.42-1.06.75-1.66.95L13.68 22h-3.36l-.53-2.32c-.6-.2-1.17-.53-1.66-.95l-2.27.72-1.68-2.9 1.74-1.6a5.6 5.6 0 010-1.9l-1.74-1.6 1.68-2.9 2.27.72c.49-.42 1.06-.75 1.66-.95L10.32 2zM12 15a3 3 0 100-6 3 3 0 000 6z"/></svg>'
+    // A clean, symmetric cog (Material-style gear): even trapezoidal teeth around a
+    // round body with a hollow hub — reads as a gear at 16px without looking lumpy.
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.62.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7 7 0 00-1.62-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.58.24-1.12.56-1.62.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 00-.12.64l1.92 3.32c.13.23.4.32.63.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.25.42.5.42h3.84c.25 0 .45-.18.5-.42l.36-2.54c.58-.24 1.12-.56 1.62-.94l2.39.96c.23.1.5.01.63-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg>'
     holder.append(btn, pop)
     this.#wirePopover(holder, btn, pop)
     return holder
@@ -390,6 +431,7 @@ export default class extends Controller {
         this.opts.fadeUpper = (mode === 'fade')
         seg.querySelectorAll('.entity-graph__seg-btn').forEach((x) => x.classList.remove('is-active'))
         b.classList.add('is-active')
+        this.#saveOpts()
         this.#render()
       })
       seg.append(b)

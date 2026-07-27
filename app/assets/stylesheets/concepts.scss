@@ -259,6 +259,14 @@ div.synonym-change-request button {
 #concept_graph_content {
   height: 100%;
 
+  // The graph canvas is absolutely positioned to fill the pane (no border/radius
+  // of its own), so the outer `.outline-tabs + .tab-content .tab-pane` border and
+  // rounded corners would double up around it — drop them for this pane only.
+  &.tab-pane {
+    border: none;
+    border-radius: 0;
+  }
+
   > .d-flex.flex-column,
   > .d-flex.flex-column > turbo-frame,
   > .d-flex.flex-column > turbo-frame > .entity-graph {
@@ -573,6 +581,7 @@ div.synonym-change-request button {
   // Match the round action buttons used elsewhere in the UI (e.g. the {} JSON
   // button): a 32px navy-outlined circle that fills navy with a white glyph on hover.
   &__icon-btn {
+    position: relative;
     width: 32px;
     height: 32px;
     border: 1px solid var(--primary-color);
@@ -595,6 +604,22 @@ div.synonym-change-request button {
     }
 
     svg { display: block; }
+
+    // Active-filter indicator: a small dot on the filter button when some
+    // relationships are hidden. White ring so it stays visible on the navy
+    // hover fill as well as the white default.
+    &.is-filtered::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #f0a848; // the relationship (amber) accent used in the graph
+      border: 2px solid #ffffff;
+      box-sizing: border-box;
+    }
   }
 
   // popovers open below their icon, right-aligned (icons live near the canvas's
