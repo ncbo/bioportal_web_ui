@@ -641,6 +641,49 @@ export function computeLayout (graph, opts = {}) {
       if (!improved) break
     }
 
+    // Same-rank relationship adjacency: a relationship between two nodes on the SAME
+    // rank (e.g. multicellular anatomical structure -has part-> cell) draws as a short
+    // arc between them. If another node sits BETWEEN them (e.g. `sac`), the arc has no
+    // shallow path — it must either duck deep past that box or clip it. So pull each
+    // such pair adjacent by moving the node(s) between them just outside the pair,
+    // provided it doesn't increase is-a crossings on that rank.
+    {
+      const crossAround = (d) => {
+        const di = depths.indexOf(d)
+        return crossingsBetween(depths[Math.max(0, di - 1)], d) + crossingsBetween(d, depths[Math.min(depths.length - 1, di + 1)])
+      }
+      for (const d of depths) {
+        const arr = ranks.get(d)
+        // collect same-rank rel pairs on this rank (by current membership)
+        const ids = new Set(arr.map((n) => n.id))
+        const pairs = []
+        for (const n of arr) {
+          for (const m of (relNbr.get(n.id) || [])) {
+            if (ids.has(m) && n.id < m) pairs.push([n.id, m])
+          }
+        }
+        for (const [x, y] of pairs) {
+          let ix = arr.findIndex((n) => n.id === x); let iy = arr.findIndex((n) => n.id === y)
+          if (ix < 0 || iy < 0) continue
+          let lo = Math.min(ix, iy); let hi = Math.max(ix, iy)
+          if (hi - lo <= 1) continue // already adjacent
+          // Move the LEFT partner rightward to sit just left of the right partner by
+          // shifting it up the array one slot at a time, accepting each shift only if
+          // is-a crossings don't get worse. This slides the in-between nodes to its left.
+          const before0 = crossAround(d)
+          let guard = 0
+          while (hi - lo > 1 && guard++ < arr.length) {
+            const j = lo // move arr[lo] right past arr[lo+1]
+            ;[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]
+            reindex(arr)
+            if (crossAround(d) > before0) { [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]; reindex(arr); break }
+            ix = arr.findIndex((n) => n.id === x); iy = arr.findIndex((n) => n.id === y)
+            lo = Math.min(ix, iy); hi = Math.max(ix, iy)
+          }
+        }
+      }
+    }
+
     // Rewrite _x from the new order: keep each rank's existing set of x-slots (so the
     // tidy spacing/width is preserved) but assign them left→right in the new order.
     // IMPORTANT: only the REAL nodes claim slots. A dummy must NOT be dropped into a
