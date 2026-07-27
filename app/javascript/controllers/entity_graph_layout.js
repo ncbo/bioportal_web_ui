@@ -988,8 +988,15 @@ export function routePath (a, b, obstacles, laneReg, nodeH) {
     // band the only thing to dodge is a same-row neighbour (like `sac`), which a shallow
     // arc clears. Try both directions; take the shallowest.
     const CORRIDOR = ROW_GAP + (nodeH || NODE_H_BASE)
-    const bDn = findBow(dnSign, CORRIDOR); const bUp = findBow(-dnSign, CORRIDOR)
-    if (bDn == null && bUp == null) best = { bow: Math.min(CORRIDOR, 0.45 * CORRIDOR + 24), sign: dnSign }
+    // Give the arc a visible curve: the shallowest CLEARING bow can be almost flat
+    // across a wide span, which reads as an ambiguous straight line rather than an
+    // arc. Floor the depth by a fraction of the horizontal span (wider edge → deeper
+    // dip so it stays legibly curved), clamped to the corridor so it never loops over
+    // the next rank.
+    const SAME_RANK_MIN = Math.min(CORRIDOR - 6, Math.max(30, adxEnds * 0.16))
+    const deepen = (bow) => bow == null ? null : Math.max(bow, SAME_RANK_MIN)
+    const bDn = deepen(findBow(dnSign, CORRIDOR)); const bUp = deepen(findBow(-dnSign, CORRIDOR))
+    if (bDn == null && bUp == null) best = { bow: Math.min(CORRIDOR, SAME_RANK_MIN), sign: dnSign }
     else if (bDn != null && (bUp == null || bDn <= bUp)) best = { bow: bDn, sign: dnSign }
     else best = { bow: bUp, sign: -dnSign }
   } else {
