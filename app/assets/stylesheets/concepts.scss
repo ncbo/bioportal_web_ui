@@ -552,12 +552,12 @@ div.synonym-change-request button {
   // popovers open below their icon, right-aligned (icons live near the canvas's
   // top-right, so a left-aligned popover could overflow the edge)
   &__options-pop,
-  &__help-pop {
+  &__help-pop,
+  &__menu-pop {
     position: absolute;
     top: calc(100% + 6px);
     right: 0;
     z-index: 20;
-    padding: 10px 12px;
     background: #ffffff;
     border: 1px solid #cfd8e2;
     border-radius: 8px;
@@ -567,8 +567,28 @@ div.synonym-change-request button {
     &[hidden] { display: none; }
   }
 
+  &__options-pop,
+  &__help-pop { padding: 10px 12px; }
   &__options-pop { width: 240px; font-size: 13px; }
   &__help-pop { width: 250px; font-size: 12px; }
+
+  // copy menu: a compact list of clickable actions
+  &__menu-pop { padding: 4px 0; min-width: 180px; font-size: 13px; }
+
+  &__menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 6px 14px;
+    border: none;
+    background: none;
+    color: #28374a;
+    font: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover { background: #eef3f8; }
+  }
 
   &__option {
     display: flex;
