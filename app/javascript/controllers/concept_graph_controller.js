@@ -156,6 +156,16 @@ export default class extends Controller {
     this.#render()
   }
 
+  // Does the graph reference any upper-ontology (BFO/COB) terms? Checked against the
+  // raw graph nodes (not the current hide/fade view) and cached, so the upper-ontology
+  // controls are shown iff they'd actually do something.
+  #hasUpperOntology () {
+    if (this._hasUpper === undefined) {
+      this._hasUpper = (this.nodes || []).some((n) => isUpperOnto(n.id))
+    }
+    return this._hasUpper
+  }
+
   #buildGear () {
     const cbByKey = {}
     const pop = document.createElement('div')
@@ -182,11 +192,15 @@ export default class extends Controller {
     addCheckbox('isaOnly', 'Only show is-a')
     addCheckbox('transitiveReduction', 'Transitive reduction')
 
-    // Upper ontology (BFO/COB) is a THREE-state choice — Show / Fade / Hide — so a
-    // segmented radio reads clearer than two interdependent checkboxes.
-    pop.append(this.#buildUpperSegment())
+    // Upper-ontology controls only make sense when the graph actually references
+    // BFO/COB terms — otherwise Show/Fade/Hide and "authoritative info" are no-ops.
+    if (this.#hasUpperOntology()) {
+      // Upper ontology (BFO/COB) is a THREE-state choice — Show / Fade / Hide — so a
+      // segmented radio reads clearer than two interdependent checkboxes.
+      pop.append(this.#buildUpperSegment())
+      addCheckbox('useUpperInfo', 'Use authoritative BFO/COB info')
+    }
 
-    addCheckbox('useUpperInfo', 'Use authoritative BFO/COB info')
     addCheckbox('showPills', 'Show short-id pills')
     addCheckbox('showAcronym', 'Show ontology acronym')
 
