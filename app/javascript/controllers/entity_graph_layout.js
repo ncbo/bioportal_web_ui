@@ -1059,16 +1059,17 @@ export function routePath (a, b, obstacles, laneReg, nodeH) {
     // arc clears. Try both directions; take the shallowest.
     const CORRIDOR = ROW_GAP + (nodeH || NODE_H_BASE)
     // Every same-rank arc needs to clear the ROW's own box bottoms/tops by a margin,
-    // or it grazes the boxes and its arrowhead lands on a node edge (the overlap bug).
-    // The apex must sit at least half a node height + a margin off the row line.
-    const CLEAR_BOX = (nodeH || NODE_H_BASE) / 2 + 12
-    // A wide arc over OPEN space is floored a bit deeper still so it reads as an arc,
-    // not an ambiguous straight line. But when a node sits BETWEEN the endpoints (like
+    // and then some: a bend that just clears the box reads as a shallow ambiguous
+    // line, so give it a noticeable apex depth (half a node height + a generous
+    // margin) to read clearly as a relationship arc.
+    const CLEAR_BOX = (nodeH || NODE_H_BASE) / 2 + 22
+    // A wide arc over OPEN space is floored deeper still, scaled to its span so a long
+    // one arcs proportionally more. But when a node sits BETWEEN the endpoints (like
     // `sac` between cell and multicellular) the natural clearing bow is already deep,
     // so we don't pile extra depth on and make it duck — just ensure the box clearance.
     const loX = Math.min(a.x, b.x); const hiX = Math.max(a.x, b.x)
     const between = obstacles.some((r) => r.id !== a.id && r.id !== b.id && Math.abs(r.y - a.y) < 2 && r.x > loX && r.x < hiX)
-    const floor = between ? CLEAR_BOX : Math.min(CORRIDOR - 6, Math.max(CLEAR_BOX, adxEnds * 0.10))
+    const floor = between ? CLEAR_BOX : Math.min(CORRIDOR - 6, Math.max(CLEAR_BOX, adxEnds * 0.16))
     const deepen = (bow) => bow == null ? null : Math.max(bow, floor)
     const bDn = deepen(findBow(dnSign, CORRIDOR)); const bUp = deepen(findBow(-dnSign, CORRIDOR))
     if (bDn == null && bUp == null) best = { bow: Math.min(CORRIDOR, Math.max(floor, 24)), sign: dnSign }
