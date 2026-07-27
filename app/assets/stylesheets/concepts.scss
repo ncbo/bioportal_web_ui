@@ -577,7 +577,8 @@ div.synonym-change-request button {
   // top-right, so a left-aligned popover could overflow the edge)
   &__options-pop,
   &__help-pop,
-  &__menu-pop {
+  &__menu-pop,
+  &__filter-pop {
     position: absolute;
     top: calc(100% + 6px);
     right: 0;
@@ -612,6 +613,85 @@ div.synonym-change-request button {
     white-space: nowrap;
 
     &:hover { background: #eef3f8; }
+  }
+
+  // Relationship-property picker popover
+  &__filter-pop {
+    width: 260px;
+    font-size: 13px;
+    padding: 8px 0;
+  }
+
+  &__filter-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 12px 6px;
+    font-weight: 600;
+    color: #33465e;
+    border-bottom: 1px solid #eef2f6;
+  }
+
+  &__filter-actions button {
+    border: none;
+    background: none;
+    color: var(--primary-color);
+    font: inherit;
+    cursor: pointer;
+    padding: 0 4px;
+
+    &:hover { text-decoration: underline; }
+  }
+
+  &__filter-search {
+    display: block;
+    width: calc(100% - 24px);
+    margin: 8px 12px 4px;
+    padding: 4px 8px;
+    border: 1px solid #cfd8e2;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+  }
+
+  // the list scrolls once it gets tall — the key to scaling with many properties
+  &__filter-list {
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+
+  &__filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 4px 12px;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover { background: #f5f8fb; }
+    input { cursor: pointer; flex: 0 0 auto; }
+  }
+
+  &__filter-swatch {
+    flex: 0 0 auto;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  &__filter-name {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__filter-count {
+    flex: 0 0 auto;
+    color: #8794a5;
+    font-variant-numeric: tabular-nums;
   }
 
   &__option {

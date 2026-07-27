@@ -41,6 +41,8 @@ export default class extends Controller {
       showPills: false,
       showAcronym: true
     }
+    // relationship properties toggled OFF (by property key); is-a is never hidden here
+    this._hiddenProps = new Set()
 
     if (this.nodes.length <= 1 && this.edges.length === 0) {
       this.emptyTarget.classList.remove('d-none')
@@ -88,7 +90,10 @@ export default class extends Controller {
   #buildChrome (canvas) {
     const cluster = document.createElement('div')
     cluster.className = 'entity-graph__chrome'
-    cluster.append(this.#buildPopout(), this.#buildCopy(), this.#buildGear(), this.#buildHelp())
+    cluster.append(this.#buildPopout(), this.#buildCopy())
+    // relationship-property picker — only when the graph has relationships to pick
+    if (this.#relProps().length) cluster.append(this.#buildFilter())
+    cluster.append(this.#buildGear(), this.#buildHelp())
     canvas.append(cluster)
   }
 
@@ -120,6 +125,98 @@ export default class extends Controller {
     holder.append(btn, pop)
     this.#wirePopover(holder, btn, pop)
     return holder
+  }
+
+  // Relationship-property picker: a scrollable list of the graph's relationship
+  // properties (each with a colour swatch + edge count), toggleable on/off, with
+  // All/None bulk actions and a filter box that appears once the list is long — so
+  // it stays usable whether the graph has 2 properties or 40.
+  #buildFilter () {
+    const props = this.#relProps()
+    const holder = document.createElement('span')
+    holder.className = 'entity-graph__icon-wrap'
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'entity-graph__icon-btn'
+    btn.title = 'Choose relationships'
+    btn.setAttribute('aria-label', 'Choose relationships')
+    // funnel/filter glyph
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5z"/></svg>'
+
+    const pop = document.createElement('div')
+    pop.className = 'entity-graph__filter-pop'
+    pop.hidden = true
+
+    // header: title + All / None
+    const head = document.createElement('div'); head.className = 'entity-graph__filter-head'
+    const title = document.createElement('span'); title.textContent = 'Relationships'
+    const actions = document.createElement('span'); actions.className = 'entity-graph__filter-actions'
+    const allBtn = document.createElement('button'); allBtn.type = 'button'; allBtn.textContent = 'All'
+    const noneBtn = document.createElement('button'); noneBtn.type = 'button'; noneBtn.textContent = 'None'
+    actions.append(allBtn, noneBtn)
+    head.append(title, actions)
+    pop.append(head)
+
+    // optional filter box for long lists
+    let filterInput = null
+    if (props.length > 10) {
+      filterInput = document.createElement('input')
+      filterInput.type = 'search'; filterInput.placeholder = 'Filter…'; filterInput.className = 'entity-graph__filter-search'
+      pop.append(filterInput)
+    }
+
+    const list = document.createElement('div'); list.className = 'entity-graph__filter-list'
+    pop.append(list)
+
+    const rowByKey = new Map()
+    props.forEach(({ key, count }) => {
+      const label = document.createElement('label'); label.className = 'entity-graph__filter-item'
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !this._hiddenProps.has(key)
+      const swatch = document.createElement('span'); swatch.className = 'entity-graph__filter-swatch'
+      swatch.style.background = this.#propColor(key)
+      const text = document.createElement('span'); text.className = 'entity-graph__filter-name'; text.textContent = key
+      const cnt = document.createElement('span'); cnt.className = 'entity-graph__filter-count'; cnt.textContent = count
+      cb.addEventListener('change', () => {
+        if (cb.checked) this._hiddenProps.delete(key); else this._hiddenProps.add(key)
+        this.#render()
+      })
+      label.append(cb, swatch, text, cnt)
+      list.append(label)
+      rowByKey.set(key, { cb, label })
+    })
+
+    const setAll = (on) => {
+      props.forEach(({ key }) => {
+        if (on) this._hiddenProps.delete(key); else this._hiddenProps.add(key)
+        const r = rowByKey.get(key); if (r) r.cb.checked = on
+      })
+      this.#render()
+    }
+    allBtn.addEventListener('click', (ev) => { ev.stopPropagation(); setAll(true) })
+    noneBtn.addEventListener('click', (ev) => { ev.stopPropagation(); setAll(false) })
+    if (filterInput) {
+      filterInput.addEventListener('input', () => {
+        const q = filterInput.value.trim().toLowerCase()
+        rowByKey.forEach(({ label }, key) => { label.style.display = (!q || key.toLowerCase().includes(q)) ? '' : 'none' })
+      })
+      // keep clicks inside the search from closing the popover
+      filterInput.addEventListener('click', (ev) => ev.stopPropagation())
+    }
+
+    holder.append(btn, pop)
+    this.#wirePopover(holder, btn, pop)
+    return holder
+  }
+
+  // A stable colour per relationship property. All relationship edges are drawn the
+  // same blue today; this gives the picker a meaningful swatch (and is ready to drive
+  // per-property edge colours later).
+  #propColor (key) {
+    // fixed palette, assigned by hashing the key so the colour is stable per property
+    const palette = ['#2f6fed', '#e0692f', '#1f9d57', '#9b59b6', '#d9a800', '#0e9aa7', '#c0392b', '#5d6d7e']
+    let h = 0
+    for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0
+    return palette[h % palette.length]
   }
 
   // Popout/close button: toggles a full-viewport overlay so the graph can use the
@@ -164,6 +261,40 @@ export default class extends Controller {
       this._hasUpper = (this.nodes || []).some((n) => isUpperOnto(n.id))
     }
     return this._hasUpper
+  }
+
+  // The key that identifies a relationship property (its display label). Falls back
+  // to an explicit property field or a placeholder for unlabelled relationships.
+  #propKey (e) {
+    return e.label || e.property || '(unlabelled)'
+  }
+
+  // Distinct relationship properties present in THIS graph, with edge counts, sorted
+  // by frequency then name — so the picker lists only what's relevant (scales with
+  // the graph, not the ontology's whole property set). Computed once.
+  #relProps () {
+    if (!this._relProps) {
+      const counts = new Map()
+      ;(this.edges || []).forEach((e) => {
+        if (e.kind === 'is-a') return
+        const k = this.#propKey(e)
+        counts.set(k, (counts.get(k) || 0) + 1)
+      })
+      this._relProps = [...counts.entries()]
+        .map(([key, count]) => ({ key, count }))
+        .sort((a, b) => b.count - a.count || (a.key < b.key ? -1 : 1))
+    }
+    return this._relProps
+  }
+
+  // The graph with hidden-property relationship edges removed, so hidden edges affect
+  // neither the layout nor the drawing.
+  #visibleGraph () {
+    if (!this._hiddenProps.size) return this.graph
+    return {
+      ...this.graph,
+      edges: this.graph.edges.filter((e) => e.kind === 'is-a' || !this._hiddenProps.has(this.#propKey(e)))
+    }
   }
 
   #buildGear () {
@@ -294,7 +425,7 @@ export default class extends Controller {
 
   #render () {
     const nodeH = this.#effNodeH()
-    const L = computeLayout(this.graph, { ...this.opts, nodeH })
+    const L = computeLayout(this.#visibleGraph(), { ...this.opts, nodeH })
     this._layout = L
     const N = (id) => L.nodes.get(id)
 
