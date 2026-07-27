@@ -170,6 +170,9 @@ export default class extends Controller {
     const list = document.createElement('div'); list.className = 'entity-graph__filter-list'
     pop.append(list)
 
+    // Toggling checkboxes only updates the pending hidden-set — the graph is not
+    // re-laid-out on every click. It updates once, when the popover closes (below),
+    // and only if the selection actually changed since it opened.
     const rowByKey = new Map()
     props.forEach(({ key, count }) => {
       const label = document.createElement('label'); label.className = 'entity-graph__filter-item'
@@ -178,8 +181,6 @@ export default class extends Controller {
       const cnt = document.createElement('span'); cnt.className = 'entity-graph__filter-count'; cnt.textContent = count
       cb.addEventListener('change', () => {
         if (cb.checked) this._hiddenProps.delete(key); else this._hiddenProps.add(key)
-        this.#saveHiddenProps()
-        this.#render()
       })
       label.append(cb, text, cnt)
       list.append(label)
@@ -191,8 +192,6 @@ export default class extends Controller {
         if (on) this._hiddenProps.delete(key); else this._hiddenProps.add(key)
         const r = rowByKey.get(key); if (r) r.cb.checked = on
       })
-      this.#saveHiddenProps()
-      this.#render()
     }
     allBtn.addEventListener('click', (ev) => { ev.stopPropagation(); setAll(true) })
     noneBtn.addEventListener('click', (ev) => { ev.stopPropagation(); setAll(false) })
@@ -206,7 +205,14 @@ export default class extends Controller {
     }
 
     holder.append(btn, pop)
-    this.#wirePopover(holder, btn, pop)
+    // snapshot the selection when the popover opens; on close, if it changed, persist
+    // and re-render once.
+    let openSnapshot = null
+    btn.addEventListener('click', () => { if (pop.hidden) openSnapshot = [...this._hiddenProps].sort().join('') }, true)
+    this.#wirePopover(holder, btn, pop, () => {
+      const now = [...this._hiddenProps].sort().join('')
+      if (now !== openSnapshot) { this.#saveHiddenProps(); this.#render() }
+    })
     return holder
   }
 
@@ -420,15 +426,25 @@ export default class extends Controller {
     return holder
   }
 
-  // toggle a popover open/closed; a document click outside the holder closes it
-  #wirePopover (holder, btn, pop) {
-    const onDoc = (ev) => { if (!holder.contains(ev.target)) { pop.hidden = true; document.removeEventListener('click', onDoc, true) } }
+  // toggle a popover open/closed; a document click outside the holder closes it.
+  // onClose (optional) fires whenever the popover transitions from open to closed —
+  // used by the filter popover to apply pending changes only once, on close.
+  #wirePopover (holder, btn, pop, onClose) {
+    const close = () => {
+      if (pop.hidden) return
+      pop.hidden = true
+      document.removeEventListener('click', onDoc, true)
+      if (onClose) onClose()
+    }
+    const onDoc = (ev) => { if (!holder.contains(ev.target)) close() }
     btn.addEventListener('click', (ev) => {
       ev.stopPropagation()
-      const open = pop.hidden
-      pop.hidden = !open
-      if (open) setTimeout(() => document.addEventListener('click', onDoc, true), 0)
-      else document.removeEventListener('click', onDoc, true)
+      if (pop.hidden) {
+        pop.hidden = false
+        setTimeout(() => document.addEventListener('click', onDoc, true), 0)
+      } else {
+        close()
+      }
     })
   }
 
