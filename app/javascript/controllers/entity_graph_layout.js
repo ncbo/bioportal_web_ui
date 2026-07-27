@@ -988,15 +988,19 @@ export function routePath (a, b, obstacles, laneReg, nodeH) {
     // band the only thing to dodge is a same-row neighbour (like `sac`), which a shallow
     // arc clears. Try both directions; take the shallowest.
     const CORRIDOR = ROW_GAP + (nodeH || NODE_H_BASE)
-    // Give the arc a visible curve: the shallowest CLEARING bow can be almost flat
-    // across a wide span, which reads as an ambiguous straight line rather than an
-    // arc. Floor the depth by a fraction of the horizontal span (wider edge → deeper
-    // dip so it stays legibly curved), clamped to the corridor so it never loops over
-    // the next rank.
-    const SAME_RANK_MIN = Math.min(CORRIDOR - 6, Math.max(30, adxEnds * 0.16))
-    const deepen = (bow) => bow == null ? null : Math.max(bow, SAME_RANK_MIN)
+    // Is any node actually sitting BETWEEN the two endpoints on this rank (like `sac`
+    // between cell and multicellular)? If so, the bow is already forced deep enough to
+    // clear it and reads clearly as an arc — leave it alone. Adding an extra minimum
+    // there only makes it duck further under the intervening box, which looks pinched.
+    const loX = Math.min(a.x, b.x); const hiX = Math.max(a.x, b.x)
+    const between = obstacles.some((r) => r.id !== a.id && r.id !== b.id && Math.abs(r.y - a.y) < 2 && r.x > loX && r.x < hiX)
+    // Only when the span is CLEAR do we floor the depth, so a wide flat edge over open
+    // space still reads as an arc rather than an ambiguous straight line. Modest — a
+    // gentle, symmetric dip — and clamped to the corridor.
+    const floor = between ? 0 : Math.min(CORRIDOR - 6, Math.max(18, adxEnds * 0.10))
+    const deepen = (bow) => bow == null ? null : Math.max(bow, floor)
     const bDn = deepen(findBow(dnSign, CORRIDOR)); const bUp = deepen(findBow(-dnSign, CORRIDOR))
-    if (bDn == null && bUp == null) best = { bow: Math.min(CORRIDOR, SAME_RANK_MIN), sign: dnSign }
+    if (bDn == null && bUp == null) best = { bow: Math.min(CORRIDOR, Math.max(floor, 24)), sign: dnSign }
     else if (bDn != null && (bUp == null || bDn <= bUp)) best = { bow: bDn, sign: dnSign }
     else best = { bow: bUp, sign: -dnSign }
   } else {
