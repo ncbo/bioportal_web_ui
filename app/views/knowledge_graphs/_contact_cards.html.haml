@@ -1,0 +1,21 @@
+- items = Array(items).compact
+
+- if items.any?
+  %section.mt-4
+    %h2.h4= title
+    - items.each do |contact|
+      %div.card.mb-2
+        %div.card-body
+          %div.fw-bold= contact[:label].presence || contact[:id].presence || "Contact"
+          - if contact[:category].present?
+            %div.text-muted.small= contact[:category]
+          - details = Array(contact[:contact_details]).compact
+          - if details.any?
+            %ul.list-unstyled.mb-0.mt-2
+              - details.each do |detail|
+                - value = kg_contact_value(detail[:contact_type], detail[:value])
+                - next if value.blank?
+                %li
+                  %span.fw-semibold= detail[:contact_type].to_s.tr("_", " ").capitalize
+                  = ": "
+                  = value
