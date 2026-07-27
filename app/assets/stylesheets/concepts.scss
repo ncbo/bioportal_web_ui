@@ -503,6 +503,30 @@ div.synonym-change-request button {
     }
   }
 
+  // Minimap thumbnail: the snapshot is scaled to ~0.1x, so the real node/edge
+  // strokes shrink to sub-pixel and disappear. Give the boxes a solid muted fill
+  // and keep edges as thin non-scaling lines so the graph's shape reads at a glance.
+  &__minimap-svg {
+    .entity-graph__node-shape {
+      fill: #b9c4d4;
+      stroke: none;
+    }
+
+    .entity-graph__node--selected .entity-graph__node-shape {
+      fill: var(--primary-color);
+    }
+
+    .entity-graph__node--collector .entity-graph__node-shape {
+      fill: #dbe1e9;
+    }
+
+    .entity-graph__edge {
+      stroke-width: 1px;
+      vector-effect: non-scaling-stroke;
+      opacity: 0.5;
+    }
+  }
+
   // Toolbar (search + option toggles) --------------------------------------
   // Floating chrome: the popout / settings (gear) / key (?) icon buttons, stacked
   // vertically at the top-right, just under the zoom controls. A high z-index keeps

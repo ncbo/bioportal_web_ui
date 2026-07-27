@@ -1079,9 +1079,15 @@ export default class extends Controller {
     const mmW = Math.round(world.w * mmScale); const mmH = Math.round(world.h * mmScale)
     const mm = document.createElement('div'); mm.className = 'entity-graph__minimap'
     const mmSvg = document.createElementNS(SVG, 'svg')
+    mmSvg.setAttribute('class', 'entity-graph__minimap-svg')
     mmSvg.setAttribute('width', mmW); mmSvg.setAttribute('height', mmH)
     mmSvg.setAttribute('viewBox', `${world.x} ${world.y} ${world.w} ${world.h}`)
     const snap = vp.cloneNode(true); snap.removeAttribute('transform'); snap.style.pointerEvents = 'none'
+    // At thumbnail scale (~0.1x) the real strokes/labels shrink to sub-pixel and
+    // vanish, leaving the minimap looking blank. Strip the text/badge clutter and
+    // let the CSS give the boxes a solid fill + non-scaling strokes so the shape of
+    // the graph reads at a glance.
+    snap.querySelectorAll('text, .entity-graph__node-pill, .entity-graph__edge-label-bg, .entity-graph__edge-knockout').forEach((el) => el.remove())
     mmSvg.append(snap)
     const mmView = document.createElementNS(SVG, 'rect'); mmView.setAttribute('class', 'entity-graph__minimap-view')
     mmSvg.append(mmView)
