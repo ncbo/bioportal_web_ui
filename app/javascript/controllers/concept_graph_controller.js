@@ -756,7 +756,13 @@ export default class extends Controller {
     const canvas = this.canvasTarget
     const winSize = () => {
       const r = canvas.getBoundingClientRect()
-      return { w: r.width || 900, h: r.height || 560 }
+      // Fit against the VISIBLE height: the canvas can extend below the viewport
+      // (its height is clamp(…100vh-260px…) and page chrome sits below it), so
+      // fitting to the full canvas height pushed the bottom node off-screen. Clamp
+      // the height to the part of the canvas actually within the viewport.
+      const vh = window.innerHeight || document.documentElement.clientHeight
+      const visibleH = Math.min(r.height, Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0)))
+      return { w: r.width || 900, h: (visibleH || r.height) || 560 }
     }
     let { w: winW, h: winH } = winSize()
     // Fit scale never magnifies past 1:1 — a small graph shows at its natural size,
