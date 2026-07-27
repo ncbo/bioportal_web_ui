@@ -27,6 +27,11 @@ const REL_SIB_GAP = 96
 // Extra gutter between two adjacent same-rank nodes that descend from DIFFERENT
 // is-a parents (cousins), so distinct sibling groups read as separate clusters.
 const COUSIN_GAP = SIB_GAP + 62
+// Effective width a dummy waypoint reserves in its rank row. A long edge is routed
+// through a chain of these; giving them real width makes the gap-constrained
+// x-relaxation push neighbouring nodes ASIDE, opening a visible vertical corridor
+// for the edge instead of letting it cut through boxes. (They're never drawn.)
+const DUMMY_W = 26
 
 // ---- id helpers -------------------------------------------------------------
 // Short compact id from an IRI: last path/fragment segment, with the OBO-style
@@ -304,7 +309,7 @@ export function computeLayout (graph, opts = {}) {
       // Record the overlay's two real endpoints so the relaxation can hold the
       // dummy on the straight line between them (keeping the corridor from being
       // dragged sideways into the node field — see x-relaxation).
-      nodes.set(id, { id, label: '', width: 8, children: [], isDummy: true, _depth: r, dummyFrom: e.from, dummyTo: e.to })
+      nodes.set(id, { id, label: '', width: DUMMY_W, children: [], isDummy: true, _depth: r, dummyFrom: e.from, dummyTo: e.to })
       rank.set(id, r)
       chain.push(id)
     }
@@ -764,20 +769,21 @@ export function computeLayout (graph, opts = {}) {
       })
     }
 
-    // Final dummy-straightening: force every dummy exactly onto the straight line
-    // between its overlay's two (now-final) real endpoints. During relaxation the
-    // per-rank gap clamp can still shove a dummy past its target when a wide node
-    // sits beside it — leaving the waypoint outside the endpoint x-range, so the
-    // drawn edge bulges out in a big S. Dummies are invisible and only define the
-    // edge's path, so they can ignore the gap constraints and sit dead on the line;
-    // this guarantees a long edge is a clean monotonic channel with no bulge.
+    // Final dummy clamp (NOT a hard straighten): keep the corridor the gap-
+    // constrained relaxation opened — real nodes have been pushed aside for the
+    // dummy's reserved width — but stop a chain from bulging OUTSIDE its endpoints'
+    // x-range (which drew as a big S). We clamp each dummy to the running span
+    // between its endpoints so the channel stays monotonic without collapsing it
+    // back onto a dead-straight line through the boxes. A previous version forced
+    // the dummy exactly onto the straight line, which slammed it through node boxes
+    // and defeated the whole point of the corridor.
     dummyChains.forEach(({ chain, from, to }) => {
       const a = nodes.get(from); const b = nodes.get(to)
       if (!a || !b || a._depth === b._depth) return
+      const loX = Math.min(a._x, b._x); const hiX = Math.max(a._x, b._x)
       chain.forEach((id) => {
         const d = nodes.get(id); if (!d) return
-        const t = (d._depth - a._depth) / (b._depth - a._depth)
-        d._x = a._x + (b._x - a._x) * t
+        d._x = Math.max(loX, Math.min(hiX, d._x)) // keep within the endpoint span; hold the relaxed position otherwise
       })
     })
   }
@@ -841,6 +847,16 @@ export function computeLayout (graph, opts = {}) {
     e.waypoints = rec.chain.map((id) => { const d = nodes.get(id); return { x: d.x, y: d.y } })
   })
 
+  // Debug: collect the dummy waypoints (final coords) so the renderer can draw them
+  // as markers when opts.debugDummies is on — lets you SEE the corridors the layout
+  // opened for long edges. Off by default; dummies are otherwise invisible.
+  const dummyDebug = []
+  if (opts.debugDummies) {
+    dummyChains.forEach(({ chain, from, to }) => {
+      chain.forEach((id) => { const d = nodes.get(id); if (d) dummyDebug.push({ x: d.x, y: d.y, from, to }) })
+    })
+  }
+
   // Drop the dummy nodes from the output: their only purpose was to shape the
   // layout and supply waypoints (already copied onto the overlays above). The
   // renderer must never see them as boxes/obstacles.
@@ -848,7 +864,7 @@ export function computeLayout (graph, opts = {}) {
 
   const treeEdges = []
   primary.forEach((e, id) => treeEdges.push({ from: id, to: e.to, kind: e.kind, label: e.label }))
-  return { nodes, treeEdges, overlays, width, height, collector }
+  return { nodes, treeEdges, overlays, width, height, collector, dummyDebug }
 }
 
 // ================= EDGE ROUTING =================

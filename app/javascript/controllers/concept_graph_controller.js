@@ -73,6 +73,9 @@ export default class extends Controller {
     this.#boot()
   }
 
+  // debug helper: re-render (e.g. after toggling window.__egDebugDummies).
+  debugRerender () { this.#render() }
+
   // --- boot / chrome --------------------------------------------------------
 
   #boot () {
@@ -513,7 +516,13 @@ export default class extends Controller {
 
   #render () {
     const nodeH = this.#effNodeH()
-    const L = computeLayout(this.#visibleGraph(), { ...this.opts, nodeH })
+    // debug: draw the dummy-node waypoints that long edges are routed through. Enable
+    // by running `localStorage.setItem('entity-graph:debug-dummies','1')` in the
+    // console and reloading (or set window.__egDebugDummies=true for the current
+    // render). Picked up on the natural initial render so there's no re-render.
+    let debugDummies = typeof window !== 'undefined' && !!window.__egDebugDummies
+    try { debugDummies = debugDummies || window.localStorage.getItem('entity-graph:debug-dummies') === '1' } catch (_) { /* storage off */ }
+    const L = computeLayout(this.#visibleGraph(), { ...this.opts, nodeH, debugDummies })
     this._layout = L
     const N = (id) => L.nodes.get(id)
 
@@ -582,6 +591,20 @@ export default class extends Controller {
     }
     L.treeEdges.forEach((e) => drawEdge(e, false))
     L.overlays.forEach((e) => drawEdge(e, true))
+
+    // debug: draw the dummy-node waypoints (the corridors long edges are routed
+    // through). Only present when opts.debugDummies is on. Magenta rings so they
+    // stand out against the graph.
+    if (L.dummyDebug && L.dummyDebug.length) {
+      const dg = document.createElementNS(SVG, 'g')
+      L.dummyDebug.forEach((d) => {
+        const c = document.createElementNS(SVG, 'circle')
+        c.setAttribute('cx', d.x); c.setAttribute('cy', d.y); c.setAttribute('r', '4')
+        c.setAttribute('fill', '#ff00aa'); c.setAttribute('stroke', '#ffffff'); c.setAttribute('stroke-width', '1')
+        dg.append(c)
+      })
+      vp.append(dg)
+    }
 
     // bridge knockouts: gap where an edge tunnels under an unrelated node box
     this.#drawKnockouts(kg, edgeSegs, L, nodeH)
