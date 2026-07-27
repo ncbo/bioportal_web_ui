@@ -249,6 +249,23 @@ div.synonym-change-request button {
   }
 }
 
+// While the Entity Graph frame is fetching, the pane collapses to just the loader.
+// The TabsContainerComponent renders an <hr> per tab item (styled full-width by
+// `.tabs-container hr`), which showed through as a faint line across the middle of
+// the loading pane. Give the graph pane a clean, full-height centred loader and
+// suppress any such stray line while it loads.
+#concept_graph_content {
+  > .d-flex.flex-column {
+    min-height: clamp(480px, calc(100vh - 260px), 900px);
+    justify-content: center;
+  }
+
+  .show-if-loading hr,
+  > hr {
+    display: none;
+  }
+}
+
 .entity-graph {
   position: relative;
   display: flex;
