@@ -494,54 +494,26 @@ div.synonym-change-request button {
   }
 
   // Toolbar (search + option toggles) --------------------------------------
-  // Pinned to the top of the scroll container so it stays reachable no matter how
-  // far the graph below is scrolled.
-  &__toolbar {
-    position: sticky;
-    top: 0;
-    z-index: 15;
+  // Floating chrome: the settings (gear) + key (?) icon buttons, stacked at the
+  // top-right just under the zoom controls. A high z-index keeps them clickable
+  // above the concept page's sub-tab bar, which overlaps the top of the canvas.
+  &__chrome {
+    position: absolute;
+    top: 92px; // clear of the 3-button zoom column above
+    right: 8px;
+    z-index: 16;
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 10px;
-    padding: 7px 12px;
-    background: #ffffff;
-    border: 1px solid #dfe6ec;
-    border-radius: 8px;
-    font-size: 13px;
-    color: #4a5b6e;
-
-    &:empty { display: none; }
-
-    label { margin: 0; }
+    gap: 6px;
   }
 
-
-  // Options + legend icons ------------------------------------------------
-  // Display toggles and the key/shortcuts each collapse behind a small icon
-  // button (gear and "?") that toggles a popover, so the toolbar row stays just
-  // the search box plus these two icons.
-  &__opts,
-  &__help {
+  &__icon-wrap {
     position: relative;
     display: inline-flex;
   }
 
-  // push the icon cluster to the far end of the row; the gear starts it, help
-  // sits right after with a small gap
-  &__opts {
-    margin-left: auto;
-  }
-
-  &__opts + &__help {
-    margin-left: 6px;
-  }
-
-  &__opts-btn,
-  &__help-btn {
-    width: 22px;
-    height: 22px;
+  &__icon-btn {
+    width: 26px;
+    height: 26px;
     border: 1px solid #cfd8e2;
     border-radius: 50%;
     background: #ffffff;
@@ -553,27 +525,32 @@ div.synonym-change-request button {
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 
     &:hover { background: #eef3f8; }
+    svg { display: block; }
   }
 
-  // options popover: the stacked display-toggle checkboxes
-  &__options-pop {
+  // popovers open below their icon, right-aligned (icons live near the canvas's
+  // top-right, so a left-aligned popover could overflow the edge)
+  &__options-pop,
+  &__help-pop {
     position: absolute;
     top: calc(100% + 6px);
     right: 0;
     z-index: 20;
-    width: 240px;
-    padding: 8px 12px;
+    padding: 10px 12px;
     background: #ffffff;
     border: 1px solid #cfd8e2;
     border-radius: 8px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
-    font-size: 13px;
     color: #4a5b6e;
 
     &[hidden] { display: none; }
   }
+
+  &__options-pop { width: 240px; font-size: 13px; }
+  &__help-pop { width: 250px; font-size: 12px; }
 
   &__option {
     display: flex;
@@ -585,23 +562,6 @@ div.synonym-change-request button {
     user-select: none;
 
     input { cursor: pointer; }
-  }
-
-  &__help-pop {
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    z-index: 20;
-    width: 250px;
-    padding: 10px 12px;
-    background: #ffffff;
-    border: 1px solid #cfd8e2;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
-    font-size: 12px;
-    color: #4a5b6e;
-
-    &[hidden] { display: none; }
   }
 
   &__legend-item {

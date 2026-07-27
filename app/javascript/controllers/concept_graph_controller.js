@@ -18,7 +18,7 @@ const MINIMAP_MAX = 240 // longest edge of the minimap thumbnail
 // The full graph is delivered in one payload from the server (no client fetches).
 // Connects to data-controller="concept-graph".
 export default class extends Controller {
-  static targets = ['canvas', 'gate', 'empty', 'toolbar']
+  static targets = ['canvas', 'gate', 'empty']
   static values = {
     graph: Object,
     ontology: String,
@@ -69,7 +69,6 @@ export default class extends Controller {
   // --- boot / chrome --------------------------------------------------------
 
   #boot () {
-    this.#buildToolbar()
     this.#render()
     if (!this._resizeObserver && 'ResizeObserver' in window) {
       // re-fit while the pane settles / becomes visible, until the user zooms
@@ -82,13 +81,18 @@ export default class extends Controller {
     return this.opts.showPills ? NODE_H_BASE + PILL_H + PILL_PAD : NODE_H_BASE
   }
 
-  #buildToolbar () {
-    if (!this.hasToolbarTarget) return
-    const t = this.toolbarTarget
-    t.replaceChildren()
+  // Floating chrome: the settings (gear) and key (?) icon buttons, overlaid on the
+  // top-left of the canvas (the zoom controls sit top-right). No toolbar row — the
+  // graph gets the full height. Rebuilt on each render (the canvas content is
+  // replaced), so it's appended here rather than to a persistent toolbar element.
+  #buildChrome (canvas) {
+    const cluster = document.createElement('div')
+    cluster.className = 'entity-graph__chrome'
+    cluster.append(this.#buildGear(), this.#buildHelp())
+    canvas.append(cluster)
+  }
 
-    // Display toggles live in a popover behind a gear icon (keeps the row to just
-    // the search box + the gear/help icons, so the bar doesn't crowd the graph).
+  #buildGear () {
     const toggles = [
       ['isaOnly', 'Only show is-a'],
       ['transitiveReduction', 'Transitive reduction'],
@@ -99,9 +103,9 @@ export default class extends Controller {
       ['showAcronym', 'Show ontology acronym']
     ]
     const cbByKey = {}
-    const optsPop = document.createElement('div')
-    optsPop.className = 'entity-graph__options-pop'
-    optsPop.hidden = true
+    const pop = document.createElement('div')
+    pop.className = 'entity-graph__options-pop'
+    pop.hidden = true
     toggles.forEach(([key, text]) => {
       const label = document.createElement('label')
       label.className = 'entity-graph__option'
@@ -111,45 +115,30 @@ export default class extends Controller {
       cb.addEventListener('change', () => {
         this.opts[key] = cb.checked
         // pills and acronym are mutually exclusive — sync the other box in place
-        // (no toolbar rebuild, so the popover stays open)
         if (key === 'showPills' && cb.checked) { this.opts.showAcronym = false; cbByKey.showAcronym.checked = false }
         if (key === 'showAcronym' && cb.checked) { this.opts.showPills = false; cbByKey.showPills.checked = false }
         this.#render()
       })
       label.append(cb, document.createTextNode(' ' + text))
-      optsPop.append(label)
+      pop.append(label)
     })
 
-    // gear button + its popover, pushed to the far end of the row (before help)
-    const gearHolder = document.createElement('span')
-    gearHolder.className = 'entity-graph__opts'
-    const gearBtn = document.createElement('button')
-    gearBtn.type = 'button'
-    gearBtn.className = 'entity-graph__opts-btn'
-    gearBtn.title = 'Display options'
-    gearBtn.setAttribute('aria-label', 'Display options')
-    // flat, simple gear: one ring of short teeth + a hollow hub, thin strokes
-    gearBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></svg>'
-    gearHolder.append(gearBtn, optsPop)
-    const closeOpts = () => { optsPop.hidden = true; document.removeEventListener('click', onDoc, true) }
-    const onDoc = (ev) => { if (!gearHolder.contains(ev.target)) closeOpts() }
-    gearBtn.addEventListener('click', (ev) => {
-      ev.stopPropagation()
-      const open = optsPop.hidden
-      optsPop.hidden = !open
-      if (open) setTimeout(() => document.addEventListener('click', onDoc, true), 0)
-      else document.removeEventListener('click', onDoc, true)
-    })
-    t.append(gearHolder)
-
-    // the key/shortcuts help icon sits at the very end of the row
-    this.#buildLegend()
+    const holder = document.createElement('span')
+    holder.className = 'entity-graph__icon-wrap'
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'entity-graph__icon-btn'
+    btn.title = 'Display options'
+    btn.setAttribute('aria-label', 'Display options')
+    // A gear: a cog with 8 trapezoidal teeth around a hollow hub (filled outline so
+    // it reads as a gear, not a sun-burst of thin rays).
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.32 2h3.36l.53 2.32c.6.2 1.17.53 1.66.95l2.27-.72 1.68 2.9-1.74 1.6c.06.31.1.63.1.95s-.04.64-.1.95l1.74 1.6-1.68 2.9-2.27-.72c-.49.42-1.06.75-1.66.95L13.68 22h-3.36l-.53-2.32c-.6-.2-1.17-.53-1.66-.95l-2.27.72-1.68-2.9 1.74-1.6a5.6 5.6 0 010-1.9l-1.74-1.6 1.68-2.9 2.27.72c.49-.42 1.06-.75 1.66-.95L10.32 2zM12 15a3 3 0 100-6 3 3 0 000 6z"/></svg>'
+    holder.append(btn, pop)
+    this.#wirePopover(holder, btn, pop)
+    return holder
   }
 
-  // The key/legend is collapsed behind a help icon in the toolbar so it doesn't
-  // eat a full row; clicking the icon toggles a small popover with the full key.
-  #buildLegend () {
-    if (!this.hasToolbarTarget) return
+  #buildHelp () {
     const key = (svg, text) => `<span class="entity-graph__legend-item"><svg width="30" height="14" style="overflow:visible">${svg}</svg>${text}</span>`
     const content =
       key('<line x1="1" y1="7" x2="22" y2="7" stroke="#f0a848" stroke-width="2.5"/><path d="M20,3 L27,7 L20,11 Z" fill="#f0a848"/>', 'is-a (subclass)') +
@@ -161,10 +150,10 @@ export default class extends Controller {
       '<div class="entity-graph__legend-hint">Double-click a node to open it · scroll or drag to pan · ⌘/Ctrl+scroll to zoom · F to fit selection</div>'
 
     const holder = document.createElement('span')
-    holder.className = 'entity-graph__help'
+    holder.className = 'entity-graph__icon-wrap'
     const btn = document.createElement('button')
     btn.type = 'button'
-    btn.className = 'entity-graph__help-btn'
+    btn.className = 'entity-graph__icon-btn'
     btn.title = 'Graph key & shortcuts'
     btn.setAttribute('aria-label', 'Graph key and shortcuts')
     btn.textContent = '?'
@@ -173,9 +162,13 @@ export default class extends Controller {
     pop.hidden = true
     pop.innerHTML = content
     holder.append(btn, pop)
+    this.#wirePopover(holder, btn, pop)
+    return holder
+  }
 
-    const close = () => { pop.hidden = true; document.removeEventListener('click', onDoc, true) }
-    const onDoc = (ev) => { if (!holder.contains(ev.target)) close() }
+  // toggle a popover open/closed; a document click outside the holder closes it
+  #wirePopover (holder, btn, pop) {
+    const onDoc = (ev) => { if (!holder.contains(ev.target)) { pop.hidden = true; document.removeEventListener('click', onDoc, true) } }
     btn.addEventListener('click', (ev) => {
       ev.stopPropagation()
       const open = pop.hidden
@@ -183,8 +176,6 @@ export default class extends Controller {
       if (open) setTimeout(() => document.addEventListener('click', onDoc, true), 0)
       else document.removeEventListener('click', onDoc, true)
     })
-    // sits at the end of the toolbar row
-    this.toolbarTarget.append(holder)
   }
 
   // --- rendering ------------------------------------------------------------
@@ -811,6 +802,9 @@ export default class extends Controller {
     ctl.querySelector('[data-z="out"]').addEventListener('click', () => zoomAt(winW / 2, winH / 2, 1 / 1.3))
     ctl.querySelector('[data-z="fit"]').addEventListener('click', () => { userZoomed = false; recenter() })
     canvas.append(ctl)
+
+    // floating gear/help icons (top-left)
+    this.#buildChrome(canvas)
 
     // minimap
     const mmScale = Math.min(MINIMAP_MAX / world.w, MINIMAP_MAX / world.h)

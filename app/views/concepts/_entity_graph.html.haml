@@ -10,9 +10,8 @@
                        'concept-graph-ontology-value': @ontology.acronym,
                        'concept-graph-large-value': @graph[:large].to_s}}
 
-    -# Toolbar (node search + display toggles + a help-icon key popover) — the
-    -# controller fills this in once it renders (empty for the empty/gate states).
-    .entity-graph__toolbar{data: {'concept-graph-target': 'toolbar'}}
+    -# The settings (gear) and key (?) icon buttons are floated onto the canvas by
+    -# the controller — no toolbar row, so the graph gets the full height.
 
     -# Large-graph gate: shown when the neighbourhood exceeds the threshold. The
     -# controller hides this and reveals the canvas when the user chooses to render.
