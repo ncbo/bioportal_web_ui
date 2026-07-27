@@ -962,9 +962,16 @@ export function routePath (a, b, obstacles, laneReg, nodeH) {
   const dx = p2.x - p1.x; const dy = p2.y - p1.y; const len = Math.hypot(dx, dy) || 1
   const mx = (p1.x + p2.x) / 2; const my = (p1.y + p2.y) / 2
   const straight = { d: `M ${p1.x},${p1.y} L ${p2.x},${p2.y}`, mid: { x: mx, y: my }, seg: { p1, p2 } }
-  if (!obstacles || !obstacles.length) return straight
   const nx = -dy / len; const ny = dx / len // unit normal to the chord
   const PAD = 6
+  // A same-rank relationship (a horizontal link between two nodes on the same row)
+  // should always read as an ARC with a visible up/down bend, never a flat line —
+  // even when the two nodes are adjacent with nothing between them. So don't take the
+  // no-obstacle straight shortcut for these; fall through to the bend logic below,
+  // which floors the bow at CLEAR_BOX.
+  const sameRankRel = Math.abs((a._depth || 0) - (b._depth || 0)) === 0
+  if ((!obstacles || !obstacles.length) && !sameRankRel) return straight
+  if (!obstacles) obstacles = []
   // obstacles that the straight chord actually cuts through (exclude endpoints)
   const blockers = obstacles.filter((r) => r.id !== a.id && r.id !== b.id &&
     segHitsRect(p1, p2, { x0: r.x - r.w / 2 - PAD, x1: r.x + r.w / 2 + PAD, y0: r.y - r.h / 2 - PAD, y1: r.y + r.h / 2 + PAD }))
@@ -1009,7 +1016,7 @@ export function routePath (a, b, obstacles, laneReg, nodeH) {
     // else: open corridor — leave minBow=0 so the edge draws straight.
   }
 
-  if (!blockers.length && minBow === 0) return straight // short overlay, clear → straight
+  if (!blockers.length && minBow === 0 && !sameRankRel) return straight // short overlay, clear → straight
   // Nodes the CURVE must avoid: not just the ones the straight chord hit, but any
   // other node too — so a bow deep enough to clear the first obstacle doesn't come
   // to rest grazing a second one on the way (e.g. a same-rank link bowing down just
@@ -1019,7 +1026,7 @@ export function routePath (a, b, obstacles, laneReg, nodeH) {
   // the outward-bow minimum for long overlays.
   const CLR = PAD + 2 // keep the curve a bit clear of boxes
   const clears = (bow) => {
-    if (!blockers.length && minBow === 0) return true
+    if (!blockers.length && minBow === 0 && !sameRankRel) return true
     const cx = mx + nx * bow; const cy = my + ny * bow // control point
     for (let i = 1; i < 60; i++) { // finer sampling — coarse steps let a curve graze a box between samples
       const t = i / 60; const u = 1 - t
