@@ -88,8 +88,42 @@ export default class extends Controller {
   #buildChrome (canvas) {
     const cluster = document.createElement('div')
     cluster.className = 'entity-graph__chrome'
-    cluster.append(this.#buildGear(), this.#buildHelp())
+    cluster.append(this.#buildPopout(), this.#buildGear(), this.#buildHelp())
     canvas.append(cluster)
+  }
+
+  // Popout/close button: toggles a full-viewport overlay so the graph can use the
+  // whole browser window. Re-renders on toggle so the layout re-fits to the new size.
+  #buildPopout () {
+    const holder = document.createElement('span')
+    holder.className = 'entity-graph__icon-wrap'
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'entity-graph__icon-btn'
+    const full = this.element.classList.contains('entity-graph--fullscreen')
+    btn.title = full ? 'Exit full window' : 'Open in full window'
+    btn.setAttribute('aria-label', btn.title)
+    // expand arrows, or an ✕ when already expanded
+    btn.innerHTML = full
+      ? '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+      : '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H4v5M20 9V4h-5M4 15v5h5M15 20h5v-5"/></svg>'
+    btn.addEventListener('click', (ev) => { ev.stopPropagation(); this.#toggleFullscreen() })
+    holder.append(btn)
+    return holder
+  }
+
+  #toggleFullscreen () {
+    const on = this.element.classList.toggle('entity-graph--fullscreen')
+    // lock/unlock page scroll behind the overlay
+    document.body.style.overflow = on ? 'hidden' : ''
+    if (on) {
+      this._escFull = (ev) => { if (ev.key === 'Escape') this.#toggleFullscreen() }
+      document.addEventListener('keydown', this._escFull)
+    } else if (this._escFull) {
+      document.removeEventListener('keydown', this._escFull); this._escFull = null
+    }
+    // re-render so the layout re-fits to the new canvas size
+    this.#render()
   }
 
   #buildGear () {

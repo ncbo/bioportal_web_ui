@@ -257,6 +257,16 @@ div.synonym-change-request button {
   // dropping below the fold; the controller re-fits the graph to this height.
   height: clamp(480px, calc(100vh - 260px), 900px);
 
+  // Full-window overlay (popout): the graph takes over the whole browser window.
+  &--fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    height: auto;
+    margin: 0;
+    background: #ffffff;
+  }
+
   &__canvas {
     position: relative;
     // fill the height left over after the toolbar/legend (which sit above it)
