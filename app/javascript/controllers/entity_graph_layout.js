@@ -980,14 +980,16 @@ export function routePath (a, b, obstacles, laneReg, nodeH) {
     // "down" is ABSOLUTE screen-down (increasing y), independent of edge direction:
     // the sign that makes apex y = my + ny*bow*sign increase is sign(ny).
     const dnSign = ny >= 0 ? 1 : -1
-    // Prefer the SHALLOWEST clearing bow within the inter-rank corridor. Scan from
-    // shallow upward and take the first bow that clears (a shallow arc that grazes the
-    // same-row box but stays above the next row down). Cap at one row-gap of depth; only
-    // if nothing in that band clears do we allow a deeper sweep or an upward arc.
-    // Try both directions and take whichever gives the SHALLOWEST arc (smallest bow) —
-    // the least-intrusive slot, whether that's the corridor below or the one above.
-    const bDn = findBow(dnSign); const bUp = findBow(-dnSign)
-    if (bDn == null && bUp == null) best = { bow: 2 * (ROW_GAP + (nodeH || NODE_H_BASE)), sign: dnSign }
+    // The arc only needs to clear obstacles inside its OWN corridor band — the strip
+    // just above/below the rank line up to the neighbouring rank. Clearing a node on a
+    // FAR rank (e.g. an is-a parent sitting directly above the gap between the two
+    // endpoints) is not this edge's job: forcing the arc around it is what blew the bow
+    // up over `anatomical structure`. So cap the bow at one inter-rank gap; within that
+    // band the only thing to dodge is a same-row neighbour (like `sac`), which a shallow
+    // arc clears. Try both directions; take the shallowest.
+    const CORRIDOR = ROW_GAP + (nodeH || NODE_H_BASE)
+    const bDn = findBow(dnSign, CORRIDOR); const bUp = findBow(-dnSign, CORRIDOR)
+    if (bDn == null && bUp == null) best = { bow: Math.min(CORRIDOR, 0.45 * CORRIDOR + 24), sign: dnSign }
     else if (bDn != null && (bUp == null || bDn <= bUp)) best = { bow: bDn, sign: dnSign }
     else best = { bow: bUp, sign: -dnSign }
   } else {
