@@ -287,14 +287,15 @@ div.synonym-change-request button {
   }
 
   &__canvas {
-    position: relative;
-    // fill the height left over after the toolbar/legend (which sit above it)
-    flex: 1 1 auto;
-    min-height: 0;
-    width: 100%;
+    // Fill the widget exactly by pinning to all four edges of the (position:relative)
+    // parent, rather than flex-sizing — flex rounding left a few stray pixels that
+    // produced an overflow scrollbar while panning.
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background: var(--light-color);
-    border: 1px solid #e3e8ef;
-    border-radius: 6px;
     overflow: hidden;
     cursor: grab;
     // keep drag/scroll gestures inside the graph: the controller owns panning &
@@ -777,7 +778,5 @@ div.synonym-change-request button {
     align-items: center;
     justify-content: center;
     background: var(--light-color);
-    border: 1px solid #e3e8ef;
-    border-radius: 6px;
   }
 }
