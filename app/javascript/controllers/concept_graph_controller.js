@@ -715,7 +715,9 @@ export default class extends Controller {
       return { w: r.width || 900, h: r.height || 560 }
     }
     let { w: winW, h: winH } = winSize()
-    const fitScale = () => Math.min(winW / world.w, winH / world.h)
+    // Fit scale never magnifies past 1:1 — a small graph shows at its natural size,
+    // centred, rather than being blown up to fill a large canvas.
+    const fitScale = () => Math.min(1, winW / world.w, winH / world.h)
     let fitK = fitScale()
     let minK = fitK * 0.9; const maxK = 3.5
     let k = fitK; let tx = 0; let ty = 0
