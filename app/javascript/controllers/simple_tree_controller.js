@@ -2,6 +2,21 @@ import { Controller } from '@hotwired/stimulus'
 
 const TREE_VIEW_PAGES = ['classes', 'properties', 'schemes', 'collections', 'instances']
 
+// Carry the active concept view (the `view` URL param) into the concept_show frame
+// request that Turbo fires when a class is selected in the tree, so the view is
+// preserved instead of resetting to Details (issue #533). Handled at fetch time
+// (rather than rewriting the tree link's href) to avoid races with Turbo's own
+// click handling. Registered once at the document level — it's stateless (reads only
+// the event and window.location) and idempotent, so it never needs per-controller
+// setup/teardown and can't be double-registered no matter how many trees mount.
+document.addEventListener('turbo:before-fetch-request', (event) => {
+  if (event.target?.id !== 'concept_show') return // only the concept view frame
+  const view = new URLSearchParams(window.location.search).get('view')
+  if (!view) return
+  const url = event.detail?.url
+  if (url && !url.searchParams.has('view')) url.searchParams.set('view', view)
+})
+
 // Connects to data-controller="simple-tree"
 export default class extends Controller {
 

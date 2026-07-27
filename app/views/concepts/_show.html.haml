@@ -16,20 +16,23 @@
         -# prefixed with "concept-" because the ontology-level Notes and Mappings
         -# sections already render #notes_content / #mappings_content wrappers,
         -# and both sections can be in the DOM at once (hidden, not removed).
-        - tab_item_component(container_tabs: c, id: 'details', title: t('concepts.details'), path: '#details', selected: true, json_link: "#{baseClassUrl}?#{apikey}&display=all") do
+        -# `selected:` is driven by the `view` URL param (see current_concept_view)
+        -# so the active view is preserved when a different class is selected in the
+        -# tree, instead of always resetting to Details (issue #533).
+        - tab_item_component(container_tabs: c, id: 'details', title: t('concepts.details'), path: '#details', selected: selected_concept_view?('details'), json_link: "#{baseClassUrl}?#{apikey}&display=all") do
           = render :partial =>'/concepts/details'
 
-        - tab_item_component(container_tabs: c, id: 'visualization', title: t('concepts.visualization'), path: '#visualization') do
+        - tab_item_component(container_tabs: c, id: 'visualization', title: t('concepts.visualization'), path: '#visualization', selected: selected_concept_view?('visualization')) do
           = render :partial =>'/concepts/biomixer'
 
 
         - count_span = content_tag(:span, "#{t('concepts.notes')} (#{content_tag(:span, @notes.length, id: 'note_count')})".html_safe)
-        - tab_item_component(container_tabs: c, id: 'concept-notes', title: count_span, path: '#notes', json_link: "#{baseClassUrl}/notes?#{apikey}") do
+        - tab_item_component(container_tabs: c, id: 'concept-notes', title: count_span, path: '#notes', selected: selected_concept_view?('concept-notes'), json_link: "#{baseClassUrl}/notes?#{apikey}") do
           = render :partial =>'/notes/list'
 
 
         - count_span = content_tag(:span, "#{t('concepts.mappings')} (#{content_tag(:span, concept_mappings_loader(ontology_acronym: @ontology.acronym, concept_id: @concept.id))})".html_safe, class: "d-flex")
-        - tab_item_component(container_tabs: c, id: 'concept-mappings', title: count_span, path: '#mappings', json_link: "#{baseClassUrl}/mappings?#{apikey}") do
+        - tab_item_component(container_tabs: c, id: 'concept-mappings', title: count_span, path: '#mappings', selected: selected_concept_view?('concept-mappings'), json_link: "#{baseClassUrl}/mappings?#{apikey}") do
           = render TurboFrameComponent.new(id:'concept_mappings',
           src:"/ajax/mappings/get_concept_table?ontologyid=#{@ontology.acronym}&conceptid=#{CGI.escape(@concept.id)}")
 
