@@ -504,16 +504,17 @@ div.synonym-change-request button {
   }
 
   // Toolbar (search + option toggles) --------------------------------------
-  // Floating chrome: the settings (gear) + key (?) icon buttons, stacked at the
-  // top-right just under the zoom controls. A high z-index keeps them clickable
-  // above the concept page's sub-tab bar, which overlaps the top of the canvas.
+  // Floating chrome: the popout / settings (gear) / key (?) icon buttons, stacked
+  // vertically at the top-right, just under the zoom controls. A high z-index keeps
+  // them clickable above the concept page's sub-tab bar, which overlaps the canvas top.
   &__chrome {
     position: absolute;
-    top: 92px; // clear of the 3-button zoom column above
+    top: 96px; // clear of the 3-button zoom column above
     right: 8px;
     z-index: 16;
     display: flex;
-    gap: 6px;
+    flex-direction: column;
+    gap: 7px;
   }
 
   &__icon-wrap {
@@ -521,14 +522,16 @@ div.synonym-change-request button {
     display: inline-flex;
   }
 
+  // Match the round action buttons used elsewhere in the UI (e.g. the {} JSON
+  // button): a 32px navy-outlined circle that fills navy with a white glyph on hover.
   &__icon-btn {
-    width: 26px;
-    height: 26px;
-    border: 1px solid #cfd8e2;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--primary-color);
     border-radius: 50%;
     background: #ffffff;
-    color: #5a6b82;
-    font-size: 13px;
+    color: var(--primary-color);
+    font-size: 15px;
     font-weight: 600;
     line-height: 1;
     cursor: pointer;
@@ -536,8 +539,13 @@ div.synonym-change-request button {
     align-items: center;
     justify-content: center;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    transition: background-color ease 0.2s, color ease 0.2s;
 
-    &:hover { background: #eef3f8; }
+    &:hover {
+      background: var(--primary-color);
+      color: #ffffff;
+    }
+
     svg { display: block; }
   }
 
