@@ -256,7 +256,7 @@ div.synonym-change-request button {
 // suppress any such stray line while it loads.
 #concept_graph_content {
   > .d-flex.flex-column {
-    min-height: clamp(480px, calc(100vh - 260px), 900px);
+    min-height: clamp(360px, calc(100vh - 348px), 820px);
     justify-content: center;
   }
 
@@ -270,9 +270,11 @@ div.synonym-change-request button {
   position: relative;
   display: flex;
   flex-direction: column;
-  // Fit the visible viewport so the whole graph shows without the lower half
-  // dropping below the fold; the controller re-fits the graph to this height.
-  height: clamp(480px, calc(100vh - 260px), 900px);
+  // Size to the space between where the widget sits (below the page header, ontology
+  // tab bar and concept sub-tabs — roughly 330px of chrome) and the bottom of the
+  // viewport, so the whole graph stays on-screen. The earlier `100vh - 260px`
+  // under-counted that chrome and pushed the bottom ~64px below the fold.
+  height: clamp(360px, calc(100vh - 348px), 820px);
 
   // Full-window overlay (popout): the graph takes over the whole browser window.
   &--fullscreen {
