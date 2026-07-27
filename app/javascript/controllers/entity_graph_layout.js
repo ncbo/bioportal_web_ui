@@ -643,10 +643,19 @@ export function computeLayout (graph, opts = {}) {
 
     // Rewrite _x from the new order: keep each rank's existing set of x-slots (so the
     // tidy spacing/width is preserved) but assign them left→right in the new order.
+    // IMPORTANT: only the REAL nodes claim slots. A dummy must NOT be dropped into a
+    // real node's slot — a rank can have a huge horizontal gap between two real nodes,
+    // and a dummy landing in that gap gets flung far from its edge's straight line
+    // (the relaxation can't recover it because it never reorders), producing the wild
+    // S-curves. Dummies keep their straight-line x (dummyTargetX) and the x-relaxation
+    // that follows holds them there, so a long edge stays a clean channel.
     ranks.forEach((arr) => {
-      if (arr.length < 2) return
-      const slots = arr.map((n) => n._x).sort((a, b) => a - b)
-      arr.forEach((n, i) => { n._x = slots[i] })
+      const reals = arr.filter((n) => !n.isDummy)
+      if (reals.length >= 2) {
+        const slots = reals.map((n) => n._x).sort((a, b) => a - b)
+        reals.forEach((n, i) => { n._x = slots[i] })
+      }
+      arr.filter((n) => n.isDummy).forEach((n) => { n._x = dummyTargetX(n) })
     })
   }
 
@@ -711,6 +720,23 @@ export function computeLayout (graph, opts = {}) {
         }
       })
     }
+
+    // Final dummy-straightening: force every dummy exactly onto the straight line
+    // between its overlay's two (now-final) real endpoints. During relaxation the
+    // per-rank gap clamp can still shove a dummy past its target when a wide node
+    // sits beside it — leaving the waypoint outside the endpoint x-range, so the
+    // drawn edge bulges out in a big S. Dummies are invisible and only define the
+    // edge's path, so they can ignore the gap constraints and sit dead on the line;
+    // this guarantees a long edge is a clean monotonic channel with no bulge.
+    dummyChains.forEach(({ chain, from, to }) => {
+      const a = nodes.get(from); const b = nodes.get(to)
+      if (!a || !b || a._depth === b._depth) return
+      chain.forEach((id) => {
+        const d = nodes.get(id); if (!d) return
+        const t = (d._depth - a._depth) / (b._depth - a._depth)
+        d._x = a._x + (b._x - a._x) * t
+      })
+    })
   }
 
   // final coords: y by rank (root at top, selected/max-rank at bottom)
