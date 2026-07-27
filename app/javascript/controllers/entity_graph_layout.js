@@ -289,6 +289,12 @@ export function computeLayout (graph, opts = {}) {
     return rf != null && rt != null && Math.abs(rf - rt) >= 2
   })
   longOverlays.forEach((e) => {
+    const key = e.from + '|' + e.to
+    // Parallel overlays between the same pair (e.g. two relationships, or an is-a
+    // plus a relationship) share ONE corridor. Creating a second dummy chain for the
+    // same key would orphan the first chain's dummies (they'd stay unseeded, their
+    // _x NaN, poisoning the whole relaxation) — so build the chain once per pair.
+    if (dummyChains.has(key)) return
     const rFrom = rank.get(e.from); const rTo = rank.get(e.to)
     // `to` is above (smaller rank) for an up-edge; guard either orientation.
     const hi = Math.min(rFrom, rTo); const lo = Math.max(rFrom, rTo)
@@ -299,7 +305,7 @@ export function computeLayout (graph, opts = {}) {
       rank.set(id, r)
       chain.push(id)
     }
-    dummyChains.set(e.from + '|' + e.to, { chain, from: e.from, to: e.to, kind: e.kind, label: e.label })
+    dummyChains.set(key, { chain, from: e.from, to: e.to, kind: e.kind, label: e.label })
   })
 
   // roots (no primary parent). Dummies are never roots (they have no primary
@@ -414,7 +420,9 @@ export function computeLayout (graph, opts = {}) {
   function barycentre (id) {
     const ns = nbr.get(id) || []
     let s = 0; let c = 0
-    for (const m of ns) { if (collector.has(m)) continue; const mm = nodes.get(m); if (mm && mm._x != null) { s += mm._x; c++ } }
+    // Skip a neighbour whose _x isn't a finite number: one NaN would otherwise
+    // propagate through the summed target and collapse the whole rank to NaN.
+    for (const m of ns) { if (collector.has(m)) continue; const mm = nodes.get(m); if (mm && Number.isFinite(mm._x)) { s += mm._x; c++ } }
     return c ? s / c : (nodes.get(id)._x || 0)
   }
 
@@ -523,11 +531,17 @@ export function computeLayout (graph, opts = {}) {
   dummyChains.forEach(({ chain, from, to }) => {
     const a = nodes.get(from); const b = nodes.get(to)
     if (!a || !b) return
+    // A node placed by the tidy tree has a finite _x; guard against an endpoint the
+    // tree never reached (its _x would be undefined and interpolation would yield
+    // NaN, which then spreads through the whole barycentre relaxation and collapses
+    // every node's x to NaN). Fall back to the other endpoint / 0.
+    const ax = Number.isFinite(a._x) ? a._x : (Number.isFinite(b._x) ? b._x : 0)
+    const bx = Number.isFinite(b._x) ? b._x : ax
     const rA = a._depth; const rB = b._depth
     chain.forEach((id) => {
       const d = nodes.get(id); if (!d) return
       const t = (rB - rA) !== 0 ? (d._depth - rA) / (rB - rA) : 0.5
-      d._x = a._x + (b._x - a._x) * t
+      d._x = ax + (bx - ax) * t
     })
   })
 
