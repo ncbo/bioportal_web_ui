@@ -760,8 +760,11 @@ export default class extends Controller {
     }
     let { w: winW, h: winH } = winSize()
     // Fit scale never magnifies past 1:1 — a small graph shows at its natural size,
-    // centred, rather than being blown up to fill a large canvas.
-    const fitScale = () => Math.min(1, winW / world.w, winH / world.h)
+    // centred, rather than being blown up to fill a large canvas. A screen-space
+    // margin (FIT_PAD each side) keeps the graph from butting right up against the
+    // canvas edges, so the top/bottom nodes have a little breathing room.
+    const FIT_PAD = 28
+    const fitScale = () => Math.min(1, (winW - 2 * FIT_PAD) / world.w, (winH - 2 * FIT_PAD) / world.h)
     let fitK = fitScale()
     let minK = fitK * 0.9; const maxK = 3.5
     let k = fitK; let tx = 0; let ty = 0
