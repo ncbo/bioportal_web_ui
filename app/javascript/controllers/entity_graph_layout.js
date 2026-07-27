@@ -101,22 +101,21 @@ export function computeLayout (graph, opts = {}) {
     const sel = (ns.find((n) => n.selected) || {}).id
     let keep = new Set(ns.map((n) => n.id))
     if (sel) {
+      // Connectivity from the selected class:
+      //   - is-a edges are traversed UPWARD only (child -> parent), so we collect the
+      //     selected class's ancestors but never descend a foreign is-a branch.
+      //   - relationship edges are traversed BOTH ways: a relationship's target (and,
+      //     through the upward is-a walk, that target's ancestors) belongs in the graph.
+      // A fully-undirected walk was wrong: it climbed is-a up to the shared upper-
+      // ontology root (entity/continuant) and then descended into unrelated subtrees
+      // (quality, biological process, …), which have no path from the selected class
+      // once the relationships that reached them are hidden.
       const adj = new Map()
-      if (ISA_ONLY) {
-        // Pure is-a mode: keep only the selected class's is-a ANCESTORS (walk edges
-        // in the child->parent direction, upward). An undirected walk would also drag
-        // in cousin branches that merely share an ancestor with the selected class
-        // (e.g. heart and neural crest both under ectoderm-derived structure) — those
-        // aren't ancestors of the selected class and shouldn't appear.
-        ed.forEach((e) => { (adj.get(e.from) || adj.set(e.from, []).get(e.from)).push(e.to) })
-      } else {
-        // Normal mode: undirected connectivity — relationships legitimately reach
-        // nodes in either direction, so keep the whole connected neighbourhood.
-        ed.forEach((e) => {
-          ;(adj.get(e.from) || adj.set(e.from, []).get(e.from)).push(e.to)
-          ;(adj.get(e.to) || adj.set(e.to, []).get(e.to)).push(e.from)
-        })
-      }
+      const add = (a, b) => { (adj.get(a) || adj.set(a, []).get(a)).push(b) }
+      ed.forEach((e) => {
+        if (e.kind === 'is-a') { add(e.from, e.to) } // upward only
+        else if (!ISA_ONLY) { add(e.from, e.to); add(e.to, e.from) } // relationships both ways
+      })
       keep = new Set([sel])
       const q = [sel]
       while (q.length) { const x = q.shift(); for (const y of (adj.get(x) || [])) if (!keep.has(y)) { keep.add(y); q.push(y) } }
