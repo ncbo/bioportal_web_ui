@@ -602,6 +602,41 @@ div.synonym-change-request button {
     input { cursor: pointer; }
   }
 
+  // Segmented control (Show / Fade / Hide) for a three-state option.
+  &__seg-row {
+    padding: 6px 0;
+  }
+
+  &__seg-label {
+    margin-bottom: 5px;
+    color: #4a5b6e;
+  }
+
+  &__seg {
+    display: inline-flex;
+    border: 1px solid #cfd8e2;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  &__seg-btn {
+    padding: 4px 12px;
+    border: none;
+    background: #ffffff;
+    color: #4a5b6e;
+    font: inherit;
+    cursor: pointer;
+    line-height: 1.2;
+
+    & + & { border-left: 1px solid #e6ecf2; }
+    &:hover { background: #eef3f8; }
+
+    &.is-active {
+      background: var(--primary-color);
+      color: #ffffff;
+    }
+  }
+
   &__legend-item {
     display: flex;
     align-items: center;

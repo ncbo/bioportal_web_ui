@@ -157,20 +157,12 @@ export default class extends Controller {
   }
 
   #buildGear () {
-    const toggles = [
-      ['isaOnly', 'Only show is-a'],
-      ['transitiveReduction', 'Transitive reduction'],
-      ['hideUpper', 'Hide upper ontology (BFO / COB)'],
-      ['fadeUpper', 'Fade upper ontology'],
-      ['useUpperInfo', 'Use authoritative BFO/COB info'],
-      ['showPills', 'Show short-id pills'],
-      ['showAcronym', 'Show ontology acronym']
-    ]
     const cbByKey = {}
     const pop = document.createElement('div')
     pop.className = 'entity-graph__options-pop'
     pop.hidden = true
-    toggles.forEach(([key, text]) => {
+
+    const addCheckbox = (key, text) => {
       const label = document.createElement('label')
       label.className = 'entity-graph__option'
       const cb = document.createElement('input')
@@ -185,7 +177,18 @@ export default class extends Controller {
       })
       label.append(cb, document.createTextNode(' ' + text))
       pop.append(label)
-    })
+    }
+
+    addCheckbox('isaOnly', 'Only show is-a')
+    addCheckbox('transitiveReduction', 'Transitive reduction')
+
+    // Upper ontology (BFO/COB) is a THREE-state choice — Show / Fade / Hide — so a
+    // segmented radio reads clearer than two interdependent checkboxes.
+    pop.append(this.#buildUpperSegment())
+
+    addCheckbox('useUpperInfo', 'Use authoritative BFO/COB info')
+    addCheckbox('showPills', 'Show short-id pills')
+    addCheckbox('showAcronym', 'Show ontology acronym')
 
     const holder = document.createElement('span')
     holder.className = 'entity-graph__icon-wrap'
@@ -200,6 +203,37 @@ export default class extends Controller {
     holder.append(btn, pop)
     this.#wirePopover(holder, btn, pop)
     return holder
+  }
+
+  // Segmented control for the upper-ontology (BFO/COB) display: Show / Fade / Hide.
+  // Maps to the two underlying flags: hide wins; otherwise fade toggles the dimming.
+  #buildUpperSegment () {
+    const wrap = document.createElement('div')
+    wrap.className = 'entity-graph__seg-row'
+    const caption = document.createElement('div')
+    caption.className = 'entity-graph__seg-label'
+    caption.textContent = 'Upper ontology (BFO / COB)'
+    const seg = document.createElement('div')
+    seg.className = 'entity-graph__seg'
+    const current = this.opts.hideUpper ? 'hide' : (this.opts.fadeUpper ? 'fade' : 'show')
+    const modes = [['show', 'Show'], ['fade', 'Fade'], ['hide', 'Hide']]
+    modes.forEach(([mode, text]) => {
+      const b = document.createElement('button')
+      b.type = 'button'
+      b.className = 'entity-graph__seg-btn' + (mode === current ? ' is-active' : '')
+      b.textContent = text
+      b.addEventListener('click', (ev) => {
+        ev.stopPropagation()
+        this.opts.hideUpper = (mode === 'hide')
+        this.opts.fadeUpper = (mode === 'fade')
+        seg.querySelectorAll('.entity-graph__seg-btn').forEach((x) => x.classList.remove('is-active'))
+        b.classList.add('is-active')
+        this.#render()
+      })
+      seg.append(b)
+    })
+    wrap.append(caption, seg)
+    return wrap
   }
 
   #buildHelp () {
