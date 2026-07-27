@@ -41,8 +41,10 @@ export default class extends Controller {
       showPills: false,
       showAcronym: true
     }
-    // relationship properties toggled OFF (by property key); is-a is never hidden here
-    this._hiddenProps = new Set()
+    // relationship properties toggled OFF (by property key); is-a is never hidden here.
+    // Persisted per ontology (property names differ across ontologies) for the session,
+    // so browsing several classes in the same ontology keeps your selection.
+    this._hiddenProps = this.#loadHiddenProps()
 
     if (this.nodes.length <= 1 && this.edges.length === 0) {
       this.emptyTarget.classList.remove('d-none')
@@ -172,15 +174,14 @@ export default class extends Controller {
     props.forEach(({ key, count }) => {
       const label = document.createElement('label'); label.className = 'entity-graph__filter-item'
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !this._hiddenProps.has(key)
-      const swatch = document.createElement('span'); swatch.className = 'entity-graph__filter-swatch'
-      swatch.style.background = this.#propColor(key)
       const text = document.createElement('span'); text.className = 'entity-graph__filter-name'; text.textContent = key
       const cnt = document.createElement('span'); cnt.className = 'entity-graph__filter-count'; cnt.textContent = count
       cb.addEventListener('change', () => {
         if (cb.checked) this._hiddenProps.delete(key); else this._hiddenProps.add(key)
+        this.#saveHiddenProps()
         this.#render()
       })
-      label.append(cb, swatch, text, cnt)
+      label.append(cb, text, cnt)
       list.append(label)
       rowByKey.set(key, { cb, label })
     })
@@ -190,6 +191,7 @@ export default class extends Controller {
         if (on) this._hiddenProps.delete(key); else this._hiddenProps.add(key)
         const r = rowByKey.get(key); if (r) r.cb.checked = on
       })
+      this.#saveHiddenProps()
       this.#render()
     }
     allBtn.addEventListener('click', (ev) => { ev.stopPropagation(); setAll(true) })
@@ -206,17 +208,6 @@ export default class extends Controller {
     holder.append(btn, pop)
     this.#wirePopover(holder, btn, pop)
     return holder
-  }
-
-  // A stable colour per relationship property. All relationship edges are drawn the
-  // same blue today; this gives the picker a meaningful swatch (and is ready to drive
-  // per-property edge colours later).
-  #propColor (key) {
-    // fixed palette, assigned by hashing the key so the colour is stable per property
-    const palette = ['#2f6fed', '#e0692f', '#1f9d57', '#9b59b6', '#d9a800', '#0e9aa7', '#c0392b', '#5d6d7e']
-    let h = 0
-    for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0
-    return palette[h % palette.length]
   }
 
   // Popout/close button: toggles a full-viewport overlay so the graph can use the
@@ -295,6 +286,26 @@ export default class extends Controller {
       ...this.graph,
       edges: this.graph.edges.filter((e) => e.kind === 'is-a' || !this._hiddenProps.has(this.#propKey(e)))
     }
+  }
+
+  // sessionStorage key for the hidden-property set, scoped to this ontology (property
+  // names aren't comparable across ontologies).
+  #hiddenPropsKey () {
+    return 'entity-graph:hidden-props:' + (this.ontologyValue || '_')
+  }
+
+  #loadHiddenProps () {
+    try {
+      const raw = window.sessionStorage.getItem(this.#hiddenPropsKey())
+      if (raw) return new Set(JSON.parse(raw))
+    } catch (_) { /* storage unavailable or bad JSON — start empty */ }
+    return new Set()
+  }
+
+  #saveHiddenProps () {
+    try {
+      window.sessionStorage.setItem(this.#hiddenPropsKey(), JSON.stringify([...this._hiddenProps]))
+    } catch (_) { /* storage unavailable — filter still works for this graph */ }
   }
 
   #buildGear () {
