@@ -550,6 +550,106 @@ export function computeLayout (graph, opts = {}) {
     chain.forEach((id) => { const d = nodes.get(id); if (d) d._x = dummyTargetX(d) })
   })
 
+  // ---- Sugiyama crossing reduction (median ordering + greedy swap) ----------
+  // The tidy tree gives a good FIRST ordering, but a node with parents on opposite
+  // sides of the graph (or a long edge broken into a dummy chain) can still leave
+  // edges slashing across the layout. Run the classic layered crossing-reduction on
+  // the per-rank orders: median sweeps down and up, then a greedy adjacent-swap
+  // polish, keeping the fewest-crossings order seen. Dummy nodes are first-class
+  // here (they're in `nbr` as a chain), so a long edge's waypoints stay vertically
+  // aligned rank-to-rank and the edge reads as one straight channel.
+  {
+    // per-rank arrays of node ids, ordered left→right by current x
+    const ranks = new Map()
+    nodes.forEach((n) => { (ranks.get(n._depth) || ranks.set(n._depth, []).get(n._depth)).push(n) })
+    ranks.forEach((arr) => arr.sort((a, b) => a._x - b._x))
+    const depths = [...ranks.keys()].sort((a, b) => a - b)
+    // order[id] = index within its rank; kept in sync as we reorder.
+    const posOf = new Map()
+    const reindex = (arr) => arr.forEach((n, i) => posOf.set(n.id, i))
+    ranks.forEach(reindex)
+
+    // crossings between two adjacent ranks given current positions: count pairs of
+    // edges (u1→v1),(u2→v2) with u1<u2 but v1>v2 (standard inversion count).
+    const crossingsBetween = (upperDepth, lowerDepth) => {
+      const lower = ranks.get(lowerDepth) || []
+      // collect edge endpoints (posLower, posUpper) for every nbr link crossing the gap
+      const seq = []
+      for (const n of lower) {
+        for (const m of (nbr.get(n.id) || [])) {
+          const mm = nodes.get(m); if (!mm || mm._depth !== upperDepth) continue
+          seq.push([posOf.get(n.id), posOf.get(m)])
+        }
+      }
+      // sort by lower pos, then count inversions in the upper positions
+      seq.sort((p, q) => p[0] - q[0] || p[1] - q[1])
+      let inv = 0
+      for (let i = 0; i < seq.length; i++) for (let j = i + 1; j < seq.length; j++) if (seq[i][1] > seq[j][1]) inv++
+      return inv
+    }
+    const totalCrossings = () => { let s = 0; for (let k = 1; k < depths.length; k++) s += crossingsBetween(depths[k - 1], depths[k]); return s }
+
+    // median of a node's neighbour positions on an adjacent rank (the layered
+    // median heuristic; falls back to the node's own index when it has no neighbour
+    // on that side so it holds its place).
+    const medianAdj = (id, adjDepth) => {
+      const ps = []
+      for (const m of (nbr.get(id) || [])) { const mm = nodes.get(m); if (mm && mm._depth === adjDepth) ps.push(posOf.get(m)) }
+      if (!ps.length) return posOf.get(id)
+      ps.sort((a, b) => a - b)
+      const mid = ps.length >> 1
+      return ps.length % 2 ? ps[mid] : (ps[mid - 1] + ps[mid]) / 2
+    }
+    const orderByKey = (arr, key) => {
+      const scored = arr.map((n, i) => ({ n, k: key(n.id), i }))
+      scored.sort((p, q) => (p.k - q.k) || (p.i - q.i)) // stable-ish; ties keep prior order
+      const next = scored.map((s) => s.n)
+      arr.length = 0; arr.push(...next); reindex(arr)
+    }
+
+    let bestOrder = null; let bestCross = totalCrossings()
+    const capture = () => { const m = new Map(); ranks.forEach((arr, d) => m.set(d, arr.map((n) => n.id))); return m }
+    const applyOrder = (m) => { m.forEach((ids, d) => { const arr = ranks.get(d); arr.length = 0; ids.forEach((id) => arr.push(nodes.get(id))); reindex(arr) }) }
+    bestOrder = capture()
+
+    for (let sweep = 0; sweep < 8; sweep++) {
+      const down = sweep % 2 === 0
+      const seq = down ? depths.slice(1) : depths.slice(0, -1).reverse()
+      for (const d of seq) {
+        const adj = down ? d - 1 : d + 1
+        orderByKey(ranks.get(d), (id) => medianAdj(id, adj))
+      }
+      const c = totalCrossings()
+      if (c < bestCross) { bestCross = c; bestOrder = capture() }
+      if (c === 0) break
+    }
+    applyOrder(bestOrder)
+
+    // greedy adjacent-swap polish: for each rank, try swapping neighbours; keep a
+    // swap only if it lowers total crossings. Monotonic — never makes it worse.
+    for (let pass = 0; pass < 4; pass++) {
+      let improved = false
+      for (const d of depths) {
+        const arr = ranks.get(d)
+        for (let i = 0; i < arr.length - 1; i++) {
+          const before = crossingsBetween(depths[Math.max(0, depths.indexOf(d) - 1)], d) + crossingsBetween(d, depths[Math.min(depths.length - 1, depths.indexOf(d) + 1)])
+          ;[arr[i], arr[i + 1]] = [arr[i + 1], arr[i]]; posOf.set(arr[i].id, i); posOf.set(arr[i + 1].id, i + 1)
+          const after = crossingsBetween(depths[Math.max(0, depths.indexOf(d) - 1)], d) + crossingsBetween(d, depths[Math.min(depths.length - 1, depths.indexOf(d) + 1)])
+          if (after < before) { improved = true } else { [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]]; posOf.set(arr[i].id, i); posOf.set(arr[i + 1].id, i + 1) }
+        }
+      }
+      if (!improved) break
+    }
+
+    // Rewrite _x from the new order: keep each rank's existing set of x-slots (so the
+    // tidy spacing/width is preserved) but assign them left→right in the new order.
+    ranks.forEach((arr) => {
+      if (arr.length < 2) return
+      const slots = arr.map((n) => n._x).sort((a, b) => a - b)
+      arr.forEach((n, i) => { n._x = slots[i] })
+    })
+  }
+
   // collector ordering: collector (upper-ontology) nodes are placed by the tidy pass
   // like any other node, but their left-to-right ORDER within a rank is then frozen —
   // x-relaxation only slides a node within its neighbours' gaps, it never reorders. That
