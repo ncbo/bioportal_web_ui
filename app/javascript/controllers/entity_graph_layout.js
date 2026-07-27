@@ -301,7 +301,10 @@ export function computeLayout (graph, opts = {}) {
     const chain = [] // dummy ids for the ranks strictly between hi and lo, ordered lo-1 .. hi+1
     for (let r = lo - 1; r > hi; r--) {
       const id = '__dummy__' + (dummySeq++)
-      nodes.set(id, { id, label: '', width: 8, children: [], isDummy: true, _depth: r })
+      // Record the overlay's two real endpoints so the relaxation can hold the
+      // dummy on the straight line between them (keeping the corridor from being
+      // dragged sideways into the node field — see x-relaxation).
+      nodes.set(id, { id, label: '', width: 8, children: [], isDummy: true, _depth: r, dummyFrom: e.from, dummyTo: e.to })
       rank.set(id, r)
       chain.push(id)
     }
@@ -525,24 +528,36 @@ export function computeLayout (graph, opts = {}) {
   if (best) restore(best)
   place(superNode)
 
-  // Seed each dummy's x by interpolating a straight line between its overlay's two
-  // real endpoints (which now have final tree x). The x-relaxation below then pulls
-  // the whole chain taut and nudges real nodes aside to keep the corridor clear.
-  dummyChains.forEach(({ chain, from, to }) => {
-    const a = nodes.get(from); const b = nodes.get(to)
-    if (!a || !b) return
-    // A node placed by the tidy tree has a finite _x; guard against an endpoint the
-    // tree never reached (its _x would be undefined and interpolation would yield
-    // NaN, which then spreads through the whole barycentre relaxation and collapses
-    // every node's x to NaN). Fall back to the other endpoint / 0.
+  // The ideal x for a dummy waypoint: the straight line between its overlay's two
+  // real endpoints at the dummy's rank, BIASED to the outside of the rank when the
+  // corridor runs clearly sideways. Holding the whole chain on this line keeps a
+  // long edge a clean diagonal; the outward bias makes a corridor whose target is
+  // off to one side sweep AROUND the intervening node cluster rather than thread
+  // between its boxes and zig-zag across other edges. Shared by seeding (so the
+  // dummy starts on the correct side of the rank — relaxation never reorders) and
+  // by the relaxation target below.
+  const dummyTargetX = (n) => {
+    const a = nodes.get(n.dummyFrom); const b = nodes.get(n.dummyTo)
+    if (!a || !b || a._depth === b._depth) return n._x
+    // guard an unplaced endpoint (undefined _x) that would spread NaN everywhere
     const ax = Number.isFinite(a._x) ? a._x : (Number.isFinite(b._x) ? b._x : 0)
     const bx = Number.isFinite(b._x) ? b._x : ax
-    const rA = a._depth; const rB = b._depth
-    chain.forEach((id) => {
-      const d = nodes.get(id); if (!d) return
-      const t = (rB - rA) !== 0 ? (d._depth - rA) / (rB - rA) : 0.5
-      d._x = ax + (bx - ax) * t
-    })
+    const t = (n._depth - a._depth) / (b._depth - a._depth)
+    let line = ax + (bx - ax) * t
+    const outward = bx - ax
+    if (Math.abs(outward) > 40) {
+      const rowReals = [...nodes.values()].filter((m) => m._depth === n._depth && !m.isDummy && Number.isFinite(m._x))
+      if (rowReals.length) {
+        if (outward < 0) { const leftMost = Math.min(...rowReals.map((m) => m._x - m.width / 2)); line = Math.min(line, leftMost - SIB_GAP - n.width / 2) } else { const rightMost = Math.max(...rowReals.map((m) => m._x + m.width / 2)); line = Math.max(line, rightMost + SIB_GAP + n.width / 2) }
+      }
+    }
+    return line
+  }
+
+  // Seed each dummy on its target line so it starts on the correct side of the rank;
+  // the x-relaxation below then holds it there and nudges real nodes aside as needed.
+  dummyChains.forEach(({ chain }) => {
+    chain.forEach((id) => { const d = nodes.get(id); if (d) d._x = dummyTargetX(d) })
   })
 
   // collector ordering: collector (upper-ontology) nodes are placed by the tidy pass
@@ -589,13 +604,16 @@ export function computeLayout (graph, opts = {}) {
     nodes.forEach((n) => { (byRank.get(n._depth) || byRank.set(n._depth, []).get(n._depth)).push(n) })
     byRank.forEach((arr) => arr.sort((a, b) => a._x - b._x))
     const gap = (a, b) => sibGap(a, b)
+    // A dummy targets its straight endpoint line (with outward bias) rather than the
+    // neighbour barycentre — see dummyTargetX. Barycentre would pull a waypoint back
+    // toward the source and drag the corridor sideways into the node field.
     for (let it = 0; it < 18; it++) {
       const l2r = it % 2 === 0
       byRank.forEach((arr) => {
         const idx = [...arr.keys()]; if (!l2r) idx.reverse()
         for (const i of idx) {
           const n = arr[i]
-          const des = barycentre(n.id)
+          const des = n.isDummy ? dummyTargetX(n) : barycentre(n.id)
           const target = n._x + (des - n._x) * 0.5 // damping
           const lo = i > 0 ? arr[i - 1]._x + gap(arr[i - 1], n) : -Infinity
           const hi = i < arr.length - 1 ? arr[i + 1]._x - gap(n, arr[i + 1]) : Infinity
