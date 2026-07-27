@@ -768,15 +768,10 @@ export default class extends Controller {
         zoomAt(ev.clientX - r.left, ev.clientY - r.top, Math.exp(-ev.deltaY * 0.0015))
         return
       }
-      // Plain wheel = pan the graph — but ONLY while the canvas is fully in view.
-      // If it's partly scrolled off, capturing the wheel would trap the user
-      // (scrolling back up would pan instead of scrolling the page), so let the
-      // wheel scroll the page normally until the canvas is fully visible again.
-      // The toolbar is sticky, so it stays reachable regardless.
-      const cr = canvas.getBoundingClientRect()
-      const vh = window.innerHeight || document.documentElement.clientHeight
-      const fullyInView = cr.top >= -1 && cr.bottom <= vh + 1
-      if (!fullyInView) return
+      // Plain wheel / two-finger trackpad scroll = pan the graph. The user isn't
+      // trapped: when the graph is pinned at the edge in the wheel's direction (or
+      // fits entirely), the pan below is a no-op and we let the event bubble so the
+      // page scrolls normally.
       const dx = ev.shiftKey ? ev.deltaY : ev.deltaX // shift+wheel scrolls horizontally
       const dy = ev.shiftKey ? 0 : ev.deltaY
       const beforeX = tx; const beforeY = ty
