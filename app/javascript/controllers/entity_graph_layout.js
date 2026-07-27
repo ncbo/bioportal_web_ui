@@ -289,7 +289,11 @@ export function computeLayout (graph, opts = {}) {
   let dummySeq = 0
   const dummyChains = new Map() // overlay key "from|to" -> [dummyId, dummyId, ...] top-to-... (ordered from just below `to` down to just above `from`)
   const isDummy = (id) => nodes.get(id)?.isDummy
-  const longOverlays = overlays.filter((e) => {
+  // Debug/compare switch: opts.noDummies skips the dummy-node machinery entirely, so
+  // long overlays route as plain curves (routePath) with no chains/corridors. The
+  // Sugiyama ordering still runs on the real nodes. Lets you A/B the dummy routing.
+  const NO_DUMMIES = !!opts.noDummies
+  const longOverlays = NO_DUMMIES ? [] : overlays.filter((e) => {
     const rf = rank.get(e.from); const rt = rank.get(e.to)
     return rf != null && rt != null && Math.abs(rf - rt) >= 2
   })

@@ -522,7 +522,14 @@ export default class extends Controller {
     // render). Picked up on the natural initial render so there's no re-render.
     let debugDummies = typeof window !== 'undefined' && !!window.__egDebugDummies
     try { debugDummies = debugDummies || window.localStorage.getItem('entity-graph:debug-dummies') === '1' } catch (_) { /* storage off */ }
-    const L = computeLayout(this.#visibleGraph(), { ...this.opts, nodeH, debugDummies })
+    // Dummy-node routing is OFF by default: an A/B on heart/urinary bladder showed it
+    // gives little and inconsistent crossing benefit (heart 20=20, bladder 2 vs 4)
+    // while long edges route just as well as plain curves and the graph reads cleaner
+    // and more compact. The machinery is kept behind this opt-in flag for experiments:
+    // localStorage 'entity-graph:dummies'='1' (or window.__egDummies) re-enables it.
+    let dummiesOn = typeof window !== 'undefined' && !!window.__egDummies
+    try { dummiesOn = dummiesOn || window.localStorage.getItem('entity-graph:dummies') === '1' } catch (_) { /* storage off */ }
+    const L = computeLayout(this.#visibleGraph(), { ...this.opts, nodeH, debugDummies, noDummies: !dummiesOn })
     this._layout = L
     const N = (id) => L.nodes.get(id)
 
