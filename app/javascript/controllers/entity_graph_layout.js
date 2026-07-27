@@ -529,13 +529,11 @@ export function computeLayout (graph, opts = {}) {
   place(superNode)
 
   // The ideal x for a dummy waypoint: the straight line between its overlay's two
-  // real endpoints at the dummy's rank, BIASED to the outside of the rank when the
-  // corridor runs clearly sideways. Holding the whole chain on this line keeps a
-  // long edge a clean diagonal; the outward bias makes a corridor whose target is
-  // off to one side sweep AROUND the intervening node cluster rather than thread
-  // between its boxes and zig-zag across other edges. Shared by seeding (so the
-  // dummy starts on the correct side of the rank — relaxation never reorders) and
-  // by the relaxation target below.
+  // real endpoints at the dummy's rank. Holding the whole chain on this line keeps
+  // a long edge a clean diagonal instead of letting the barycentre drag it sideways
+  // into the node field and zig-zag. Shared by seeding (so the dummy starts in the
+  // right place — relaxation never reorders within a rank) and by the relaxation
+  // target below. The gap clamp in the relaxation still nudges it clear of boxes.
   const dummyTargetX = (n) => {
     const a = nodes.get(n.dummyFrom); const b = nodes.get(n.dummyTo)
     if (!a || !b || a._depth === b._depth) return n._x
@@ -543,19 +541,11 @@ export function computeLayout (graph, opts = {}) {
     const ax = Number.isFinite(a._x) ? a._x : (Number.isFinite(b._x) ? b._x : 0)
     const bx = Number.isFinite(b._x) ? b._x : ax
     const t = (n._depth - a._depth) / (b._depth - a._depth)
-    let line = ax + (bx - ax) * t
-    const outward = bx - ax
-    if (Math.abs(outward) > 40) {
-      const rowReals = [...nodes.values()].filter((m) => m._depth === n._depth && !m.isDummy && Number.isFinite(m._x))
-      if (rowReals.length) {
-        if (outward < 0) { const leftMost = Math.min(...rowReals.map((m) => m._x - m.width / 2)); line = Math.min(line, leftMost - SIB_GAP - n.width / 2) } else { const rightMost = Math.max(...rowReals.map((m) => m._x + m.width / 2)); line = Math.max(line, rightMost + SIB_GAP + n.width / 2) }
-      }
-    }
-    return line
+    return ax + (bx - ax) * t
   }
 
-  // Seed each dummy on its target line so it starts on the correct side of the rank;
-  // the x-relaxation below then holds it there and nudges real nodes aside as needed.
+  // Seed each dummy on its target line so it starts in the right place; the
+  // x-relaxation below then holds it there and nudges real nodes aside as needed.
   dummyChains.forEach(({ chain }) => {
     chain.forEach((id) => { const d = nodes.get(id); if (d) d._x = dummyTargetX(d) })
   })
