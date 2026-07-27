@@ -267,8 +267,44 @@ export function computeLayout (graph, opts = {}) {
     for (const e of outs) { if (e !== best) overlays.push({ from: id, to: e.to, kind: e.kind, label: e.label }) }
   })
 
-  // roots (no primary parent)
-  const roots = [...nodes.keys()].filter((id) => !primary.has(id))
+  // ---- dummy nodes for long edges (Sugiyama-style) ------------------------
+  // An overlay that spans several ranks (e.g. `urinary bladder` is-a
+  // `mesoderm-derived structure`, five ranks up) drawn as one curve has to bow
+  // across the whole node field and ends up crossing unrelated edges. Instead we
+  // break each long overlay into a chain of unit-rank segments through invisible
+  // DUMMY nodes, one per intermediate rank. The dummies are real participants in
+  // the rank rows: they take a slot (so real nodes leave a vertical corridor for
+  // the edge) and they sit in the x-relaxation adjacency (so the corridor lines up
+  // straight). The renderer then draws the edge as a smooth spline through the
+  // dummy x-positions, weaving between nodes rather than bowing around them.
+  //
+  // Only overlays are broken up; tree (primary) edges are always unit-rank by
+  // construction. Same-rank overlays (sibling relationship diamonds, span 0) and
+  // unit-span overlays are left exactly as they were.
+  let dummySeq = 0
+  const dummyChains = new Map() // overlay key "from|to" -> [dummyId, dummyId, ...] top-to-... (ordered from just below `to` down to just above `from`)
+  const isDummy = (id) => nodes.get(id)?.isDummy
+  const longOverlays = overlays.filter((e) => {
+    const rf = rank.get(e.from); const rt = rank.get(e.to)
+    return rf != null && rt != null && Math.abs(rf - rt) >= 2
+  })
+  longOverlays.forEach((e) => {
+    const rFrom = rank.get(e.from); const rTo = rank.get(e.to)
+    // `to` is above (smaller rank) for an up-edge; guard either orientation.
+    const hi = Math.min(rFrom, rTo); const lo = Math.max(rFrom, rTo)
+    const chain = [] // dummy ids for the ranks strictly between hi and lo, ordered lo-1 .. hi+1
+    for (let r = lo - 1; r > hi; r--) {
+      const id = '__dummy__' + (dummySeq++)
+      nodes.set(id, { id, label: '', width: 8, children: [], isDummy: true, _depth: r })
+      rank.set(id, r)
+      chain.push(id)
+    }
+    dummyChains.set(e.from + '|' + e.to, { chain, from: e.from, to: e.to, kind: e.kind, label: e.label })
+  })
+
+  // roots (no primary parent). Dummies are never roots (they have no primary
+  // parent, but they must not be placed by the tidy tree — see below).
+  const roots = [...nodes.keys()].filter((id) => !primary.has(id) && !isDummy(id))
 
   // virtual super-root over all roots so the forest is placed as one tidy tree
   const SUPER = '__super__'
@@ -282,7 +318,24 @@ export function computeLayout (graph, opts = {}) {
   // aren't there and bending the ones that are.
   const nbr = new Map()
   const addNbr = (a, b) => { if (!nbr.has(a)) nbr.set(a, []); nbr.get(a).push(b) }
-  up.forEach((outs, from) => outs.forEach((e) => { if (nodes.has(from) && nodes.has(e.to)) { addNbr(from, e.to); addNbr(e.to, from) } }))
+  // For a long overlay that has been broken into a dummy chain, wire the CHAIN
+  // (from ↔ d ↔ d ↔ … ↔ to) into the adjacency instead of the direct from↔to link,
+  // so the relaxation straightens the whole corridor rather than pulling the two
+  // real endpoints toward each other across the intervening ranks.
+  const longKey = (from, to) => (dummyChains.has(from + '|' + to) ? from + '|' + to : null)
+  up.forEach((outs, from) => outs.forEach((e) => {
+    if (!nodes.has(from) || !nodes.has(e.to)) return
+    const k = longKey(from, e.to)
+    if (k) {
+      // chain is ordered lo-1 .. hi+1, i.e. nearest `from` first, nearest `to` last
+      const ch = dummyChains.get(k).chain
+      let prev = from
+      for (const d of ch) { addNbr(prev, d); addNbr(d, prev); prev = d }
+      addNbr(prev, e.to); addNbr(e.to, prev)
+    } else {
+      addNbr(from, e.to); addNbr(e.to, from)
+    }
+  }))
 
   // relationship-neighbour sets (both directions) — used to give a wider gap to
   // sibling nodes joined by a relationship (the base of a diamond).
@@ -464,6 +517,20 @@ export function computeLayout (graph, opts = {}) {
   if (best) restore(best)
   place(superNode)
 
+  // Seed each dummy's x by interpolating a straight line between its overlay's two
+  // real endpoints (which now have final tree x). The x-relaxation below then pulls
+  // the whole chain taut and nudges real nodes aside to keep the corridor clear.
+  dummyChains.forEach(({ chain, from, to }) => {
+    const a = nodes.get(from); const b = nodes.get(to)
+    if (!a || !b) return
+    const rA = a._depth; const rB = b._depth
+    chain.forEach((id) => {
+      const d = nodes.get(id); if (!d) return
+      const t = (rB - rA) !== 0 ? (d._depth - rA) / (rB - rA) : 0.5
+      d._x = a._x + (b._x - a._x) * t
+    })
+  })
+
   // collector ordering: collector (upper-ontology) nodes are placed by the tidy pass
   // like any other node, but their left-to-right ORDER within a rank is then frozen —
   // x-relaxation only slides a node within its neighbours' gaps, it never reorders. That
@@ -574,6 +641,20 @@ export function computeLayout (graph, opts = {}) {
   const width = (maxX - minX) + 2 * MARGIN
   const height = rowTop[maxRank] + NODE_H + MARGIN
 
+  // Attach the routed waypoints (final coords, ordered from nearest `from` to
+  // nearest `to`) to each long overlay so the renderer can spline the edge through
+  // the corridor the dummies opened instead of bowing across the node field.
+  overlays.forEach((e) => {
+    const rec = dummyChains.get(e.from + '|' + e.to)
+    if (!rec) return
+    e.waypoints = rec.chain.map((id) => { const d = nodes.get(id); return { x: d.x, y: d.y } })
+  })
+
+  // Drop the dummy nodes from the output: their only purpose was to shape the
+  // layout and supply waypoints (already copied onto the overlays above). The
+  // renderer must never see them as boxes/obstacles.
+  nodes.forEach((n, id) => { if (n.isDummy) nodes.delete(id) })
+
   const treeEdges = []
   primary.forEach((e, id) => treeEdges.push({ from: id, to: e.to, kind: e.kind, label: e.label }))
   return { nodes, treeEdges, overlays, width, height, collector }
@@ -604,6 +685,32 @@ export function straightPath (a, b, nodeH) {
     mid: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 },
     seg: { p1, p2 }
   }
+}
+
+// Route a long edge through pre-computed waypoints (the dummy-node corridor). The
+// endpoints attach to the real node boundaries; the interior follows the way-
+// points as a smooth Catmull-Rom spline (rendered as cubic Béziers), so the edge
+// weaves through the lanes the dummies opened instead of bowing across the field.
+// `way` is ordered from nearest `a` (source, below) to nearest `b` (target, above).
+export function waypointPath (a, b, way, nodeH) {
+  // Full control polyline: source centre-ish → waypoints → target centre-ish. We
+  // anchor the ends on the box faces pointing at the first/last waypoint.
+  const first = way[0] || { x: b.x, y: b.y }
+  const last = way[way.length - 1] || { x: a.x, y: a.y }
+  const p1 = boundary(a, first.x, first.y, nodeH)
+  const p2 = boundary(b, last.x, last.y, nodeH)
+  const P = [p1, ...way, p2]
+  // Catmull-Rom → cubic Bézier. Tension 0 (standard CR) gives a gentle, non-
+  // overshooting curve through every point.
+  let d = `M ${P[0].x},${P[0].y}`
+  for (let i = 0; i < P.length - 1; i++) {
+    const p0 = P[i - 1] || P[i]; const pA = P[i]; const pB = P[i + 1]; const p3 = P[i + 2] || P[i + 1]
+    const c1x = pA.x + (pB.x - p0.x) / 6; const c1y = pA.y + (pB.y - p0.y) / 6
+    const c2x = pB.x - (p3.x - pA.x) / 6; const c2y = pB.y - (p3.y - pA.y) / 6
+    d += ` C ${c1x},${c1y} ${c2x},${c2y} ${pB.x},${pB.y}`
+  }
+  const mid = P[Math.floor(P.length / 2)]
+  return { d, mid: { x: mid.x, y: mid.y }, seg: { pts: P } }
 }
 
 // Sample a straight or quadratic edge into a polyline of {x,y} points.
