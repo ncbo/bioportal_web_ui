@@ -1018,7 +1018,16 @@ export function routePath (a, b, obstacles, laneReg, nodeH) {
   // to the box face in THAT direction (instead of the straight-chord direction) lets
   // the edge emerge from the correct side of the node — e.g. the right face of the
   // source when the curve sweeps right — rather than kinking off the top edge.
-  const q1 = boundary(a, cx, cy, nodeH); const q2 = boundary(b, cx, cy, nodeH)
+  let q1, q2
+  if (sameRank) {
+    // A same-rank arc is a horizontal connection: attach to the LEFT/RIGHT face of
+    // each box (aim at the other endpoint's centre, not the dipped control point).
+    // Aiming at the control point exits the box's BOTTOM edge, tucked inside a wide
+    // box, so the tail looked like it started from within the box.
+    q1 = boundary(a, b.x, a.y, nodeH); q2 = boundary(b, a.x, b.y, nodeH)
+  } else {
+    q1 = boundary(a, cx, cy, nodeH); q2 = boundary(b, cx, cy, nodeH)
+  }
   const mid = { x: (q1.x + 2 * cx + q2.x) / 4, y: (q1.y + 2 * cy + q2.y) / 4 }
   return { d: `M ${q1.x},${q1.y} Q ${cx},${cy} ${q2.x},${q2.y}`, mid, seg: { p1: q1, p2: q2, c: { x: cx, y: cy } } }
 }
