@@ -1065,18 +1065,22 @@ export function routePath (a, b, obstacles, laneReg, nodeH) {
     const _bend = (typeof window !== 'undefined' && window.__egSameRankBend) || {}
     const BEND_MARGIN = Number.isFinite(_bend.margin) ? _bend.margin : 22
     const BEND_SPAN = Number.isFinite(_bend.spanFactor) ? _bend.spanFactor : 0.16
+    const BEND_PER_SIBLING = Number.isFinite(_bend.perSibling) ? _bend.perSibling : 14
     // Every same-rank arc needs to clear the ROW's own box bottoms/tops by a margin,
     // and then some: a bend that just clears the box reads as a shallow ambiguous
     // line, so give it a noticeable apex depth (half a node height + the margin) to
     // read clearly as a relationship arc.
     const CLEAR_BOX = (nodeH || NODE_H_BASE) / 2 + BEND_MARGIN
-    // A wide arc over OPEN space is floored deeper still, scaled to its span so a long
-    // one arcs proportionally more. But when a node sits BETWEEN the endpoints (like
-    // `sac` between cell and multicellular) the natural clearing bow is already deep,
-    // so we don't pile extra depth on and make it duck — just ensure the box clearance.
+    // How many same-rank nodes the arc jumps OVER (strictly between the endpoints).
+    // An arc that hops several siblings should bow deeper so it clears them all with a
+    // comfortable margin and reads as a bigger hop — perSibling px per intervening node.
     const loX = Math.min(a.x, b.x); const hiX = Math.max(a.x, b.x)
-    const between = obstacles.some((r) => r.id !== a.id && r.id !== b.id && Math.abs(r.y - a.y) < 2 && r.x > loX && r.x < hiX)
-    const floor = between ? CLEAR_BOX : Math.min(CORRIDOR - 6, Math.max(CLEAR_BOX, adxEnds * BEND_SPAN))
+    const crossed = obstacles.filter((r) => r.id !== a.id && r.id !== b.id && Math.abs(r.y - a.y) < 2 && r.x > loX && r.x < hiX).length
+    // A wide arc over OPEN space is floored deeper still, scaled to its span so a long
+    // one arcs proportionally more; an arc over intervening siblings deepens per node.
+    const perSiblingFloor = CLEAR_BOX + crossed * BEND_PER_SIBLING
+    const spanFloor = Math.max(CLEAR_BOX, adxEnds * BEND_SPAN)
+    const floor = Math.min(CORRIDOR - 6, Math.max(perSiblingFloor, spanFloor))
     const deepen = (bow) => bow == null ? null : Math.max(bow, floor)
     const bDn = deepen(findBow(dnSign, CORRIDOR)); const bUp = deepen(findBow(-dnSign, CORRIDOR))
     if (bDn == null && bUp == null) best = { bow: Math.min(CORRIDOR, Math.max(floor, 24)), sign: dnSign }
