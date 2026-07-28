@@ -843,6 +843,22 @@ div.synonym-change-request button {
     input { cursor: pointer; flex: 0 0 auto; }
   }
 
+  // Checkboxes carry Bootstrap 5's .form-check-input (the app's native checkbox
+  // look), but Bootstrap fills the checked state with its default $primary
+  // (#0d6efd). Repaint the checked fill/border and the focus ring with the
+  // BioPortal brand blue so they match the rest of the UI (chips, switches, the
+  // upper-ontology "Show" segment) which all key off --primary-color.
+  .form-check-input {
+    &:checked {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    &:focus {
+      border-color: var(--hover-color);
+      box-shadow: 0 0 0 0.2rem rgba(35, 73, 121, 0.25); // --primary-color @ 25%
+    }
+  }
+
   // the option label text takes the row, pushing the info icon to the right
   &__option-name { flex: 1 1 auto; }
 

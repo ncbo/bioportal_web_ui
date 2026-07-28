@@ -206,7 +206,7 @@ export default class extends Controller {
     const rowByKey = new Map()
     props.forEach(({ key, count }) => {
       const label = document.createElement('label'); label.className = 'entity-graph__filter-item'
-      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !this._hiddenProps.has(key)
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.className = 'form-check-input'; cb.checked = !this._hiddenProps.has(key)
       const text = document.createElement('span'); text.className = 'entity-graph__filter-name'; text.textContent = key
       const cnt = document.createElement('span'); cnt.className = 'entity-graph__filter-count'; cnt.textContent = count
       cb.addEventListener('change', () => {
@@ -474,7 +474,7 @@ export default class extends Controller {
       const label = document.createElement('label')
       label.className = 'entity-graph__option'
       const cb = document.createElement('input')
-      cb.type = 'checkbox'; cb.checked = !!this.opts[key]
+      cb.type = 'checkbox'; cb.className = 'form-check-input'; cb.checked = !!this.opts[key]
       cbByKey[key] = cb
       cb.addEventListener('change', () => {
         this.opts[key] = cb.checked
