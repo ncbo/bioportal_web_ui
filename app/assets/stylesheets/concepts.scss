@@ -840,7 +840,38 @@ div.synonym-change-request button {
     cursor: pointer;
     user-select: none;
 
-    input { cursor: pointer; }
+    input { cursor: pointer; flex: 0 0 auto; }
+  }
+
+  // the option label text takes the row, pushing the info icon to the right
+  &__option-name { flex: 1 1 auto; }
+
+  // per-option help: a muted (i) whose tooltip explains the setting
+  &__option-info {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    color: #aab4c0;
+    cursor: help;
+
+    svg { display: block; }
+    &:hover { color: var(--primary-color); }
+  }
+
+  // A grouped, separated settings section (e.g. Upper ontology) at the panel bottom.
+  &__option-section {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #eef2f6;
+  }
+
+  &__option-section-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 12px 4px;
+    font-weight: 600;
+    color: #33465e;
   }
 
   // Segmented control (Show / Fade / Hide) for a three-state option.

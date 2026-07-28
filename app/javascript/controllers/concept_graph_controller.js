@@ -9,6 +9,8 @@ const SVG = 'http://www.w3.org/2000/svg'
 
 // A small outline eye — the 'show this again' affordance for a hidden node.
 const EYE_SVG = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>'
+// A small outline (i) — the per-option help affordance; its tooltip explains the setting.
+const INFO_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.5" r="0.6" fill="currentColor"/></svg>'
 const MINIMAP_MAX = 240 // longest edge of the minimap thumbnail
 
 // Renders the ancestor/relationship neighbourhood of a class as a node-link graph,
@@ -468,7 +470,10 @@ export default class extends Controller {
     pop.className = 'entity-graph__options-pop'
     pop.hidden = true
 
-    const addCheckbox = (key, text) => {
+    // Each option gets a label, and an info (i) icon whose tooltip explains what it
+    // does. `target` lets a section (e.g. the upper-ontology group) collect its own
+    // rows instead of appending to the top-level popover.
+    const addCheckbox = (key, text, help, target = pop) => {
       const label = document.createElement('label')
       label.className = 'entity-graph__option'
       const cb = document.createElement('input')
@@ -483,24 +488,36 @@ export default class extends Controller {
         this.#refreshGearBadge()
         this.#render()
       })
-      label.append(cb, document.createTextNode(' ' + text))
-      pop.append(label)
+      const name = document.createElement('span'); name.className = 'entity-graph__option-name'; name.textContent = text
+      label.append(cb, name, this.#infoIcon(help))
+      target.append(label)
     }
 
-    addCheckbox('isaOnly', 'Only show is-a')
-    addCheckbox('transitiveReduction', 'Transitive reduction')
+    // Main display options.
+    addCheckbox('isaOnly', 'Only show is-a',
+      'Hide all relationship edges, showing just the is-a (subclass) hierarchy.')
+    addCheckbox('transitiveReduction', 'Transitive reduction',
+      'Drop redundant is-a edges to an ancestor already reached through a longer chain, so each link is a direct parent.')
+    addCheckbox('showPills', 'Show short-id pills',
+      'Show each class’s short identifier (e.g. GO:0005634) as a chip inside its box.')
+    addCheckbox('showAcronym', 'Show ontology acronym',
+      'Tag each node with its source ontology’s acronym (e.g. UBERON, PATO).')
 
     // Upper-ontology controls only make sense when the graph actually references
     // BFO/COB terms — otherwise Show/Fade/Hide and "authoritative info" are no-ops.
+    // Grouped into their own labelled section at the bottom of the panel.
     if (this.#hasUpperOntology()) {
-      // Upper ontology (BFO/COB) is a THREE-state choice — Show / Fade / Hide — so a
-      // segmented radio reads clearer than two interdependent checkboxes.
-      pop.append(this.#buildUpperSegment())
-      addCheckbox('useUpperInfo', 'Use authoritative BFO/COB info')
+      const section = document.createElement('div'); section.className = 'entity-graph__option-section'
+      const heading = document.createElement('div'); heading.className = 'entity-graph__option-section-title'
+      heading.append(document.createTextNode('Upper ontology (BFO / COB)'),
+        this.#infoIcon('BFO and COB are the abstract upper-ontology classes (continuant, occurrent, quality…) that sit above the domain terms. These control how they appear.'))
+      section.append(heading)
+      // Show / Fade / Hide is a THREE-state choice — a segmented control reads clearer.
+      section.append(this.#buildUpperSegment())
+      addCheckbox('useUpperInfo', 'Use authoritative BFO/COB info',
+        'Prefer the upper ontology’s own label and definition for a BFO/COB class over the (often stub) imported one.', section)
+      pop.append(section)
     }
-
-    addCheckbox('showPills', 'Show short-id pills')
-    addCheckbox('showAcronym', 'Show ontology acronym')
 
     const holder = document.createElement('span')
     holder.className = 'entity-graph__icon-wrap'
@@ -523,6 +540,18 @@ export default class extends Controller {
     return holder
   }
 
+  // A small (i) info icon whose native tooltip explains an option. Clicking it does
+  // nothing but must not toggle the option's checkbox, so it swallows the click.
+  #infoIcon (text) {
+    const el = document.createElement('span')
+    el.className = 'entity-graph__option-info'
+    el.innerHTML = INFO_SVG
+    el.title = text
+    el.setAttribute('aria-label', text)
+    el.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation() })
+    return el
+  }
+
   #refreshGearBadge () {
     const btn = this._gearBtn; if (!btn) return
     const hiding = !!this.opts.isaOnly || !!this.opts.hideUpper
@@ -539,9 +568,6 @@ export default class extends Controller {
   #buildUpperSegment () {
     const wrap = document.createElement('div')
     wrap.className = 'entity-graph__seg-row'
-    const caption = document.createElement('div')
-    caption.className = 'entity-graph__seg-label'
-    caption.textContent = 'Upper ontology (BFO / COB)'
     const seg = document.createElement('div')
     seg.className = 'entity-graph__seg'
     const current = this.opts.hideUpper ? 'hide' : (this.opts.fadeUpper ? 'fade' : 'show')
@@ -563,7 +589,7 @@ export default class extends Controller {
       })
       seg.append(b)
     })
-    wrap.append(caption, seg)
+    wrap.append(seg)
     return wrap
   }
 
@@ -659,8 +685,15 @@ export default class extends Controller {
       panel.addEventListener('transitionend', done)
       setTimeout(done, 300) // fallback if transitionend doesn't fire
     }
-    // outside-click closes: anything that isn't this panel or its own toggle button
-    const onDoc = (ev) => { if (!panel.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) close() }
+    // Outside-click closes the panel — but only for a genuine outside click. A click
+    // on an option INSIDE the panel triggers a re-render that rebuilds the chrome, so
+    // by the time this fires the clicked element is detached from the DOM; treat that
+    // as "not outside" so toggling an option never closes the panel (it only closes on
+    // the × or a real click elsewhere).
+    const onDoc = (ev) => {
+      if (!ev.target.isConnected) return
+      if (!panel.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) close()
+    }
     const open = (instant) => {
       if (this._openPanel && this._openPanel !== panel) this._openPanel.__close()  // one at a time
       panel.__closing = false
