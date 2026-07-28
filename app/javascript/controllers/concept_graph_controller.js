@@ -900,14 +900,16 @@ export default class extends Controller {
   }
 
   // "Bridge" knockouts: where an edge passes UNDER a node it is not attached to,
-  // punch a short background-coloured dash on each side of that node so the eye reads
-  // the edge as tunnelling past, not connecting to, the node. GAP is a fixed dash
-  // half-length IN PIXELS along the local path tangent (not a sample-index count), and
-  // a dash is placed only at the ENTRY and EXIT of each contiguous run of samples inside
-  // the node's box — so the break sits tight against the box, not out in open space.
+  // punch a short background-coloured dash so the eye reads the edge as tunnelling
+  // past, not connecting to, the node. A dash is placed at the ENTRY and EXIT of each
+  // contiguous run of samples inside the node's box. INFL slightly inflates the box
+  // ONLY for detecting the run (so a grazing pass still registers); the dash itself is
+  // drawn from the crossing point INWARD toward the box centre, never outward — so the
+  // gap sits at the box border and can't leave a grey stub poking onto the visible
+  // edge beyond the (opaque) box (which was the old straddling dash's `blob`).
   #drawKnockouts (kg, edgeSegs, L, nodeH) {
     const bg = getComputedStyle(this.canvasTarget).backgroundColor || '#ffffff'
-    const GAP = 5; const INFL = 3
+    const LEN = 9; const INFL = 2
     edgeSegs.forEach(({ seg, from, to, rec }) => {
       const pts = samplePath(seg, 60)
       for (const n of L.nodes.values()) {
@@ -925,11 +927,14 @@ export default class extends Controller {
           for (const idx of (i === j ? [i] : [i, j])) {
             const a = pts[Math.max(0, idx - 1)]; const b = pts[Math.min(pts.length - 1, idx + 1)]
             const dx = b.x - a.x; const dy = b.y - a.y; const len = Math.hypot(dx, dy) || 1
-            const ux = dx / len; const uy = dy / len; const c = pts[idx]
+            let ux = dx / len; let uy = dy / len; const c = pts[idx]
+            // orient the tangent to point INTO the box (toward its centre), so the dash
+            // covers the edge behind the box, not the visible edge outside it
+            if ((ux * (n.x - c.x) + uy * (n.y - c.y)) < 0) { ux = -ux; uy = -uy }
             const k = document.createElementNS(SVG, 'path')
             k.setAttribute('class', 'entity-graph__edge-knockout')
             k.setAttribute('stroke', bg)
-            k.setAttribute('d', `M ${c.x - ux * GAP},${c.y - uy * GAP} L ${c.x + ux * GAP},${c.y + uy * GAP}`)
+            k.setAttribute('d', `M ${c.x},${c.y} L ${c.x + ux * LEN},${c.y + uy * LEN}`)
             kg.append(k)
             rec.knockouts.push(k)
           }
