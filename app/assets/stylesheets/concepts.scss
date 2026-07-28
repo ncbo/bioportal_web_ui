@@ -846,6 +846,13 @@ div.synonym-change-request button {
   // the option label text takes the row, pushing the info icon to the right
   &__option-name { flex: 1 1 auto; }
 
+  // a thin rule separating groups of options
+  &__option-divider {
+    height: 1px;
+    background: #eef2f6;
+    margin: 6px 12px;
+  }
+
   // per-option help: a muted (i) whose tooltip explains the setting
   &__option-info {
     flex: 0 0 auto;

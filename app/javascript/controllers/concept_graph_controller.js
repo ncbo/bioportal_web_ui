@@ -493,11 +493,14 @@ export default class extends Controller {
       target.append(label)
     }
 
-    // Main display options.
+    // Structure options — what edges/nodes are drawn.
     addCheckbox('isaOnly', 'Only show is-a',
       'Hide all relationship edges, showing just the is-a (subclass) hierarchy.')
-    addCheckbox('transitiveReduction', 'Transitive reduction',
-      'Drop redundant is-a edges to an ancestor already reached through a longer chain, so each link is a direct parent.')
+    addCheckbox('transitiveReduction', 'Simplify is-a links',
+      'Draw only direct-parent is-a links: drop the redundant edges to an ancestor that’s already reachable through a longer is-a chain.')
+    // divider between structure options and node-label/display options
+    pop.append(this.#optionDivider())
+    // Display options — how nodes are labelled.
     addCheckbox('showPills', 'Show short-id pills',
       'Show each class’s short identifier (e.g. GO:0005634) as a chip inside its box.')
     addCheckbox('showAcronym', 'Show ontology acronym',
@@ -540,16 +543,36 @@ export default class extends Controller {
     return holder
   }
 
-  // A small (i) info icon whose native tooltip explains an option. Clicking it does
-  // nothing but must not toggle the option's checkbox, so it swallows the click.
+  // A thin rule between two groups of options within the settings panel.
+  #optionDivider () {
+    const hr = document.createElement('div')
+    hr.className = 'entity-graph__option-divider'
+    return hr
+  }
+
+  // A small (i) info icon that explains an option. Shows the custom tooltip on hover
+  // (immediate and styled, unlike the native `title`, which is slow and easy to miss).
+  // Clicking it must not toggle the option's checkbox, so it swallows the click.
   #infoIcon (text) {
     const el = document.createElement('span')
     el.className = 'entity-graph__option-info'
     el.innerHTML = INFO_SVG
-    el.title = text
     el.setAttribute('aria-label', text)
     el.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation() })
+    el.addEventListener('mouseenter', (ev) => this.#showInfoTip(ev, text))
+    el.addEventListener('mousemove', (ev) => this.#positionTip(ev.clientX, ev.clientY))
+    el.addEventListener('mouseleave', () => this.#hideTip())
     return el
+  }
+
+  // Show the shared tooltip with a plain-text help string (used by the option info
+  // icons), positioned near the cursor.
+  #showInfoTip (ev, text) {
+    const tip = this.#ensureTip()
+    tip.style.maxWidth = '280px'
+    tip.innerHTML = `<div style="color:#4a5b6e">${this.#esc(text)}</div>`
+    tip.style.display = 'block'
+    this.#positionTip(ev.clientX, ev.clientY)
   }
 
   #refreshGearBadge () {
@@ -1430,6 +1453,7 @@ export default class extends Controller {
 
   #showTip (ev, n, id) {
     const tip = this.#ensureTip()
+    tip.style.maxWidth = '570px' // reset — the option info tooltip narrows the shared tip
     const label = this.#effLabel(n)
     const sid = shortId(id)
     const pill = sid ? ` <span style="display:inline-block;font-size:10.5px;font-weight:600;padding:1px 6px;margin-left:5px;border-radius:8px;background:#eef2f7;color:#5a6b82;vertical-align:middle">${this.#esc(sid)}</span>` : ''
