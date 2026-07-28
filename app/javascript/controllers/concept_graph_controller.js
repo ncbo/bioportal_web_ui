@@ -231,17 +231,69 @@ export default class extends Controller {
       filterInput.addEventListener('click', (ev) => ev.stopPropagation())
     }
 
+    // Persistent per-ontology hidden nodes: a 'Hidden nodes' section below the
+    // relationships, so they can be seen and un-hidden individually.
+    const renderHiddenNodes = this.#buildHiddenNodesSection(pop)
+
     holder.append(btn, pop)
     refreshBadge() // reflect any persisted filter state on first paint
     // snapshot the selection when the popover opens; on close, if it changed, persist
     // and re-render once.
     let openSnapshot = null
-    btn.addEventListener('click', () => { if (pop.hidden) openSnapshot = [...this._hiddenProps].sort().join('') }, true)
+    btn.addEventListener('click', () => { if (pop.hidden) { openSnapshot = [...this._hiddenProps].sort().join(''); renderHiddenNodes() } }, true)
     this.#wirePopover(holder, btn, pop, () => {
       const now = [...this._hiddenProps].sort().join('')
       if (now !== openSnapshot) { this.#saveHiddenProps(); this.#render() }
     })
     return holder
+  }
+
+  // Builds and appends the "Hidden nodes" section to the filter popover `pop`, and
+  // returns a function to (re)render its list. Lists the persistent per-ontology
+  // hidden classes so they can be seen and un-hidden individually — un-hiding is
+  // immediate (persist + re-render), unlike the relationship checkboxes that apply
+  // on close, because it's a discrete "remove this entry" action.
+  #buildHiddenNodesSection (pop) {
+    const section = document.createElement('div'); section.className = 'entity-graph__filter-section'
+    const head = document.createElement('div'); head.className = 'entity-graph__filter-head'
+    const title = document.createElement('span'); title.textContent = 'Hidden nodes'
+    const showAllBtn = document.createElement('button'); showAllBtn.type = 'button'; showAllBtn.textContent = 'Show all'
+    const actions = document.createElement('span'); actions.className = 'entity-graph__filter-actions'
+    actions.append(showAllBtn)
+    head.append(title, actions)
+    const list = document.createElement('div'); list.className = 'entity-graph__filter-list'
+    section.append(head, list)
+    pop.append(section)
+
+    const render = () => {
+      list.replaceChildren()
+      const ids = [...this._hiddenNodes]
+      section.style.display = ids.length ? '' : 'none'
+      ids
+        .map((id) => ({ id, label: this.#nodeLabel(id) }))
+        .sort((a, b) => a.label.localeCompare(b.label))
+        .forEach(({ id, label }) => {
+          const row = document.createElement('div'); row.className = 'entity-graph__filter-item'
+          const name = document.createElement('span'); name.className = 'entity-graph__filter-name'; name.textContent = label; name.title = id
+          const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'entity-graph__filter-remove'
+          rm.textContent = '\u00d7'; rm.title = 'Show this node again'; rm.setAttribute('aria-label', `Show ${label}`)
+          rm.addEventListener('click', (ev) => {
+            ev.stopPropagation()
+            this._hiddenNodes.delete(id); this.#saveHiddenNodes()
+            render(); this.#render()
+          })
+          row.append(name, rm)
+          list.append(row)
+        })
+    }
+    showAllBtn.addEventListener('click', (ev) => {
+      ev.stopPropagation()
+      if (!this._hiddenNodes.size) return
+      this._hiddenNodes.clear(); this.#saveHiddenNodes()
+      render(); this.#render()
+    })
+    render()
+    return render
   }
 
   // Popout/close button: toggles a full-viewport overlay so the graph can use the
@@ -851,6 +903,14 @@ export default class extends Controller {
 
   #effLabel (n) {
     return (this.opts.useUpperInfo && n.upper && n.upper.label) ? n.upper.label : n.label
+  }
+
+  // Human-readable label for a class IRI. Uses the node's label if it's in this
+  // graph; otherwise falls back to the short id (a class hidden from a different
+  // class's graph may not appear in this one).
+  #nodeLabel (iri) {
+    const n = this.graph.nodes.find((x) => x.id === iri)
+    return (n && this.#effLabel(n)) || shortId(iri) || iri
   }
 
   #classPath (iri) {

@@ -736,6 +736,28 @@ div.synonym-change-request button {
     font-variant-numeric: tabular-nums;
   }
 
+  // The "Hidden nodes" section under the relationships list — separated by a rule.
+  // Hidden entirely (via inline style) when there are no hidden nodes.
+  &__filter-section {
+    margin-top: 4px;
+    border-top: 1px solid #eef2f6;
+  }
+
+  // The × control on a hidden-node row that un-hides it.
+  &__filter-remove {
+    flex: 0 0 auto;
+    border: none;
+    background: none;
+    color: #8794a5;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    border-radius: 4px;
+
+    &:hover { color: var(--primary-color); background: #e7eef6; }
+  }
+
   &__option {
     display: flex;
     align-items: center;
