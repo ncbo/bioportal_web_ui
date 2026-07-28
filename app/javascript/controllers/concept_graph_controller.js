@@ -49,6 +49,14 @@ export default class extends Controller {
     // so the selection survives reloads and new sessions, not just the current tab.
     this._hiddenProps = this.#loadHiddenProps()
 
+    // Node removal. Two independent sets, both keyed by class IRI:
+    //  - _removedNodes: TRANSIENT, this graph only — for curating a figure. Not
+    //    persisted; a reload starts clean.
+    //  - _hiddenNodes: PERSISTENT per ontology — "never show this class here".
+    // The selected class is never removable (it's the graph's anchor).
+    this._removedNodes = new Set()
+    this._hiddenNodes = this.#loadHiddenNodes()
+
     if (this.nodes.length <= 1 && this.edges.length === 0) {
       this.emptyTarget.classList.remove('d-none')
       return
@@ -304,14 +312,29 @@ export default class extends Controller {
     return this._relProps
   }
 
-  // The graph with hidden-property relationship edges removed, so hidden edges affect
-  // neither the layout nor the drawing.
+  // The graph the layout actually sees: hidden-property relationship edges dropped,
+  // and removed/hidden nodes (plus their incident edges) taken out. The layout's own
+  // connectivity prune then drops anything left disconnected from the selected class,
+  // so removing a node also removes whatever only hung off it.
   #visibleGraph () {
-    if (!this._hiddenProps.size) return this.graph
+    const cut = this.#cutNodes()
+    if (!this._hiddenProps.size && !cut.size) return this.graph
     return {
       ...this.graph,
-      edges: this.graph.edges.filter((e) => e.kind === 'is-a' || !this._hiddenProps.has(this.#propKey(e)))
+      nodes: this.graph.nodes.filter((n) => !cut.has(n.id)),
+      edges: this.graph.edges.filter((e) =>
+        !cut.has(e.from) && !cut.has(e.to) &&
+        (e.kind === 'is-a' || !this._hiddenProps.has(this.#propKey(e))))
     }
+  }
+
+  // Nodes to take out of the graph = transient removals ∪ persistent per-ontology
+  // hides, minus the selected class (never removable — it anchors the graph).
+  #cutNodes () {
+    const cut = new Set([...this._removedNodes, ...this._hiddenNodes])
+    const sel = (this.nodes.find((n) => n.selected) || {}).id
+    if (sel) cut.delete(sel)
+    return cut
   }
 
   // Settings and filters persist in localStorage so they survive reloads and new
@@ -355,6 +378,24 @@ export default class extends Controller {
 
   #saveHiddenProps () {
     this.#storageSet(this.#hiddenPropsKey(), JSON.stringify([...this._hiddenProps]))
+  }
+
+  // Persistent "never show this class in this ontology" set, keyed by ontology
+  // (class IRIs are ontology-scoped), stored like the hidden-property set.
+  #hiddenNodesKey () {
+    return 'entity-graph:hidden-nodes:' + (this.ontologyValue || '_')
+  }
+
+  #loadHiddenNodes () {
+    try {
+      const raw = this.#storageGet(this.#hiddenNodesKey())
+      if (raw) return new Set(JSON.parse(raw))
+    } catch (_) { /* bad JSON — start empty */ }
+    return new Set()
+  }
+
+  #saveHiddenNodes () {
+    this.#storageSet(this.#hiddenNodesKey(), JSON.stringify([...this._hiddenNodes]))
   }
 
   #buildGear () {
@@ -874,6 +915,36 @@ export default class extends Controller {
     this.#applyFocus()
   }
 
+  // --- node removal ---------------------------------------------------------
+
+  // Take a node out of THIS graph only (transient — a reload brings it back).
+  #removeNode (id) {
+    this._removedNodes.add(id)
+    this.#render()
+    this.#toast('Removed from graph')
+  }
+
+  // Always hide a node in this ontology (persistent across graphs and sessions).
+  #hideNode (id) {
+    this._hiddenNodes.add(id)
+    this.#saveHiddenNodes()
+    this.#render()
+    this.#toast(`Hidden in ${this.ontologyValue || 'this ontology'}`)
+  }
+
+  #restoreRemovedNodes () {
+    if (!this._removedNodes.size) return
+    this._removedNodes.clear()
+    this.#render()
+  }
+
+  #restoreHiddenNodes () {
+    if (!this._hiddenNodes.size) return
+    this._hiddenNodes.clear()
+    this.#saveHiddenNodes()
+    this.#render()
+  }
+
   #toggleEdge (rec) {
     const s = this._sel; s.traceId = null
     if (s.edges.has(rec)) s.edges.delete(rec); else s.edges.add(rec)
@@ -967,12 +1038,17 @@ export default class extends Controller {
     const s = this._sel
     const hasSel = s.traceId || s.nodes.size || s.edges.size
     const items = []
+    const isSelectedClass = nodeId && nodeId === (this.nodes.find((n) => n.selected) || {}).id
     if (nodeId) {
       const sid = shortId(nodeId)
       items.push({ label: s.nodes.has(nodeId) ? 'Deselect node' : 'Select node', run: () => this.#toggleNode(nodeId) })
       items.push({ label: 'Highlight path', run: () => this.#traceNode(nodeId) })
       items.push({ label: 'Fit to selection (F)', disabled: !hasSel, run: () => this.#fitToSelection() })
       items.push({ label: 'Open class', run: () => { window.location.href = this.#classPath(nodeId) } })
+      items.push({ separator: true })
+      // Node removal — never offered for the selected class (it anchors the graph).
+      items.push({ label: 'Remove from graph', disabled: isSelectedClass, run: () => this.#removeNode(nodeId) })
+      items.push({ label: `Never show in ${this.ontologyValue || 'this ontology'}`, disabled: isSelectedClass, run: () => this.#hideNode(nodeId) })
       items.push({ separator: true })
       items.push({ label: sid ? ('Copy ' + sid) : 'Copy short-id', disabled: !sid, run: () => this.#copyText(sid) })
       items.push({ label: 'Copy IRI', run: () => this.#copyText(nodeId) })
@@ -982,6 +1058,9 @@ export default class extends Controller {
       items.push({ label: 'Fit whole graph', run: () => this._zoomApi && this._zoomApi.recenter() })
       items.push({ separator: true })
     }
+    // Restore removed/hidden nodes — shown wherever there's something to restore.
+    if (this._removedNodes.size) items.push({ label: `Restore removed nodes (${this._removedNodes.size})`, run: () => this.#restoreRemovedNodes() })
+    if (this._hiddenNodes.size) items.push({ label: `Show always-hidden nodes (${this._hiddenNodes.size})`, run: () => this.#restoreHiddenNodes() })
     items.push({ label: 'Clear all', disabled: !hasSel, run: () => this.#clearSelection() })
 
     const menu = document.createElement('div')
