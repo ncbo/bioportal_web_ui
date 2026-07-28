@@ -6,6 +6,9 @@ import {
 } from './entity_graph_layout'
 
 const SVG = 'http://www.w3.org/2000/svg'
+
+// A small outline eye — the 'show this again' affordance for a hidden node.
+const EYE_SVG = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>'
 const MINIMAP_MAX = 240 // longest edge of the minimap thumbnail
 
 // Renders the ancestor/relationship neighbourhood of a class as a node-link graph,
@@ -237,22 +240,29 @@ export default class extends Controller {
 
     holder.append(btn, pop)
     refreshBadge() // reflect any persisted filter state on first paint
-    // snapshot the selection when the popover opens; on close, if it changed, persist
-    // and re-render once.
+    // Snapshot the pending state (hidden relationships AND hidden nodes) when the
+    // popover opens; on close, if either changed, persist and redo the graph ONCE.
+    // Editing inside the popover (checkboxes, un-hiding nodes) only updates the
+    // pending sets and the popover's own lists — the graph isn't rebuilt until close,
+    // so the popover stays put and the layout doesn't churn on every click.
+    const snapshot = () => [...this._hiddenProps].sort().join(',') + '|' + [...this._hiddenNodes].sort().join(',')
     let openSnapshot = null
-    btn.addEventListener('click', () => { if (pop.hidden) { openSnapshot = [...this._hiddenProps].sort().join(''); renderHiddenNodes() } }, true)
+    btn.addEventListener('click', () => { if (pop.hidden) { openSnapshot = snapshot(); renderHiddenNodes() } }, true)
     this.#wirePopover(holder, btn, pop, () => {
-      const now = [...this._hiddenProps].sort().join('')
-      if (now !== openSnapshot) { this.#saveHiddenProps(); this.#render() }
+      if (snapshot() !== openSnapshot) {
+        this.#saveHiddenProps()
+        this.#saveHiddenNodes()
+        this.#render()
+      }
     })
     return holder
   }
 
   // Builds and appends the "Hidden nodes" section to the filter popover `pop`, and
   // returns a function to (re)render its list. Lists the persistent per-ontology
-  // hidden classes so they can be seen and un-hidden individually — un-hiding is
-  // immediate (persist + re-render), unlike the relationship checkboxes that apply
-  // on close, because it's a discrete "remove this entry" action.
+  // hidden classes so they can be seen and un-hidden individually. Un-hiding only
+  // updates the pending set and this list; like the relationship checkboxes, it's
+  // persisted and the graph is rebuilt once, when the popover closes.
   #buildHiddenNodesSection (pop) {
     const section = document.createElement('div'); section.className = 'entity-graph__filter-section'
     const head = document.createElement('div'); head.className = 'entity-graph__filter-head'
@@ -275,12 +285,14 @@ export default class extends Controller {
         .forEach(({ id, label }) => {
           const row = document.createElement('div'); row.className = 'entity-graph__filter-item'
           const name = document.createElement('span'); name.className = 'entity-graph__filter-name'; name.textContent = label; name.title = id
-          const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'entity-graph__filter-remove'
-          rm.textContent = '\u00d7'; rm.title = 'Show this node again'; rm.setAttribute('aria-label', `Show ${label}`)
+          const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'entity-graph__filter-show'
+          rm.innerHTML = EYE_SVG; rm.title = 'Show this node again'; rm.setAttribute('aria-label', `Show ${label}`)
           rm.addEventListener('click', (ev) => {
+            // Update the pending set + the list only; the graph is redone when the
+            // popover closes (see the close handler in #buildFilter).
             ev.stopPropagation()
-            this._hiddenNodes.delete(id); this.#saveHiddenNodes()
-            render(); this.#render()
+            this._hiddenNodes.delete(id)
+            render()
           })
           row.append(name, rm)
           list.append(row)
@@ -289,8 +301,8 @@ export default class extends Controller {
     showAllBtn.addEventListener('click', (ev) => {
       ev.stopPropagation()
       if (!this._hiddenNodes.size) return
-      this._hiddenNodes.clear(); this.#saveHiddenNodes()
-      render(); this.#render()
+      this._hiddenNodes.clear()
+      render()
     })
     render()
     return render
