@@ -690,12 +690,27 @@ div.synonym-change-request button {
     flex-direction: column;
     padding: 0; // the header and the scrolling body own their padding
 
+    // Slide in/out from the right edge. Closed = shifted fully off to the right;
+    // `--open` slides it back to rest. The JS keeps the element rendered during the
+    // slide-out and only sets [hidden] (display:none) once the transition ends.
+    transform: translateX(100%);
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+
+    &--open { transform: translateX(0); }
+    // suppress the transition for an instant (re)open after a re-render
+    &--no-anim { transition: none; }
+
     // fixed header; the body below it scrolls as one column
     .entity-graph__panel-head { flex: 0 0 auto; }
     .entity-graph__panel-body { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding: 8px 0; }
 
     // the relationship list no longer needs its own cap — the panel body scrolls
     .entity-graph__filter-list { max-height: none; overflow: visible; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__panel { transition: none; }
   }
 
   &__panel-head {

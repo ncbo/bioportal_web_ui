@@ -640,21 +640,40 @@ export default class extends Controller {
     // dock to the canvas edge (not the icon), so full-height positioning is simple
     this.canvasTarget.append(panel)
 
+    // Slide animation: `--open` drives a transform transition (see CSS). We keep
+    // `panel.hidden` as the logical open/closed flag but only flip it to true AFTER
+    // the slide-out finishes, so the panel animates off-screen instead of vanishing.
     const close = (viaRender) => {
-      if (panel.hidden) return
-      panel.hidden = true
+      if (panel.hidden || panel.__closing) return
       document.removeEventListener('click', onDoc, true)
       if (this._openPanel === panel) this._openPanel = null
       // `viaRender` is a silent close during a re-render (chrome is being rebuilt) —
       // keep _openPanelKey so #buildChrome can reopen this panel afterwards, and skip
       // onClose (it will run when the user actually closes it).
       if (!viaRender) { if (this._openPanelKey === key) this._openPanelKey = null; if (onClose) onClose() }
+      if (viaRender) { panel.hidden = true; return } // re-render destroys it; no animation
+      // animate out, then hide once the slide finishes
+      panel.__closing = true
+      panel.classList.remove('entity-graph__panel--open')
+      const done = () => { panel.hidden = true; panel.__closing = false; panel.removeEventListener('transitionend', done) }
+      panel.addEventListener('transitionend', done)
+      setTimeout(done, 300) // fallback if transitionend doesn't fire
     }
     // outside-click closes: anything that isn't this panel or its own toggle button
     const onDoc = (ev) => { if (!panel.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) close() }
-    const open = () => {
+    const open = (instant) => {
       if (this._openPanel && this._openPanel !== panel) this._openPanel.__close()  // one at a time
+      panel.__closing = false
       panel.hidden = false
+      if (instant) {
+        // no slide — used when reopening after a re-render, so a settings toggle
+        // doesn't make the panel flick out and back in.
+        panel.classList.add('entity-graph__panel--no-anim', 'entity-graph__panel--open')
+        requestAnimationFrame(() => panel.classList.remove('entity-graph__panel--no-anim'))
+      } else {
+        // add --open on the next frame so the transition runs from the off-screen state
+        requestAnimationFrame(() => requestAnimationFrame(() => panel.classList.add('entity-graph__panel--open')))
+      }
       this._openPanel = panel
       this._openPanelKey = key
       setTimeout(() => document.addEventListener('click', onDoc, true), 0)
@@ -664,8 +683,9 @@ export default class extends Controller {
     x.addEventListener('click', (ev) => { ev.stopPropagation(); close() })
     btn.addEventListener('click', (ev) => { ev.stopPropagation(); panel.hidden ? open() : close() })
     // Reopen this panel if it was open before a re-render rebuilt the chrome (e.g. a
-    // settings checkbox toggled the graph). Matched by its stable key.
-    if (this._openPanelKey === key) open()
+    // settings checkbox toggled the graph). Matched by its stable key; instant (no
+    // slide) since it's a continuation of an already-open panel.
+    if (this._openPanelKey === key) open(true)
   }
 
   // --- rendering ------------------------------------------------------------
