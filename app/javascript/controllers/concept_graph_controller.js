@@ -238,17 +238,17 @@ export default class extends Controller {
     // relationships, so they can be seen and un-hidden individually.
     const renderHiddenNodes = this.#buildHiddenNodesSection(pop)
 
-    holder.append(btn, pop)
+    holder.append(btn)
     refreshBadge() // reflect any persisted filter state on first paint
     // Snapshot the pending state (hidden relationships AND hidden nodes) when the
-    // popover opens; on close, if either changed, persist and redo the graph ONCE.
-    // Editing inside the popover (checkboxes, un-hiding nodes) only updates the
-    // pending sets and the popover's own lists — the graph isn't rebuilt until close,
-    // so the popover stays put and the layout doesn't churn on every click.
+    // panel opens; on close, if either changed, persist and redo the graph ONCE.
+    // Editing inside the panel (checkboxes, un-hiding nodes) only updates the pending
+    // sets and the panel's own lists — the graph isn't rebuilt until the panel closes.
     const snapshot = () => [...this._hiddenProps].sort().join(',') + '|' + [...this._hiddenNodes].sort().join(',')
     let openSnapshot = null
+    // capture-phase: runs before #wirePanel's toggle, so the snapshot is the pre-open state
     btn.addEventListener('click', () => { if (pop.hidden) { openSnapshot = snapshot(); renderHiddenNodes() } }, true)
-    this.#wirePopover(holder, btn, pop, () => {
+    this.#wirePanel(btn, pop, 'Relationships & hidden nodes', 'filter', () => {
       if (snapshot() !== openSnapshot) {
         this.#saveHiddenProps()
         this.#saveHiddenNodes()
@@ -512,14 +512,14 @@ export default class extends Controller {
     // A clean, symmetric cog (Material-style gear): even trapezoidal teeth around a
     // round body with a hollow hub — reads as a gear at 16px without looking lumpy.
     btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.62.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7 7 0 00-1.62-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.58.24-1.12.56-1.62.94l-2.39-.96a.5.5 0 00-.6.22L2.74 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 00-.12.64l1.92 3.32c.13.23.4.32.63.22l2.39-.96c.5.38 1.04.7 1.62.94l.36 2.54c.05.24.25.42.5.42h3.84c.25 0 .45-.18.5-.42l.36-2.54c.58-.24 1.12-.56 1.62-.94l2.39.96c.23.1.5.01.63-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6A3.6 3.6 0 1112 8.4a3.6 3.6 0 010 7.2z"/></svg>'
-    holder.append(btn, pop)
+    holder.append(btn)
     // Flag the gear when a CONTENT-HIDING option is active (is-a-only, or upper
     // ontology hidden) — these silently remove edges/nodes, and because settings
     // persist they can carry over from a previous session; the dot makes that
     // visible instead of leaving the user staring at a graph with no relationships.
     this._gearBtn = btn
     this.#refreshGearBadge()
-    this.#wirePopover(holder, btn, pop)
+    this.#wirePanel(btn, pop, 'Display options', 'gear')
     return holder
   }
 
@@ -615,6 +615,57 @@ export default class extends Controller {
         close()
       }
     })
+  }
+
+  // A side panel: like a popover, but docked to the right edge of the canvas at full
+  // height so tall content (the relationship + hidden-node lists, all the settings)
+  // scrolls internally instead of overflowing the viewport. The panel is moved OUT of
+  // its icon holder and appended to the canvas so it docks to the canvas edge; only
+  // one panel is open at a time (opening one closes the other). `title` is shown in a
+  // header with a close button; `onClose` fires on any close (for apply-on-close).
+  #wirePanel (btn, panel, title, key, onClose) {
+    // Wrap the panel's existing content in a scrolling body, then add a fixed header
+    // above it (title + close). The body scrolls as one column so tall content stays
+    // in the panel instead of overflowing.
+    const body = document.createElement('div'); body.className = 'entity-graph__panel-body'
+    while (panel.firstChild) body.append(panel.firstChild)
+    const header = document.createElement('div'); header.className = 'entity-graph__panel-head'
+    const h = document.createElement('span'); h.className = 'entity-graph__panel-title'; h.textContent = title
+    const x = document.createElement('button'); x.type = 'button'; x.className = 'entity-graph__panel-close'
+    x.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+    x.title = 'Close'; x.setAttribute('aria-label', 'Close')
+    header.append(h, x)
+    panel.append(header, body)
+    panel.classList.add('entity-graph__panel')
+    // dock to the canvas edge (not the icon), so full-height positioning is simple
+    this.canvasTarget.append(panel)
+
+    const close = (viaRender) => {
+      if (panel.hidden) return
+      panel.hidden = true
+      document.removeEventListener('click', onDoc, true)
+      if (this._openPanel === panel) this._openPanel = null
+      // `viaRender` is a silent close during a re-render (chrome is being rebuilt) —
+      // keep _openPanelKey so #buildChrome can reopen this panel afterwards, and skip
+      // onClose (it will run when the user actually closes it).
+      if (!viaRender) { if (this._openPanelKey === key) this._openPanelKey = null; if (onClose) onClose() }
+    }
+    // outside-click closes: anything that isn't this panel or its own toggle button
+    const onDoc = (ev) => { if (!panel.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) close() }
+    const open = () => {
+      if (this._openPanel && this._openPanel !== panel) this._openPanel.__close()  // one at a time
+      panel.hidden = false
+      this._openPanel = panel
+      this._openPanelKey = key
+      setTimeout(() => document.addEventListener('click', onDoc, true), 0)
+    }
+    panel.__close = close // let the "one at a time" logic close a sibling panel
+    panel.__open = open // let #buildChrome reopen the previously-open panel after a render
+    x.addEventListener('click', (ev) => { ev.stopPropagation(); close() })
+    btn.addEventListener('click', (ev) => { ev.stopPropagation(); panel.hidden ? open() : close() })
+    // Reopen this panel if it was open before a re-render rebuilt the chrome (e.g. a
+    // settings checkbox toggled the graph). Matched by its stable key.
+    if (this._openPanelKey === key) open()
   }
 
   // --- rendering ------------------------------------------------------------
@@ -742,7 +793,8 @@ export default class extends Controller {
     // geometry once the SVG is in the document, so world must be computed after
     // replaceChildren (measuring a detached SVG returned a truncated box, which
     // made fit-to-view mis-scale).
-    this.canvasTarget.replaceChildren(svg)
+    this.canvasTarget.replaceChildren(svg) // wipes the old chrome/panels; rebuilt below
+    this._openPanel = null // panels are recreated per render; drop the stale reference
     const world = this.#worldBounds(vp, L)
     this._render.world = world // for whole-graph export
     this.#installZoom(svg, vp, world)
