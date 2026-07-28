@@ -866,6 +866,14 @@ export default class extends Controller {
     // geometry once the SVG is in the document, so world must be computed after
     // replaceChildren (measuring a detached SVG returned a truncated box, which
     // made fit-to-view mis-scale).
+    // Tear down the open panel's document-level outside-click listener BEFORE the
+    // chrome is wiped: replaceChildren only detaches the DOM, it doesn't run our
+    // close(), so the capture-phase `onDoc` handler would otherwise leak onto
+    // `document` on every toggle. A leaked handler (bound to the now-detached panel)
+    // fires on the next click, sees the new checkbox isn't inside its old panel, and
+    // closes — clearing _openPanelKey so the panel fails to reopen. close(true) removes
+    // the listener quietly and preserves _openPanelKey so #buildChrome reopens it.
+    if (this._openPanel) this._openPanel.__close(true)
     this.canvasTarget.replaceChildren(svg) // wipes the old chrome/panels; rebuilt below
     this._openPanel = null // panels are recreated per render; drop the stale reference
     const world = this.#worldBounds(vp, L)
