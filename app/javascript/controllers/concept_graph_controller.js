@@ -200,9 +200,9 @@ export default class extends Controller {
     const list = document.createElement('div'); list.className = 'entity-graph__filter-list'
     pop.append(list)
 
-    // Toggling checkboxes only updates the pending hidden-set — the graph is not
-    // re-laid-out on every click. It updates once, when the popover closes (below),
-    // and only if the selection actually changed since it opened.
+    // Toggling a relationship applies immediately (persist + redo the graph), like the
+    // display settings — the panel is a side panel that doesn't cover the graph, so
+    // direct "click → see the result" is clearer than deferring to close.
     const rowByKey = new Map()
     props.forEach(({ key, count }) => {
       const label = document.createElement('label'); label.className = 'entity-graph__filter-item'
@@ -212,6 +212,8 @@ export default class extends Controller {
       cb.addEventListener('change', () => {
         if (cb.checked) this._hiddenProps.delete(key); else this._hiddenProps.add(key)
         refreshBadge()
+        this.#saveHiddenProps()
+        this.#render()
       })
       label.append(cb, text, cnt)
       list.append(label)
@@ -224,6 +226,8 @@ export default class extends Controller {
         const r = rowByKey.get(key); if (r) r.cb.checked = on
       })
       refreshBadge()
+      this.#saveHiddenProps()
+      this.#render()
     }
     allBtn.addEventListener('click', (ev) => { ev.stopPropagation(); setAll(true) })
     noneBtn.addEventListener('click', (ev) => { ev.stopPropagation(); setAll(false) })
@@ -242,21 +246,12 @@ export default class extends Controller {
 
     holder.append(btn)
     refreshBadge() // reflect any persisted filter state on first paint
-    // Snapshot the pending state (hidden relationships AND hidden nodes) when the
-    // panel opens; on close, if either changed, persist and redo the graph ONCE.
-    // Editing inside the panel (checkboxes, un-hiding nodes) only updates the pending
-    // sets and the panel's own lists — the graph isn't rebuilt until the panel closes.
-    const snapshot = () => [...this._hiddenProps].sort().join(',') + '|' + [...this._hiddenNodes].sort().join(',')
-    let openSnapshot = null
-    // capture-phase: runs before #wirePanel's toggle, so the snapshot is the pre-open state
-    btn.addEventListener('click', () => { if (pop.hidden) { openSnapshot = snapshot(); renderHiddenNodes() } }, true)
-    this.#wirePanel(btn, pop, 'Relationships & hidden nodes', 'filter', () => {
-      if (snapshot() !== openSnapshot) {
-        this.#saveHiddenProps()
-        this.#saveHiddenNodes()
-        this.#render()
-      }
-    })
+    // Changes apply immediately (each toggle / un-hide persists and redoes the graph),
+    // like the display settings — the side panel doesn't cover the graph, so direct
+    // "click → see the result" is clearer than deferring to close. On open, repopulate
+    // the hidden-nodes list so it reflects the current set.
+    btn.addEventListener('click', () => { if (pop.hidden) renderHiddenNodes() }, true)
+    this.#wirePanel(btn, pop, 'Relationships & hidden nodes', 'filter')
     return holder
   }
 
@@ -290,11 +285,12 @@ export default class extends Controller {
           const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'entity-graph__filter-show'
           rm.innerHTML = EYE_SVG; rm.title = 'Show this node again'; rm.setAttribute('aria-label', `Show ${label}`)
           rm.addEventListener('click', (ev) => {
-            // Update the pending set + the list only; the graph is redone when the
-            // popover closes (see the close handler in #buildFilter).
+            // Un-hide applies immediately (persist + redo the graph), like the
+            // relationship toggles and display settings.
             ev.stopPropagation()
             this._hiddenNodes.delete(id)
-            render()
+            this.#saveHiddenNodes()
+            this.#render()
           })
           row.append(name, rm)
           list.append(row)
@@ -304,7 +300,8 @@ export default class extends Controller {
       ev.stopPropagation()
       if (!this._hiddenNodes.size) return
       this._hiddenNodes.clear()
-      render()
+      this.#saveHiddenNodes()
+      this.#render()
     })
     render()
     return render
@@ -671,7 +668,7 @@ export default class extends Controller {
   // scrolls internally instead of overflowing the viewport. The panel is moved OUT of
   // its icon holder and appended to the canvas so it docks to the canvas edge; only
   // one panel is open at a time (opening one closes the other). `title` is shown in a
-  // header with a close button; `onClose` fires on any close (for apply-on-close).
+  // header with a close button; optional `onClose` fires on any close.
   #wirePanel (btn, panel, title, key, onClose) {
     // Wrap the panel's existing content in a scrolling body, then add a fixed header
     // above it (title + close). The body scrolls as one column so tall content stays
