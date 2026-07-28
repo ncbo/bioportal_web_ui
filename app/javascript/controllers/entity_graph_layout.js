@@ -167,13 +167,13 @@ export function computeLayout (graph, opts = {}) {
   // (above). Ranking and the tidy-tree backbone use this combined set, so a
   // relationship filler is placed above its source (WebProtege style) instead of
   // as a long horizontal cross-link.
-  const up = new Map() // id -> [{to, kind, label}]
+  const up = new Map() // id -> [{to, kind, label, propId}]
   graph.edges.forEach((e) => {
     // drop transitive is-a shortcuts (unless the option is off — then show every inferred
     // is-a edge, including redundant ones, so the full materialised hierarchy is visible)
     if (TRANSITIVE_REDUCTION && e.kind === 'is-a' && isaRedundant(e.from, e.to)) return
     if (!up.has(e.from)) up.set(e.from, [])
-    up.get(e.from).push({ to: e.to, kind: e.kind, label: e.label })
+    up.get(e.from).push({ to: e.to, kind: e.kind, label: e.label, propId: e.prop_id })
   })
 
   // rank = longest path over up-edges: rank(n)=1+max(rank(targets)); roots=0.
@@ -285,14 +285,14 @@ export function computeLayout (graph, opts = {}) {
     // A backbone (primary) parent must be strictly ABOVE (lower rank); a same-rank
     // target (a sibling relationship) is drawn as an overlay, giving a diamond.
     const above = outs.filter((e) => rank.get(e.to) < rank.get(id))
-    if (above.length === 0) { outs.forEach((e) => overlays.push({ from: id, to: e.to, kind: e.kind, label: e.label })); return }
+    if (above.length === 0) { outs.forEach((e) => overlays.push({ from: id, to: e.to, kind: e.kind, label: e.label, propId: e.propId })); return }
     const nonColl = above.filter((e) => !collector.has(e.to))
     const pool = nonColl.length ? nonColl : above // only fall back to a collector if it's the sole parent
     let best = pool[0]
     for (const e of pool) { if (better(e, best)) best = e }
     primary.set(id, best)
     nodes.get(best.to).children.push(id)
-    for (const e of outs) { if (e !== best) overlays.push({ from: id, to: e.to, kind: e.kind, label: e.label }) }
+    for (const e of outs) { if (e !== best) overlays.push({ from: id, to: e.to, kind: e.kind, label: e.label, propId: e.propId }) }
   })
 
   // ---- dummy nodes for long edges (Sugiyama-style) ------------------------
@@ -890,7 +890,7 @@ export function computeLayout (graph, opts = {}) {
   nodes.forEach((n, id) => { if (n.isDummy) nodes.delete(id) })
 
   const treeEdges = []
-  primary.forEach((e, id) => treeEdges.push({ from: id, to: e.to, kind: e.kind, label: e.label }))
+  primary.forEach((e, id) => treeEdges.push({ from: id, to: e.to, kind: e.kind, label: e.label, propId: e.propId }))
   return { nodes, treeEdges, overlays, width, height, collector, dummyDebug }
 }
 

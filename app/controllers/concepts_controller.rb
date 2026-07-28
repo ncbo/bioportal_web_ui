@@ -264,7 +264,7 @@ class ConceptsController < ApplicationController
       entity_graph_relationships(ontology, source_id).each do |rel|
         add_node.call(rel[:filler_id], rel[:filler_label], examples: rel[:filler_examples], synonyms: rel[:filler_synonyms])
         edges["#{source_id}->#{rel[:filler_id]}->#{rel[:property_id]}"] =
-          { from: source_id, to: rel[:filler_id], kind: 'rel', label: rel[:property_label] }
+          { from: source_id, to: rel[:filler_id], kind: 'rel', label: rel[:property_label], prop_id: rel[:property_id] }
       end
     end
 

@@ -812,8 +812,14 @@ export default class extends Controller {
         rec.knockouts.forEach((k) => { k.style.display = on ? 'none' : '' })
         ;(on ? og : eg).append(p)
       }
-      hit.addEventListener('mouseenter', () => { if (hoveredEdge && hoveredEdge !== rec) hoveredEdge.setHover(false); hoveredEdge = rec; setHover(true) })
-      hit.addEventListener('mouseleave', () => { setHover(false); if (hoveredEdge === rec) hoveredEdge = null })
+      hit.addEventListener('mouseenter', (ev) => {
+        if (hoveredEdge && hoveredEdge !== rec) hoveredEdge.setHover(false); hoveredEdge = rec; setHover(true)
+        // Relationship edges get a popup naming the property; is-a edges don't — the
+        // orange arrow and the node tooltip's "is-a → …" line already convey them.
+        if (!isa && e.label) this.#showEdgeTip(ev, e.label, e.propId)
+      })
+      if (!isa && e.label) hit.addEventListener('mousemove', (ev) => this.#positionTip(ev.clientX, ev.clientY))
+      hit.addEventListener('mouseleave', () => { setHover(false); if (hoveredEdge === rec) hoveredEdge = null; this.#hideTip() })
       hit.addEventListener('click', (ev) => { ev.stopPropagation(); this.#toggleEdge(rec) })
       rec.setHover = setHover
       hg.append(hit)
@@ -1471,6 +1477,19 @@ export default class extends Controller {
       `<div style="margin-top:4px;color:#4a5b6e">${parents.length ? ('is-a &rarr; ' + parents.join(', ')) : '<i>no is-a parents in graph</i>'}</div>` +
       (syn.length ? `<div style="margin-top:6px;color:#4a5b6e"><span style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8794a5">Synonym${syn.length > 1 ? 's' : ''}</span> ${syn.map((x) => this.#esc(x)).join(', ')}</div>` : '') +
       (def ? `<div style="margin-top:5px;color:#6a7787;font-style:italic">${this.#esc(def)}</div>` : '')
+    tip.style.display = 'block'
+    this.#positionTip(ev.clientX, ev.clientY)
+  }
+
+  // Hover popup for a relationship edge: the property name (e.g. "innervated_by")
+  // plus its short id (e.g. RO_0002131) as a pill. The two nodes it connects are
+  // already visible, so they're left out.
+  #showEdgeTip (ev, property, propId) {
+    const tip = this.#ensureTip()
+    tip.style.maxWidth = '570px' // reset — the option info tooltip narrows the shared tip
+    const sid = shortId(propId)
+    const pill = sid ? ` <span style="display:inline-block;font-size:10.5px;font-weight:600;padding:1px 6px;margin-left:5px;border-radius:8px;background:#eef2f7;color:#5a6b82;vertical-align:middle">${this.#esc(sid)}</span>` : ''
+    tip.innerHTML = `<span style="color:#2f6fb0;font-weight:600">${this.#esc(property)}</span>${pill}`
     tip.style.display = 'block'
     this.#positionTip(ev.clientX, ev.clientY)
   }
