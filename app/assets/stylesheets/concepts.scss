@@ -456,14 +456,6 @@ div.synonym-change-request button {
   &__edge--sel { stroke-width: 4px; }
   &__edge--to-collector#{&}__edge--hover { stroke-width: 3px; }
 
-  // Background-coloured break where an edge tunnels under an unrelated node box.
-  &__edge-knockout {
-    fill: none;
-    stroke: var(--light-color);
-    stroke-width: 4px;
-    stroke-linecap: butt;
-  }
-
   // Click-to-focus dimming.
   &__edge,
   &__node,

@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 import {
-  computeLayout, routePath, straightPath, waypointPath, samplePath, boundary,
+  computeLayout, routePath, straightPath, waypointPath, boundary,
   isUpperOnto, shortId, ontoAcronym, measureText,
   NODE_H_BASE, PILL_H, PILL_PAD
 } from './entity_graph_layout'
@@ -769,16 +769,14 @@ export default class extends Controller {
     // viewport group holds all drawable content; its transform is the zoom/pan
     const vp = document.createElementNS(SVG, 'g'); vp.setAttribute('data-viewport', '')
     const eg = document.createElementNS(SVG, 'g') // edges
-    const kg = document.createElementNS(SVG, 'g') // knockout bridge gaps
     const hg = document.createElementNS(SVG, 'g') // transparent edge hit-areas
     const ng = document.createElementNS(SVG, 'g') // nodes
     const og = document.createElementNS(SVG, 'g') // hover overlay (raised edge)
-    vp.append(eg, kg, hg, ng, og)
+    vp.append(eg, hg, ng, og)
     svg.append(vp)
 
     const obstacles = [...L.nodes.values()].map((n) => ({ id: n.id, x: n.x, y: n.y, w: n.width, h: nodeH }))
     const laneReg = []
-    const edgeSegs = []
     const edgeRecs = []
     const nodeEls = new Map()
     const incidentEdges = new Map()
@@ -805,11 +803,10 @@ export default class extends Controller {
       p.setAttribute('marker-end', toColl ? 'url(#eg-ah-coll)' : (isa ? 'url(#eg-ah-isa)' : 'url(#eg-ah-rel)'))
       p.setAttribute('marker-start', toColl ? 'url(#eg-src-coll)' : (isa ? 'url(#eg-src-isa)' : 'url(#eg-src-rel)'))
       eg.append(p)
-      const rec = { el: p, from: e.from, to: e.to, knockouts: [] }
+      const rec = { el: p, from: e.from, to: e.to }
       const hit = document.createElementNS(SVG, 'path'); hit.setAttribute('class', 'entity-graph__edge-hit'); hit.setAttribute('d', d)
       const setHover = (on) => {
         p.classList.toggle('entity-graph__edge--hover', on)
-        rec.knockouts.forEach((k) => { k.style.display = on ? 'none' : '' })
         ;(on ? og : eg).append(p)
       }
       hit.addEventListener('mouseenter', (ev) => {
@@ -823,7 +820,6 @@ export default class extends Controller {
       hit.addEventListener('click', (ev) => { ev.stopPropagation(); this.#toggleEdge(rec) })
       rec.setHover = setHover
       hg.append(hit)
-      if (seg) edgeSegs.push({ seg, from: e.from, to: e.to, el: p, rec })
       edgeRecs.push(rec)
       ;(incidentEdges.get(e.from) || incidentEdges.set(e.from, []).get(e.from)).push(rec)
       ;(incidentEdges.get(e.to) || incidentEdges.set(e.to, []).get(e.to)).push(rec)
@@ -848,9 +844,6 @@ export default class extends Controller {
       vp.append(dg)
     }
 
-    // bridge knockouts: gap where an edge tunnels under an unrelated node box
-    this.#drawKnockouts(kg, edgeSegs, L, nodeH)
-
     // nodes
     L.nodes.forEach((n, id) => {
       const g = this.#buildNode(n, id, L)
@@ -864,7 +857,7 @@ export default class extends Controller {
     this.#placeLabels(lg, labelReqs, L, nodeH)
 
     // stash render state for selection/search/hover
-    this._render = { svg, vp, eg, og, kg, ng, N, nodeEls, edgeRecs, incidentEdges, fullAdj, upAdj, labelReqs, nodeLit, nodeH }
+    this._render = { svg, vp, eg, og, ng, N, nodeEls, edgeRecs, incidentEdges, fullAdj, upAdj, labelReqs, nodeLit, nodeH }
     this.#wireNodeInteractions(nodeEls, incidentEdges)
     this.#wireBackground(svg)
 
@@ -897,51 +890,6 @@ export default class extends Controller {
       <marker id="eg-ah-coll" viewBox="0 0 10 10" markerWidth="7" markerHeight="7" refX="9" refY="5" orient="auto"><path d="M1,1 L9,5 L1,9 Z" fill="#e6c79a"/></marker>
       <marker id="eg-src-coll" viewBox="0 0 10 10" markerWidth="5" markerHeight="5" refX="5" refY="5" orient="auto"><circle cx="5" cy="5" r="3" fill="#e6c79a"/></marker>
     </defs>`
-  }
-
-  // "Bridge" knockouts: where an edge passes UNDER a node it is not attached to,
-  // punch a short background-coloured dash so the eye reads the edge as tunnelling
-  // past, not connecting to, the node. A dash is placed at the ENTRY and EXIT of each
-  // contiguous run of samples inside the node's box. INFL slightly inflates the box
-  // ONLY for detecting the run (so a grazing pass still registers); the dash itself is
-  // drawn from the crossing point INWARD toward the box centre, never outward — so the
-  // gap sits at the box border and can't leave a grey stub poking onto the visible
-  // edge beyond the (opaque) box (which was the old straddling dash's `blob`).
-  #drawKnockouts (kg, edgeSegs, L, nodeH) {
-    const bg = getComputedStyle(this.canvasTarget).backgroundColor || '#ffffff'
-    const LEN = 9; const INFL = 2
-    edgeSegs.forEach(({ seg, from, to, rec }) => {
-      const pts = samplePath(seg, 60)
-      for (const n of L.nodes.values()) {
-        if (n.id === from || n.id === to) continue
-        const x0 = n.x - n.width / 2 - INFL; const x1 = n.x + n.width / 2 + INFL
-        const y0 = n.y - nodeH / 2 - INFL; const y1 = n.y + nodeH / 2 + INFL
-        const inside = (p) => p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1
-        // contiguous runs of sample points inside this node's inflated rect
-        let i = 0
-        while (i < pts.length) {
-          if (!inside(pts[i])) { i++; continue }
-          let j = i
-          while (j + 1 < pts.length && inside(pts[j + 1])) j++
-          // knock out at the entry (i) and exit (j) of the run
-          for (const idx of (i === j ? [i] : [i, j])) {
-            const a = pts[Math.max(0, idx - 1)]; const b = pts[Math.min(pts.length - 1, idx + 1)]
-            const dx = b.x - a.x; const dy = b.y - a.y; const len = Math.hypot(dx, dy) || 1
-            let ux = dx / len; let uy = dy / len; const c = pts[idx]
-            // orient the tangent to point INTO the box (toward its centre), so the dash
-            // covers the edge behind the box, not the visible edge outside it
-            if ((ux * (n.x - c.x) + uy * (n.y - c.y)) < 0) { ux = -ux; uy = -uy }
-            const k = document.createElementNS(SVG, 'path')
-            k.setAttribute('class', 'entity-graph__edge-knockout')
-            k.setAttribute('stroke', bg)
-            k.setAttribute('d', `M ${c.x},${c.y} L ${c.x + ux * LEN},${c.y + uy * LEN}`)
-            kg.append(k)
-            rec.knockouts.push(k)
-          }
-          i = j + 1
-        }
-      }
-    })
   }
 
   #buildNode (n, id, L) {
@@ -1190,7 +1138,6 @@ export default class extends Controller {
     const R = this._render; if (!R) return
     const s = this._sel
     const active = s.traceId || s.nodes.size > 0 || s.edges.size > 0
-    R.kg.style.display = active ? 'none' : ''
     if (!active) {
       R.edgeRecs.forEach((r) => r.el.classList.remove('entity-graph__edge--dim', 'entity-graph__edge--sel'))
       R.nodeEls.forEach((g) => g.classList.remove('entity-graph__node--dim', 'entity-graph__node--sel'))
@@ -1378,7 +1325,6 @@ export default class extends Controller {
       .entity-graph__edge--is-a{stroke:#f0a848}
       .entity-graph__edge--rel{stroke:#2f6fed}
       .entity-graph__edge--to-collector{stroke:#e6c79a;stroke-width:1.6px}
-      .entity-graph__edge-knockout{fill:none;stroke:#f3f6f7;stroke-width:4px;stroke-linecap:butt}
       .entity-graph__edge-label{font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:11px;fill:#1f4fb0}
       .entity-graph__edge-label-bg{fill:#f3f6f7;opacity:.9}
     `
@@ -1647,7 +1593,7 @@ export default class extends Controller {
     // vanish, leaving the minimap looking blank. Strip the text/badge clutter and
     // let the CSS give the boxes a solid fill + non-scaling strokes so the shape of
     // the graph reads at a glance.
-    snap.querySelectorAll('text, .entity-graph__node-pill, .entity-graph__edge-label-bg, .entity-graph__edge-knockout').forEach((el) => el.remove())
+    snap.querySelectorAll('text, .entity-graph__node-pill, .entity-graph__edge-label-bg').forEach((el) => el.remove())
     mmSvg.append(snap)
     const mmView = document.createElementNS(SVG, 'rect'); mmView.setAttribute('class', 'entity-graph__minimap-view')
     mmSvg.append(mmView)
