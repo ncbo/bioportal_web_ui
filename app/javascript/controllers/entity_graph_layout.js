@@ -198,6 +198,29 @@ export function computeLayout (graph, opts = {}) {
     isaRank.set(id, r); return r
   }
   nodes.forEach((_, id) => computeIsaRank(id))
+  // Visible is-a orphans: a node whose is-a parent(s) are all absent from the
+  // visible graph (hidden by the user, or it genuinely has none) gets isaRank 0
+  // and floats to the very top — even when its only visible tie is a relationship
+  // to a node deep in the graph, which then draws as a long curve down (e.g.
+  // `glottis`, whose sole is-a parent `anatomical structure` is hidden, stranded
+  // at the top with a long `contributes to morphology of` arc to `larynx`).
+  // Instead, rank such a node beside its deepest visible relationship neighbour so
+  // the edge becomes a short same-rank arc. Only nodes with NO visible is-a parent
+  // are adjusted, and only downward (toward the neighbour) — nodes on a real is-a
+  // spine keep their authoritative is-a rank. Read from the unmodified isaRank of
+  // neighbours (single pass) so one orphan can't drag another in a cascade.
+  const hasVisibleIsaParent = (id) =>
+    (up.get(id) || []).some((e) => e.kind === 'is-a' && nodes.has(e.to))
+  const isaRank0 = new Map(isaRank)
+  nodes.forEach((_, id) => {
+    if (hasVisibleIsaParent(id)) return
+    let deepest = -1
+    for (const e of (up.get(id) || [])) {
+      if (e.kind === 'is-a' || !nodes.has(e.to)) continue
+      deepest = Math.max(deepest, isaRank0.get(e.to) ?? 0)
+    }
+    if (deepest > (isaRank0.get(id) ?? 0)) isaRank.set(id, deepest)
+  })
   // Relaxation: raise a filler to sit above its relationship target, but only when
   // that target is is-a-shallower (isaRank strictly less) — so a has_part back-edge
   // into an is-a ancestor is ignored for ranking and left as an overlay.
