@@ -123,7 +123,7 @@ module SubmissionUpdater
       attributes << m_attr
     end
     p = params.permit(attributes.uniq)
-    p['pullLocation'] = '' if p['isRemote']&.eql?('3')
+    p = clear_unselected_location_source(p)
 
     p = p.to_h.transform_values do |v|
       if v.is_a? Hash
@@ -151,5 +151,27 @@ module SubmissionUpdater
     end
 
     p
+  end
+
+  # The location form keeps the inputs for all three sources in the DOM and only
+  # hides the unselected ones, so a stale pull URL — or a file picked before the
+  # user changed their mind — is submitted along with the chosen source. Keep only
+  # the field that belongs to the selected source.
+  #
+  # pullLocation is blanked rather than dropped: the API clears a string attribute
+  # only when it receives an empty value, so omitting it would leave the old URL in
+  # place and the nightly pull would keep replacing the ontology. filePath is
+  # dropped instead, since it only takes effect when it carries an actual upload.
+  #
+  # An already-uploaded file still can't be detached here: uploadFilePath is
+  # system_controlled in the API, which drops it from any request. See
+  # https://github.com/ncbo/bioportal_web_ui/issues/435
+  def clear_unselected_location_source(permitted)
+    is_remote = permitted['isRemote']
+    return permitted if is_remote.blank?
+
+    permitted['pullLocation'] = '' unless is_remote.eql?('1')
+    permitted.delete('filePath') unless is_remote.eql?('0')
+    permitted
   end
 end
