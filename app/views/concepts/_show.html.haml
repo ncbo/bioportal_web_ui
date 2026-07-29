@@ -23,10 +23,13 @@
           = render :partial =>'/concepts/biomixer'
 
         -# Entity Graph: a node-link diagram of the selected class's is-a
-        -# neighbourhood (parents + children), lazy-loaded via a turbo-frame like
-        -# the Mappings tab so it only fetches when the tab is opened.
+        -# neighbourhood (parents + children). loading:'lazy' so the (expensive,
+        -# many-API-call) graph build only runs when this tab is actually visible —
+        -# not on every class select while you're on Details/etc. A turbo-frame with
+        -# a bare src fetches eagerly on insertion even inside a hidden pane, which
+        -# was silently building the graph for views that never showed it.
         - tab_item_component(container_tabs: c, id: 'concept-graph', title: t('concepts.entity_graph', default: 'Entity Graph'), path: '#graph') do
-          = render TurboFrameComponent.new(id: 'concept_entity_graph',
+          = render TurboFrameComponent.new(id: 'concept_entity_graph', loading: 'lazy',
           src: "/ajax/entity_graph?ontologyid=#{@ontology.acronym}&conceptid=#{CGI.escape(@concept.id)}")
 
 
