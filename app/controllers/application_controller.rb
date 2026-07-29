@@ -28,6 +28,7 @@ class ApplicationController < ActionController::Base
   EXPIRY_SEMANTIC_TYPES = 60 * 60 * 24 # 24:00 hours
   EXPIRY_RECENT_MAPPINGS = 60 * 60     #  1:00 hours
   EXPIRY_ONTOLOGY_SIMPLIFIED = 60 * 1  #  0:01 minute
+  EXPIRY_ENTITY_GRAPH = 60 * 60        #  1:00 hours (invalidates a class's cached graph after a re-upload)
 
   RETRY_LIMIT = 1
 
