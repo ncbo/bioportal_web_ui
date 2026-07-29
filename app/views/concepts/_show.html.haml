@@ -28,9 +28,13 @@
           = render :partial =>'/concepts/biomixer'
 
 
-        - count_span = content_tag(:span, "#{t('concepts.notes')} (#{content_tag(:span, @notes.length, id: 'note_count')})".html_safe)
-        - tab_item_component(container_tabs: c, id: 'concept-notes', title: count_span, path: '#notes', selected: selected_concept_view?('concept-notes'), json_link: "#{baseClassUrl}/notes?#{apikey}") do
-          = render :partial =>'/notes/list'
+        -# Notes are loaded lazily, like Mappings: the turbo-frame's `loading: lazy`
+        -# defers the fetch until the pane is shown. The tab label no longer shows a
+        -# notes count — computing it required fetching the class's notes eagerly on
+        -# every class select, for a tab that is often never opened.
+        - tab_item_component(container_tabs: c, id: 'concept-notes', title: t('concepts.notes'), path: '#notes', selected: selected_concept_view?('concept-notes'), json_link: "#{baseClassUrl}/notes?#{apikey}") do
+          = render TurboFrameComponent.new(id: 'concept_notes', loading: 'lazy',
+          src: "/ajax/concepts/notes_list?ontologyid=#{@ontology.acronym}&conceptid=#{CGI.escape(@concept.id)}")
 
 
         -# The Mappings table is loaded lazily: the turbo-frame's `loading: lazy` defers
