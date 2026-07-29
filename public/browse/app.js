@@ -305,6 +305,10 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
       var cat = ($scope.categories || []).filter(function(c){ return c.id === value; })[0];
       return cat ? cat.name : value;
     }
+    if (facetKey === 'groups') {
+      var grp = ($scope.groups || []).filter(function(g){ return g.id === value; })[0];
+      return grp ? grp.name : value;
+    }
     if (facetKey === 'upload_date') {
       var labels = { 1:'past day', 7:'past week', 30:'past month', 90:'past 3 months',
                      180:'past 6 months', 365:'past year', 'all':'any time' };
