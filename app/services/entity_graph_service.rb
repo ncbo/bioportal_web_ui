@@ -160,17 +160,29 @@ class EntityGraphService < ApplicationService
     #    Note: paths_to_root does not return the `properties` hash, so ordinary
     #    ancestors carry no "example of usage" (a rare, minor popup detail); BFO/COB
     #    ancestors still get examples via their authoritative upper-ontology fetch.
-    spine_via_paths = lambda do
-      paths = begin
-        Array(LinkedData::Client::HTTP.get("#{concept.id}/paths_to_root",
-                                           display: 'prefLabel,definition,synonym',
-                                           language: @lang))
-      rescue StandardError
-        []
-      end
-      return false if paths.empty?
+    # Base URL for building a class's paths_to_root endpoint from its IRI, without an
+    # extra fetch: <…/ontologies/ACR/classes>/<escaped-iri>/paths_to_root. `classes`
+    # is a link already on the ontology object.
+    classes_base = (ontology.links && ontology.links['classes']).to_s
+    paths_to_root = lambda do |class_iri|
+      return [] if classes_base.empty?
 
-      paths.each do |path|
+      url = "#{classes_base}/#{CGI.escape(class_iri.to_s)}/paths_to_root"
+      Array(LinkedData::Client::HTTP.get(url, display: 'prefLabel,definition,synonym', language: @lang))
+    rescue StandardError
+      []
+    end
+
+    # Add every class on a set of root→…→leaf paths as a node, plus the is-a edges
+    # between consecutive path members (child -> parent). Returns the number of paths
+    # ingested (0 = nothing usable, caller falls back to the BFS).
+    # Ingest root→…→leaf paths: add each class as a node + the is-a edges between
+    # consecutive path members. Returns the set of class ids that appeared on the paths
+    # (all of them are now fully covered up to a root, so the caller can mark them
+    # visited). An empty set means nothing usable — the caller falls back to the BFS.
+    ingest_paths = lambda do |paths|
+      seen = []
+      Array(paths).each do |path|
         path = Array(path).reject { |n| n.respond_to?(:errors) && n.errors.present? }
         next if path.empty?
 
@@ -180,13 +192,20 @@ class EntityGraphService < ApplicationService
                         definition: first_def.call(n),
                         synonyms: class_synonyms.call(n))
           nodes[n.id][:hierarchyRoot] = true if i.zero? && nodes[n.id] # path head = a root
-          # is-a edge from this node up to its predecessor in the path (child -> parent)
+          seen << n.id
           if i.positive?
             parent = path[i - 1]
             edges["#{n.id}->#{parent.id}->is-a"] = { from: n.id, to: parent.id, kind: 'is-a' }
           end
         end
       end
+      seen.uniq
+    end
+
+    # Build the selected class's is-a spine from one paths_to_root call, then pull each
+    # spine class's relationships. Returns false if paths_to_root gave nothing usable.
+    spine_via_paths = lambda do
+      return false if ingest_paths.call(paths_to_root.call(root_id)).empty?
 
       # every spine class: mark visited (so the Phase-2 filler walk skips it) and pull
       # its relationships, honouring the node cap. Snapshot the ids first — add_rel_edges
@@ -246,11 +265,33 @@ class EntityGraphService < ApplicationService
          .select { |e| e[:kind] == 'rel' && e[:from] == root_id }
          .each { |e| follow_rel_chain.call(e[:to], e[:prop_id]) }
 
-    # 2) Give every relationship filler its own is-a ancestor chain, so the
-    #    targets rise to the root too. Shared ancestors merge naturally. We do
-    #    NOT pull relationships from the fillers themselves (only A's spine does).
+    # 2) Give every relationship filler its own is-a ancestor chain, so the targets
+    #    rise to the root too. One paths_to_root call PER FILLER (not one .parents call
+    #    per ancestor, which on a bushy graph like `liver` fanned out to 100+ calls) —
+    #    consecutive path pairs give the is-a edges, and shared ancestors dedup through
+    #    add_node/edges. We do NOT pull relationships from the fillers themselves (only
+    #    the selected class's spine does). Falls back to the .parents BFS if
+    #    paths_to_root is unavailable (mirroring the spine's fallback).
     filler_seeds = nodes.keys.reject { |id| visited.key?(id) }
-    walk_ancestors.call(filler_seeds, visited)
+    filler_seeds.each do |id|
+      if nodes.size >= MAX_NODES
+        truncated = true
+        break
+      end
+      next if visited[id]
+
+      visited[id] = true
+      paths = paths_to_root.call(id)
+      if paths.empty?
+        walk_ancestors.call([id], visited) # fallback for this filler
+      else
+        # Mark only the classes that were ON this filler's paths (its ancestors, now
+        # fully covered up to a root) as visited — so a later filler sharing them
+        # doesn't re-fetch, but pending fillers NOT on these paths still get their own
+        # chains walked.
+        ingest_paths.call(paths).each { |nid| visited[nid] = true }
+      end
+    end
 
     edge_list = edges.values
     {
