@@ -305,6 +305,47 @@ class ConceptsController < ApplicationController
     #    edges (p -> B). Fillers B are added as nodes here.
     walk_ancestors.call([root_id], visited) { |id| add_rel_edges.call(id) }
 
+    # 1b) Follow each relationship OUTWARD along the SAME property, transitively —
+    #     e.g. `part of` chains femur → hindlimb → limb → body. We continue only the
+    #     same property (A p B, then B p C, …), and only from the selected class's own
+    #     chains (not from is-a ancestors' fillers), to keep the graph and the number
+    #     of API calls bounded. Most chained properties in practice are transitive
+    #     (part of, develops from), so the chain is usually semantically sound; a
+    #     non-transitive property chained several hops is a known, accepted imprecision.
+    #     `rel_seen` dedups by (source, property) so cycles and re-visits terminate.
+    #     Each chain follows ONE property: starting from a selected-class edge
+    #     A p B, we only continue B p C, C p D, … along that same p. A different
+    #     property on B is left to A's own one-hop pass (step 1); we don't cascade
+    #     into it here, which is what keeps the walk bounded to the selected class's
+    #     chains. `rel_seen` dedups by (source, property) so cycles terminate.
+    rel_seen = {}
+    follow_rel_chain = lambda do |start_id, prop_id|
+      queue = [start_id]
+      until queue.empty?
+        break if nodes.size >= ENTITY_GRAPH_MAX_NODES
+
+        id = queue.shift
+        key = "#{id}|#{prop_id}"
+        next if rel_seen[key]
+
+        rel_seen[key] = true
+        # only edges on THIS property continue the chain
+        entity_graph_relationships(ontology, id).each do |rel|
+          next unless rel[:property_id] == prop_id
+
+          add_node.call(rel[:filler_id], rel[:filler_label], examples: rel[:filler_examples], synonyms: rel[:filler_synonyms])
+          edges["#{id}->#{rel[:filler_id]}->#{rel[:property_id]}"] =
+            { from: id, to: rel[:filler_id], kind: 'rel', label: rel[:property_label], prop_id: rel[:property_id] }
+          queue << rel[:filler_id]
+        end
+      end
+    end
+    # Seed the chains from the selected class's relationship edges already created
+    # in step 1 (avoids re-fetching the root), continuing each along its property.
+    edges.values
+         .select { |e| e[:kind] == 'rel' && e[:from] == root_id }
+         .each { |e| follow_rel_chain.call(e[:to], e[:prop_id]) }
+
     # 2) Give every relationship filler its own is-a ancestor chain, so the
     #    targets rise to the root too. Shared ancestors merge naturally. We do
     #    NOT pull relationships from the fillers themselves (only A's spine does).
@@ -347,12 +388,16 @@ class ConceptsController < ApplicationController
 
     rels = []
     props.each do |predicate, values|
-      predicate = predicate.to_s
-      next unless object_props.key?(predicate)
+      # Resolve to a canonical object-property IRI — this also recognises OBO shorthand
+      # relations (part_of, has_part, …) that arrive in the …/metadata/obo/ namespace
+      # and would otherwise be dropped. nil means it isn't an object property.
+      prop_iri = entity_graph_resolve_property(ontology, predicate.to_s)
+      next if prop_iri.nil?
+
       # Omit noisy cross-cutting relationships (e.g. "in taxon", which drags the
       # whole taxonomic lineage into the graph).
-      next if ENTITY_GRAPH_EXCLUDED_RELATIONS.include?(object_props[predicate].to_s.strip.downcase)
-      next if predicate.end_with?('RO_0002162') # in taxon
+      next if ENTITY_GRAPH_EXCLUDED_RELATIONS.include?(object_props[prop_iri].to_s.strip.downcase)
+      next if prop_iri.end_with?('RO_0002162') # in taxon
 
       Array(values).each do |value|
         filler = value.respond_to?(:id) ? value.id.to_s : value.to_s
@@ -360,8 +405,8 @@ class ConceptsController < ApplicationController
 
         filler_cls = entity_graph_filler_class(ontology, filler)
         rels << {
-          property_id: predicate,
-          property_label: object_props[predicate].presence || helpers.link_last_part(predicate),
+          property_id: prop_iri,
+          property_label: object_props[prop_iri].presence || helpers.link_last_part(prop_iri),
           filler_id: filler,
           filler_label: entity_graph_class_label(ontology, filler, filler_cls),
           filler_examples: entity_graph_class_examples(filler_cls),
@@ -397,6 +442,28 @@ class ConceptsController < ApplicationController
     rescue StandardError
       {}
     end
+  end
+
+  # Resolve a raw property predicate (as it appears in a class's `properties`) to a
+  # canonical object-property IRI, or nil if it isn't one of the ontology's object
+  # properties. Most predicates already arrive as the canonical IRI (e.g. the RO_*
+  # relations). OBO shorthand relations, though, come back in BioPortal's metadata
+  # namespace with the shorthand as the last segment — e.g. `part of` arrives as
+  # `…/metadata/obo/part_of`, not `…/obo/BFO_0000050`. Map those back by matching the
+  # shorthand against the object properties' slugged labels (`part of` -> `part_of`),
+  # so partonomy relations aren't silently dropped.
+  def entity_graph_resolve_property(ontology, predicate)
+    op = ontology_object_properties(ontology)
+    return predicate if op.key?(predicate)
+
+    m = predicate.match(%r{/metadata/obo/([^/]+)\z})
+    return nil unless m
+
+    shorthand = m[1]
+    (@entity_graph_prop_by_slug ||= op.each_with_object({}) do |(iri, label), acc|
+      slug = label.to_s.strip.downcase.gsub(/\s+/, '_')
+      acc[slug] ||= iri
+    end)[shorthand.downcase]
   end
 
   # Fetch a relationship filler's class (prefLabel + properties, so we can also read
