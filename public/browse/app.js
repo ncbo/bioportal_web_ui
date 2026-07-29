@@ -76,6 +76,17 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     $scope.render_limit += RENDER_LIMIT_STEP;
   };
 
+  // Reset the render window for a fresh result list: shrink back to the initial
+  // row count and scroll the list container to the top. Without the scroll
+  // reset, a stale scroll position from the previous (longer) list leaves the
+  // user at the bottom of the new results and can immediately re-trigger the
+  // near-bottom growth.
+  var resetRenderWindow = function() {
+    $scope.render_limit = RENDER_LIMIT_INITIAL;
+    var list = document.querySelector('.ontology-list');
+    if (list) list.scrollTop = 0;
+  };
+
   // Search setup
   $scope.searchText = null;
   $scope.ontIndex = lunr(function() {
@@ -393,7 +404,7 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
     // Re-sort the rendered list when the order changes (the list is now a
     // materialised array rather than an inline orderBy in the template).
     if (newOrder !== oldOrder) {
-      $scope.render_limit = RENDER_LIMIT_INITIAL;
+      resetRenderWindow();
       rebuildFilteredList();
     }
     if (VALID_SORT_ORDERS.indexOf(newOrder) === -1) return;
@@ -402,9 +413,9 @@ var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ng
 
   var filterOntologies = function() {
     var key, i, ontology, facet, facet_count, show, other_facets;
-    // A changed search/facet set is a fresh result list — scroll the render
-    // window back to the top so the user sees the best matches first.
-    $scope.render_limit = RENDER_LIMIT_INITIAL;
+    // A changed search/facet set is a fresh result list — reset the render
+    // window and scroll back to the top so the user sees the best matches first.
+    resetRenderWindow();
 
     // Reset facet counts
     Object.keys($scope.facet_counts).forEach(function(key) {
