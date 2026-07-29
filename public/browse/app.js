@@ -10,7 +10,7 @@ config( ['$locationProvider', function ($locationProvider) {
 }])
 ;
 
-var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'ngAnimate', 'pasvaz.bindonce'])
+var app = angular.module('FacetedBrowsing.OntologyList', ['checklist-model', 'pasvaz.bindonce'])
 
 .controller('OntologyList', ['$scope', '$timeout', '$filter', function($scope, $timeout, $filter) {
   // Default values
