@@ -1,5 +1,2 @@
-= turbo_frame_tag 'mapping_count' do
-  = "#{@mappings.size}"
-
 = turbo_frame_tag @type.eql?('modal') ? 'application_modal_content' : 'concept_mappings' do
   = render 'mappings/concept_mappings_content'
