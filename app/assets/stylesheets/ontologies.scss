@@ -315,17 +315,25 @@ $bd-bottom-gap: 30px;
 
 // Single spinner across the two-frame handoff. Selecting a class fires TWO
 // sequential fetches: #concept_show (the tab shell, fast) then, inside it, the
-// lazy #concept_entity_graph frame (the slow graph build). The rule above veils
-// the pane only while #concept_show is [busy]; once it returns, its veil drops
-// but the inner graph frame is now [busy] fetching — which showed a SECOND,
-// separately-positioned spinner over a blank pane. Instead, keep the SAME outer
-// veil up while the inner graph frame is busy (the two [busy] states are
-// contiguous — the inner frame gets [busy] in the same tick the outer clears —
-// so the overlay never drops), and suppress the inner frame's own loader. Result:
-// one spinner, one position, the previous graph veiled underneath the whole time.
+// lazy #concept_entity_graph frame (the slow graph build). The rule above veils the
+// pane only while #concept_show is [busy]; once it returns, its veil dropped but the
+// inner graph frame is now [busy] fetching — which showed a SECOND, separately-
+// positioned spinner over a blank pane. Two problems, two fixes:
+//
+//   a) Keep the SAME outer veil up while the inner graph frame is [busy], and
+//      suppress the inner frame's own loader — so it's one spinner in one place with
+//      the previous graph veiled underneath, not a blank second spinner.
+//   b) Bridge the gap BETWEEN the two [busy] states. They are NOT contiguous: there's
+//      a ~36ms window where concept_show has cleared and the graph frame hasn't gone
+//      busy yet, during which the veil blinked off. The tree marks #concept_content
+//      with .entity-graph-loading from the click until the graph is drawn (see
+//      simple_tree_controller + concept_graph_controller#connect); veiling also while
+//      that marker is present spans the gap so the veil never drops.
+#bd_content #concept_content.entity-graph-loading > .d-flex > turbo-frame#concept_show > .hide-if-loading,
 #bd_content #concept_content > .d-flex:has(turbo-frame#concept_entity_graph[busy]) > turbo-frame#concept_show > .hide-if-loading {
   display: flex !important;
 }
+#bd_content #concept_content.entity-graph-loading > .d-flex > .show-if-loading,
 #bd_content #concept_content > .d-flex:has(turbo-frame#concept_entity_graph[busy]) > .show-if-loading {
   display: flex !important;
   position: absolute;

@@ -31,6 +31,14 @@ export default class extends Controller {
   }
 
   connect () {
+    // The graph frame's content is now in the DOM and #render() below draws
+    // synchronously within this connect(), so the browser won't repaint until we
+    // return — safe to lift the class-select loading veil here. This clears the
+    // marker the tree sets to bridge the concept_show → entity-graph frame handoff
+    // (see simple_tree_controller). All connect() paths (empty / gate / boot) pass
+    // through here, so one clear covers them.
+    document.getElementById('concept_content')?.classList.remove('entity-graph-loading')
+
     const graph = this.graphValue || {}
     this.graph = graph
     this.nodes = graph.nodes || []
