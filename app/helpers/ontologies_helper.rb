@@ -405,7 +405,6 @@ module OntologiesHelper
     if !@ontology.summaryOnly && (submission_ready?(@submission_latest) || @old_submission_ready)
       sections += ['classes']
       sections += %w[properties]
-      sections += %w[graph]
       sections += %w[schemes collections] if skos?
       sections += %w[notes mappings widgets]
     end
