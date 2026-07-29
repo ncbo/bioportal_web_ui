@@ -2,7 +2,6 @@
 <% user_api_key = session[:user].nil? ? "" : session[:user].apikey %>
 <% rest_domain = $REST_URL.sub(/https?:\/\//, "") %>
 <% src_url = "#{$BIOMIXER_URL}/?mode=embed&embed_mode=paths_to_root&ontology_acronym=#{@ontology.acronym}&full_concept_id=#{CGI.escape(@concept.fullId)}&userapikey=#{user_api_key}&restURLPrefix=#{rest_domain}" %>
-<% original_src = @immediate_load ? src_url : "/ajax/loading_spinner"%>
 
 <script>
 jQuery(document).data().bp.biomixer_fullscreen = {};
@@ -59,7 +58,13 @@ window.onmessage = function(e) {
 };
 </script>
 
-<div id="biomixer_container" style="padding-left: .5%; width: 99.5%; height: 900px;">
-  <iframe id="biomixer_iframe" src="<%=src_url%>"
+<%# The iframe has no `src` up front: the biomixer-lazy controller sets it only when the
+    Visualization tab is opened (or immediately, if this pane is already active on
+    render), so BioMixer isn't loaded eagerly on every class select. %>
+<div id="biomixer_container" style="padding-left: .5%; width: 99.5%; height: 900px;"
+     data-controller="biomixer-lazy"
+     data-biomixer-lazy-src-value="<%= src_url %>"
+     data-biomixer-lazy-tab-id-value="visualization">
+  <iframe id="biomixer_iframe" data-biomixer-lazy-target="frame"
     style="min-height: 700px;" height="100%" width="100%" frameborder="0"></iframe>
 </div>
