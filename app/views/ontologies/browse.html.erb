@@ -283,19 +283,19 @@
               <%# Second line: ontology metrics — count-forward pills linking to the section. %>
               <div class="ont-stat-pills" ng-if="ontology.submission !== null && ontology.class_count > 0">
                 <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=classes" ng-if="ontology.format !== 'SKOS'">
-                  <b>{{::ontology.class_count_formatted}}</b> classes
+                  <b>{{::ontology.class_count_formatted}}</b> {{::ontology.class_count === 1 ? "class" : "classes"}}
                 </a>
                 <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=classes" ng-if="ontology.individual_count > 0">
-                  <b>{{::ontology.individual_count_formatted}}</b> {{::ontology.format === 'SKOS' ? "concepts" : "instances"}}
+                  <b>{{::ontology.individual_count_formatted}}</b> {{::ontology.format === 'SKOS' ? (ontology.individual_count === 1 ? "concept" : "concepts") : (ontology.individual_count === 1 ? "instance" : "instances")}}
                 </a>
                 <a class="ont-pill ont-pill-stat" href="/ontologies/{{::ontology.acronym}}?p=properties" ng-if="ontology.property_count > 0">
-                  <b>{{::ontology.property_count_formatted}}</b> properties
+                  <b>{{::ontology.property_count_formatted}}</b> {{::ontology.property_count === 1 ? "property" : "properties"}}
                 </a>
                 <a class="ont-pill ont-pill-stat ont-pill-muted" href="/ontologies/{{::ontology.acronym}}#projects_content" ng-if="ontology.projects.length > 0">
-                  <b>{{::ontology.projects.length}}</b> projects
+                  <b>{{::ontology.projects.length}}</b> {{::ontology.projects.length === 1 ? "project" : "projects"}}
                 </a>
                 <a class="ont-pill ont-pill-stat ont-pill-muted" href="/ontologies/{{::ontology.acronym}}?p=notes" ng-if="ontology.notes.length > 0">
-                  <b>{{::ontology.notes.length}}</b> notes
+                  <b>{{::ontology.notes.length}}</b> {{::ontology.notes.length === 1 ? "note" : "notes"}}
                 </a>
               </div>
 
