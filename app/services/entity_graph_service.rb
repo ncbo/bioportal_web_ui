@@ -147,10 +147,64 @@ class EntityGraphService < ApplicationService
 
     visited = {}
 
-    # 1) Walk the selected class's is-a spine (A ⊑ x0 ⊑ … ⊑ xn) and, for the
+    # 1) Build the selected class's is-a spine (A ⊑ x0 ⊑ … ⊑ xn) and, for the
     #    selected class and every ancestor on it, pull that class's relationship
     #    edges (p -> B). Fillers B are added as nodes here.
-    walk_ancestors.call([root_id], visited) { |id| add_rel_edges.call(id) }
+    #
+    #    The spine comes from ONE `paths_to_root` call — an array of ordered
+    #    root→…→A paths (the DAG's several routes to the root). Consecutive pairs in
+    #    each path give the is-a edges (path[i+1] is-a path[i]); merged + deduped
+    #    across all paths this reconstructs the whole is-a subgraph. Replaces the old
+    #    level-by-level `.parents` BFS (one call per ancestor) with a single request.
+    #    Falls back to that BFS if paths_to_root is unavailable/empty.
+    #    Note: paths_to_root does not return the `properties` hash, so ordinary
+    #    ancestors carry no "example of usage" (a rare, minor popup detail); BFO/COB
+    #    ancestors still get examples via their authoritative upper-ontology fetch.
+    spine_via_paths = lambda do
+      paths = begin
+        Array(LinkedData::Client::HTTP.get("#{concept.id}/paths_to_root",
+                                           display: 'prefLabel,definition,synonym',
+                                           language: @lang))
+      rescue StandardError
+        []
+      end
+      return false if paths.empty?
+
+      paths.each do |path|
+        path = Array(path).reject { |n| n.respond_to?(:errors) && n.errors.present? }
+        next if path.empty?
+
+        path.each_with_index do |n, i|
+          add_node.call(n.id, @helpers.main_language_label(n.prefLabel),
+                        is_root: n.id == root_id,
+                        definition: first_def.call(n),
+                        synonyms: class_synonyms.call(n))
+          nodes[n.id][:hierarchyRoot] = true if i.zero? && nodes[n.id] # path head = a root
+          # is-a edge from this node up to its predecessor in the path (child -> parent)
+          if i.positive?
+            parent = path[i - 1]
+            edges["#{n.id}->#{parent.id}->is-a"] = { from: n.id, to: parent.id, kind: 'is-a' }
+          end
+        end
+      end
+
+      # every spine class: mark visited (so the Phase-2 filler walk skips it) and pull
+      # its relationships, honouring the node cap. Snapshot the ids first — add_rel_edges
+      # inserts filler nodes, which would otherwise mutate `nodes` mid-iteration.
+      nodes.keys.each { |id| visited[id] = true }
+      nodes.keys.to_a.each do |id|
+        if nodes.size >= MAX_NODES
+          truncated = true
+          break
+        end
+        add_rel_edges.call(id)
+      end
+      true
+    end
+
+    unless spine_via_paths.call
+      walk_ancestors.call([root_id], visited) { |id| add_rel_edges.call(id) }
+    end
 
     # 1b) Follow each relationship OUTWARD along the SAME property, transitively —
     #     e.g. `part of` chains femur → hindlimb → limb → body. We continue only the
