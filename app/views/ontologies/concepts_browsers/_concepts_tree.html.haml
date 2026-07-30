@@ -7,15 +7,6 @@
   %div.pb-2
     %div.mb-1
       = render partial: 'ontologies/concepts_browsers/jump_to', locals: {id: "#concepts-tree-filter"}
-    %div.mb-1.d-flex.justify-content-end
-      %button.btn.btn-sm.btn-outline-secondary{type: 'button',
-        title: t('ontologies.concepts_browsers.parent_paths_tooltip'),
-        aria: {pressed: 'false'},
-        data: {controller: 'tree-paths-toggle',
-               action: 'tree-paths-toggle#toggle',
-               'tree-paths-toggle-active-class': 'active'}}
-        = inline_svg_tag 'icons/list-tree.svg', class: 'svg-icon me-1'
-        = t('ontologies.concepts_browsers.parent_paths')
     - if skos?
       %div#concepts-tree-filter.collapse.card.p-2
         = render partial: 'ontologies/concepts_browsers/scheme_picker'
@@ -25,14 +16,24 @@
                         'skos-collections-selector-enable-colors-value': 'true'}}
   -# Class tree
   -# Height + overflow are handled by the #sd_content rule in ontologies.scss
-  -# so the tree fills its column and scrolls independently.
-  %div#sd_content.px-1
-    - if skos? && @roots&.empty?
-      %div.text-wrap
-        = render Display::AlertComponent.new do
-          = t("ontologies.concepts_browsers.missing_roots", acronym: @ontology.acronym)
-    - else
-      - concept_schemes = skos? ? "&concept_schemes=#{params[:concept_schemes]}" : ''
-      = render TurboFrameComponent.new(id: 'concepts_tree_view',
-                                     src: "/ajax/classes/treeview?ontology=#{@ontology.acronym}&conceptid=#{escape(@concept.id)}#{concept_schemes}&auto_click=false&language=#{request_lang}",
-                                     data: {'turbo-frame-target': 'frame'})
+  -# so the tree fills its column and scrolls independently. The parent is the
+  -# positioning context for the floating "Show parent paths" toggle, which sits
+  -# over the top-right of the tree so it doesn't take vertical space away from it.
+  %div.tree-with-toggle
+    %button.btn.btn-sm.btn-outline-secondary.tree-paths-toggle{type: 'button',
+      title: t('ontologies.concepts_browsers.parent_paths_tooltip'),
+      aria: {label: t('ontologies.concepts_browsers.parent_paths'), pressed: 'false'},
+      data: {controller: 'tree-paths-toggle',
+             action: 'tree-paths-toggle#toggle',
+             'tree-paths-toggle-active-class': 'active'}}
+      = inline_svg_tag 'icons/list-tree.svg', class: 'svg-icon'
+    %div#sd_content.px-1
+      - if skos? && @roots&.empty?
+        %div.text-wrap
+          = render Display::AlertComponent.new do
+            = t("ontologies.concepts_browsers.missing_roots", acronym: @ontology.acronym)
+      - else
+        - concept_schemes = skos? ? "&concept_schemes=#{params[:concept_schemes]}" : ''
+        = render TurboFrameComponent.new(id: 'concepts_tree_view',
+                                       src: "/ajax/classes/treeview?ontology=#{@ontology.acronym}&conceptid=#{escape(@concept.id)}#{concept_schemes}&auto_click=false&language=#{request_lang}",
+                                       data: {'turbo-frame-target': 'frame'})

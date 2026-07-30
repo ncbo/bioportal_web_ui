@@ -1,3 +1,32 @@
+// Positioning context for the floating "Show parent paths" toggle. It replaces
+// #sd_content as the flex-growing child of the tree column, and lets #sd_content
+// fill it and scroll independently, so the absolutely-positioned toggle can float
+// over the top-right of the tree without taking vertical space away from it.
+.tree-with-toggle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.tree-paths-toggle {
+    position: absolute;
+    top: 4px;
+    right: 12px;
+    z-index: 2;
+    // Sit above the scrolling tree with a solid backdrop so the node underneath
+    // it stays legible.
+    background-color: var(--body-background, #fff);
+    line-height: 1;
+
+    &.active {
+        // Bootstrap's .active on an outline button already fills it; keep the
+        // icon readable against the filled background.
+        color: #fff;
+    }
+}
+
 .tree-view-reuse-icon {
     display: inline;
 }
