@@ -25,6 +25,9 @@
     padding: 0;
     border-radius: 50%;
     background-color: var(--body-background, #fff);
+    // A white halo ring so the button reads as separate from any tree text it
+    // floats over, instead of the blue outline merging with the label behind it.
+    box-shadow: 0 0 0 3px var(--body-background, #fff);
 
     // On/pressed: filled brand blue with a white icon (mirrors the hover state
     // that .rounded-button already defines).
