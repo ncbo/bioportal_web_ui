@@ -44,10 +44,25 @@ export default class extends Controller {
       url.searchParams.delete('tree_mode')
     }
 
+    // Rebuild around the class currently selected in the tree, not the one the
+    // frame was last loaded with: selecting a different node only updates the
+    // details pane, leaving the tree frame's conceptid stale, so without this the
+    // tree would re-filter on the previously selected class.
+    const conceptId = this.#selectedConceptId()
+    if (conceptId) {
+      url.searchParams.set('conceptid', conceptId)
+    }
+
     this.#storePreference(on)
     this.#reflect(on)
     // Assigning src (even to the same-looking URL) makes the turbo-frame reload.
     frame.setAttribute('src', url.pathname + url.search)
+  }
+
+  // The concept currently selected in the tree (the active node), or null.
+  #selectedConceptId () {
+    const active = document.querySelector('#sd_content a.tree-link.active')
+    return active ? (active.dataset.conceptid || active.id || null) : null
   }
 
   #frameHasPaths () {
