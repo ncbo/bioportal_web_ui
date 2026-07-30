@@ -21,7 +21,7 @@ div.tree_error {
 
 #bd ul.simpleTree li {
     margin-left: 0;
-    padding: 5px 0 0 10px;
+    padding: 3px 0 0 10px;
 }
 
 #bd ul.simpleTree {
@@ -33,9 +33,51 @@ div.tree_error {
     margin: 0;
     padding: 0;
 
+    // The chevron and the label share a flex row so that a label wrapping to
+    // more than one line stays in the label column (hanging-indented beside the
+    // chevron) instead of dropping back to the li's left edge, below the handle.
+    .tree-row {
+        display: flex;
+        align-items: flex-start;
+
+        // Chevron column: a <turbo_frame> wrapping the expand link when
+        // collapsed, or a bare rotated <svg> when expanded. It's a fixed-width
+        // column that neither grows nor shrinks, vertically centred on the
+        // label's first line. The fixed width also makes the label text start
+        // at the same x whether or not a chevron is present: leaf rows (no
+        // chevron) indent their label with Bootstrap's .ps-3, and this column
+        // plus the label's own left padding reserve the matching space here.
+        > turbo_frame,
+        > .tree-chevron {
+            flex: 0 0 auto;
+            margin-top: 5px;
+        }
+
+        // Collapsed chevron: <turbo_frame> wrapping the ~10px expand link.
+        > turbo_frame {
+            width: 15px;
+        }
+
+        // Expanded chevron: a bare <svg> that becomes a direct flex item; as a
+        // flex item its height:1em is treated as a flex-basis and gets squashed,
+        // so pin the height. Its glyph is ~10px wide; a 5px right margin makes
+        // its column the same 15px as the collapsed state.
+        > .tree-chevron {
+            height: 1em;
+            width: auto;
+            margin-right: 5px;
+            align-self: flex-start;
+        }
+    }
+
     a.tree-link {
         display: inline-block;
-        padding: 5px;
+        flex: 1 1 auto;
+        min-width: 0;
+        // Every label carries the active state's padding so that selecting a
+        // node only adds the highlight background (below) — the box size never
+        // changes, so the row doesn't jiggle on selection.
+        padding: 6px 5px;
         text-wrap: wrap;
         color: var(--primary-color) !important;
     }
@@ -43,9 +85,12 @@ div.tree_error {
     a.tree-link.active {
         cursor: default;
         background-color: var(--light-color);
-        font-weight: bold;
         border-radius: 3px;
-        padding: 7px 5px;
+        // Emphasise the selected node without a real font-weight change, which
+        // would widen the glyphs and make the row reflow/jiggle on selection.
+        // -webkit-text-stroke thickens the strokes in place, keeping glyph
+        // advance widths identical to the unselected state.
+        -webkit-text-stroke: 0.4px currentColor;
     }
 
     .tree-border-left {

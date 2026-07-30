@@ -1,14 +1,15 @@
 %li{id:li_id , class: open?}
-  = open_children_link
-  - if @open_in_modal
-    =  link_to_modal(@pref_label_html, @href,  data: { show_modal_size_value: 'modal-xl' } )
-  - else
-    %a{id: @child.id, data: @data, title:  @tooltip,
-              href: @href, class: "tree-link #{@muted_style} #{@active_style} #{border_left} #{open?}"}
-      = @pref_label_html
-      - if @is_reused
-        .tree-view-reuse-icon
-          = helpers.inline_svg_tag 'icons/reuses.svg'
+  .tree-row
+    = open_children_link
+    - if @open_in_modal
+      =  link_to_modal(@pref_label_html, @href,  data: { show_modal_size_value: 'modal-xl' } )
+    - else
+      %a{id: @child.id, data: @data, title:  @tooltip,
+                href: @href, class: "tree-link #{@muted_style} #{@active_style} #{border_left} #{open?}"}
+        = @pref_label_html
+        - if @is_reused
+          .tree-view-reuse-icon
+            = helpers.inline_svg_tag 'icons/reuses.svg'
   - if @child.hasChildren && !@child.expanded?
     = render TurboFrameComponent.new(id: "#{child_id}_childs")
   - elsif @child.expanded?
