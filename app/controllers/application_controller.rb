@@ -411,12 +411,14 @@ class ApplicationController < ActionController::Base
         # Create the tree. In "paths" mode we show every location of the class
         # in the hierarchy (all parent paths merged) rather than the single path
         # the /tree endpoint returns. We pass the ontology's declared roots so the
-        # paths stop at them, matching where the normal tree begins.
-        rootNode = if params[:tree_mode].to_s == 'paths'
-                     paths_to_root_tree(@concept, lang, @ontology.explore.roots(lang: lang))
-                   else
-                     @concept.explore.tree(include: "prefLabel,hasChildren,obsolete", lang: lang)
-                   end
+        # paths stop at them, matching where the normal tree begins. When the paths
+        # tree can't be built (e.g. paths_to_root is unavailable for the ontology),
+        # fall back to the normal single-path tree.
+        rootNode = nil
+        if params[:tree_mode].to_s == 'paths'
+          rootNode = paths_to_root_tree(@concept, lang, @ontology.explore.roots(lang: lang))
+        end
+        rootNode ||= @concept.explore.tree(include: "prefLabel,hasChildren,obsolete", lang: lang)
 
         if rootNode.nil? || rootNode.empty?
           roots = @ontology.explore.roots(lang: lang)
@@ -444,8 +446,9 @@ class ApplicationController < ActionController::Base
 
   # Build the class tree from *all* of a concept's paths to root (the class can
   # sit under several parents), merged into a single tree so the concept appears
-  # at every location. Returns an array of top-level (root) nodes, or [] when the
-  # concept has no paths (the caller then falls back to the normal roots).
+  # at every location. Returns an array of top-level (root) nodes, or nil when the
+  # paths tree can't be built (no self link, the endpoint failed, or the concept
+  # has no paths) so the caller can fall back to the normal single-path tree.
   #
   # The tree is "pruned": each node keeps only the children that lie on a path to
   # the concept, and hasChildren is set to false on the leaves so those pruned
@@ -456,11 +459,20 @@ class ApplicationController < ActionController::Base
   # normal tree does rather than climbing to the top of the hierarchy.
   def paths_to_root_tree(concept, lang, declared_roots = nil)
     self_link = concept.links && concept.links['self']
-    return [] if self_link.nil?
+    return nil if self_link.nil?
 
-    paths = LinkedData::Client::HTTP.get("#{self_link}/paths_to_root",
-                                         include: 'prefLabel,hasChildren', lang: lang)
-    return [] unless paths.is_a?(Array) && !paths.empty?
+    # The paths_to_root endpoint is not available (or returns an unparseable body)
+    # for every ontology — SKOS ontologies in particular can fail here. Treat any
+    # failure as "cannot build the paths tree" so the caller falls back to the
+    # normal single-path tree rather than erroring.
+    paths = begin
+              LinkedData::Client::HTTP.get("#{self_link}/paths_to_root",
+                                           include: 'prefLabel,hasChildren', lang: lang)
+            rescue StandardError => e
+              Log.add :debug, "paths_to_root failed for #{concept.id}: #{e.class}"
+              nil
+            end
+    return nil unless paths.is_a?(Array) && !paths.empty?
 
     paths = paths.map { |path| trim_path_to_declared_root(path, declared_roots) }
 
