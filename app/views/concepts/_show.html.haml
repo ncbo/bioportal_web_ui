@@ -5,7 +5,9 @@
         = t('concepts.use_jump_to')
   - else
     %div{'data-controller': 'concepts-json', 'data-action': 'click->concepts-json#update'}
-      = ontology_object_tabs_component(ontology_id: @ontology.acronym, objects_title: "classes", object_id: @concept.id) do |c|
+      -# Record the active view in a `view` param, merged into the current query string
+      -# so it survives a class change and `conceptid` is kept (issue #533).
+      = ontology_object_tabs_component(ontology_id: @ontology.acronym, objects_title: "classes", object_id: @concept.id, url_parameter: 'view', merge_url_params: true) do |c|
         - apikey = "apikey=#{get_apikey}"
         - baseClassUrl = "#{@ontology.id}/classes/#{escape(@concept.id)}"
         -# Pass explicit ids: without one, TabItemComponent derives the item id

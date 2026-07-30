@@ -214,12 +214,13 @@ module OntologiesHelper
     current_concept_view.eql?(view_id)
   end
 
-  def ontology_object_tabs_component(ontology_id:, objects_title:, object_id:, &block)
+  # url_parameter/merge_url_params default to leaving the URL alone; only the concept
+  # views opt in (see concepts/_show.html.haml).
+  def ontology_object_tabs_component(ontology_id:, objects_title:, object_id:,
+                                     url_parameter: nil, merge_url_params: false, &block)
     resource_url = ontology_object_json_link(ontology_id, objects_title, object_id)
-    # merge_url_params: keep the other query params (notably `conceptid`) when the
-    # view changes — the concept views coexist with the selected class, unlike the
-    # top-level `p` sections which own the URL.
-    render TabsContainerComponent.new(type: 'outline', url_parameter: 'view', merge_url_params: true) do |c|
+    render TabsContainerComponent.new(type: 'outline', url_parameter: url_parameter,
+                                      merge_url_params: merge_url_params) do |c|
       concat(c.with_pinned_right do
         content_tag(:div, '', class: 'd-flex', 'data-concepts-json-target': 'button') do
           concat(render_permalink_link) if $PURL_ENABLED
