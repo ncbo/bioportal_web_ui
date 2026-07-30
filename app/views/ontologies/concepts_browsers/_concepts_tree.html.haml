@@ -7,6 +7,15 @@
   %div.pb-2
     %div.mb-1
       = render partial: 'ontologies/concepts_browsers/jump_to', locals: {id: "#concepts-tree-filter"}
+    %div.mb-1
+      %button.btn.btn-sm.btn-outline-secondary{type: 'button',
+        title: t('ontologies.concepts_browsers.all_paths_tooltip'),
+        aria: {pressed: 'false'},
+        data: {controller: 'tree-paths-toggle',
+               action: 'tree-paths-toggle#toggle',
+               'tree-paths-toggle-active-class': 'active'}}
+        = inline_svg_tag 'icons/list-tree.svg', class: 'svg-icon me-1'
+        = t('ontologies.concepts_browsers.all_paths')
     - if skos?
       %div#concepts-tree-filter.collapse.card.p-2
         = render partial: 'ontologies/concepts_browsers/scheme_picker'

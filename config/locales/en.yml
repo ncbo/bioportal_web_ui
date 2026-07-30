@@ -247,6 +247,8 @@ en:
     uri: "URI"
 
     concepts_browsers:
+      all_paths: All paths
+      all_paths_tooltip: Show every place this class appears in the hierarchy
       filter: Filter
       label_jump: 'Jump to:'
       missing_roots: Missing roots for %{acronym} (skos:topConceptOf)
