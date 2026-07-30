@@ -408,8 +408,14 @@ class ApplicationController < ActionController::Base
           not_found
         end
 
-        # Create the tree
-        rootNode = @concept.explore.tree(include: "prefLabel,hasChildren,obsolete", lang: lang)
+        # Create the tree. In "paths" mode we show every location of the class
+        # in the hierarchy (all parent paths merged) rather than the single path
+        # the /tree endpoint returns.
+        rootNode = if params[:tree_mode].to_s == 'paths'
+                     paths_to_root_tree(@concept, lang)
+                   else
+                     @concept.explore.tree(include: "prefLabel,hasChildren,obsolete", lang: lang)
+                   end
 
         if rootNode.nil? || rootNode.empty?
           roots = @ontology.explore.roots(lang: lang)
@@ -433,6 +439,68 @@ class ApplicationController < ActionController::Base
       end
     end
     @concept
+  end
+
+  # Build the class tree from *all* of a concept's paths to root (the class can
+  # sit under several parents), merged into a single tree so the concept appears
+  # at every location. Returns an array of top-level (root) nodes, or [] when the
+  # concept has no paths (the caller then falls back to the normal roots).
+  #
+  # The tree is "pruned": each node keeps only the children that lie on a path to
+  # the concept, and hasChildren is set to false on the leaves so those pruned
+  # nodes render as static (no expand handle).
+  def paths_to_root_tree(concept, lang)
+    self_link = concept.links && concept.links['self']
+    return [] if self_link.nil?
+
+    paths = LinkedData::Client::HTTP.get("#{self_link}/paths_to_root",
+                                         include: 'prefLabel,hasChildren', lang: lang)
+    return [] unless paths.is_a?(Array) && !paths.empty?
+
+    roots = []
+    root_lookup = {}   # node id => node, at the top level
+    child_lookup = {}  # parent.object_id => { node id => child node }
+
+    paths.each do |path|
+      next unless path.is_a?(Array)
+
+      parent = nil
+      path.each do |node|
+        if parent.nil?
+          existing = root_lookup[node.id.to_s]
+          unless existing
+            node.children = []
+            root_lookup[node.id.to_s] = node
+            roots << node
+            existing = node
+          end
+          parent = existing
+        else
+          siblings = (child_lookup[parent.object_id] ||= {})
+          existing = siblings[node.id.to_s]
+          unless existing
+            node.children = []
+            siblings[node.id.to_s] = node
+            # The client Class getter only returns children once assigned via the
+            # writer, so always reassign the array rather than mutating in place.
+            parent.children = parent.children + [node]
+            existing = node
+          end
+          parent = existing
+        end
+      end
+    end
+
+    set_has_children = lambda do |nodes|
+      nodes.each do |n|
+        children = n.children || []
+        n.hasChildren = !children.empty?
+        set_has_children.call(children)
+      end
+    end
+    set_has_children.call(roots)
+
+    roots
   end
 
   def get_metrics_hash
