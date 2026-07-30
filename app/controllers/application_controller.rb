@@ -414,14 +414,16 @@ class ApplicationController < ActionController::Base
         # paths stop at them, matching where the normal tree begins. When the paths
         # tree can't be built (e.g. paths_to_root is unavailable for the ontology),
         # fall back to the normal single-path tree.
+        roots = nil
         rootNode = nil
         if params[:tree_mode].to_s == 'paths'
-          rootNode = paths_to_root_tree(@concept, lang, @ontology.explore.roots(lang: lang))
+          roots = @ontology.explore.roots(lang: lang)
+          rootNode = paths_to_root_tree(@concept, lang, roots)
         end
         rootNode ||= @concept.explore.tree(include: "prefLabel,hasChildren,obsolete", lang: lang)
 
         if rootNode.nil? || rootNode.empty?
-          roots = @ontology.explore.roots(lang: lang)
+          roots ||= @ontology.explore.roots(lang: lang)
 
           if roots.nil? || roots.empty?
             Log.add :debug, "Missing roots for #{@ontology.acronym}"
@@ -530,14 +532,20 @@ class ApplicationController < ActionController::Base
     build_paths_via_parents(concept, root_ids)
   end
 
-  # Build all root->concept paths by walking the concept's parent links upward,
-  # forking a path for each parent (polyhierarchy). Stops at the declared roots or
-  # where a concept has no parents. Memoises parent lookups by id and guards
-  # against cycles / pathological depth so a bad hierarchy can't loop forever.
-  def build_paths_via_parents(concept, root_ids, parents_cache = {}, depth = 0)
-    return [[concept]] if depth > 50 || root_ids.include?(concept.id.to_s)
+  # Cap on the number of paths built by the parents-walk fallback, to bound a wide
+  # polyhierarchy (paths multiply per parent per level).
+  MAX_PARENT_PATHS = 200
 
-    parents = parents_cache[concept.id.to_s] ||= begin
+  # Build all root->concept paths by walking the concept's parent links upward,
+  # forking a path for each parent (polyhierarchy). Stops at the declared roots, at
+  # a concept with no parents, or when the concept is already on the current path
+  # (cycle guard). Memoises parent lookups by id, and the total number of paths is
+  # capped so a wide or malformed hierarchy can't blow up.
+  def build_paths_via_parents(concept, root_ids, parents_cache = {}, visited = [], depth = 0)
+    id = concept.id.to_s
+    return [[concept]] if depth > 50 || root_ids.include?(id) || visited.include?(id)
+
+    parents = parents_cache[id] ||= begin
       res = concept.explore.parents
       res.respond_to?(:collection) ? res.collection : res
     rescue StandardError
@@ -546,10 +554,15 @@ class ApplicationController < ActionController::Base
     parents = [] unless parents.is_a?(Array)
     return [[concept]] if parents.empty?
 
-    parents.flat_map do |parent|
-      build_paths_via_parents(parent, root_ids, parents_cache, depth + 1)
-        .map { |path| path + [concept] }
+    next_visited = visited + [id]
+    paths = []
+    parents.each do |parent|
+      build_paths_via_parents(parent, root_ids, parents_cache, next_visited, depth + 1).each do |path|
+        paths << (path + [concept])
+        return paths if paths.length >= MAX_PARENT_PATHS
+      end
     end
+    paths
   end
 
   # Trim a single root->concept path so it begins at the ontology's declared root
