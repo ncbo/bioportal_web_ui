@@ -458,55 +458,40 @@ class ApplicationController < ActionController::Base
   # its declared root (the one nearest the concept) so the paths start where the
   # normal tree does rather than climbing to the top of the hierarchy.
   def paths_to_root_tree(concept, lang, declared_roots = nil)
-    self_link = concept.links && concept.links['self']
-    return nil if self_link.nil?
-
-    # The paths_to_root endpoint is not available (or returns an unparseable body)
-    # for every ontology — SKOS ontologies in particular can fail here. Treat any
-    # failure as "cannot build the paths tree" so the caller falls back to the
-    # normal single-path tree rather than erroring.
-    paths = begin
-              LinkedData::Client::HTTP.get("#{self_link}/paths_to_root",
-                                           include: 'prefLabel,hasChildren', lang: lang)
-            rescue StandardError => e
-              Log.add :debug, "paths_to_root failed for #{concept.id}: #{e.class}"
-              nil
-            end
+    paths = concept_paths_to_root(concept, lang, declared_roots)
     return nil unless paths.is_a?(Array) && !paths.empty?
 
     paths = paths.map { |path| trim_path_to_declared_root(path, declared_roots) }
 
+    # Merge the paths into one tree. Each tree node is a *fresh copy* of the source
+    # node (keyed by its position — the id-path from the root), never the source
+    # object itself: the same source Class instance can appear at several positions
+    # (the parents-walk fallback in particular reuses instances), and mutating a
+    # shared instance's children would corrupt the other positions.
     roots = []
-    root_lookup = {}   # node id => node, at the top level
-    child_lookup = {}  # parent.object_id => { node id => child node }
+    node_at_path = {}  # "id/id/id" (position) => tree node
 
     paths.each do |path|
       next unless path.is_a?(Array)
 
       parent = nil
+      key = nil
       path.each do |node|
-        if parent.nil?
-          existing = root_lookup[node.id.to_s]
-          unless existing
-            node.children = []
-            root_lookup[node.id.to_s] = node
-            roots << node
-            existing = node
-          end
-          parent = existing
-        else
-          siblings = (child_lookup[parent.object_id] ||= {})
-          existing = siblings[node.id.to_s]
-          unless existing
-            node.children = []
-            siblings[node.id.to_s] = node
+        key = key.nil? ? node.id.to_s : "#{key}/#{node.id}"
+        existing = node_at_path[key]
+        unless existing
+          existing = node.dup
+          existing.children = []
+          node_at_path[key] = existing
+          if parent.nil?
+            roots << existing
+          else
             # The client Class getter only returns children once assigned via the
             # writer, so always reassign the array rather than mutating in place.
-            parent.children = parent.children + [node]
-            existing = node
+            parent.children = parent.children + [existing]
           end
-          parent = existing
         end
+        parent = existing
       end
     end
 
@@ -520,6 +505,51 @@ class ApplicationController < ActionController::Base
     set_has_children.call(roots)
 
     roots
+  end
+
+  # Return all root->concept paths (array of arrays of Class), or nil if none can
+  # be obtained. Prefer the paths_to_root endpoint (a single call); if it is
+  # unavailable for the ontology (e.g. some SKOS ontologies return an unparseable
+  # body), fall back to walking the concept's parent links.
+  def concept_paths_to_root(concept, lang, declared_roots)
+    self_link = concept.links && concept.links['self']
+    return nil if self_link.nil?
+
+    paths = begin
+              LinkedData::Client::HTTP.get("#{self_link}/paths_to_root",
+                                           include: 'prefLabel,hasChildren', lang: lang)
+            rescue StandardError => e
+              Log.add :debug, "paths_to_root failed for #{concept.id}: #{e.class}"
+              nil
+            end
+    return paths if paths.is_a?(Array) && !paths.empty?
+
+    # Fallback: build the paths from the parents link (which is available even
+    # when paths_to_root is not). Each root->concept path is returned root-first.
+    root_ids = Array(declared_roots).map { |r| r.id.to_s }
+    build_paths_via_parents(concept, root_ids)
+  end
+
+  # Build all root->concept paths by walking the concept's parent links upward,
+  # forking a path for each parent (polyhierarchy). Stops at the declared roots or
+  # where a concept has no parents. Memoises parent lookups by id and guards
+  # against cycles / pathological depth so a bad hierarchy can't loop forever.
+  def build_paths_via_parents(concept, root_ids, parents_cache = {}, depth = 0)
+    return [[concept]] if depth > 50 || root_ids.include?(concept.id.to_s)
+
+    parents = parents_cache[concept.id.to_s] ||= begin
+      res = concept.explore.parents
+      res.respond_to?(:collection) ? res.collection : res
+    rescue StandardError
+      []
+    end
+    parents = [] unless parents.is_a?(Array)
+    return [[concept]] if parents.empty?
+
+    parents.flat_map do |parent|
+      build_paths_via_parents(parent, root_ids, parents_cache, depth + 1)
+        .map { |path| path + [concept] }
+    end
   end
 
   # Trim a single root->concept path so it begins at the ontology's declared root
