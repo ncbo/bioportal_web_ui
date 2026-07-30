@@ -21,9 +21,12 @@ export default class extends Controller {
 
   toggleChildren (event) {
     event.preventDefault()
-    // currentTarget is the SVG the action is bound to; target can be its inner <path>
+    // currentTarget is the chevron SVG the action is bound to.
     event.currentTarget.classList.toggle('open')
-    event.currentTarget.nextElementSibling.nextElementSibling.classList.toggle('hidden')
+    // The children container is the sibling that follows the node's .tree-row
+    // (the chevron and label live inside that row, not directly under the li).
+    const row = event.currentTarget.closest('.tree-row')
+    row?.nextElementSibling?.classList.toggle('hidden')
   }
 
   #centerTreeView() {
