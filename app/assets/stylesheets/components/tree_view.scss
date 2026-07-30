@@ -16,11 +16,12 @@
     right: 12px;
     z-index: 2;
     line-height: 1;
-    // Off: a plain, borderless white button with a brand-blue icon. The solid
-    // backdrop keeps the tree node underneath it legible.
+    // Off: a white button with a brand-blue icon and a brand-blue border, so it
+    // reads as a button. The solid backdrop keeps the tree node underneath it
+    // legible.
     color: var(--primary-color);
     background-color: var(--body-background, #fff);
-    border-color: transparent;
+    border-color: var(--primary-color);
 
     // On/pressed (and hover): filled brand blue with a white icon.
     &:hover,
@@ -28,6 +29,14 @@
         color: #fff;
         background-color: var(--primary-color);
         border-color: var(--primary-color);
+    }
+
+    // The list-tree icon hard-codes fill="var(--primary-color)" on its shapes, so
+    // it would stay blue (invisible) on the filled blue background. Force the icon
+    // and its shapes to follow the button's text colour instead.
+    .svg-icon,
+    .svg-icon * {
+        fill: currentColor;
     }
 }
 
