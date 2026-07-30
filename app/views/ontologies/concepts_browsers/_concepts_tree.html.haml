@@ -20,7 +20,7 @@
   -# positioning context for the floating "Show parent paths" toggle, which sits
   -# over the top-right of the tree so it doesn't take vertical space away from it.
   %div.tree-with-toggle
-    %button.btn.btn-sm.tree-paths-toggle{type: 'button',
+    %button.rounded-button.tree-paths-toggle{type: 'button',
       title: t('ontologies.concepts_browsers.parent_paths_tooltip'),
       aria: {label: t('ontologies.concepts_browsers.parent_paths'), pressed: 'false'},
       data: {controller: 'tree-paths-toggle',
