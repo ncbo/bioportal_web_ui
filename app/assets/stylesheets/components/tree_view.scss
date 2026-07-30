@@ -16,19 +16,14 @@
     right: 12px;
     z-index: 2;
     line-height: 1;
-    // Brand-blue outline toggle. Resting state sits above the scrolling tree
-    // with a solid backdrop so the node underneath it stays legible.
+    // Off: a plain, borderless white button with a brand-blue icon. The solid
+    // backdrop keeps the tree node underneath it legible.
     color: var(--primary-color);
     background-color: var(--body-background, #fff);
-    border-color: var(--primary-color);
+    border-color: transparent;
 
-    &:hover {
-        color: #fff;
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-
-    // On/pressed: filled brand blue with a white icon.
+    // On/pressed (and hover): filled brand blue with a white icon.
+    &:hover,
     &.active {
         color: #fff;
         background-color: var(--primary-color);
