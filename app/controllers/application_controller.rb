@@ -410,9 +410,10 @@ class ApplicationController < ActionController::Base
 
         # Create the tree. In "paths" mode we show every location of the class
         # in the hierarchy (all parent paths merged) rather than the single path
-        # the /tree endpoint returns.
+        # the /tree endpoint returns. We pass the ontology's declared roots so the
+        # paths stop at them, matching where the normal tree begins.
         rootNode = if params[:tree_mode].to_s == 'paths'
-                     paths_to_root_tree(@concept, lang)
+                     paths_to_root_tree(@concept, lang, @ontology.explore.roots(lang: lang))
                    else
                      @concept.explore.tree(include: "prefLabel,hasChildren,obsolete", lang: lang)
                    end
@@ -449,13 +450,19 @@ class ApplicationController < ActionController::Base
   # The tree is "pruned": each node keeps only the children that lie on a path to
   # the concept, and hasChildren is set to false on the leaves so those pruned
   # nodes render as static (no expand handle).
-  def paths_to_root_tree(concept, lang)
+  #
+  # declared_roots are the ontology's tree roots; each path is trimmed to begin at
+  # its declared root (the one nearest the concept) so the paths start where the
+  # normal tree does rather than climbing to the top of the hierarchy.
+  def paths_to_root_tree(concept, lang, declared_roots = nil)
     self_link = concept.links && concept.links['self']
     return [] if self_link.nil?
 
     paths = LinkedData::Client::HTTP.get("#{self_link}/paths_to_root",
                                          include: 'prefLabel,hasChildren', lang: lang)
     return [] unless paths.is_a?(Array) && !paths.empty?
+
+    paths = paths.map { |path| trim_path_to_declared_root(path, declared_roots) }
 
     roots = []
     root_lookup = {}   # node id => node, at the top level
@@ -501,6 +508,22 @@ class ApplicationController < ActionController::Base
     set_has_children.call(roots)
 
     roots
+  end
+
+  # Trim a single root->concept path so it begins at the ontology's declared root
+  # nearest the concept (the deepest declared root on the path). The raw
+  # paths_to_root endpoint climbs to the top of the hierarchy, above the roots the
+  # ontology actually exposes; this keeps the paths starting where the normal tree
+  # does. Paths with no declared root on them (or when no roots are given) are left
+  # as-is.
+  def trim_path_to_declared_root(path, declared_roots)
+    return path if declared_roots.nil? || declared_roots.empty? || !path.is_a?(Array)
+
+    root_ids = declared_roots.map { |r| r.id.to_s }
+    last_root_index = nil
+    path.each_index { |i| last_root_index = i if root_ids.include?(path[i].id.to_s) }
+
+    last_root_index ? path[last_root_index..] : path
   end
 
   def get_metrics_hash
