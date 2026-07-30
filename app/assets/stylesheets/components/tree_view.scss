@@ -77,7 +77,12 @@ div.tree_error {
         // Every label carries the active state's padding so that selecting a
         // node only adds the highlight background (below) — the box size never
         // changes, so the row doesn't jiggle on selection.
-        padding: 6px 5px;
+        padding: 3px 5px;
+        // The surrounding .simpleTree li sets line-height:14px, which is tighter
+        // than the 16px text and cramps labels that wrap to more than one line.
+        // Restore a readable line-height here; the reduced padding above keeps
+        // single-line rows the same compact height.
+        line-height: 1.25;
         text-wrap: wrap;
         color: var(--primary-color) !important;
     }
