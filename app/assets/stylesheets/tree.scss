@@ -53,8 +53,12 @@ li.tree-expanding > turbo-frame[id$="_open_link"] .tree-chevron {
 }
 
 /* Slide the arriving children in, so an expanded subtree feels continuous
-   rather than popping into place. */
-.simpleTree turbo-frame[id$="_childs"] > ul {
+   rather than popping into place. Matched on the children <ul> rather than the
+   wrapping frame's id: the `<turbo-frame id="…_childs">` in the page is only an
+   empty placeholder, and ConceptsController#index replaces it outright with the
+   sub-tree render, whose frame carries no id at all (TreeViewComponent is given
+   no `id:` on that path). Keying off `[id$="_childs"]` therefore never matched. */
+.simpleTree turbo-frame > ul.tree-border-left {
   animation: tree-slide-in 0.18s ease-out;
 }
 @keyframes tree-slide-in {
@@ -66,7 +70,7 @@ li.tree-expanding > turbo-frame[id$="_open_link"] .tree-chevron {
   .tree-chevron,
   li.tree-expanding > turbo_frame[id$="_open_link"] .tree-chevron,
   li.tree-expanding > turbo-frame[id$="_open_link"] .tree-chevron,
-  .simpleTree turbo-frame[id$="_childs"] > ul {
+  .simpleTree turbo-frame > ul.tree-border-left {
     transition: none;
     animation: none;
   }
