@@ -45,7 +45,7 @@
   <header>
 		<%=render partial: 'layouts/topnav'%>
 	</header>
-	<%= turbo_frame_tag :cookie_consent, src: cookies_path if cookies[:allow_cookies].blank? %>
+	<%= turbo_frame_tag :cookie_notice, src: cookies_path if cookies[:cookie_notice_ack].blank? %>
 	<%# Empty target frame for links with data-turbo-frame="modal"; the response renders the modal markup into it. %>
 	<%= turbo_frame_tag "modal" %>
   

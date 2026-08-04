@@ -97,7 +97,7 @@ Rails.application.routes.draw do
 
   # Cookies
   get 'cookies', to: 'cookies#index'
-  post 'cookies/consent', to: 'cookies#consent', as: 'cookie_consent'
+  post 'cookies/acknowledge', to: 'cookies#acknowledge', as: 'cookie_notice_acknowledge'
 
   # Robots.txt
   get '/robots.txt' => 'robots#index'
