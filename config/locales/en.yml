@@ -282,6 +282,6 @@ en:
     index:
       message:
         html: >
-          PLACEHOLDER — awaiting final copy. We use cookies to keep you signed in, remember your
-          preferences, and understand how the site is used so we can improve it. See
-          "<a href="%{cookies}" target="_blank">use of cookies</a>" for more information.
+          %{site} uses cookies to keep you signed in, remember your preferences, and measure how
+          the site is used. Usage data helps us rank search results and recommend the ontologies most
+          relevant to your work. See "<a href="%{cookies}" target="_blank">use of cookies</a>" for details.
