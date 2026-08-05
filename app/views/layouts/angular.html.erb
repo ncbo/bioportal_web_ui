@@ -48,7 +48,7 @@
   <header>
     <%=render partial: 'layouts/topnav'%>
   </header>
-  <%= turbo_frame_tag :cookie_consent, src: cookies_path if cookies[:allow_cookies].blank? %>
+  <%= turbo_frame_tag :cookie_notice, src: cookies_path if cookies[:cookie_notice_ack].blank? %>
 
   <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>

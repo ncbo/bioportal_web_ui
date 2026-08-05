@@ -1,8 +1,6 @@
-= turbo_frame_tag :cookie_consent do
-  %div{class: 'cookie-banner shadow rounded p-5'}
+= turbo_frame_tag :cookie_notice do
+  %div{class: 'cookie-banner shadow rounded p-4'}
     %div
-      = t('.message.html', cookies: Rails.configuration.settings.dig(:links, :cookies))
-    %div{class: 'd-flex'}
-      = button_to('Accept', cookie_consent_path(consent: true), method: 'post', class: 'btn btn-secondary me-2')
-      = button_to('Decline', cookie_consent_path(consent: false), method: 'post', class: 'btn btn-outline-secondary')
-
+      = t('.message.html', cookies: Rails.configuration.settings.dig(:links, :cookies), site: "#{$SITE}")
+    %div{class: 'd-flex justify-content-end'}
+      = button_to('OK', cookie_notice_acknowledge_path, method: 'post', class: 'btn btn-primary')
