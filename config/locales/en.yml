@@ -282,6 +282,6 @@ en:
     index:
       message:
         html: >
-          %{site} uses cookies to keep you signed in, remember your preferences, and measure how
-          the site is used. Usage data helps us rank search results and recommend the ontologies most
+          %{site} uses cookies to keep you signed in, to remember your preferences, and to measure how
+          the site is used. Usage data helps us to rank search results and to recommend the ontologies most
           relevant to your work. See "<a href="%{cookies}" target="_blank">use of cookies</a>" for details.
