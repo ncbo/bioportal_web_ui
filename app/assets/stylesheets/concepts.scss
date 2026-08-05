@@ -202,3 +202,44 @@ div.synonym-change-request button {
     white-space: normal !important;
   }
 }
+
+// The OBO-style "Short Id" for a class (e.g. GO:0008150), shown on its own
+// Details-pane row above the full IRI. Rendered with the standard chip styling
+// (same as synonyms) to stay visually conservative; the chip is a keyboard-
+// accessible copy control (click or Enter/Space copies the id).
+.obo-id {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.obo-id-copy {
+  cursor: pointer;
+  border-radius: 6px;
+  outline: none;
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px rgba(35, 73, 121, 0.35);
+  }
+}
+
+// The full IRI (the "Id" row) keeps its copy icon inline right after it, and
+// wraps naturally when long.
+.concept-id-iri {
+  word-break: break-all;
+
+  .clipboard {
+    display: inline-flex;
+    vertical-align: middle;
+    margin-left: 0.15rem;
+  }
+}
+
+// The preferred name is the class's primary label — show it in bold so it reads
+// as the main identity on the pane. (display_in_multiple_languages wraps it in a
+// <p>; keep that inline so the bold sits neatly in the row.)
+.concept-pref-name {
+  font-weight: 700;
+
+  p { display: inline; margin: 0; }
+}

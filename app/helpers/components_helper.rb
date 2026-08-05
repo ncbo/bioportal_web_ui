@@ -64,6 +64,57 @@ module ComponentsHelper
     end
   end
 
+  # The short, community-facing "OBO-style" id for a class — e.g. "GO:0008150"
+  # for the IRI http://purl.obolibrary.org/obo/GO_0008150. Biomedical users refer
+  # to classes by this CURIE far more than by the full IRI.
+  #
+  # Prefer an explicit id/notation annotation on the class (the authoritative
+  # value); otherwise derive PREFIX:LOCAL from the IRI's last segment when it
+  # looks like an OBO/CURIE-style local name (PREFIX_LOCAL). Returns nil when the
+  # class has no such id, so callers can skip the pill entirely.
+  def obo_style_id(concept)
+    return nil if concept.nil?
+
+    annotated = obo_id_from_annotations(concept)
+    return annotated if annotated.present?
+
+    obo_id_from_iri(concept.id)
+  end
+
+  # Look for an id/notation annotation (e.g. oboInOwl#id, skos:notation) whose
+  # value is a CURIE like "GO:0008150".
+  def obo_id_from_annotations(concept)
+    props = concept.respond_to?(:properties) ? concept.properties : nil
+    return nil if props.nil? || !props.respond_to?(:members)
+
+    props.members.each do |key|
+      key_s = key.to_s
+      next unless key_s =~ %r{[#/](id|notation)\z}i
+
+      Array(props[key]).each do |value|
+        str = value.respond_to?(:object) ? value.object : value
+        str = str.to_s.strip
+        return str if str =~ /\A[A-Za-z][\w.-]*:\S+\z/
+      end
+    end
+    nil
+  end
+
+  # Derive PREFIX:LOCAL from the last IRI segment when it matches PREFIX_LOCAL
+  # (e.g. .../GO_0008150 -> GO:0008150). Only the first underscore is treated as
+  # the prefix separator, so local names containing underscores are preserved.
+  def obo_id_from_iri(iri)
+    return nil if iri.blank?
+
+    last = iri.to_s.include?('#') ? iri.to_s.split('#').last : iri.to_s.split('/').last
+    return nil if last.blank?
+
+    m = last.match(/\A([A-Za-z][A-Za-z0-9]*)_(.+)\z/)
+    return nil unless m
+
+    "#{m[1]}:#{m[2]}"
+  end
+
   def loader_component(type: 'pulsing', small: false)
     render LoaderComponent.new(type: type, small: small)
   end

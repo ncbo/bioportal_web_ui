@@ -12,10 +12,25 @@
 
 
       - c.with_header(stripped: true) do |t|
-        - t.add_row({th: t('ontology_details.concept.id')}, {td:link_to_with_actions(@concept.id, acronym: @ontology.acronym)})
+        - obo_id = obo_style_id(@concept)
+        - if obo_id.present?
+          - t.add_row({th: t('ontology_details.concept.short_id', default: 'Short Id')}) do |h|
+            - h.td do
+              - copy_title = t('ontology_details.concept.copy_obo_id', default: 'Copy %{id}') % {id: obo_id}
+              %span.obo-id{data: {controller: 'clipboard'}}
+                %span.obo-id-copy{role: 'button', tabindex: '0', 'aria-label': copy_title, title: copy_title, data: {action: 'click->clipboard#copy keydown.enter->clipboard#copy keydown.space->clipboard#copy', 'clipboard-target': 'copy'}}
+                  = render ChipButtonComponent.new(text: obo_id, type: 'static')
+                %span.d-none{data: {'clipboard-target': 'check'}}
+                  = render ChipButtonComponent.new(text: t('components.copied', default: 'Copied!'), type: 'static')
+                %input{type: 'hidden', value: obo_id, data: {'clipboard-target': 'content'}}
+        - t.add_row({th: t('ontology_details.concept.id')}) do |h|
+          - h.td do
+            %span.concept-id-iri
+              = link_to_with_actions(@concept.id, acronym: @ontology.acronym)
         - t.add_row({th: t('ontology_details.concept.preferred_name')}) do |h|
           - h.td do
-            = display_in_multiple_languages(@concept.prefLabel)
+            %span.concept-pref-name
+              = display_in_multiple_languages(@concept.prefLabel)
 
         - unless @concept.definition.nil? || @concept.definition.empty?
           - t.add_row({th: t('ontology_details.concept.definitions')}, {td: display_in_multiple_languages(@concept.definition)})
