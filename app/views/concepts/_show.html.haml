@@ -28,14 +28,23 @@
           = render :partial =>'/concepts/biomixer'
 
 
-        - count_span = content_tag(:span, "#{t('concepts.notes')} (#{content_tag(:span, @notes.length, id: 'note_count')})".html_safe)
-        - tab_item_component(container_tabs: c, id: 'concept-notes', title: count_span, path: '#notes', selected: selected_concept_view?('concept-notes'), json_link: "#{baseClassUrl}/notes?#{apikey}") do
-          = render :partial =>'/notes/list'
+        -# Notes are loaded lazily, like Mappings: the turbo-frame's `loading: lazy`
+        -# defers the fetch until the pane is shown. The tab label no longer shows a
+        -# notes count — computing it required fetching the class's notes eagerly on
+        -# every class select, for a tab that is often never opened.
+        - tab_item_component(container_tabs: c, id: 'concept-notes', title: t('concepts.notes'), path: '#notes', selected: selected_concept_view?('concept-notes'), json_link: "#{baseClassUrl}/notes?#{apikey}") do
+          = render TurboFrameComponent.new(id: 'concept_notes', loading: 'lazy',
+          src: "/ajax/concepts/notes_list?ontologyid=#{@ontology.acronym}&conceptid=#{CGI.escape(@concept.id)}")
 
 
-        - count_span = content_tag(:span, "#{t('concepts.mappings')} (#{content_tag(:span, concept_mappings_loader(ontology_acronym: @ontology.acronym, concept_id: @concept.id))})".html_safe, class: "d-flex")
-        - tab_item_component(container_tabs: c, id: 'concept-mappings', title: count_span, path: '#mappings', selected: selected_concept_view?('concept-mappings'), json_link: "#{baseClassUrl}/mappings?#{apikey}") do
-          = render TurboFrameComponent.new(id:'concept_mappings',
+        -# The Mappings table is loaded lazily: the turbo-frame's `loading: lazy` defers
+        -# its fetch until the pane is shown (inactive concept panes are display:none, so
+        -# the frame doesn't load while hidden). The tab label no longer shows a mappings
+        -# count — computing it required fetching the same expensive get_concept_table
+        -# endpoint eagerly on every class select (a second time, in addition to this
+        -# frame), for a tab that is often never opened.
+        - tab_item_component(container_tabs: c, id: 'concept-mappings', title: t('concepts.mappings'), path: '#mappings', selected: selected_concept_view?('concept-mappings'), json_link: "#{baseClassUrl}/mappings?#{apikey}") do
+          = render TurboFrameComponent.new(id:'concept_mappings', loading: 'lazy',
           src:"/ajax/mappings/get_concept_table?ontologyid=#{@ontology.acronym}&conceptid=#{CGI.escape(@concept.id)}")
 
 

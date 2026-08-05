@@ -84,3 +84,6 @@ application.register("modal", ModalController)
 
 import MappingFormController from "./mapping_form_controller"
 application.register("mapping-form", MappingFormController)
+
+import BiomixerLazyController from "./biomixer_lazy_controller"
+application.register("biomixer-lazy", BiomixerLazyController)
