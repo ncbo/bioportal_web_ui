@@ -250,6 +250,8 @@ en:
       filter: Filter
       label_jump: 'Jump to:'
       missing_roots: Missing roots for %{acronym} (skos:topConceptOf)
+      parent_paths: Show parent paths
+      parent_paths_tooltip: Show every parent path to this class in the hierarchy
       placeholder_jump: Jump to
       select_collection: Please select a collection to display
       select_scheme: Please select a scheme to display

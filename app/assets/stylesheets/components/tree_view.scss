@@ -1,3 +1,46 @@
+// Positioning context for the floating "Show parent paths" toggle. It replaces
+// #sd_content as the flex-growing child of the tree column, and lets #sd_content
+// fill it and scroll independently, so the absolutely-positioned toggle can float
+// over the top-right of the tree without taking vertical space away from it.
+.tree-with-toggle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+// A circular icon toggle matching the .rounded-button pattern used elsewhere
+// (e.g. the JSON {} button). It floats, pinned, over the top-right of the tree so
+// it doesn't take vertical space away from the hierarchy. .rounded-button already
+// provides the brand-blue border, blue icon and filled-blue hover; this adds the
+// circular size, the floating position, a solid backdrop, and the pressed state.
+.tree-paths-toggle {
+    position: absolute;
+    top: 4px;
+    right: 12px;
+    z-index: 2;
+    height: 32px;
+    width: 32px;
+    padding: 0;
+    border-radius: 50%;
+    background-color: var(--body-background, #fff);
+    // A white halo ring so the button reads as separate from any tree text it
+    // floats over, instead of the blue outline merging with the label behind it.
+    box-shadow: 0 0 0 3px var(--body-background, #fff);
+
+    // On/pressed: filled brand blue with a white icon (mirrors the hover state
+    // that .rounded-button already defines).
+    &.active {
+        background-color: var(--primary-color);
+
+        .svg-icon,
+        .svg-icon * {
+            fill: #fff;
+        }
+    }
+}
+
 .tree-view-reuse-icon {
     display: inline;
 }

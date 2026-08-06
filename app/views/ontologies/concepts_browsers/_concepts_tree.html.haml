@@ -16,14 +16,26 @@
                         'skos-collections-selector-enable-colors-value': 'true'}}
   -# Class tree
   -# Height + overflow are handled by the #sd_content rule in ontologies.scss
-  -# so the tree fills its column and scrolls independently.
-  %div#sd_content.px-1
-    - if skos? && @roots&.empty?
-      %div.text-wrap
-        = render Display::AlertComponent.new do
-          = t("ontologies.concepts_browsers.missing_roots", acronym: @ontology.acronym)
-    - else
-      - concept_schemes = skos? ? "&concept_schemes=#{params[:concept_schemes]}" : ''
-      = render TurboFrameComponent.new(id: 'concepts_tree_view',
-                                     src: "/ajax/classes/treeview?ontology=#{@ontology.acronym}&conceptid=#{escape(@concept.id)}#{concept_schemes}&auto_click=false&language=#{request_lang}",
-                                     data: {'turbo-frame-target': 'frame'})
+  -# so the tree fills its column and scrolls independently. The parent is the
+  -# positioning context for the floating "Show parent paths" toggle, which sits
+  -# over the top-right of the tree so it doesn't take vertical space away from it.
+  - tree_mode_paths = params[:tree_mode].to_s == 'paths'
+  %div.tree-with-toggle
+    %button.rounded-button.tree-paths-toggle{type: 'button', class: ('active' if tree_mode_paths),
+      title: t('ontologies.concepts_browsers.parent_paths_tooltip'),
+      aria: {label: t('ontologies.concepts_browsers.parent_paths'), pressed: tree_mode_paths.to_s},
+      data: {controller: 'tree-paths-toggle',
+             action: 'tree-paths-toggle#toggle',
+             'tree-paths-toggle-active-class': 'active'}}
+      = inline_svg_tag 'icons/list-tree.svg', class: 'svg-icon'
+    %div#sd_content.px-1
+      - if skos? && @roots&.empty?
+        %div.text-wrap
+          = render Display::AlertComponent.new do
+            = t("ontologies.concepts_browsers.missing_roots", acronym: @ontology.acronym)
+      - else
+        - concept_schemes = skos? ? "&concept_schemes=#{params[:concept_schemes]}" : ''
+        - tree_mode = tree_mode_paths ? "&tree_mode=paths" : ''
+        = render TurboFrameComponent.new(id: 'concepts_tree_view',
+                                       src: "/ajax/classes/treeview?ontology=#{@ontology.acronym}&conceptid=#{escape(@concept.id)}#{concept_schemes}#{tree_mode}&auto_click=false&language=#{request_lang}",
+                                       data: {'turbo-frame-target': 'frame'})

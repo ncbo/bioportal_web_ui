@@ -26,8 +26,22 @@ export default class extends OntoportalAutocompleteController {
         // Appropriate value selected
         if (li.extra) {
             let sValue = jQuery("#jump_to_concept_id").val()
-            Turbo.visit("/ontologies/" + this.ontologyAcronymValue + "/?p=classes&lang=" + this.langValue + "&conceptid=" + encodeURIComponent(sValue) + "&jump_to_nav=true")
+            let url = "/ontologies/" + this.ontologyAcronymValue + "/?p=classes&lang=" + this.langValue + "&conceptid=" + encodeURIComponent(sValue) + "&jump_to_nav=true"
+            // Carry the current tree mode ("Show parent paths") across the search so
+            // it isn't reset by the full-page navigation.
+            if (this.#treeModePaths()) {
+                url += "&tree_mode=paths"
+            }
+            Turbo.visit(url)
         }
+    }
+
+    // True when the class tree is currently showing all parent paths. The toggle
+    // keeps tree_mode=paths on the tree frame's src.
+    #treeModePaths() {
+        let frame = document.getElementById("concepts_tree_view")
+        let src = frame && frame.getAttribute("src")
+        return !!src && src.includes("tree_mode=paths")
     }
 
     onItemSelect(li) {
