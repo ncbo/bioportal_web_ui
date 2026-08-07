@@ -26,6 +26,11 @@ class EntityGraphService < ApplicationService
   # without a cap a handful of such classes makes the graph build hang past the
   # request timeout. A capped property is flagged so the client can note it.
   MAX_FILLERS_PER_PROPERTY = 12
+  # Per-request budget on how many relationship-filler CLASSES we fetch (each is a
+  # separate remote class lookup just to resolve the filler's label/examples). Past
+  # this, fillers get an IRI-tail fallback label so the build can't hang on a
+  # filler-dense ontology (MeSH). Common graphs need far fewer than this.
+  MAX_FILLER_FETCHES = 25
   # Annotation property carrying "example of usage" (IAO:0000112). Shown in the
   # node hover popup when present.
   EXAMPLE_PROPERTY = 'http://purl.obolibrary.org/obo/IAO_0000112'
@@ -52,6 +57,28 @@ class EntityGraphService < ApplicationService
 
   private
 
+  # Ontology languages that are thesaurus/vocabulary-style rather than a real OWL/OBO
+  # class hierarchy. For these, object properties are a noisy qualifier web (e.g. MeSH
+  # allowable-qualifiers, SNOMED/RxNorm attributes) that swamps the graph, so we show
+  # the is-a spine only. Note the dense-web ontologies (MeSH, SNOMEDCT, RxNorm) report
+  # 'UMLS' here, not 'SKOS' — the property web is the same shape, so both are included.
+  TAXONOMY_ONLY_LANGUAGES = %w[SKOS UMLS].freeze
+
+  # True when the ontology's latest submission language is thesaurus-style (see above).
+  # Memoized; one lightweight submission fetch. Errors default to false (treat as a real
+  # OWL ontology) so a lookup hiccup never hides relationships that belong in the graph.
+  def taxonomy_only_ontology?(ontology)
+    return @taxonomy_only unless @taxonomy_only.nil?
+
+    @taxonomy_only = begin
+      sub = ontology.explore.latest_submission(include: 'hasOntologyLanguage')
+      lang = sub && sub.hasOntologyLanguage.to_s.upcase
+      lang && TAXONOMY_ONLY_LANGUAGES.include?(lang)
+    rescue StandardError
+      false
+    end
+  end
+
   # Build the entity graph for `concept`:
   #   { root:, nodes:[{id,label,type,selected,hierarchyRoot}],
   #     edges:[{from,to,kind,label?}], edge_count:, large:, truncated: }
@@ -68,6 +95,13 @@ class EntityGraphService < ApplicationService
   #     property and add B as a related node. Edges point concept -> B, labelled p.
   def build_entity_graph_data(ontology, concept)
     root_id = concept.id
+    # Thesaurus-style vocabularies (SKOS, and MeSH/SNOMED/RxNorm which report as UMLS)
+    # model their cross-references (broader/narrower/related, MeSH's allowable-qualifier
+    # and semantic-type links, …) as object properties, so pulling relationships fans out
+    # into a dense, unreadable web and dozens of per-filler class fetches. For these we
+    # show ONLY the is-a hierarchy — no relationship edges (and the client hides the
+    # relationships filter, since the graph then carries no relationship properties).
+    taxonomy_only = taxonomy_only_ontology?(ontology)
     nodes = {}
     edges = {} # dedup by "from->to->label"
     truncated = false
@@ -216,19 +250,23 @@ class EntityGraphService < ApplicationService
       # every spine class: mark visited (so the Phase-2 filler walk skips it) and pull
       # its relationships, honouring the node cap. Snapshot the ids first — add_rel_edges
       # inserts filler nodes, which would otherwise mutate `nodes` mid-iteration.
+      # Taxonomy-only graphs skip relationships entirely (is-a only).
       nodes.keys.each { |id| visited[id] = true }
-      nodes.keys.to_a.each do |id|
-        if nodes.size >= MAX_NODES
-          truncated = true
-          break
+      unless taxonomy_only
+        nodes.keys.to_a.each do |id|
+          if nodes.size >= MAX_NODES
+            truncated = true
+            break
+          end
+          add_rel_edges.call(id)
         end
-        add_rel_edges.call(id)
       end
       true
     end
 
     unless spine_via_paths.call
-      walk_ancestors.call([root_id], visited) { |id| add_rel_edges.call(id) }
+      # is-a spine fallback; pull relationships per ancestor only for real ontologies.
+      walk_ancestors.call([root_id], visited) { |id| add_rel_edges.call(id) unless taxonomy_only }
     end
 
     # 1b) Follow each relationship OUTWARD along the SAME property, transitively —
@@ -320,8 +358,12 @@ class EntityGraphService < ApplicationService
     object_props = ontology_object_properties(ontology) # { iri => label }
     return [] if object_props.empty?
 
+    # Only the `properties` hash is used below (for the class's asserted relations),
+    # so fetch just that — not `full: true`, which pulls the whole class payload
+    # (definitions, all metadata) and, on property-dense ontologies like MeSH, drove
+    # heavy allocation/GC and made the graph build hang.
     cls = begin
-      ontology.explore.single_class({ full: true, language: @lang }, class_id)
+      ontology.explore.single_class({ display: 'properties', language: @lang }, class_id)
     rescue StandardError
       nil
     end
@@ -420,13 +462,26 @@ class EntityGraphService < ApplicationService
 
   # Fetch a relationship filler's class (prefLabel + properties, so we can also read
   # its "example of usage"). Cached per request. Returns nil if the class can't be
-  # loaded (e.g. a cross-ontology filler not present in this ontology).
+  # loaded, OR once the per-request fetch budget is spent — each filler is a separate
+  # remote class fetch, and on filler-dense ontologies (MeSH) that adds up to the
+  # graph build timing out. Past the budget, callers fall back to the IRI-tail label
+  # (and skip filler examples), so the graph still builds. Common graphs stay well
+  # under the budget and are fully resolved.
   def entity_graph_filler_class(ontology, class_id)
     cache = (@entity_graph_filler_cache ||= {})
     return cache[class_id] if cache.key?(class_id)
 
+    @entity_graph_filler_fetches ||= 0
+    return nil if @entity_graph_filler_fetches >= MAX_FILLER_FETCHES
+
+    @entity_graph_filler_fetches += 1
     cache[class_id] = begin
-      cls = ontology.explore.single_class({ display: 'prefLabel,synonym,properties' }, class_id)
+      # Label + synonyms only, NOT properties: `properties` is the heavy field on
+      # filler-dense ontologies and is only needed here for a filler's example-of-
+      # usage — a minor tooltip detail on relationship-target nodes. Dropping it
+      # trims each filler fetch's payload; the selected class and its spine still
+      # carry examples (fetched separately).
+      cls = ontology.explore.single_class({ display: 'prefLabel,synonym' }, class_id)
       cls && !(cls.respond_to?(:errors) && cls.errors.present?) ? cls : nil
     rescue StandardError
       nil
