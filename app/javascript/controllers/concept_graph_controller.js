@@ -1488,7 +1488,7 @@ export default class extends Controller {
   #ensureTip () {
     if (this._tip) return this._tip
     const tip = document.createElement('div')
-    tip.style.cssText = 'position:fixed;z-index:2500;max-width:570px;background:#fff;border:1px solid #d4dde8;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.16);padding:10px 13px;font:13px -apple-system,sans-serif;color:#28374a;pointer-events:none;display:none;line-height:1.45'
+    tip.style.cssText = 'position:fixed;z-index:2500;max-width:600px;background:#fff;border:1px solid #d4dde8;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.16);padding:12px 15px;font:15px -apple-system,sans-serif;color:#28374a;pointer-events:none;display:none;line-height:1.5'
     document.body.append(tip)
     this._tip = tip
     return tip
@@ -1501,26 +1501,41 @@ export default class extends Controller {
     tip.style.maxWidth = '570px' // reset — the option info tooltip narrows the shared tip
     const label = this.#effLabel(n)
     const sid = shortId(id)
-    const pill = sid ? ` <span style="display:inline-block;font-size:10.5px;font-weight:600;padding:1px 6px;margin-left:5px;border-radius:8px;background:#eef2f7;color:#5a6b82;vertical-align:middle">${this.#esc(sid)}</span>` : ''
+    const pill = sid ? ` <span style="display:inline-block;font-size:12px;font-weight:600;padding:1px 7px;margin-left:5px;border-radius:8px;background:#eef2f7;color:#5a6b82;vertical-align:middle">${this.#esc(sid)}</span>` : ''
     const parents = this.#isaParents(id).map((l) => this.#esc(l))
     const def = this.opts.useUpperInfo && n.upper && n.upper.definition ? n.upper.definition : n.definition
     const syn = this.#effSynonyms(n)
     const src = (this.opts.useUpperInfo && n.upper && (n.upper.definition || n.upper.label)) ? n.upper.source : ''
-    const srcTag = src ? ` <span style="font-size:10px;font-weight:600;color:#1c7a63;background:#dff3ee;border:1px solid #a9ddd0;border-radius:8px;padding:1px 6px;margin-left:4px;vertical-align:middle">from ${this.#esc(src)}</span>` : ''
+    const srcTag = src ? ` <span style="font-size:12px;font-weight:600;color:#1c7a63;background:#dff3ee;border:1px solid #a9ddd0;border-radius:8px;padding:1px 7px;margin-left:4px;vertical-align:middle">from ${this.#esc(src)}</span>` : ''
+    // Tooltip sections use coloured pills to distinguish their kind:
+    //   is-a parents -> blue (navigable superclasses)
+    //   synonyms     -> neutral grey (matches the header short-id pill)
+    const pillRow = (items, bg, fg) =>
+      `<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px">` +
+      items.map((s) => `<span style="display:inline-block;font-size:13px;padding:1px 8px;border-radius:8px;background:${bg};color:${fg};white-space:nowrap">${s}</span>`).join('') +
+      '</div>'
+    const isaHtml = parents.length
+      ? `<div style="margin-top:4px;color:#4a5b6e"><span style="font-size:12px;font-weight:700;text-transform:uppercase;color:#8794a5">is-a</span>` +
+        pillRow(parents, '#e7f0fb', '#2f6fb0') + '</div>'
+      : '<div style="margin-top:4px;color:#8794a5"><i>no is-a parents in graph</i></div>'
+    const synHtml = syn.length
+      ? `<div style="margin-top:6px;color:#4a5b6e"><span style="font-size:12px;font-weight:700;text-transform:uppercase;color:#8794a5">Synonym${syn.length > 1 ? 's' : ''}</span>` +
+        pillRow(syn.map((x) => this.#esc(x)), '#eef2f7', '#5a6b82') + '</div>'
+      : ''
     // "Example of usage" sentences. Cap the number shown so a class with many
     // examples doesn't produce a runaway tooltip; note how many more there are.
     const ex = this.#effExamples(n)
     const EX_SHOWN = 3
     const exHtml = ex.length
-      ? `<div style="margin-top:6px;color:#4a5b6e"><span style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8794a5">Example${ex.length > 1 ? 's' : ''}</span>` +
+      ? `<div style="margin-top:6px;color:#4a5b6e"><span style="font-size:12px;font-weight:700;text-transform:uppercase;color:#8794a5">Example${ex.length > 1 ? 's' : ''}</span>` +
         ex.slice(0, EX_SHOWN).map((x) => `<div style="margin-top:2px;color:#5a6b82">&ldquo;${this.#esc(x)}&rdquo;</div>`).join('') +
-        (ex.length > EX_SHOWN ? `<div style="margin-top:2px;font-size:11px;color:#8794a5">+${ex.length - EX_SHOWN} more</div>` : '') +
+        (ex.length > EX_SHOWN ? `<div style="margin-top:2px;font-size:13px;color:#8794a5">+${ex.length - EX_SHOWN} more</div>` : '') +
         '</div>'
       : ''
     tip.innerHTML = `<b style="color:#1b2a3a">${this.#esc(label)}</b>${pill}${srcTag}` +
-      `<div style="margin-top:4px;color:#4a5b6e">${parents.length ? ('is-a &rarr; ' + parents.join(', ')) : '<i>no is-a parents in graph</i>'}</div>` +
-      (syn.length ? `<div style="margin-top:6px;color:#4a5b6e"><span style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8794a5">Synonym${syn.length > 1 ? 's' : ''}</span> ${syn.map((x) => this.#esc(x)).join(', ')}</div>` : '') +
       (def ? `<div style="margin-top:5px;color:#6a7787;font-style:italic">${this.#esc(def)}</div>` : '') +
+      isaHtml +
+      synHtml +
       exHtml
     tip.style.display = 'block'
     this.#positionTip(ev.clientX, ev.clientY)
@@ -1533,7 +1548,7 @@ export default class extends Controller {
     const tip = this.#ensureTip()
     tip.style.maxWidth = '570px' // reset — the option info tooltip narrows the shared tip
     const sid = shortId(propId)
-    const pill = sid ? ` <span style="display:inline-block;font-size:10.5px;font-weight:600;padding:1px 6px;margin-left:5px;border-radius:8px;background:#eef2f7;color:#5a6b82;vertical-align:middle">${this.#esc(sid)}</span>` : ''
+    const pill = sid ? ` <span style="display:inline-block;font-size:12px;font-weight:600;padding:1px 7px;margin-left:5px;border-radius:8px;background:#eef2f7;color:#5a6b82;vertical-align:middle">${this.#esc(sid)}</span>` : ''
     tip.innerHTML = `<span style="color:#2f6fb0;font-weight:600">${this.#esc(property)}</span>${pill}`
     tip.style.display = 'block'
     this.#positionTip(ev.clientX, ev.clientY)
