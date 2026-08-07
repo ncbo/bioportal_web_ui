@@ -482,6 +482,50 @@ div.synonym-change-request button {
       stroke-width: 1.5;
       vector-effect: non-scaling-stroke;
     }
+
+    // Collapse/expand control, top-left corner of the thumbnail. Kept on the left
+    // so it doesn't sit under the floating chrome toolbar at the canvas's right edge.
+    &-toggle {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      z-index: 1;
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #cfd8e2;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #55627a;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+
+      &:hover { background: #eef3f8; color: #28374a; }
+    }
+
+    // "Map" pill shown only when collapsed.
+    &-label {
+      display: none;
+      padding: 4px 10px;
+      font: 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #55627a;
+      user-select: none;
+    }
+
+    &--collapsed {
+      cursor: pointer;
+
+      .entity-graph__minimap-svg,
+      .entity-graph__minimap-toggle { display: none; }
+
+      .entity-graph__minimap-label { display: block; }
+
+      &:hover { background: #eef3f8; }
+    }
   }
 
   // Minimap thumbnail: the snapshot is scaled to ~0.1x, so the real node/edge

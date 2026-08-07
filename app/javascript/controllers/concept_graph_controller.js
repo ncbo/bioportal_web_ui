@@ -1661,7 +1661,41 @@ export default class extends Controller {
     mmSvg.append(snap)
     const mmView = document.createElementNS(SVG, 'rect'); mmView.setAttribute('class', 'entity-graph__minimap-view')
     mmSvg.append(mmView)
-    mm.append(mmSvg); canvas.append(mm)
+    mm.append(mmSvg)
+
+    // Collapse/expand toggle. Collapsed, the minimap shrinks to a small labelled
+    // pill; expanded, it shows the thumbnail. The state persists in localStorage.
+    const mmToggle = document.createElement('button')
+    mmToggle.type = 'button'
+    mmToggle.className = 'entity-graph__minimap-toggle'
+    const mmLabel = document.createElement('span')
+    mmLabel.className = 'entity-graph__minimap-label'
+    mmLabel.textContent = 'Map'
+    mm.append(mmToggle, mmLabel)
+
+    const MM_COLLAPSED_KEY = 'entity-graph:minimap-collapsed'
+    const setCollapsed = (collapsed) => {
+      mm.classList.toggle('entity-graph__minimap--collapsed', collapsed)
+      mmToggle.textContent = collapsed ? '□' : '–'
+      mmToggle.title = collapsed ? 'Show map' : 'Hide map'
+      mmToggle.setAttribute('aria-label', mmToggle.title)
+    }
+    setCollapsed(this.#storageGet(MM_COLLAPSED_KEY) === '1')
+    mmToggle.addEventListener('pointerdown', (ev) => ev.stopPropagation())
+    mmToggle.addEventListener('click', (ev) => {
+      ev.stopPropagation()
+      const collapsed = !mm.classList.contains('entity-graph__minimap--collapsed')
+      setCollapsed(collapsed)
+      this.#storageSet(MM_COLLAPSED_KEY, collapsed ? '1' : '0')
+    })
+    // Clicking the collapsed pill anywhere expands it (not just the button).
+    mmLabel.addEventListener('pointerdown', (ev) => ev.stopPropagation())
+    mmLabel.addEventListener('click', (ev) => {
+      if (!mm.classList.contains('entity-graph__minimap--collapsed')) return
+      ev.stopPropagation(); setCollapsed(false); this.#storageSet(MM_COLLAPSED_KEY, '0')
+    })
+
+    canvas.append(mm)
     const updateMinimap = () => {
       const wx = (0 - tx) / k + world.x; const wy = (0 - ty) / k + world.y
       mmView.setAttribute('x', wx); mmView.setAttribute('y', wy)
@@ -1673,7 +1707,8 @@ export default class extends Controller {
       tx = winW / 2 - (wx - world.x) * k; ty = winH / 2 - (wy - world.y) * k; userZoomed = true; clampPan(); apply()
     }
     let mmDown = false
-    mm.addEventListener('pointerdown', (ev) => { mmDown = true; mm.setPointerCapture(ev.pointerId); mmGoto(ev); ev.stopPropagation() })
+    const mmCollapsed = () => mm.classList.contains('entity-graph__minimap--collapsed')
+    mm.addEventListener('pointerdown', (ev) => { if (mmCollapsed()) return; mmDown = true; mm.setPointerCapture(ev.pointerId); mmGoto(ev); ev.stopPropagation() })
     mm.addEventListener('pointermove', (ev) => { if (mmDown) mmGoto(ev) })
     mm.addEventListener('pointerup', (ev) => { mmDown = false; try { mm.releasePointerCapture(ev.pointerId) } catch (_) {} })
     if (world.w <= winW + 1 && world.h <= winH + 1) mm.style.display = 'none'
