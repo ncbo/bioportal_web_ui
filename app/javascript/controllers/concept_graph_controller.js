@@ -37,6 +37,17 @@ export default class extends Controller {
     // stale Escape/keydown handlers accumulating across re-renders or frame swaps.
     this._ac = new AbortController()
 
+    // Render-independent listeners on the STABLE canvas/document — wired once here
+    // (bound to the abort signal) rather than in #render, which runs on every
+    // settings/filter change and would otherwise stack duplicates on the canvas.
+    this.canvasTarget.tabIndex = -1
+    this.canvasTarget.addEventListener('keydown', (ev) => {
+      // F fits the current selection; panel-scoped via canvas focus.
+      if (ev.key === 'f' || ev.key === 'F') { ev.preventDefault(); this.#fitToSelection() }
+    }, { signal: this._ac.signal })
+    this.canvasTarget.addEventListener('pointerenter', () => this.canvasTarget.focus({ preventScroll: true }), { signal: this._ac.signal })
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') this.#clearSelection() }, { signal: this._ac.signal })
+
     // The graph frame's content is now in the DOM and #render() below draws
     // synchronously within this connect(), so the browser won't repaint until we
     // return — safe to lift the class-select loading veil here. This clears the
@@ -451,11 +462,11 @@ export default class extends Controller {
   // Settings and filters persist in localStorage so they survive reloads and new
   // sessions (previously sessionStorage, which was cleared on tab close).
   #storageGet (key) {
-    try { return window.localStorage.getItem(key) } catch (_) { return null }
+    try { return window.localStorage.getItem(key) } catch { return null }
   }
 
   #storageSet (key, value) {
-    try { window.localStorage.setItem(key, value) } catch (_) { /* storage unavailable */ }
+    try { window.localStorage.setItem(key, value) } catch { /* storage unavailable */ }
   }
 
   // Display options are ontology-independent, so they share one global key.
@@ -465,7 +476,7 @@ export default class extends Controller {
     try {
       const raw = this.#storageGet(this.#optsKey())
       if (raw) return JSON.parse(raw)
-    } catch (_) { /* bad JSON — fall back to defaults */ }
+    } catch { /* bad JSON — fall back to defaults */ }
     return {}
   }
 
@@ -483,7 +494,7 @@ export default class extends Controller {
     try {
       const raw = this.#storageGet(this.#hiddenPropsKey())
       if (raw) return new Set(JSON.parse(raw))
-    } catch (_) { /* bad JSON — start empty */ }
+    } catch { /* bad JSON — start empty */ }
     return new Set()
   }
 
@@ -501,7 +512,7 @@ export default class extends Controller {
     try {
       const raw = this.#storageGet(this.#hiddenNodesKey())
       if (raw) return new Set(JSON.parse(raw))
-    } catch (_) { /* bad JSON — start empty */ }
+    } catch { /* bad JSON — start empty */ }
     return new Set()
   }
 
@@ -816,14 +827,14 @@ export default class extends Controller {
     // console and reloading (or set window.__egDebugDummies=true for the current
     // render). Picked up on the natural initial render so there's no re-render.
     let debugDummies = typeof window !== 'undefined' && !!window.__egDebugDummies
-    try { debugDummies = debugDummies || window.localStorage.getItem('entity-graph:debug-dummies') === '1' } catch (_) { /* storage off */ }
+    try { debugDummies = debugDummies || window.localStorage.getItem('entity-graph:debug-dummies') === '1' } catch { /* storage off */ }
     // Dummy-node routing is OFF by default: an A/B on heart/urinary bladder showed it
     // gives little and inconsistent crossing benefit (heart 20=20, bladder 2 vs 4)
     // while long edges route just as well as plain curves and the graph reads cleaner
     // and more compact. The machinery is kept behind this opt-in flag for experiments:
     // localStorage 'entity-graph:dummies'='1' (or window.__egDummies) re-enables it.
     let dummiesOn = typeof window !== 'undefined' && !!window.__egDummies
-    try { dummiesOn = dummiesOn || window.localStorage.getItem('entity-graph:dummies') === '1' } catch (_) { /* storage off */ }
+    try { dummiesOn = dummiesOn || window.localStorage.getItem('entity-graph:dummies') === '1' } catch { /* storage off */ }
     const L = computeLayout(this.#visibleGraph(), { ...this.opts, nodeH, debugDummies, noDummies: !dummiesOn })
     this._layout = L
     const N = (id) => L.nodes.get(id)
@@ -890,7 +901,7 @@ export default class extends Controller {
       const routed = (curved && e.waypoints && e.waypoints.length)
         ? waypointPath(a, b, e.waypoints, nodeH)
         : (curved ? routePath(a, b, obstacles, laneReg, nodeH) : curvedIsaPath(a, b, nodeH, attX))
-      const { d, mid, seg } = routed
+      const { d, mid } = routed
       const p = document.createElementNS(SVG, 'path')
       p.setAttribute('class', 'entity-graph__edge entity-graph__edge--' + (isa ? 'is-a' : 'rel') + (toColl ? ' entity-graph__edge--to-collector' : ''))
       p.setAttribute('d', d)
@@ -1103,7 +1114,7 @@ export default class extends Controller {
         x0 = Math.floor(Math.min(0, bb.x) - PAD); y0 = Math.floor(Math.min(0, bb.y) - PAD)
         x1 = Math.ceil(Math.max(L.width, bb.x + bb.width) + PAD); y1 = Math.ceil(Math.max(L.height, bb.y + bb.height) + PAD)
       }
-    } catch (_) { /* getBBox throws if not laid out; keep the layout-dim fallback */ }
+    } catch { /* getBBox throws if not laid out; keep the layout-dim fallback */ }
     return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }
   }
 
@@ -1165,17 +1176,8 @@ export default class extends Controller {
         this.#hideTip()
       })
     })
-    // F fits the current selection; keep it panel-scoped via canvas focus
-    this.canvasTarget.tabIndex = -1
-    this.canvasTarget.addEventListener('keydown', (ev) => {
-      if (ev.key === 'f' || ev.key === 'F') { ev.preventDefault(); this.#fitToSelection() }
-    })
-    this.canvasTarget.addEventListener('pointerenter', () => this.canvasTarget.focus({ preventScroll: true }))
-    // #wireNodeInteractions runs on every #render; remove the previous handler
-    // before re-adding so re-renders don't stack duplicate document listeners.
-    if (this._escHandler) document.removeEventListener('keydown', this._escHandler)
-    this._escHandler = (ev) => { if (ev.key === 'Escape') this.#clearSelection() }
-    document.addEventListener('keydown', this._escHandler, { signal: this._ac.signal })
+    // The canvas/document keydown+pointerenter listeners are wired once in connect()
+    // (they're render-independent), so nothing to add per-render here.
   }
 
   #wireBackground (svg) {
@@ -1417,7 +1419,7 @@ export default class extends Controller {
   #copyText (text) {
     const done = () => this.#toast('Copied ' + text)
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(done, done)
-    else { const ta = document.createElement('textarea'); ta.value = text; document.body.append(ta); ta.select(); try { document.execCommand('copy') } catch (_) {} ta.remove(); done() }
+    else { const ta = document.createElement('textarea'); ta.value = text; document.body.append(ta); ta.select(); try { document.execCommand('copy') } catch {} ta.remove(); done() }
   }
 
   #toast (msg) {
