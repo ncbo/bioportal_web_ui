@@ -103,7 +103,7 @@ export function createZoom ({ svg, vp, world, canvas, storageGet, storageSet }) 
     lastX = ev.clientX; lastY = ev.clientY
     tx += dx; ty += dy; clampPan(); apply()
   })
-  const endDrag = (ev) => { if (!dragging) return; dragging = false; canvas.classList.remove('entity-graph__canvas--panning'); try { svg.releasePointerCapture(ev.pointerId) } catch (_) {} }
+  const endDrag = (ev) => { if (!dragging) return; dragging = false; canvas.classList.remove('entity-graph__canvas--panning'); try { svg.releasePointerCapture(ev.pointerId) } catch {} }
   svg.addEventListener('pointerup', endDrag)
   svg.addEventListener('pointercancel', endDrag)
   svg.addEventListener('click', (ev) => { if (moved) { ev.stopPropagation(); moved = false } }, true)
@@ -183,7 +183,7 @@ export function createZoom ({ svg, vp, world, canvas, storageGet, storageSet }) 
   const mmCollapsed = () => mm.classList.contains('entity-graph__minimap--collapsed')
   mm.addEventListener('pointerdown', (ev) => { if (mmCollapsed()) return; mmDown = true; mm.setPointerCapture(ev.pointerId); mmGoto(ev); ev.stopPropagation() })
   mm.addEventListener('pointermove', (ev) => { if (mmDown) mmGoto(ev) })
-  mm.addEventListener('pointerup', (ev) => { mmDown = false; try { mm.releasePointerCapture(ev.pointerId) } catch (_) {} })
+  mm.addEventListener('pointerup', (ev) => { mmDown = false; try { mm.releasePointerCapture(ev.pointerId) } catch {} })
   if (world.w <= winW + 1 && world.h <= winH + 1) mm.style.display = 'none'
 
   // reflow on canvas resize (until the user takes control) — the pane is often

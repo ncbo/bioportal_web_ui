@@ -119,7 +119,7 @@ export async function copySvg ({ svg, world, name, toast }) {
       return
     }
     if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(out.svgString); toast('Copied graph (SVG)'); return }
-  } catch (_) { /* fall through to download */ }
+  } catch { /* fall through to download */ }
   download(blob, name + '.svg', 'Downloaded graph (SVG)', toast)
 }
 
@@ -128,7 +128,7 @@ export async function copyPng ({ svg, world, name, toast }) {
   let blob
   try {
     blob = await svgToPngBlob(out)
-  } catch (_) {
+  } catch {
     // couldn't rasterise — fall back to an SVG download
     download(new Blob([out.svgString], { type: 'image/svg+xml' }), name + '.svg', 'Downloaded graph (SVG)', toast)
     return
@@ -140,6 +140,6 @@ export async function copyPng ({ svg, world, name, toast }) {
       toast('Copied graph (PNG)')
       return
     }
-  } catch (_) { /* clipboard blocked — download instead */ }
+  } catch { /* clipboard blocked — download instead */ }
   download(blob, name + '.png', 'Downloaded graph (PNG)', toast)
 }
