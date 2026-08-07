@@ -1577,10 +1577,13 @@ export default class extends Controller {
     // examples doesn't produce a runaway tooltip; note how many more there are.
     const ex = this.#effExamples(n)
     const EX_SHOWN = 3
+    // Each example is set off with a soft left rule (blockquote-style) rather than
+    // quote marks, so it reads clearly as sample text and stays distinct from the
+    // italic definition above.
     const exHtml = ex.length
       ? `<div style="margin-top:6px;color:#4a5b6e"><span style="font-size:12px;font-weight:700;text-transform:uppercase;color:#8794a5">Example${ex.length > 1 ? 's' : ''}</span>` +
-        ex.slice(0, EX_SHOWN).map((x) => `<div style="margin-top:2px;color:#5a6b82">&ldquo;${this.#esc(x)}&rdquo;</div>`).join('') +
-        (ex.length > EX_SHOWN ? `<div style="margin-top:2px;font-size:13px;color:#8794a5">+${ex.length - EX_SHOWN} more</div>` : '') +
+        ex.slice(0, EX_SHOWN).map((x) => `<div style="margin-top:3px;padding-left:9px;border-left:2px solid #cbd6e4;color:#5a6b82">${this.#esc(x)}</div>`).join('') +
+        (ex.length > EX_SHOWN ? `<div style="margin-top:3px;font-size:13px;color:#8794a5">+${ex.length - EX_SHOWN} more</div>` : '') +
         '</div>'
       : ''
     // Each section is gated by its Tooltip display option (all on by default).
