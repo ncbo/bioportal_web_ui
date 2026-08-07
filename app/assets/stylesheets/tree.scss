@@ -18,9 +18,11 @@
    rotate the chevron straight away and pulse it to signal "loading". (The
    clickable chevron sits in a plain <turbo_frame> custom element that Turbo
    never marks [busy], so this can't be keyed off [busy] in CSS — hence the
-   controller-set class.) */
-li.tree-expanding > turbo_frame[id$="_open_link"] .tree-chevron,
-li.tree-expanding > turbo-frame[id$="_open_link"] .tree-chevron {
+   controller-set class.) The chevron's frame lives inside the node's .tree-row
+   (which wraps the chevron and label for hanging-indent wrapping), so match
+   through the row rather than as a direct child of the <li>. */
+li.tree-expanding > .tree-row > turbo_frame[id$="_open_link"] .tree-chevron,
+li.tree-expanding > .tree-row > turbo-frame[id$="_open_link"] .tree-chevron {
   transform: rotate(90deg);
   animation: tree-chevron-pulse 0.7s ease-in-out infinite;
 }
@@ -68,8 +70,8 @@ li.tree-expanding > turbo-frame[id$="_open_link"] .tree-chevron {
 
 @media (prefers-reduced-motion: reduce) {
   .tree-chevron,
-  li.tree-expanding > turbo_frame[id$="_open_link"] .tree-chevron,
-  li.tree-expanding > turbo-frame[id$="_open_link"] .tree-chevron,
+  li.tree-expanding > .tree-row > turbo_frame[id$="_open_link"] .tree-chevron,
+  li.tree-expanding > .tree-row > turbo-frame[id$="_open_link"] .tree-chevron,
   .simpleTree turbo-frame > ul.tree-border-left {
     transition: none;
     animation: none;
