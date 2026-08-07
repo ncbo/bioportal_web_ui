@@ -27,6 +27,14 @@ const REL_SIB_GAP = 96
 // Extra gutter between two adjacent same-rank nodes that descend from DIFFERENT
 // is-a parents (cousins), so distinct sibling groups read as separate clusters.
 const COUSIN_GAP = SIB_GAP + 62
+// Gutter for same-rank neighbours that neither the cousin nor relationship rules
+// widen because they've been orphaned (no visible is-a parent — typically after
+// hiding the upper ontology). Without this they collapse to the bare SIB_GAP.
+const ORPHAN_GAP = SIB_GAP + 46
+// Gutter for a same-rank pair joined DIRECTLY by an is-a edge (a parent sitting
+// beside its own child, e.g. when hiding the upper ontology drops the parent onto
+// the child's row). Wider than ORPHAN_GAP so the is-a arrow has room to route.
+const ISA_SIB_GAP = SIB_GAP + 70
 // Effective width a dummy waypoint reserves in its rank row. A long edge is routed
 // through a chain of these; giving them real width makes the gap-constrained
 // x-relaxation push neighbouring nodes ASIDE, opening a visible vertical corridor
@@ -389,6 +397,19 @@ export function computeLayout (graph, opts = {}) {
   })
   const relConnected = (a, b) => relNbr.has(a) && relNbr.get(a).has(b)
 
+  // is-a-neighbour sets (both directions) — used to widen the gap when a direct
+  // parent/child pair ends up side by side on the same rank (which happens when
+  // hiding the upper ontology orphans the parent onto its child's row). The is-a
+  // arrow has to route in that gap, so it needs real room.
+  const isaNbr = new Map()
+  graph.edges.forEach((e) => {
+    if (e.kind === 'is-a' && nodes.has(e.from) && nodes.has(e.to)) {
+      ;(isaNbr.get(e.from) || isaNbr.set(e.from, new Set()).get(e.from)).add(e.to)
+      ;(isaNbr.get(e.to) || isaNbr.set(e.to, new Set()).get(e.to)).add(e.from)
+    }
+  })
+  const isaConnected = (a, b) => isaNbr.has(a) && isaNbr.get(a).has(b)
+
   // ---- inputs for ADAPTIVE sibling spacing --------------------------------
   // (1) label between siblings: the widest relationship label joining a<->b, so
   //     the gap can fit the text instead of clipping it.
@@ -442,6 +463,14 @@ export function computeLayout (graph, opts = {}) {
     //     don't visually merge. Only when both actually have a (different) parent —
     //     roots and cross-parent relationship pairs are left to their own rules above.
     if (pa && pb && pa !== pb) extra = Math.max(extra, COUSIN_GAP)
+    // (B) a,b are a direct is-a pair sitting on the same rank (a parent beside its
+    //     own child — happens when hiding the upper ontology drops the parent onto
+    //     the child's row). The is-a arrow routes in the gap, so give it real room.
+    if (isaConnected(a.id, b.id)) extra = Math.max(extra, ISA_SIB_GAP - SIB_GAP)
+    // (A) both orphaned — neither has a visible is-a parent, so the cousin and
+    //     fan-out rules above never fired and they'd collapse to the bare SIB_GAP.
+    //     Give a modest gutter so orphaned neighbours don't crowd together.
+    else if (!pa && !pb) extra = Math.max(extra, ORPHAN_GAP - SIB_GAP)
     return base + extra
   }
 
