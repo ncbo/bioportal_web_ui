@@ -162,7 +162,7 @@ en:
     notes: Notes
     details: Details
     visualization: Visualization
-    entity_graph: Entity Graph
+    entity_graph: Graph
     mappings: Mappings
     permanent_link_class: Get a permanent link to this class
     api_link_class: Go to class API

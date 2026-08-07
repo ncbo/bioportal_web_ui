@@ -28,7 +28,7 @@
         -# not on every class select while you're on Details/etc. A turbo-frame with
         -# a bare src fetches eagerly on insertion even inside a hidden pane, which
         -# was silently building the graph for views that never showed it.
-        - tab_item_component(container_tabs: c, id: 'concept-graph', title: t('concepts.entity_graph', default: 'Entity Graph'), path: '#graph') do
+        - tab_item_component(container_tabs: c, id: 'concept-graph', title: t('concepts.entity_graph', default: 'Graph'), path: '#graph') do
           = render TurboFrameComponent.new(id: 'concept_entity_graph', loading: 'lazy',
           src: "/ajax/entity_graph?ontologyid=#{@ontology.acronym}&conceptid=#{CGI.escape(@concept.id)}")
 
