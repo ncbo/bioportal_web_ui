@@ -34,8 +34,10 @@
         -# a bare src fetches eagerly on insertion even inside a hidden pane, which
         -# was silently building the graph for views that never showed it.
         - tab_item_component(container_tabs: c, id: 'concept-graph', title: t('concepts.entity_graph', default: 'Graph'), path: '#graph', selected: selected_concept_view?('concept-graph')) do
+          -# Pass the active language so the graph's labels/tooltips (and its cache
+          -# key) match the class page's language on multilingual ontologies.
           = render TurboFrameComponent.new(id: 'concept_entity_graph', loading: 'lazy',
-          src: "/ajax/entity_graph?ontologyid=#{@ontology.acronym}&conceptid=#{CGI.escape(@concept.id)}")
+          src: "/ajax/entity_graph?ontologyid=#{@ontology.acronym}&conceptid=#{CGI.escape(@concept.id)}&language=#{CGI.escape(request_lang.to_s)}")
 
 
         -# Notes are loaded lazily, like Mappings: the turbo-frame's `loading: lazy`
