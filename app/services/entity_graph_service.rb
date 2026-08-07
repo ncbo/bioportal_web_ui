@@ -20,6 +20,12 @@ class EntityGraphService < ApplicationService
   # Relationship property labels to omit from the graph (noisy cross-cutting links
   # that pull in large unrelated cones, e.g. the taxonomic lineage).
   EXCLUDED_RELATIONS = ['in taxon'].freeze
+  # Max relationship fillers to pull from a SINGLE property on a SINGLE class. Some
+  # properties are high-cardinality (e.g. MeSH's allowable-qualifier relations, which
+  # can list 30+ fillers per heading); each filler is a separate class fetch, so
+  # without a cap a handful of such classes makes the graph build hang past the
+  # request timeout. A capped property is flagged so the client can note it.
+  MAX_FILLERS_PER_PROPERTY = 12
   # Annotation property carrying "example of usage" (IAO:0000112). Shown in the
   # node hover popup when present.
   EXAMPLE_PROPERTY = 'http://purl.obolibrary.org/obo/IAO_0000112'
@@ -340,9 +346,14 @@ class EntityGraphService < ApplicationService
       next if EXCLUDED_RELATIONS.include?(object_props[prop_iri].to_s.strip.downcase)
       next if prop_iri.end_with?('RO_0002162') # in taxon
 
-      Array(values).each do |value|
+      # Only http-valued fillers are classes; cap how many we fetch per property so a
+      # high-cardinality relation on one class can't fan out into dozens of sequential
+      # class fetches (the MeSH allowable-qualifier case that hung the endpoint).
+      http_values = Array(values).select do |value|
+        (value.respond_to?(:id) ? value.id.to_s : value.to_s).start_with?('http')
+      end
+      http_values.first(MAX_FILLERS_PER_PROPERTY).each do |value|
         filler = value.respond_to?(:id) ? value.id.to_s : value.to_s
-        next unless filler.start_with?('http')
 
         filler_cls = entity_graph_filler_class(ontology, filler)
         rels << {
