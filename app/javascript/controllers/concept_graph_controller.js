@@ -55,6 +55,11 @@ export default class extends Controller {
       transitiveReduction: true,
       showPills: false,
       showAcronym: true,
+      // Tooltip content — all on by default.
+      tipDefinition: true,
+      tipIsa: true,
+      tipSynonyms: true,
+      tipExamples: true,
       ...this.#loadOpts()
     }
     // relationship properties toggled OFF (by property key); is-a is never hidden here.
@@ -497,7 +502,10 @@ export default class extends Controller {
     // Each option gets a label, and an info (i) icon whose tooltip explains what it
     // does. `target` lets a section (e.g. the upper-ontology group) collect its own
     // rows instead of appending to the top-level popover.
-    const addCheckbox = (key, text, help, target = pop) => {
+    // `rerender` is true for options that change the drawn graph; tooltip-content
+    // options leave it false, since the tooltip is rebuilt on each hover and a full
+    // re-render would be wasteful (and would clear any active highlight).
+    const addCheckbox = (key, text, help, target = pop, rerender = true) => {
       const label = document.createElement('label')
       label.className = 'entity-graph__option'
       const cb = document.createElement('input')
@@ -510,7 +518,7 @@ export default class extends Controller {
         if (key === 'showAcronym' && cb.checked) { this.opts.showPills = false; cbByKey.showPills.checked = false }
         this.#saveOpts()
         this.#refreshGearBadge()
-        this.#render()
+        if (rerender) this.#render()
       })
       const name = document.createElement('span'); name.className = 'entity-graph__option-name'; name.textContent = text
       label.append(cb, name, this.#infoIcon(help))
@@ -529,6 +537,21 @@ export default class extends Controller {
       'Show each class’s short identifier (e.g. GO:0005634) as a chip inside its box.')
     addCheckbox('showAcronym', 'Show ontology acronym',
       'Tag each node with its source ontology’s acronym (e.g. UBERON, PATO).')
+
+    // Tooltip section — which parts of the hover popup to show. These don't redraw
+    // the graph (the tooltip is rebuilt on each hover), so they pass rerender=false.
+    {
+      const section = document.createElement('div'); section.className = 'entity-graph__option-section'
+      const heading = document.createElement('div'); heading.className = 'entity-graph__option-section-title'
+      heading.append(document.createTextNode('Tooltip'),
+        this.#infoIcon('Choose what the hover popup shows for a class. The name and short id are always shown.'))
+      section.append(heading)
+      addCheckbox('tipDefinition', 'Definition', 'Show the class definition in the tooltip.', section, false)
+      addCheckbox('tipIsa', 'is-a parents', 'Show the class’s direct is-a parents in the tooltip.', section, false)
+      addCheckbox('tipSynonyms', 'Synonyms', 'Show the class’s synonyms in the tooltip.', section, false)
+      addCheckbox('tipExamples', 'Examples of usage', 'Show the class’s “example of usage” sentences in the tooltip.', section, false)
+      pop.append(section)
+    }
 
     // Upper-ontology controls only make sense when the graph actually references
     // BFO/COB terms — otherwise Show/Fade/Hide and "authoritative info" are no-ops.
@@ -1532,11 +1555,13 @@ export default class extends Controller {
         (ex.length > EX_SHOWN ? `<div style="margin-top:2px;font-size:13px;color:#8794a5">+${ex.length - EX_SHOWN} more</div>` : '') +
         '</div>'
       : ''
+    // Each section is gated by its Tooltip display option (all on by default).
+    const o = this.opts
     tip.innerHTML = `<b style="color:#1b2a3a">${this.#esc(label)}</b>${pill}${srcTag}` +
-      (def ? `<div style="margin-top:5px;color:#6a7787;font-style:italic">${this.#esc(def)}</div>` : '') +
-      isaHtml +
-      synHtml +
-      exHtml
+      ((o.tipDefinition && def) ? `<div style="margin-top:5px;color:#6a7787;font-style:italic">${this.#esc(def)}</div>` : '') +
+      (o.tipIsa ? isaHtml : '') +
+      (o.tipSynonyms ? synHtml : '') +
+      (o.tipExamples ? exHtml : '')
     tip.style.display = 'block'
     this.#positionTip(ev.clientX, ev.clientY)
   }
