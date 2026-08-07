@@ -101,11 +101,29 @@ export default class extends Controller {
 
   #boot () {
     this.#render()
+    this.#showTruncatedNotice()
     if (!this._resizeObserver && 'ResizeObserver' in window) {
       // re-fit while the pane settles / becomes visible, until the user zooms
       this._resizeObserver = new ResizeObserver(() => this._zoomApi && this._zoomApi.reflow())
       this._resizeObserver.observe(this.canvasTarget)
     }
+  }
+
+  // The service caps ancestor walking at MAX_NODES and flags the graph
+  // `truncated` when it hits that cap. Without a notice the user can't tell the
+  // graph is incomplete, so surface a dismissable banner when it is.
+  #showTruncatedNotice () {
+    if (!this.graph || !this.graph.truncated) return
+    if (this.canvasTarget.querySelector('.entity-graph__truncated')) return
+    const bar = document.createElement('div')
+    bar.className = 'entity-graph__truncated'
+    bar.innerHTML =
+      '<span>This graph is large and has been truncated — some ancestors are not shown.</span>' +
+      '<button type="button" class="entity-graph__truncated-close" aria-label="Dismiss">×</button>'
+    bar.querySelector('.entity-graph__truncated-close').addEventListener('click', (ev) => {
+      ev.stopPropagation(); bar.remove()
+    })
+    this.canvasTarget.append(bar)
   }
 
   #effNodeH () {
@@ -1489,10 +1507,21 @@ export default class extends Controller {
     const syn = this.#effSynonyms(n)
     const src = (this.opts.useUpperInfo && n.upper && (n.upper.definition || n.upper.label)) ? n.upper.source : ''
     const srcTag = src ? ` <span style="font-size:10px;font-weight:600;color:#1c7a63;background:#dff3ee;border:1px solid #a9ddd0;border-radius:8px;padding:1px 6px;margin-left:4px;vertical-align:middle">from ${this.#esc(src)}</span>` : ''
+    // "Example of usage" sentences. Cap the number shown so a class with many
+    // examples doesn't produce a runaway tooltip; note how many more there are.
+    const ex = this.#effExamples(n)
+    const EX_SHOWN = 3
+    const exHtml = ex.length
+      ? `<div style="margin-top:6px;color:#4a5b6e"><span style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8794a5">Example${ex.length > 1 ? 's' : ''}</span>` +
+        ex.slice(0, EX_SHOWN).map((x) => `<div style="margin-top:2px;color:#5a6b82">&ldquo;${this.#esc(x)}&rdquo;</div>`).join('') +
+        (ex.length > EX_SHOWN ? `<div style="margin-top:2px;font-size:11px;color:#8794a5">+${ex.length - EX_SHOWN} more</div>` : '') +
+        '</div>'
+      : ''
     tip.innerHTML = `<b style="color:#1b2a3a">${this.#esc(label)}</b>${pill}${srcTag}` +
       `<div style="margin-top:4px;color:#4a5b6e">${parents.length ? ('is-a &rarr; ' + parents.join(', ')) : '<i>no is-a parents in graph</i>'}</div>` +
       (syn.length ? `<div style="margin-top:6px;color:#4a5b6e"><span style="font-size:10px;font-weight:700;text-transform:uppercase;color:#8794a5">Synonym${syn.length > 1 ? 's' : ''}</span> ${syn.map((x) => this.#esc(x)).join(', ')}</div>` : '') +
-      (def ? `<div style="margin-top:5px;color:#6a7787;font-style:italic">${this.#esc(def)}</div>` : '')
+      (def ? `<div style="margin-top:5px;color:#6a7787;font-style:italic">${this.#esc(def)}</div>` : '') +
+      exHtml
     tip.style.display = 'block'
     this.#positionTip(ev.clientX, ev.clientY)
   }
@@ -1531,6 +1560,13 @@ export default class extends Controller {
   #effSynonyms (n) {
     const s = (this.opts.useUpperInfo && n.upper && n.upper.synonyms && n.upper.synonyms.length) ? n.upper.synonyms : (n.synonyms || [])
     return Array.isArray(s) ? s.filter(Boolean) : []
+  }
+
+  // "Example of usage" (IAO:0000112) sentences, preferring the authoritative
+  // BFO/COB copy when that option is on, mirroring #effSynonyms.
+  #effExamples (n) {
+    const e = (this.opts.useUpperInfo && n.upper && n.upper.examples && n.upper.examples.length) ? n.upper.examples : (n.examples || [])
+    return Array.isArray(e) ? e.filter(Boolean) : []
   }
 
 
