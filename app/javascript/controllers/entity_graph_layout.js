@@ -942,7 +942,7 @@ export function computeLayout (graph, opts = {}) {
   // bounded well inside the row band so a node never drifts into a neighbouring
   // row. Dummy waypoints are left on their exact baseline — they anchor the routed
   // edge corridors, and jittering them would kink the long-edge curves.
-  const JITTER = Math.min(22, ROW_GAP * 0.38)
+  const JITTER = Math.min(36, ROW_GAP * 0.6)
   const yJitter = (id) => {
     let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0
     return ((h % 1000) / 1000) * 2 * JITTER - JITTER // deterministic in [-JITTER, +JITTER]
@@ -954,10 +954,23 @@ export function computeLayout (graph, opts = {}) {
   // node stays inside its band (never crosses into the row above).
   const UPPER_LIFT = Math.min(16, ROW_GAP * 0.28)
   const baseY = (n) => rowTop[n._depth] + NODE_H / 2
+  // Inversion guard: however large the jitter/lift, a node must never cross into a
+  // neighbouring row's territory (that would flip an is-a edge). Clamp each node's
+  // y to the band between the midpoint to the row above and the midpoint to the row
+  // below, so ranks never interleave and arrows always point up regardless of
+  // jitter strength.
+  const bandClampedY = (n, y) => {
+    const d = n._depth
+    const own = rowTop[d] + NODE_H / 2
+    const upMid = d > 0 ? (own + rowTop[d - 1] + NODE_H / 2) / 2 : own - JITTER - UPPER_LIFT - 1
+    const downMid = rowTop[d + 1] !== undefined ? (own + rowTop[d + 1] + NODE_H / 2) / 2 : own + JITTER + 1
+    return Math.max(upMid + 1, Math.min(downMid - 1, y))
+  }
   nodes.forEach((n) => {
     n.x = n._x + dx
-    const lift = (!n.isDummy && isUpperOnto(n.id)) ? -UPPER_LIFT : 0
-    n.y = baseY(n) + (n.isDummy ? 0 : yJitter(n.id)) + lift
+    if (n.isDummy) { n.y = baseY(n); return }
+    const lift = isUpperOnto(n.id) ? -UPPER_LIFT : 0
+    n.y = bandClampedY(n, baseY(n) + yJitter(n.id) + lift)
   })
   // Overlap guard: jitter is applied blind to horizontal neighbours, so two nodes
   // that are close in x can jitter vertically toward each other and collide. Pull
@@ -966,10 +979,29 @@ export function computeLayout (graph, opts = {}) {
   // passes; overlaps are few and small so this converges quickly. Guarantees no
   // node-node box overlap regardless of jitter strength.
   {
-    const VPAD = 6 // min vertical clearance between boxes
+    const VPAD = 6 // min vertical clearance between overlapping boxes
+    // A parent and its is-a child need enough vertical separation for the edge and
+    // its arrowhead to render legibly, so jitter can't squeeze them together.
+    const MIN_EDGE_GAP = NODE_H + 22 // centre-to-centre minimum for a parent/child pair
     const real = [...nodes.values()].filter((n) => !n.isDummy)
-    for (let pass = 0; pass < 6; pass++) {
+    // parent/child pairs over the visible is-a edges (up: child -> parent)
+    const isaPairs = []
+    nodes.forEach((child, id) => {
+      if (child.isDummy) return
+      for (const e of (up.get(id) || [])) {
+        if (e.kind !== 'is-a' || !nodes.has(e.to)) continue
+        const parent = nodes.get(e.to); if (!parent.isDummy) isaPairs.push({ parent, child })
+      }
+    })
+    for (let pass = 0; pass < 8; pass++) {
       let moved = false
+      // (1) parent/child minimum gap — push the child (always the lower one) down.
+      for (const { parent, child } of isaPairs) {
+        const gap = child.y - parent.y
+        if (gap >= MIN_EDGE_GAP) continue
+        child.y += (MIN_EDGE_GAP - gap); moved = true
+      }
+      // (2) box overlap — separate any horizontally-overlapping pair vertically.
       for (let i = 0; i < real.length; i++) {
         for (let j = i + 1; j < real.length; j++) {
           const a = real[i]; const b = real[j]
@@ -977,8 +1009,6 @@ export function computeLayout (graph, opts = {}) {
           if (ox <= 0) continue // no horizontal overlap → can't collide
           const need = NODE_H + VPAD - Math.abs(a.y - b.y)
           if (need <= 0) continue // enough vertical clearance
-          // push the one further from its baseline back toward it; if that isn't
-          // enough, split the remainder between them (away from each other).
           const hi = a.y < b.y ? a : b; const lo = a.y < b.y ? b : a
           const move = need / 2 + 0.5
           hi.y -= move; lo.y += move
