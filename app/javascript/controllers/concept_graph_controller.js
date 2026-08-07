@@ -846,13 +846,34 @@ export default class extends Controller {
     // (null when nothing is highlighted). There is no per-node/per-edge selection.
     this._sel = { traceId: null }
 
+    // Fan-out attach points: several is-a children entering the same parent used to
+    // converge on its bottom-centre and bunch into one thick doubled line. Spread
+    // each parent's incoming is-a edges across a band of its bottom edge — ordered
+    // by the child's x so lines don't cross — keyed "from|to" -> x-offset at parent.
+    const attachOffset = new Map()
+    {
+      const byParent = new Map()
+      L.treeEdges.forEach((e) => { if (e.kind === 'is-a') (byParent.get(e.to) || byParent.set(e.to, []).get(e.to)).push(e) })
+      byParent.forEach((kids, pid) => {
+        if (kids.length < 2) return // single child attaches at centre, no fan needed
+        const p = N(pid); if (!p) return
+        kids.sort((x, y) => (N(x.from)?.x || 0) - (N(y.from)?.x || 0))
+        const band = Math.min(p.width - 24, 26 * (kids.length - 1)) // stay inside the box
+        kids.forEach((e, i) => {
+          const t = kids.length === 1 ? 0.5 : i / (kids.length - 1)
+          attachOffset.set(e.from + '|' + e.to, (t - 0.5) * band)
+        })
+      })
+    }
+
     const drawEdge = (e, curved) => {
       const a = N(e.from); const b = N(e.to); if (!a || !b) return
       const isa = e.kind === 'is-a'
       const toColl = this.opts.fadeUpper && L.collector && L.collector.has(e.to)
+      const attX = attachOffset.get(e.from + '|' + e.to) || 0
       const routed = (curved && e.waypoints && e.waypoints.length)
         ? waypointPath(a, b, e.waypoints, nodeH)
-        : (curved ? routePath(a, b, obstacles, laneReg, nodeH) : curvedIsaPath(a, b, nodeH))
+        : (curved ? routePath(a, b, obstacles, laneReg, nodeH) : curvedIsaPath(a, b, nodeH, attX))
       const { d, mid, seg } = routed
       const p = document.createElementNS(SVG, 'path')
       p.setAttribute('class', 'entity-graph__edge entity-graph__edge--' + (isa ? 'is-a' : 'rel') + (toColl ? ' entity-graph__edge--to-collector' : ''))

@@ -1083,17 +1083,24 @@ export function straightPath (a, b, nodeH) {
 // parent/child edge stays nearly straight (no random wobble) while an offset one
 // eases into a smooth curve instead of a slanted line. Same return shape as
 // straightPath so callers (mid label, seg) are unaffected.
-export function curvedIsaPath (a, b, nodeH) {
-  const p1 = boundary(a, b.x, b.y, nodeH); const p2 = boundary(b, a.x, a.y, nodeH)
-  const dy = p2.y - p1.y
-  // control-point y at thirds of the span
-  const c1y = p1.y + dy / 3; const c2y = p1.y + 2 * dy / 3
-  // ease each control point toward the far endpoint's x, scaled down so the sway
-  // is subtle; also a small floor so a dead-vertical edge still gets a hair of curve.
-  const dx = p2.x - p1.x
-  const sway = Math.max(Math.abs(dx) * 0.5, 6) * Math.sign(dx || 1)
-  const c1x = p1.x + sway * 0.15
-  const c2x = p2.x - sway * 0.15
+export function curvedIsaPath (a, b, nodeH, attachDx = 0) {
+  const p1 = boundary(a, b.x, b.y, nodeH)
+  // Attach the target end at a fanned-out point along b's bottom edge (attachDx),
+  // so several children entering the same parent don't bunch at its centre.
+  const p2 = attachDx
+    ? { x: b.x + attachDx, y: b.y + (nodeH || NODE_H_BASE) / 2 }
+    : boundary(b, a.x, a.y, nodeH)
+  const dx = p2.x - p1.x; const dy = p2.y - p1.y
+  // Control points carry the edge's OWN direction into each endpoint tangent, so
+  // the arrowhead (orient="auto", which follows the end tangent) points ALONG the
+  // edge rather than snapping vertical. Each control point is offset from its
+  // endpoint by a fraction of the full (dx,dy) delta: this makes the p2-end tangent
+  // parallel to the chord, so a near-horizontal edge gets a near-horizontal arrow
+  // and a vertical one stays vertical. The vertical component is weighted a little
+  // higher than the horizontal to keep a gentle upright S rather than a flat line.
+  const K = 0.42 // how far along the delta the control points sit
+  const c1x = p1.x + dx * K; const c1y = p1.y + dy * (K + 0.08)
+  const c2x = p2.x - dx * K; const c2y = p2.y - dy * (K + 0.08)
   return {
     d: `M ${p1.x},${p1.y} C ${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`,
     mid: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 },
