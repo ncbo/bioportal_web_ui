@@ -4,6 +4,7 @@ import {
   isUpperOnto, shortId, ontoAcronym, measureText,
   NODE_H_BASE, PILL_H, PILL_PAD
 } from './entity_graph_layout'
+import { copyPng, copySvg, safeFileName } from './graph_export'
 
 const SVG = 'http://www.w3.org/2000/svg'
 
@@ -185,8 +186,8 @@ export default class extends Controller {
       return el
     }
     pop.append(
-      item('Copy as image (PNG)', () => this.#copyPng()),
-      item('Copy as SVG (vector)', () => this.#copySvg())
+      item('Copy as image (PNG)', () => copyPng(this.#exportCtx())),
+      item('Copy as SVG (vector)', () => copySvg(this.#exportCtx()))
     )
     holder.append(btn, pop)
     this.#wirePopover(holder, btn, pop)
@@ -1424,133 +1425,16 @@ export default class extends Controller {
 
   // --- graph export (copy PNG / SVG) ----------------------------------------
 
-  #safeName () {
-    const label = this.graph?.nodes?.find((n) => n.selected)?.label || 'entity-graph'
-    return String(label).replace(/[^\w-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 60) || 'entity-graph'
-  }
-
-  // Build a self-contained SVG string of the WHOLE graph: the live SVG cloned with
-  // the interaction-only layers removed, the viewport transform reset, the viewBox
-  // set to the full content bounds, and the entity-graph CSS inlined (so the copied
-  // image is styled even outside the page). Returns { svgString, width, height }.
-  #exportSvgString () {
+  // Context handed to the graph_export module: the live SVG, its content bounds,
+  // a safe filename, and the toast callback. Keeps export logic out of the controller.
+  #exportCtx () {
     const R = this._render
-    if (!R || !R.world) return null
-    const w = Math.round(R.world.w); const h = Math.round(R.world.h)
-    const clone = R.svg.cloneNode(true)
-    clone.setAttribute('xmlns', SVG)
-    clone.setAttribute('width', w)
-    clone.setAttribute('height', h)
-    clone.setAttribute('viewBox', `${R.world.x} ${R.world.y} ${w} ${h}`)
-    clone.removeAttribute('style')
-    // drop pointer-only layers: hit-areas and the (empty) hover overlay
-    clone.querySelectorAll('.entity-graph__edge-hit').forEach((el) => el.remove())
-    // reset the viewport transform so content sits at world coords (the viewBox frames it)
-    const vp = clone.querySelector('[data-viewport]')
-    if (vp) vp.removeAttribute('transform')
-    // white background so the PNG isn't transparent
-    const bg = document.createElementNS(SVG, 'rect')
-    bg.setAttribute('x', R.world.x); bg.setAttribute('y', R.world.y)
-    bg.setAttribute('width', w); bg.setAttribute('height', h); bg.setAttribute('fill', '#ffffff')
-    clone.insertBefore(bg, clone.firstChild.nextSibling) // after <defs>
-    // inline the entity-graph styles so the image renders standalone
-    const style = document.createElementNS(SVG, 'style')
-    style.textContent = this.#exportCss()
-    clone.insertBefore(style, clone.firstChild)
-    // No <?xml?> prolog — it's optional for SVG and makes some tools treat the file
-    // as generic XML (and name it .xml). The <svg> root + xmlns is enough.
-    const svgString = new XMLSerializer().serializeToString(clone)
-    return { svgString, width: w, height: h }
-  }
-
-  // The subset of entity-graph rules the exported SVG needs to look right, inlined
-  // (external stylesheets don't apply to a detached/rasterised SVG).
-  #exportCss () {
-    return `
-      .entity-graph__node-shape{fill:#fff;stroke:#234979;stroke-width:2px}
-      .entity-graph__node--selected .entity-graph__node-shape{fill:#234979;stroke:#234979}
-      .entity-graph__node-label{font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:13px;fill:#222}
-      .entity-graph__node--selected .entity-graph__node-label{fill:#fff;font-weight:600}
-      .entity-graph__node--collector .entity-graph__node-shape{stroke:#c3ccd8;stroke-width:1.2px}
-      .entity-graph__node--collector .entity-graph__node-label{fill:#9aa5b3}
-      .entity-graph__node-pill{fill:#eef2f7;stroke:#d3ddea}
-      .entity-graph__edge{fill:none;stroke-width:2.5px}
-      .entity-graph__edge--is-a{stroke:#f0a848}
-      .entity-graph__edge--rel{stroke:#2f6fed}
-      .entity-graph__edge--to-collector{stroke:#e6c79a;stroke-width:1.6px}
-      .entity-graph__edge-label{font-family:-apple-system,Helvetica,Arial,sans-serif;font-size:11px;fill:#1f4fb0}
-      .entity-graph__edge-label-bg{fill:#f3f6f7;opacity:.9}
-    `
-  }
-
-  async #copySvg () {
-    const out = this.#exportSvgString(); if (!out) return
-    const blob = new Blob([out.svgString], { type: 'image/svg+xml' })
-    try {
-      if (navigator.clipboard && window.ClipboardItem) {
-        // most apps paste SVG-as-text; provide both so text targets also work
-        await navigator.clipboard.write([new window.ClipboardItem({
-          'image/svg+xml': blob,
-          'text/plain': new Blob([out.svgString], { type: 'text/plain' })
-        })])
-        this.#toast('Copied graph (SVG)')
-        return
-      }
-      if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(out.svgString); this.#toast('Copied graph (SVG)'); return }
-    } catch (_) { /* fall through to download */ }
-    this.#download(blob, this.#safeName() + '.svg', 'Downloaded graph (SVG)')
-  }
-
-  async #copyPng () {
-    const out = this.#exportSvgString(); if (!out) return
-    let blob
-    try {
-      blob = await this.#svgToPngBlob(out)
-    } catch (_) {
-      // couldn't rasterise — fall back to an SVG download
-      this.#download(new Blob([out.svgString], { type: 'image/svg+xml' }), this.#safeName() + '.svg', 'Downloaded graph (SVG)')
-      return
+    return {
+      svg: R?.svg,
+      world: R?.world,
+      name: safeFileName(this.graph?.nodes?.find((n) => n.selected)?.label),
+      toast: (m) => this.#toast(m)
     }
-    // have a PNG: try the clipboard, and if that's unavailable/blocked, download it
-    try {
-      if (navigator.clipboard && window.ClipboardItem) {
-        await navigator.clipboard.write([new window.ClipboardItem({ 'image/png': blob })])
-        this.#toast('Copied graph (PNG)')
-        return
-      }
-    } catch (_) { /* clipboard blocked — download instead */ }
-    this.#download(blob, this.#safeName() + '.png', 'Downloaded graph (PNG)')
-  }
-
-  // Rasterise the export SVG to a PNG blob at 2x for crispness (capped so huge
-  // graphs don't blow past canvas limits).
-  #svgToPngBlob ({ svgString, width, height }) {
-    return new Promise((resolve, reject) => {
-      const scale = Math.min(2, 8000 / Math.max(width, height) || 2)
-      const url = URL.createObjectURL(new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' }))
-      const img = new Image()
-      img.onload = () => {
-        try {
-          const c = document.createElement('canvas')
-          c.width = Math.round(width * scale); c.height = Math.round(height * scale)
-          const ctx = c.getContext('2d')
-          ctx.drawImage(img, 0, 0, c.width, c.height)
-          URL.revokeObjectURL(url)
-          c.toBlob((b) => b ? resolve(b) : reject(new Error('toBlob failed')), 'image/png')
-        } catch (e) { URL.revokeObjectURL(url); reject(e) }
-      }
-      img.onerror = (e) => { URL.revokeObjectURL(url); reject(e) }
-      img.src = url
-    })
-  }
-
-  #download (blob, filename, toastMsg) {
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url; a.download = filename
-    document.body.append(a); a.click(); a.remove()
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
-    this.#toast(toastMsg)
   }
 
   // --- popup / tooltip ------------------------------------------------------
