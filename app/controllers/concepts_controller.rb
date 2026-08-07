@@ -27,8 +27,21 @@ class ConceptsController < ApplicationController
 
     concept_not_found(params[:id]) if @concept.nil?
     @current_purl = @concept.purl if Rails.configuration.settings.purl[:enabled]
-    @notes = @concept.explore.notes
     render partial: 'show'
+  end
+
+  # Notes list for a class, loaded lazily by the Notes tab's turbo-frame so the notes
+  # aren't fetched on every class select (only when the tab is opened). Renders the same
+  # partial the tab used to embed inline.
+  def notes_list
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontologyid]).first
+    ontology_not_found(params[:ontologyid]) if @ontology.nil?
+
+    @concept = @ontology.explore.single_class({ full: true, language: request_lang }, params[:conceptid])
+    concept_not_found(params[:conceptid]) if @concept.nil?
+
+    @notes = @concept.explore.notes
+    render 'concepts/notes_list', layout: false
   end
 
   def index

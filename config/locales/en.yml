@@ -284,6 +284,6 @@ en:
     index:
       message:
         html: >
-          We use cookies to enhance your experience: essential cookies for login and preferences, and optional 
-          analytics cookies to improve our site. Accepting cookies allows analytics tracking. Rejecting disables 
-          analytics. See "<a href="%{cookies}" target="_blank">use of cookies</a>" for more information.
+          %{site} uses cookies to keep you signed in, to remember your preferences, and to measure how
+          the site is used. Usage data helps us to rank search results and to recommend the ontologies most
+          relevant to your work. See "<a href="%{cookies}" target="_blank">use of cookies</a>" for details.

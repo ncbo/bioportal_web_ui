@@ -191,9 +191,36 @@ module OntologiesHelper
     end
   end
 
-  def ontology_object_tabs_component(ontology_id:, objects_title:, object_id:, &block)
+  # The tab ids of the inner concept views, in _show.html.haml order. The default
+  # (first) is used when the `view` param is missing or is not one of these — so a
+  # stale/typo'd/bogus value falls back to Details rather than leaving every tab
+  # deselected and the pane blank.
+  #
+  # These MUST stay in sync with the `id:` values of the tab_item_component calls in
+  # app/views/concepts/_show.html.haml. OntologiesHelperTest asserts that, so drift
+  # is caught by the test suite rather than shipping a silently-unselectable tab.
+  CONCEPT_VIEWS = %w[details visualization concept-notes concept-mappings].freeze
+
+  # Which inner concept view (Details / Visualization / Notes / Mappings) is active.
+  # Read from the `view` URL param so the selection survives a class change: the tree
+  # link reloads the concept_show frame, and without this the view always reset to
+  # Details (issue #533).
+  def current_concept_view
+    view = params[:view].presence
+    CONCEPT_VIEWS.include?(view) ? view : CONCEPT_VIEWS.first
+  end
+
+  def selected_concept_view?(view_id)
+    current_concept_view.eql?(view_id)
+  end
+
+  # url_parameter/merge_url_params default to leaving the URL alone; only the concept
+  # views opt in (see concepts/_show.html.haml).
+  def ontology_object_tabs_component(ontology_id:, objects_title:, object_id:,
+                                     url_parameter: nil, merge_url_params: false, &block)
     resource_url = ontology_object_json_link(ontology_id, objects_title, object_id)
-    render TabsContainerComponent.new(type: 'outline') do |c|
+    render TabsContainerComponent.new(type: 'outline', url_parameter: url_parameter,
+                                      merge_url_params: merge_url_params) do |c|
       concat(c.with_pinned_right do
         content_tag(:div, '', class: 'd-flex', 'data-concepts-json-target': 'button') do
           concat(render_permalink_link) if $PURL_ENABLED

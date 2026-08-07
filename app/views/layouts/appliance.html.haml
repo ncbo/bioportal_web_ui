@@ -29,7 +29,7 @@
   %body{class: "#{controller_name} #{action_name} d-flex flex-column h-100"}
     %header
       = render partial: "layouts/topnav"
-    = turbo_frame_tag :cookie_consent, src: cookies_path if cookies[:allow_cookies].blank?
+    = turbo_frame_tag :cookie_notice, src: cookies_path if cookies[:cookie_notice_ack].blank?
     
     %main{class: 'flex-shrink-0'}
       %div.container-fluid

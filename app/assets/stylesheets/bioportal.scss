@@ -764,15 +764,26 @@ turbo-frame[busy] ~ .show-if-loading {
 .cookie-banner {
   position: fixed;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+  grid-template-columns: 1fr auto; /* message | acknowledge button */
+  align-items: center;
+  gap: 1.5rem;
   top: initial;
   left: initial;
   bottom: 2em;
   right: 2em;
   z-index: 9999;
   background: white;
-  max-width: 1024px;
+  max-width: 800px;
+
+  .btn {
+    min-width: 6rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .cookie-banner {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Log prettifying */

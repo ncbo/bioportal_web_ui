@@ -41,7 +41,8 @@ class ApplicationController < ActionController::Base
   # See ActionController::RequestForgeryProtection for details
   protect_from_forgery
 
-  before_action :set_global_thread_values, :domain_ontology_set, :clean_empty_strings_from_params_arrays, :init_trial_license
+  before_action :set_global_thread_values, :domain_ontology_set, :clean_empty_strings_from_params_arrays,
+                :init_trial_license, :remove_legacy_cookie_consent
 
 
   def ontology_not_found(ontology_acronym)
@@ -662,6 +663,13 @@ class ApplicationController < ActionController::Base
       end
       $trial_license_initialized = true
     end
+  end
+
+  # Transitional cleanup: the opt-out cookie from the old consent banner is no
+  # longer read. Remove it so no stale tracking preference lingers in browsers.
+  # Safe to delete this once the 1-year cookie expiry has passed (after 2026-03).
+  def remove_legacy_cookie_consent
+    cookies.delete(:allow_cookies)
   end
 
 end
