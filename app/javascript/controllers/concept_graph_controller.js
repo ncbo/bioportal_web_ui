@@ -630,7 +630,7 @@ export default class extends Controller {
       key('<circle cx="6" cy="7" r="3.4" fill="#2f6fed"/><line x1="9" y1="7" x2="28" y2="7" stroke="#2f6fed" stroke-width="2"/>', '● = source end') +
       key('<rect x="1" y="2" width="26" height="10" rx="2.5" fill="#fff" stroke="#234979" stroke-width="1.6"/>', 'class') +
       key('<rect x="1" y="2" width="26" height="10" rx="2.5" fill="#fff" stroke="#c3ccd8" stroke-width="1.2"/>', 'upper ontology (faded)') +
-      '<div class="entity-graph__legend-hint">Double-click a node to open it · scroll or drag to pan · ⌘/Ctrl+scroll to zoom · F to fit selection</div>'
+      '<div class="entity-graph__legend-hint">Click a node to highlight its path to the root · double-click to open it · scroll or drag to pan · ⌘/Ctrl+scroll to zoom · F to fit highlight</div>'
 
     const holder = document.createElement('span')
     holder.className = 'entity-graph__icon-wrap'
@@ -789,13 +789,20 @@ export default class extends Controller {
     const nodeEls = new Map()
     const incidentEdges = new Map()
     const fullAdj = new Map()
+    // fullRev: all edges reversed (to -> from). Used with fullAdj to find every
+    // node on some selected -> clicked route, which may cross relationship edges.
+    const fullRev = new Map()
     const upAdj = new Map()
+    // is-a-only up-adjacency (node -> its parents). The clicked node's path to
+    // root is an ancestry path, so that segment uses is-a edges only.
+    const isaUp = new Map()
     const labelReqs = []
     let hoveredEdge = null
     const nodeLit = new Set()
 
-    // selection state
-    this._sel = { nodes: new Set(), edges: new Set(), traceId: null }
+    // selection state: traceId is the clicked node whose ancestry ribbon is lit
+    // (null when nothing is highlighted). There is no per-node/per-edge selection.
+    this._sel = { traceId: null }
 
     const drawEdge = (e, curved) => {
       const a = N(e.from); const b = N(e.to); if (!a || !b) return
@@ -811,7 +818,7 @@ export default class extends Controller {
       p.setAttribute('marker-end', toColl ? 'url(#eg-ah-coll)' : (isa ? 'url(#eg-ah-isa)' : 'url(#eg-ah-rel)'))
       p.setAttribute('marker-start', toColl ? 'url(#eg-src-coll)' : (isa ? 'url(#eg-src-isa)' : 'url(#eg-src-rel)'))
       eg.append(p)
-      const rec = { el: p, from: e.from, to: e.to }
+      const rec = { el: p, from: e.from, to: e.to, isa }
       const hit = document.createElementNS(SVG, 'path'); hit.setAttribute('class', 'entity-graph__edge-hit'); hit.setAttribute('d', d)
       const setHover = (on) => {
         p.classList.toggle('entity-graph__edge--hover', on)
@@ -825,14 +832,16 @@ export default class extends Controller {
       })
       if (!isa && e.label) hit.addEventListener('mousemove', (ev) => this.#positionTip(ev.clientX, ev.clientY))
       hit.addEventListener('mouseleave', () => { setHover(false); if (hoveredEdge === rec) hoveredEdge = null; this.#hideTip() })
-      hit.addEventListener('click', (ev) => { ev.stopPropagation(); this.#toggleEdge(rec) })
       rec.setHover = setHover
       hg.append(hit)
       edgeRecs.push(rec)
       ;(incidentEdges.get(e.from) || incidentEdges.set(e.from, []).get(e.from)).push(rec)
       ;(incidentEdges.get(e.to) || incidentEdges.set(e.to, []).get(e.to)).push(rec)
       ;(fullAdj.get(e.from) || fullAdj.set(e.from, []).get(e.from)).push(e.to)
+      ;(fullRev.get(e.to) || fullRev.set(e.to, []).get(e.to)).push(e.from)
       if (b.y < a.y - 1) (upAdj.get(e.from) || upAdj.set(e.from, []).get(e.from)).push(e.to)
+      // is-a edge: from = subclass (child), to = superclass (parent)
+      if (isa) (isaUp.get(e.from) || isaUp.set(e.from, []).get(e.from)).push(e.to)
       if (!isa && e.label && mid) labelReqs.push({ text: e.label, x: mid.x, y: mid.y, from: e.from, to: e.to, els: [] })
     }
     L.treeEdges.forEach((e) => drawEdge(e, false))
@@ -865,7 +874,7 @@ export default class extends Controller {
     this.#placeLabels(lg, labelReqs, L, nodeH)
 
     // stash render state for selection/search/hover
-    this._render = { svg, vp, eg, og, ng, N, nodeEls, edgeRecs, incidentEdges, fullAdj, upAdj, labelReqs, nodeLit, nodeH }
+    this._render = { svg, vp, eg, og, ng, N, nodeEls, edgeRecs, incidentEdges, fullAdj, fullRev, upAdj, isaUp, labelReqs, nodeLit, nodeH }
     this.#wireNodeInteractions(nodeEls, incidentEdges)
     this.#wireBackground(svg)
 
@@ -1039,7 +1048,7 @@ export default class extends Controller {
       g.addEventListener('click', (ev) => {
         ev.stopPropagation()
         if (clickTimer) return
-        clickTimer = setTimeout(() => { clickTimer = null; this.#toggleNode(id) }, 220)
+        clickTimer = setTimeout(() => { clickTimer = null; this.#traceNode(id) }, 220)
       })
       g.addEventListener('dblclick', (ev) => {
         ev.stopPropagation()
@@ -1081,12 +1090,6 @@ export default class extends Controller {
     })
   }
 
-  #toggleNode (id) {
-    const s = this._sel; s.traceId = null
-    if (s.nodes.has(id)) s.nodes.delete(id); else s.nodes.add(id)
-    this.#applyFocus()
-  }
-
   // --- node removal ---------------------------------------------------------
 
   // Take a node out of THIS graph only (transient — a reload brings it back).
@@ -1117,59 +1120,115 @@ export default class extends Controller {
     this.#render()
   }
 
-  #toggleEdge (rec) {
-    const s = this._sel; s.traceId = null
-    if (s.edges.has(rec)) s.edges.delete(rec); else s.edges.add(rec)
-    this.#applyFocus()
-  }
-
+  // Highlight the is-a path(s) from the selected class up through the clicked
+  // node to the root, dimming everything else. Click the same node again (or the
+  // background / Escape) to clear. This is the only focus gesture — there is no
+  // per-node or per-edge selection.
   #traceNode (id) {
-    const s = this._sel; s.nodes.clear(); s.edges.clear()
-    s.traceId = (s.traceId === id) ? null : id
+    const s = this._sel
+    const turningOn = s.traceId !== id
+    s.traceId = turningOn ? id : null
     this.#applyFocus()
+    // If the clicked node can't be reached from the selected class at all (not via
+    // is-a nor relationships in this graph), only the clicked -> root tail is
+    // shown; say so rather than leaving it looking disconnected.
+    if (turningOn && id !== (this.nodes.find((n) => n.selected) || {}).id &&
+        !this.#clickedReachableFromSelected(id)) {
+      this.#toast('Not reachable from the selected class — showing its path to the root')
+    }
   }
 
   #clearSelection () {
     const s = this._sel
-    if (s.traceId || s.nodes.size || s.edges.size) { s.traceId = null; s.nodes.clear(); s.edges.clear(); this.#applyFocus() }
+    if (s.traceId) { s.traceId = null; this.#applyFocus() }
   }
 
-  // reachable set (transitive) upward from an id over the up-adjacency
+  // The highlight is a ribbon that connects the selected class, through the
+  // clicked node, up to the root. It has two segments joined at the clicked node:
+  //   selected -> clicked : every node/edge on some route from the selected class
+  //                         to the clicked node, over ALL edges (is-a AND
+  //                         relationship), following edge direction. This keeps the
+  //                         ribbon anchored to the selected class even when the two
+  //                         are connected by a "has part"-style relationship rather
+  //                         than pure ancestry.
+  //   clicked  -> root    : the clicked node's is-a ancestor closure (path to root
+  //                         is an ancestry path, so is-a edges only).
+  // Returns { nodes, edgeOn } where edgeOn(rec) says whether an edge lies on the
+  // ribbon. Null when nothing is highlighted.
   #traceSet () {
     const s = this._sel; if (!s.traceId) return null
-    const R = this._render; const seen = new Set(); const stack = [s.traceId]
-    while (stack.length) { const x = stack.pop(); if (seen.has(x)) continue; seen.add(x); (R.fullAdj.get(x) || []).forEach((t) => stack.push(t)) }
-    return seen
+    const R = this._render
+    const clicked = s.traceId
+    const selId = (this.nodes.find((n) => n.selected) || {}).id
+
+    const closure = (start, adj) => {
+      const seen = new Set(); const stack = [start]
+      while (stack.length) { const x = stack.pop(); if (seen.has(x)) continue; seen.add(x); (adj.get(x) || []).forEach((t) => stack.push(t)) }
+      return seen
+    }
+
+    // clicked -> root: is-a ancestors of the clicked node.
+    const toRoot = closure(clicked, R.isaUp)
+    const nodes = new Set(toRoot)
+
+    // selected -> clicked: a node lies on some route iff it is forward-reachable
+    // from the selected class AND can still reach the clicked node. Intersect
+    // "reachable from selected" (over all edges) with "can reach clicked" (over all
+    // edges reversed).
+    let onRoute = new Set()
+    if (selId && selId !== clicked) {
+      const fromSel = closure(selId, R.fullAdj)       // reachable from selected
+      const canReachClicked = closure(clicked, R.fullRev) // can reach clicked
+      onRoute = new Set([...fromSel].filter((n) => canReachClicked.has(n)))
+      onRoute.forEach((n) => nodes.add(n))
+    }
+
+    // An edge is on the ribbon if: it's an is-a edge within the clicked->root
+    // ancestry, OR both its endpoints are on a selected->clicked route (any kind).
+    const edgeOn = (rec) =>
+      (rec.isa && toRoot.has(rec.from) && toRoot.has(rec.to)) ||
+      (onRoute.has(rec.from) && onRoute.has(rec.to))
+
+    return { nodes, edgeOn }
+  }
+
+  // True when the clicked node is reachable from the selected class over the
+  // displayed edges (i.e. the "selected -> clicked" segment is non-empty). Used to
+  // decide whether to toast that only the clicked -> root tail is shown.
+  #clickedReachableFromSelected (clicked) {
+    const R = this._render
+    const selId = (this.nodes.find((n) => n.selected) || {}).id
+    if (!selId || selId === clicked) return false
+    const stack = [selId]; const seen = new Set()
+    while (stack.length) {
+      const x = stack.pop(); if (seen.has(x)) continue; seen.add(x)
+      if (x === clicked) return true
+      ;(R.fullAdj.get(x) || []).forEach((t) => stack.push(t))
+    }
+    return false
   }
 
   #applyFocus () {
     const R = this._render; if (!R) return
     const s = this._sel
-    const active = s.traceId || s.nodes.size > 0 || s.edges.size > 0
-    if (!active) {
+    if (!s.traceId) {
       R.edgeRecs.forEach((r) => r.el.classList.remove('entity-graph__edge--dim', 'entity-graph__edge--sel'))
       R.nodeEls.forEach((g) => g.classList.remove('entity-graph__node--dim', 'entity-graph__node--sel'))
       R.labelReqs.forEach((r) => r.els.forEach((el) => el.classList.remove('entity-graph__edge-label--dim', 'entity-graph__edge-label-bg--dim')))
       return
     }
-    const tf = this.#traceSet()
-    const litNodes = new Set(tf || [])
-    const litEdges = new Set()
-    if (!tf) {
-      s.nodes.forEach((id) => litNodes.add(id))
-      s.edges.forEach((rec) => { litEdges.add(rec); litNodes.add(rec.from); litNodes.add(rec.to) })
-      R.edgeRecs.forEach((rec) => { if (s.nodes.has(rec.from) && s.nodes.has(rec.to)) litEdges.add(rec) })
-    }
-    const litEdge = (rec) => tf ? (tf.has(rec.from) && tf.has(rec.to)) : litEdges.has(rec)
+    const trace = this.#traceSet() || { nodes: new Set(), edgeOn: () => false }
+    const litNodes = trace.nodes
+    const litEdge = trace.edgeOn
     R.nodeEls.forEach((g, id) => {
-      g.classList.toggle('entity-graph__node--dim', !litNodes.has(id))
-      g.classList.toggle('entity-graph__node--sel', s.nodes.has(id))
+      const on = litNodes.has(id)
+      g.classList.toggle('entity-graph__node--dim', !on)
+      g.classList.toggle('entity-graph__node--sel', on)
     })
-    const edgeSelected = (rec) => s.edges.has(rec) || (s.nodes.has(rec.from) && s.nodes.has(rec.to))
     R.edgeRecs.forEach((rec) => {
       const on = litEdge(rec)
       rec.el.classList.toggle('entity-graph__edge--dim', !on)
-      rec.el.classList.toggle('entity-graph__edge--sel', edgeSelected(rec))
+      rec.el.classList.toggle('entity-graph__edge--sel', on)
     })
     R.labelReqs.forEach((r) => {
       const rec = R.edgeRecs.find((e) => e.from === r.from && e.to === r.to)
@@ -1181,11 +1240,9 @@ export default class extends Controller {
   }
 
   #litNodesNow () {
-    const s = this._sel
-    if (s.traceId) { const tf = this.#traceSet(); return tf ? new Set(tf) : new Set() }
-    const set = new Set(s.nodes)
-    s.edges.forEach((rec) => { set.add(rec.from); set.add(rec.to) })
-    return set
+    if (!this._sel.traceId) return new Set()
+    const trace = this.#traceSet()
+    return trace ? trace.nodes : new Set()
   }
 
   #fitToSelection () {
@@ -1207,14 +1264,13 @@ export default class extends Controller {
   #showMenu (clientX, clientY, nodeId) {
     this.#hideMenu()
     const s = this._sel
-    const hasSel = s.traceId || s.nodes.size || s.edges.size
+    const hasSel = !!s.traceId
     const items = []
     const isSelectedClass = nodeId && nodeId === (this.nodes.find((n) => n.selected) || {}).id
     if (nodeId) {
       const sid = shortId(nodeId)
-      items.push({ label: s.nodes.has(nodeId) ? 'Deselect node' : 'Select node', run: () => this.#toggleNode(nodeId) })
-      items.push({ label: 'Highlight path', run: () => this.#traceNode(nodeId) })
-      items.push({ label: 'Fit to selection (F)', disabled: !hasSel, run: () => this.#fitToSelection() })
+      items.push({ label: s.traceId === nodeId ? 'Clear highlight' : 'Highlight path to root', run: () => this.#traceNode(nodeId) })
+      items.push({ label: 'Fit to highlight (F)', disabled: !hasSel, run: () => this.#fitToSelection() })
       items.push({ label: 'Open class', run: () => { window.location.href = this.#classPath(nodeId) } })
       items.push({ separator: true })
       // Node removal — never offered for the selected class (it anchors the graph).
@@ -1225,14 +1281,14 @@ export default class extends Controller {
       items.push({ label: 'Copy IRI', run: () => this.#copyText(nodeId) })
       items.push({ separator: true })
     } else {
-      items.push({ label: 'Fit to selection (F)', disabled: !hasSel, run: () => this.#fitToSelection() })
+      items.push({ label: 'Fit to highlight (F)', disabled: !hasSel, run: () => this.#fitToSelection() })
       items.push({ label: 'Fit whole graph', run: () => this._zoomApi && this._zoomApi.recenter() })
       items.push({ separator: true })
     }
     // Restore removed/hidden nodes — shown wherever there's something to restore.
     if (this._removedNodes.size) items.push({ label: `Restore removed nodes (${this._removedNodes.size})`, run: () => this.#restoreRemovedNodes() })
     if (this._hiddenNodes.size) items.push({ label: `Show always-hidden nodes (${this._hiddenNodes.size})`, run: () => this.#restoreHiddenNodes() })
-    items.push({ label: 'Clear all', disabled: !hasSel, run: () => this.#clearSelection() })
+    items.push({ label: 'Clear highlight', disabled: !hasSel, run: () => this.#clearSelection() })
 
     const menu = document.createElement('div')
     menu.style.cssText = 'position:fixed;z-index:3000;background:#fff;border:1px solid #cfd8e2;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.18);padding:4px 0;font:13px -apple-system,sans-serif;min-width:150px'
