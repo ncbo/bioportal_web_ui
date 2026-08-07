@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 import {
-  computeLayout, routePath, straightPath, waypointPath, boundary,
+  computeLayout, routePath, straightPath, curvedIsaPath, waypointPath, boundary,
   isUpperOnto, shortId, ontoAcronym, measureText,
   NODE_H_BASE, PILL_H, PILL_PAD
 } from './entity_graph_layout'
@@ -852,7 +852,7 @@ export default class extends Controller {
       const toColl = this.opts.fadeUpper && L.collector && L.collector.has(e.to)
       const routed = (curved && e.waypoints && e.waypoints.length)
         ? waypointPath(a, b, e.waypoints, nodeH)
-        : (curved ? routePath(a, b, obstacles, laneReg, nodeH) : straightPath(a, b, nodeH))
+        : (curved ? routePath(a, b, obstacles, laneReg, nodeH) : curvedIsaPath(a, b, nodeH))
       const { d, mid, seg } = routed
       const p = document.createElementNS(SVG, 'path')
       p.setAttribute('class', 'entity-graph__edge entity-graph__edge--' + (isa ? 'is-a' : 'rel') + (toColl ? ' entity-graph__edge--to-collector' : ''))

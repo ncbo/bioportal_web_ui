@@ -265,6 +265,35 @@ export function computeLayout (graph, opts = {}) {
     })
   }
 
+  // EXPERIMENT (sink toward deepest child): the longest-path-from-root rank pins a
+  // node as HIGH as any of its lineages allow, so a parent whose child has a long
+  // branch (e.g. `personal attribute`, one hop above the deep anchor `addiction
+  // strength`) floats far above that child with a long edge between them. Pull each
+  // node DOWN to sit just above its deepest is-a child instead, so related content
+  // clusters near the focus; edges up to abstract scaffold lengthen instead, which
+  // fits "content near the focus, scaffold pushed away". Processed deepest-first so
+  // a child's sunk rank is settled before its parent reads it. Never raises a node
+  // (sink only) and always keeps it strictly above its children, so is-a edges
+  // still point up.
+  {
+    const isaChildren = new Map() // parent -> [child ids]
+    nodes.forEach((_, id) => {
+      for (const e of (up.get(id) || [])) {
+        if (e.kind !== 'is-a' || !nodes.has(e.to)) continue
+        ;(isaChildren.get(e.to) || isaChildren.set(e.to, []).get(e.to)).push(id)
+      }
+    })
+    const order = [...nodes.keys()].sort((a, b) => rank.get(b) - rank.get(a)) // deepest first
+    order.forEach((id) => {
+      const kids = isaChildren.get(id)
+      if (!kids || !kids.length) return // leaf: keep its longest-path rank
+      let minKid = Infinity
+      for (const k of kids) minKid = Math.min(minKid, rank.get(k))
+      const sunk = minKid - 1
+      if (sunk > rank.get(id)) rank.set(id, sunk) // sink only, stays above its children
+    })
+  }
+
   // Collector nodes: abstract high-fan-in classes near the top of the hierarchy
   // that unite otherwise-disparate branches (entity, continuant, occurrent,
   // role, chemical entity...). Heuristic: is-a in-degree > 5 AND in the top two
@@ -907,7 +936,58 @@ export function computeLayout (graph, opts = {}) {
   const rowTop = new Array(maxRank + 1); rowTop[0] = MARGIN
   for (let k = 1; k <= maxRank; k++) rowTop[k] = rowTop[k - 1] + NODE_H + ROW_GAP + (extraGap[k - 1] || 0)
 
-  nodes.forEach((n) => { n.x = n._x + dx; n.y = rowTop[n._depth] + NODE_H / 2 })
+  // EXPERIMENT (looser rows): break the ruler-straight per-depth baseline with a
+  // small deterministic vertical offset per node, so rows read as gently wavy
+  // rather than a rigid grid. Seeded from the node id (stable across renders) and
+  // bounded well inside the row band so a node never drifts into a neighbouring
+  // row. Dummy waypoints are left on their exact baseline — they anchor the routed
+  // edge corridors, and jittering them would kink the long-edge curves.
+  const JITTER = Math.min(22, ROW_GAP * 0.38)
+  const yJitter = (id) => {
+    let h = 0; for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0
+    return ((h % 1000) / 1000) * 2 * JITTER - JITTER // deterministic in [-JITTER, +JITTER]
+  }
+  // Gentle upward bias for upper-ontology (BFO/COB) nodes: nudge them up within
+  // their row band so the abstract scaffold rides a touch higher than the domain
+  // terms sharing its rank — a subtle "floating above" cue. Applied on top of the
+  // jitter; the overlap guard below still keeps everything clear. Bounded so a
+  // node stays inside its band (never crosses into the row above).
+  const UPPER_LIFT = Math.min(16, ROW_GAP * 0.28)
+  const baseY = (n) => rowTop[n._depth] + NODE_H / 2
+  nodes.forEach((n) => {
+    n.x = n._x + dx
+    const lift = (!n.isDummy && isUpperOnto(n.id)) ? -UPPER_LIFT : 0
+    n.y = baseY(n) + (n.isDummy ? 0 : yJitter(n.id)) + lift
+  })
+  // Overlap guard: jitter is applied blind to horizontal neighbours, so two nodes
+  // that are close in x can jitter vertically toward each other and collide. Pull
+  // any overlapping pair back toward their (un-jittered) baselines just enough to
+  // separate, favouring the node currently further from its baseline. Bounded
+  // passes; overlaps are few and small so this converges quickly. Guarantees no
+  // node-node box overlap regardless of jitter strength.
+  {
+    const VPAD = 6 // min vertical clearance between boxes
+    const real = [...nodes.values()].filter((n) => !n.isDummy)
+    for (let pass = 0; pass < 6; pass++) {
+      let moved = false
+      for (let i = 0; i < real.length; i++) {
+        for (let j = i + 1; j < real.length; j++) {
+          const a = real[i]; const b = real[j]
+          const ox = (a.width + b.width) / 2 - Math.abs(a.x - b.x)
+          if (ox <= 0) continue // no horizontal overlap → can't collide
+          const need = NODE_H + VPAD - Math.abs(a.y - b.y)
+          if (need <= 0) continue // enough vertical clearance
+          // push the one further from its baseline back toward it; if that isn't
+          // enough, split the remainder between them (away from each other).
+          const hi = a.y < b.y ? a : b; const lo = a.y < b.y ? b : a
+          const move = need / 2 + 0.5
+          hi.y -= move; lo.y += move
+          moved = true
+        }
+      }
+      if (!moved) break
+    }
+  }
   const width = (maxX - minX) + 2 * MARGIN
   const height = rowTop[maxRank] + NODE_H + MARGIN
 
@@ -962,6 +1042,30 @@ export function straightPath (a, b, nodeH) {
   const p1 = boundary(a, b.x, b.y, nodeH); const p2 = boundary(b, a.x, a.y, nodeH)
   return {
     d: `M ${p1.x},${p1.y} L ${p2.x},${p2.y}`,
+    mid: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 },
+    seg: { p1, p2 }
+  }
+}
+
+// A gentle S-curve between two nodes, used to soften the is-a backbone so it reads
+// less like a rigid grid. Control points sit at 1/3 and 2/3 of the vertical span;
+// each is nudged horizontally toward the OTHER endpoint's x, so a straight vertical
+// parent/child edge stays nearly straight (no random wobble) while an offset one
+// eases into a smooth curve instead of a slanted line. Same return shape as
+// straightPath so callers (mid label, seg) are unaffected.
+export function curvedIsaPath (a, b, nodeH) {
+  const p1 = boundary(a, b.x, b.y, nodeH); const p2 = boundary(b, a.x, a.y, nodeH)
+  const dy = p2.y - p1.y
+  // control-point y at thirds of the span
+  const c1y = p1.y + dy / 3; const c2y = p1.y + 2 * dy / 3
+  // ease each control point toward the far endpoint's x, scaled down so the sway
+  // is subtle; also a small floor so a dead-vertical edge still gets a hair of curve.
+  const dx = p2.x - p1.x
+  const sway = Math.max(Math.abs(dx) * 0.5, 6) * Math.sign(dx || 1)
+  const c1x = p1.x + sway * 0.15
+  const c2x = p2.x - sway * 0.15
+  return {
+    d: `M ${p1.x},${p1.y} C ${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`,
     mid: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 },
     seg: { p1, p2 }
   }
