@@ -31,6 +31,11 @@ export default class extends Controller {
   }
 
   connect () {
+    // All document-level listeners this controller adds are tied to this signal, so
+    // disconnect() (e.g. when Turbo swaps the frame) removes them in one shot — no
+    // stale Escape/keydown handlers accumulating across re-renders or frame swaps.
+    this._ac = new AbortController()
+
     // The graph frame's content is now in the DOM and #render() below draws
     // synchronously within this connect(), so the browser won't repaint until we
     // return — safe to lift the class-select loading veil here. This clears the
@@ -91,6 +96,14 @@ export default class extends Controller {
     this._resizeObserver?.disconnect()
     this._resizeObserver = null
     this._tip?.remove()
+    // Remove every document-level listener registered with the abort signal
+    // (Escape handlers, panel dismissers), so a Turbo frame swap doesn't leave
+    // stale handlers or accumulate them across re-renders.
+    this._ac?.abort()
+    // If we locked page scroll for fullscreen, restore it — otherwise a swap while
+    // fullscreen was active would leave the page permanently unscrollable.
+    if (this._bodyOverflowLocked) { document.body.style.overflow = ''; this._bodyOverflowLocked = false }
+    clearTimeout(this._toastT)
   }
 
   // "Show graph anyway" on the large-graph gate.
@@ -361,11 +374,13 @@ export default class extends Controller {
 
   #toggleFullscreen () {
     const on = this.element.classList.toggle('entity-graph--fullscreen')
-    // lock/unlock page scroll behind the overlay
+    // lock/unlock page scroll behind the overlay. Track that WE set it so
+    // disconnect() can restore scrolling if Turbo swaps the frame while fullscreen.
     document.body.style.overflow = on ? 'hidden' : ''
+    this._bodyOverflowLocked = on
     if (on) {
       this._escFull = (ev) => { if (ev.key === 'Escape') this.#toggleFullscreen() }
-      document.addEventListener('keydown', this._escFull)
+      document.addEventListener('keydown', this._escFull, { signal: this._ac.signal })
     } else if (this._escFull) {
       document.removeEventListener('keydown', this._escFull); this._escFull = null
     }
@@ -706,7 +721,7 @@ export default class extends Controller {
       ev.stopPropagation()
       if (pop.hidden) {
         pop.hidden = false
-        setTimeout(() => document.addEventListener('click', onDoc, true), 0)
+        setTimeout(() => document.addEventListener('click', onDoc, { capture: true, signal: this._ac.signal }), 0)
       } else {
         close()
       }
@@ -779,7 +794,7 @@ export default class extends Controller {
       }
       this._openPanel = panel
       this._openPanelKey = key
-      setTimeout(() => document.addEventListener('click', onDoc, true), 0)
+      setTimeout(() => document.addEventListener('click', onDoc, { capture: true, signal: this._ac.signal }), 0)
     }
     panel.__close = close // let the "one at a time" logic close a sibling panel
     panel.__open = open // let #buildChrome reopen the previously-open panel after a render
@@ -1098,7 +1113,14 @@ export default class extends Controller {
   }
 
   #classPath (iri) {
-    return `/ontologies/${encodeURIComponent(this.ontologyValue)}?p=classes&conceptid=${encodeURIComponent(iri)}`
+    // Navigating from a graph node should land on the same Graph view and keep the
+    // active language, rather than resetting to Details in the portal default
+    // language. Carry both forward from the current page URL when present.
+    let url = `/ontologies/${encodeURIComponent(this.ontologyValue)}?p=classes&conceptid=${encodeURIComponent(iri)}&view=concept-graph`
+    const cur = new URLSearchParams(window.location.search)
+    const lang = cur.get('language') || cur.get('lang')
+    if (lang) url += `&language=${encodeURIComponent(lang)}`
+    return url
   }
 
   // --- interactions: nodes, popup, selection --------------------------------
@@ -1140,7 +1162,11 @@ export default class extends Controller {
       if (ev.key === 'f' || ev.key === 'F') { ev.preventDefault(); this.#fitToSelection() }
     })
     this.canvasTarget.addEventListener('pointerenter', () => this.canvasTarget.focus({ preventScroll: true }))
-    document.addEventListener('keydown', this._escHandler = (ev) => { if (ev.key === 'Escape') this.#clearSelection() })
+    // #wireNodeInteractions runs on every #render; remove the previous handler
+    // before re-adding so re-renders don't stack duplicate document listeners.
+    if (this._escHandler) document.removeEventListener('keydown', this._escHandler)
+    this._escHandler = (ev) => { if (ev.key === 'Escape') this.#clearSelection() }
+    document.addEventListener('keydown', this._escHandler, { signal: this._ac.signal })
   }
 
   #wireBackground (svg) {
@@ -1374,7 +1400,7 @@ export default class extends Controller {
     menu.style.top = Math.min(clientY, window.innerHeight - r.height - 6) + 'px'
     this._menu = menu
     this._menuDismiss = () => this.#hideMenu()
-    setTimeout(() => document.addEventListener('click', this._menuDismiss, { once: true }), 0)
+    setTimeout(() => document.addEventListener('click', this._menuDismiss, { once: true, signal: this._ac.signal }), 0)
   }
 
   #hideMenu () { this._menu?.remove(); this._menu = null }
