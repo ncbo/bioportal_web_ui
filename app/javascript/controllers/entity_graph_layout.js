@@ -986,7 +986,7 @@ export function computeLayout (graph, opts = {}) {
     // compact cluster (still enough room for the edge + arrowhead) while domain
     // content keeps the roomier gap.
     const MIN_EDGE_GAP = NODE_H + 22 // centre-to-centre minimum, domain pairs
-    const MIN_EDGE_GAP_UPPER = NODE_H + 8 // tighter minimum for an upper->upper pair
+    const MIN_EDGE_GAP_UPPER = NODE_H + 16 // tighter than domain, but room for the arrowhead
     const bothUpper = (p, c) => isUpperOnto(p.id) && isUpperOnto(c.id)
     const minGapFor = (p, c) => (bothUpper(p, c) ? MIN_EDGE_GAP_UPPER : MIN_EDGE_GAP)
     const real = [...nodes.values()].filter((n) => !n.isDummy)
