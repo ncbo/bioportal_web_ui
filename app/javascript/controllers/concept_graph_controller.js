@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus'
 import {
-  computeLayout, routePath, straightPath, curvedIsaPath, waypointPath, boundary,
+  computeLayout, routePath, curvedIsaPath, waypointPath,
   isUpperOnto, shortId, ontoAcronym, measureText,
   NODE_H_BASE, PILL_H, PILL_PAD
 } from './entity_graph_layout'
@@ -17,7 +17,7 @@ const MINIMAP_MAX = 240 // longest edge of the minimap thumbnail
 // using the custom "tidy ancestor tree" layout (ranking by longest is-a path,
 // Reingold-Tilford placement, crossing reduction, curved obstruction-aware edge
 // routing) ported from the offline harness. Drawn as hand-built SVG with a
-// fixed-viewport zoom/pan, a context minimap, node search, selection/highlight,
+// fixed-viewport zoom/pan, a context minimap, a path-to-root highlight,
 // a legend, and per-node copy/navigate actions.
 //
 // The full graph is delivered in one payload from the server (no client fetches).

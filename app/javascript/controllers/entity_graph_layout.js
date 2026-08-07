@@ -265,7 +265,7 @@ export function computeLayout (graph, opts = {}) {
     })
   }
 
-  // EXPERIMENT (sink toward deepest child): the longest-path-from-root rank pins a
+  // Sink toward deepest child: the longest-path-from-root rank pins a
   // node as HIGH as any of its lineages allow, so a parent whose child has a long
   // branch (e.g. `personal attribute`, one hop above the deep anchor `addiction
   // strength`) floats far above that child with a long edge between them. Pull each
@@ -936,7 +936,7 @@ export function computeLayout (graph, opts = {}) {
   const rowTop = new Array(maxRank + 1); rowTop[0] = MARGIN
   for (let k = 1; k <= maxRank; k++) rowTop[k] = rowTop[k - 1] + NODE_H + ROW_GAP + (extraGap[k - 1] || 0)
 
-  // EXPERIMENT (looser rows): break the ruler-straight per-depth baseline with a
+  // Looser rows: break the ruler-straight per-depth baseline with a
   // small deterministic vertical offset per node, so rows read as gently wavy
   // rather than a rigid grid. Seeded from the node id (stable across renders) and
   // bounded well inside the row band so a node never drifts into a neighbouring
