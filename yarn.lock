@@ -9,18 +9,6 @@
   dependencies:
     regenerator-runtime "^0.14.0"
 
-"@dagrejs/dagre@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@dagrejs/dagre/-/dagre-3.0.0.tgz#543f20188f7494db0f45d634f7b3760747f87f23"
-  integrity sha512-ZzhnTy1rfuoew9Ez3EIw4L2znPGnYYhfn8vc9c4oB8iw6QAsszbiU0vRhlxWPFnmmNSFAkrYeF1PhM5m4lAN0Q==
-  dependencies:
-    "@dagrejs/graphlib" "4.0.1"
-
-"@dagrejs/graphlib@4.0.1":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@dagrejs/graphlib/-/graphlib-4.0.1.tgz#a9cf907cc5ddf9140a64360ad487766f17d1ee36"
-  integrity sha512-IvcV6FduIIAmLwnH+yun+QtV36SC7mERqa86aClNqmMN09WhmPPYU8ckHrZBozErf+UvHPWOTJYaGYiIcs0DgA==
-
 "@digitalbazaar/http-client@^3.4.1":
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/@digitalbazaar/http-client/-/http-client-3.4.1.tgz#5116fc44290d647cfe4b615d1f3fad9d6005e44d"

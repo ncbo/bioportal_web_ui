@@ -203,7 +203,8 @@ div.synonym-change-request button {
   }
 }
 
-// Entity Graph tab: a dagre-laid-out is-a neighbourhood drawn as SVG, styled
+// Entity Graph tab: an is-a neighbourhood laid out by the custom tidy-tree engine
+// (entity_graph_layout.js) and drawn as SVG, styled
 // after the WebProtege entity graph (rounded-rect nodes, is-a arrows). The
 // controller (concept_graph_controller.js) builds the SVG and handles zoom/pan.
 // The graph pane fills its scroll container (.tab-content) exactly, rather than the
