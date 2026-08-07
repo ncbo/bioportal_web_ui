@@ -1,7 +1,7 @@
 -# Google measurement ID
 - tag_id = Rails.configuration.settings.dig(:google_analytics, :tag_id)
 
-- if tag_id.present? && analytics_consent?
+- if tag_id.present?
   <script async src="https://www.googletagmanager.com/gtag/js?id=#{tag_id}"></script>
   %script
     window.dataLayer = window.dataLayer || [];

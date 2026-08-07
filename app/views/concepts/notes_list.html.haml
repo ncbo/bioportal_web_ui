@@ -1,0 +1,5 @@
+-# Lazy-loaded response for the Notes tab. Wrapped in the matching turbo-frame
+-# (concept_notes) so the lazy frame in concepts/_show.html.haml resolves it — same
+-# pattern as the Mappings tab's get_concept_table response.
+= turbo_frame_tag 'concept_notes' do
+  = render partial: '/notes/list'

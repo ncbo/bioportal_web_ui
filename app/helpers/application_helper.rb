@@ -423,8 +423,4 @@ module ApplicationHelper
   def ontology_viewer_page_name(ontology_name, concept_name_title, page)
     "#{ontology_name} - #{concept_name_title} - #{page.capitalize}"
   end
-
-  def analytics_consent?
-    cookies[:allow_cookies].present? && cookies[:allow_cookies] == 'true'
-  end
 end

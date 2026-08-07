@@ -3,8 +3,8 @@
 class CookiesController < ApplicationController
   def index; end
 
-  def consent
-    cookies[:allow_cookies] = { value: params[:consent], expires: 1.year.from_now }
-    render turbo_stream: turbo_stream.remove(:cookie_consent)
+  def acknowledge
+    cookies[:cookie_notice_ack] = { value: 'true', expires: 1.year.from_now }
+    render turbo_stream: turbo_stream.remove(:cookie_notice)
   end
 end

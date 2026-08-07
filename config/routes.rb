@@ -97,7 +97,7 @@ Rails.application.routes.draw do
 
   # Cookies
   get 'cookies', to: 'cookies#index'
-  post 'cookies/consent', to: 'cookies#consent', as: 'cookie_consent'
+  post 'cookies/acknowledge', to: 'cookies#acknowledge', as: 'cookie_notice_acknowledge'
 
   # Robots.txt
   get '/robots.txt' => 'robots#index'
@@ -127,6 +127,7 @@ Rails.application.routes.draw do
   get '/ajax_concepts/:ontology/' => 'concepts#show', :constraints => { id: /[^\/?]+/ }
   get '/ajax/class_details' => 'concepts#details'
   get '/ajax/mappings/get_concept_table' => 'mappings#get_concept_table'
+  get '/ajax/concepts/notes_list' => 'concepts#notes_list'
   get '/ajax/json_ontology' => 'ajax_proxy#json_ontology'
   get '/ajax/json_class' => 'ajax_proxy#json_class'
   get '/ajax/loading_spinner' => 'ajax_proxy#loading_spinner'
