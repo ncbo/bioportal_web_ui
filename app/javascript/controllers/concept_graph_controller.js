@@ -119,10 +119,11 @@ export default class extends Controller {
   #buildChrome (canvas) {
     const cluster = document.createElement('div')
     cluster.className = 'entity-graph__chrome'
-    cluster.append(this.#buildPopout(), this.#buildCopy())
+    cluster.append(this.#buildPopout())
     // relationship-property picker — only when the graph has relationships to pick
     if (this.#relProps().length) cluster.append(this.#buildFilter())
-    cluster.append(this.#buildGear(), this.#buildHelp())
+    // Copy sits below the settings (gear) button.
+    cluster.append(this.#buildGear(), this.#buildCopy(), this.#buildHelp())
     canvas.append(cluster)
   }
 
