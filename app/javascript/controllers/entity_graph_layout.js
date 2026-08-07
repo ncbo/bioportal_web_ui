@@ -219,6 +219,18 @@ export function computeLayout (graph, opts = {}) {
   // neighbours (single pass) so one orphan can't drag another in a cascade.
   const hasVisibleIsaParent = (id) =>
     (up.get(id) || []).some((e) => e.kind === 'is-a' && nodes.has(e.to))
+  // Shallowest is-a-child rank for a node: an orphan must stay ABOVE its own is-a
+  // children, so the push-down below is capped just above this. Built from `up`
+  // (child -> parent), inverted to parent -> min child rank.
+  const minChildIsaRank = new Map()
+  nodes.forEach((_, id) => {
+    for (const e of (up.get(id) || [])) {
+      if (e.kind !== 'is-a' || !nodes.has(e.to)) continue
+      const cur = minChildIsaRank.get(e.to)
+      const cr = isaRank.get(id) ?? 0
+      if (cur === undefined || cr < cur) minChildIsaRank.set(e.to, cr)
+    }
+  })
   const isaRank0 = new Map(isaRank)
   nodes.forEach((_, id) => {
     if (hasVisibleIsaParent(id)) return
@@ -227,6 +239,11 @@ export function computeLayout (graph, opts = {}) {
       if (e.kind === 'is-a' || !nodes.has(e.to)) continue
       deepest = Math.max(deepest, isaRank0.get(e.to) ?? 0)
     }
+    // Never push an orphan to or below one of its OWN is-a children — that would
+    // invert the is-a edge (child drawn above parent, arrow pointing down). Cap the
+    // push at one rank above the shallowest is-a child.
+    const childCap = minChildIsaRank.has(id) ? minChildIsaRank.get(id) - 1 : Infinity
+    deepest = Math.min(deepest, childCap)
     if (deepest > (isaRank0.get(id) ?? 0)) isaRank.set(id, deepest)
   })
   // Relaxation: raise a filler to sit above its relationship target, but only when
