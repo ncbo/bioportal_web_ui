@@ -981,8 +981,14 @@ export function computeLayout (graph, opts = {}) {
   {
     const VPAD = 6 // min vertical clearance between overlapping boxes
     // A parent and its is-a child need enough vertical separation for the edge and
-    // its arrowhead to render legibly, so jitter can't squeeze them together.
-    const MIN_EDGE_GAP = NODE_H + 22 // centre-to-centre minimum for a parent/child pair
+    // its arrowhead to render legibly, so jitter can't squeeze them together. The
+    // abstract BFO/COB scaffold uses a SMALLER minimum so the upper chain reads as a
+    // compact cluster (still enough room for the edge + arrowhead) while domain
+    // content keeps the roomier gap.
+    const MIN_EDGE_GAP = NODE_H + 22 // centre-to-centre minimum, domain pairs
+    const MIN_EDGE_GAP_UPPER = NODE_H + 8 // tighter minimum for an upper->upper pair
+    const bothUpper = (p, c) => isUpperOnto(p.id) && isUpperOnto(c.id)
+    const minGapFor = (p, c) => (bothUpper(p, c) ? MIN_EDGE_GAP_UPPER : MIN_EDGE_GAP)
     const real = [...nodes.values()].filter((n) => !n.isDummy)
     // parent/child pairs over the visible is-a edges (up: child -> parent)
     const isaPairs = []
@@ -993,13 +999,23 @@ export function computeLayout (graph, opts = {}) {
         const parent = nodes.get(e.to); if (!parent.isDummy) isaPairs.push({ parent, child })
       }
     })
+    // Compaction: pull an upper->upper child UP toward its parent to the tighter
+    // upper gap, so the scaffold clusters rather than sitting at the full row pitch.
+    // Only upward, only when it wouldn't invert (child stays below parent); the
+    // overlap pass below still has final say.
+    isaPairs.forEach(({ parent, child }) => {
+      if (!bothUpper(parent, child)) return
+      const target = parent.y + MIN_EDGE_GAP_UPPER
+      if (child.y > target) child.y = target
+    })
     for (let pass = 0; pass < 8; pass++) {
       let moved = false
       // (1) parent/child minimum gap — push the child (always the lower one) down.
       for (const { parent, child } of isaPairs) {
+        const min = minGapFor(parent, child)
         const gap = child.y - parent.y
-        if (gap >= MIN_EDGE_GAP) continue
-        child.y += (MIN_EDGE_GAP - gap); moved = true
+        if (gap >= min) continue
+        child.y += (min - gap); moved = true
       }
       // (2) box overlap — separate any horizontally-overlapping pair vertically.
       for (let i = 0; i < real.length; i++) {
