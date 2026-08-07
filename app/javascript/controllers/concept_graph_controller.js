@@ -974,6 +974,9 @@ export default class extends Controller {
     const world = this.#worldBounds(vp, L)
     this._render.world = world // for whole-graph export
     this.#installZoom(svg, vp, world)
+    // Chrome (floating toolbar) is appended after zoom sets up the canvas; kept here
+    // in #render rather than inside #installZoom so zoom and chrome stay decoupled.
+    this.#buildChrome(this.canvasTarget)
     this.#applyFocus()
   }
 
@@ -1669,9 +1672,6 @@ export default class extends Controller {
     ctl.querySelector('[data-z="out"]').addEventListener('click', () => zoomAt(winW / 2, winH / 2, 1 / 1.3))
     ctl.querySelector('[data-z="fit"]').addEventListener('click', () => { userZoomed = false; recenter() })
     canvas.append(ctl)
-
-    // floating gear/help icons (top-left)
-    this.#buildChrome(canvas)
 
     // minimap
     const mmScale = Math.min(MINIMAP_MAX / world.w, MINIMAP_MAX / world.h)
