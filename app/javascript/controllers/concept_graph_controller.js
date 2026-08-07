@@ -37,6 +37,12 @@ export default class extends Controller {
     // stale Escape/keydown handlers accumulating across re-renders or frame swaps.
     this._ac = new AbortController()
 
+    // Selection state must exist for the controller's whole lifetime: the Escape/F
+    // listeners below fire even on the empty-graph and large-graph-gate paths, where
+    // #render (which also sets this) never runs. Without it, Escape/F would
+    // dereference an undefined _sel and throw. #render resets it per draw.
+    this._sel = { traceId: null }
+
     // Render-independent listeners on the STABLE canvas/document — wired once here
     // (bound to the abort signal) rather than in #render, which runs on every
     // settings/filter change and would otherwise stack duplicates on the canvas.
@@ -1419,7 +1425,7 @@ export default class extends Controller {
   #copyText (text) {
     const done = () => this.#toast('Copied ' + text)
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(done, done)
-    else { const ta = document.createElement('textarea'); ta.value = text; document.body.append(ta); ta.select(); try { document.execCommand('copy') } catch {} ta.remove(); done() }
+    else { const ta = document.createElement('textarea'); ta.value = text; document.body.append(ta); ta.select(); try { document.execCommand('copy') } catch { /* execCommand unsupported */ } ta.remove(); done() }
   }
 
   #toast (msg) {
