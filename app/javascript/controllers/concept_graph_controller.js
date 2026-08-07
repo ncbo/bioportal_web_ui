@@ -1546,7 +1546,7 @@ export default class extends Controller {
     const label = this.#effLabel(n)
     const sid = shortId(id)
     const pill = sid ? ` <span style="display:inline-block;font-size:12px;font-weight:600;padding:1px 7px;margin-left:5px;border-radius:8px;background:#eef2f7;color:#5a6b82;vertical-align:middle">${this.#esc(sid)}</span>` : ''
-    const parents = this.#isaParents(id).map((l) => this.#esc(l))
+    const parents = this.#isaParents(id)
     const def = this.opts.useUpperInfo && n.upper && n.upper.definition ? n.upper.definition : n.definition
     const syn = this.#effSynonyms(n)
     const src = (this.opts.useUpperInfo && n.upper && (n.upper.definition || n.upper.label)) ? n.upper.source : ''
@@ -1558,10 +1558,17 @@ export default class extends Controller {
       `<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px">` +
       items.map((s) => `<span style="display:inline-block;font-size:13px;padding:1px 8px;border-radius:8px;background:${bg};color:${fg};white-space:nowrap">${s}</span>`).join('') +
       '</div>'
+    // is-a parent pills: shown parents in solid blue; parents present in the class
+    // but hidden from the drawn graph (e.g. upper-ontology when "hide upper" is on)
+    // in a muted, dashed-outline pill with a "· hidden" note, so the user still sees
+    // the real superclass rather than "no parents".
+    const parentPill = (p) => p.hidden
+      ? `<span style="display:inline-block;font-size:13px;padding:1px 8px;border-radius:8px;background:#eef2f7;color:#8794a5;border:1px dashed #c3ccd8;white-space:nowrap">${this.#esc(p.label)} <span style="font-size:10px;text-transform:uppercase;letter-spacing:.03em">· hidden</span></span>`
+      : `<span style="display:inline-block;font-size:13px;padding:1px 8px;border-radius:8px;background:#e7f0fb;color:#2f6fb0;white-space:nowrap">${this.#esc(p.label)}</span>`
     const isaHtml = parents.length
       ? `<div style="margin-top:4px;color:#4a5b6e"><span style="font-size:12px;font-weight:700;text-transform:uppercase;color:#8794a5">is-a</span>` +
-        pillRow(parents, '#e7f0fb', '#2f6fb0') + '</div>'
-      : '<div style="margin-top:4px;color:#8794a5"><i>no is-a parents in graph</i></div>'
+        `<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px">${parents.map(parentPill).join('')}</div></div>`
+      : '<div style="margin-top:4px;color:#8794a5"><i>no is-a parents</i></div>'
     const synHtml = syn.length
       ? `<div style="margin-top:6px;color:#4a5b6e"><span style="font-size:12px;font-weight:700;text-transform:uppercase;color:#8794a5">Synonym${syn.length > 1 ? 's' : ''}</span>` +
         pillRow(syn.map((x) => this.#esc(x)), '#eef2f7', '#5a6b82') + '</div>'
@@ -1612,9 +1619,20 @@ export default class extends Controller {
 
   #hideTip () { if (this._tip) this._tip.style.display = 'none' }
 
+  // Direct is-a parents for the tooltip. `this.edges` is the full (unfiltered) edge
+  // set, so this still sees parents that were dropped from the drawn graph (e.g. an
+  // upper-ontology parent when "hide upper" is on). Those are returned too, flagged
+  // `hidden`, so the popup can still report them instead of claiming there are none.
   #isaParents (id) {
     const out = []
-    this.edges.forEach((e) => { if (e.kind === 'is-a' && e.from === id) { const t = this._layout.nodes.get(e.to); if (t) out.push(this.#effLabel(t)) } })
+    this.edges.forEach((e) => {
+      if (e.kind !== 'is-a' || e.from !== id) return
+      const rendered = this._layout.nodes.get(e.to)
+      if (rendered) { out.push({ label: this.#effLabel(rendered), hidden: false }); return }
+      // parent not drawn — recover its label from the full graph node data
+      const gn = (this.graph.nodes || []).find((x) => x.id === e.to)
+      if (gn) out.push({ label: this.#effLabel(gn), hidden: true })
+    })
     return out
   }
 
