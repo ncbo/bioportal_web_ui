@@ -199,7 +199,7 @@ module OntologiesHelper
   # These MUST stay in sync with the `id:` values of the tab_item_component calls in
   # app/views/concepts/_show.html.haml. OntologiesHelperTest asserts that, so drift
   # is caught by the test suite rather than shipping a silently-unselectable tab.
-  CONCEPT_VIEWS = %w[details visualization concept-notes concept-mappings].freeze
+  CONCEPT_VIEWS = %w[details visualization concept-graph concept-notes concept-mappings].freeze
 
   # Which inner concept view (Details / Visualization / Notes / Mappings) is active.
   # Read from the `view` URL param so the selection survives a class change: the tree

@@ -22,7 +22,11 @@ class SearchController < ApplicationController
     # must be the string 'true': the API ignores a JSON boolean. It doesn't
     # boost exact matches ("Contributory benefit" would outrank
     # "Contributor"), so results are re-ranked below
-    search_page = LinkedData::Client::Models::Class.search(query, { pagesize: 20, suggest: 'true' })
+    search_opts = { pagesize: 20, suggest: 'true' }
+    # Optional ontology scope (e.g. the per-ontology Graph tab): restrict matches
+    # to a single ontology by acronym.
+    search_opts[:ontologies] = params[:ontology] if params[:ontology].present?
+    search_page = LinkedData::Client::Models::Class.search(query, search_opts)
     results = Array(search_page.collection).filter_map do |cls|
       next if cls.prefLabel.nil?
 

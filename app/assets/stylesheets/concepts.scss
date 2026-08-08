@@ -202,3 +202,793 @@ div.synonym-change-request button {
     white-space: normal !important;
   }
 }
+
+// Entity Graph tab: an is-a neighbourhood laid out by the custom tidy-tree engine
+// (entity_graph_layout.js) and drawn as SVG, styled
+// after the WebProtege entity graph (rounded-rect nodes, is-a arrows). The
+// controller (concept_graph_controller.js) builds the SVG and handles zoom/pan.
+// The graph pane fills its scroll container (.tab-content) exactly, rather than the
+// widget setting its own viewport-based height. The container is already flex-sized to
+// the space below the page chrome, so a `100vh - Npx` guess only ever mismatched it by
+// a few pixels (the container's content box is its height minus its 4px padding-top),
+// which popped an overflow scrollbar while panning. Make the pane chain — graph pane →
+// its flex wrapper → the turbo-frame → .entity-graph — fill 100% of the container
+// instead. Scoped to the graph pane so the other tabs (Details, etc.) keep auto height.
+#concept_graph_content {
+  height: 100%;
+
+  // The graph canvas is absolutely positioned to fill the pane (no border/radius
+  // of its own), so the outer `.outline-tabs + .tab-content .tab-pane` border and
+  // rounded corners would double up around it — drop them for this pane only.
+  &.tab-pane {
+    border: none;
+    border-radius: 0;
+  }
+
+  > .d-flex.flex-column,
+  > .d-flex.flex-column > turbo-frame,
+  > .d-flex.flex-column > turbo-frame > .entity-graph {
+    height: 100%;
+    min-height: 0;
+  }
+
+  // While the frame is fetching, the pane collapses to just the loader. The
+  // TabsContainerComponent renders an <hr> per tab item (styled full-width by
+  // `.tabs-container hr`), which showed as a faint line across the loading pane —
+  // suppress it, and centre the loader in the (now full-height) wrapper.
+  > .d-flex.flex-column { justify-content: center; }
+  .show-if-loading hr,
+  > hr { display: none; }
+}
+
+.entity-graph {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  // Full-window overlay (popout): the graph takes over the whole browser window.
+  &--fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    height: auto;
+    margin: 0;
+    background: #ffffff;
+  }
+
+  &__canvas {
+    // Fill the widget exactly by pinning to all four edges of the (position:relative)
+    // parent, rather than flex-sizing — flex rounding left a few stray pixels that
+    // produced an overflow scrollbar while panning.
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: var(--light-color);
+    overflow: hidden;
+    cursor: grab;
+    // keep drag/scroll gestures inside the graph: the controller owns panning &
+    // (Ctrl/⌘) zoom, so the browser must not also treat them as a page scroll, and
+    // any residual scroll must not chain up to the page.
+    touch-action: none;
+    overscroll-behavior: contain;
+
+    &:active,
+    &--panning {
+      cursor: grabbing;
+    }
+  }
+
+  &__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+
+  // Nodes ------------------------------------------------------------------
+  // Styled after the WebProtege entity graph: white rounded boxes with a blue
+  // border; the selected class is a solid blue box with white text.
+  &__node {
+    cursor: pointer;
+
+    &-shape {
+      fill: #ffffff;
+      stroke: var(--primary-color);
+      stroke-width: 2px;
+      transition: fill 0.1s ease, stroke-width 0.1s ease;
+    }
+
+    &-label {
+      font-family: inherit;
+      font-size: 13px;
+      fill: #222222;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    &:hover &-shape {
+      stroke-width: 3px;
+    }
+
+    // The selected class stands out (solid blue, white label).
+    &--selected &-shape {
+      fill: var(--primary-color);
+      stroke: var(--primary-color);
+    }
+
+    &--selected &-label {
+      fill: #ffffff;
+      font-weight: 600;
+    }
+  }
+
+  // Edges ------------------------------------------------------------------
+  &__edge {
+    stroke-width: 2.5px;
+
+    // Amber closed-arrow is-a edges, matching WebProtege.
+    &--is-a {
+      stroke: #f0a848;
+    }
+
+    // Blue open-arrow relationship (property) edges.
+    &--rel {
+      stroke: #2f6fed;
+    }
+  }
+
+  &__arrow {
+    &--is-a {
+      fill: #f0a848;
+      stroke: none;
+    }
+
+    &--rel {
+      fill: none;
+      stroke: #2f6fed;
+    }
+  }
+
+  // Relationship edge property label, on a pale backing so it reads over lines.
+  &__edge-label {
+    font-family: inherit;
+    font-size: 11px;
+    fill: #1f4fb0;
+    pointer-events: none;
+    user-select: none;
+
+    &-bg {
+      fill: var(--light-color);
+      opacity: 0.9;
+    }
+  }
+
+  // Collector (upper-ontology BFO/COB) nodes: thinner + lighter, so the abstract
+  // scaffolding recedes behind the real structure (matches faded collector edges).
+  &__node--collector &-shape {
+    stroke: #c3ccd8;
+    stroke-width: 1.2px;
+  }
+
+  &__node--collector &-label {
+    fill: #9aa5b3;
+  }
+
+  // Explicitly click-selected node: accent outline so it reads as chosen.
+  &__node--sel &-shape {
+    stroke: #e07b2f;
+    stroke-width: 3px;
+  }
+
+
+  // Edges ------------------------------------------------------------------
+  // (base &__edge / &__arrow rules above.) Curves are drawn by the tidy-tree
+  // router; only the visible line catches no pointer events — a wide transparent
+  // hit-area path does (see &__edge-hit).
+  &__edge {
+    fill: none;
+    pointer-events: none;
+    transition: stroke-width 0.1s ease;
+  }
+
+  // Edge into a collector (abstract upper hub): faded + thin so long unavoidable
+  // cross-graph lines recede behind the real structure.
+  &__edge--to-collector {
+    stroke: #e6c79a;
+    stroke-width: 1.6px;
+  }
+
+  // Wide transparent hover/click target laid over each edge (thin lines are hard
+  // to hit).
+  &__edge-hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 22px;
+    cursor: pointer;
+  }
+
+  // Hovered / selected edge: thickened and always full opacity.
+  &__edge--hover { stroke-width: 4px; }
+  &__edge--sel { stroke-width: 4px; }
+  &__edge--to-collector#{&}__edge--hover { stroke-width: 3px; }
+
+  // Click-to-focus dimming.
+  &__edge,
+  &__node,
+  &__edge-label,
+  &__edge-label-bg {
+    transition: opacity 0.15s ease;
+  }
+
+  &__edge--dim { opacity: 0.1; }
+  &__edge--dim#{&}__edge--hover { opacity: 1; }
+  &__node--dim { opacity: 0.16; }
+  &__edge-label--dim,
+  &__edge-label-bg--dim { opacity: 0.12; }
+
+  // Zoom controls (top-right of the canvas) --------------------------------
+  &__zoom {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border: 1px solid #cfd8e2;
+    border-radius: 7px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+
+    button {
+      width: 28px;
+      height: 26px;
+      border: none;
+      background: #ffffff;
+      color: #33465e;
+      font-size: 15px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      & + button { border-top: 1px solid #e6ecf2; }
+      &:hover { background: #eef3f8; }
+      &:active { background: #e2e9f1; }
+    }
+  }
+
+  // Truncation notice: a dismissable banner shown when the graph hit the
+  // server-side node cap, so a partial graph doesn't read as complete.
+  &__truncated {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 auto;
+    max-width: 640px;
+    padding: 6px 10px 6px 14px;
+    background: #fff7e6;
+    border: 1px solid #f0d190;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font: 12.5px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #7a5b12;
+
+    span { flex: 1; }
+
+    &-close {
+      flex: none;
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #9a7a2e;
+      font-size: 17px;
+      line-height: 1;
+      cursor: pointer;
+      border-radius: 4px;
+
+      &:hover { background: rgba(154, 122, 46, 0.14); color: #5e460d; }
+    }
+  }
+
+  // Context thumbnail / minimap (bottom-right) ------------------------------
+  &__minimap {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #cfd8e2;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    cursor: pointer;
+
+    svg { display: block; }
+
+    &-view {
+      fill: rgba(47, 111, 237, 0.14);
+      stroke: #2f6fed;
+      stroke-width: 1.5;
+      vector-effect: non-scaling-stroke;
+    }
+
+    // Collapse/expand control, top-left corner of the thumbnail. Kept on the left
+    // so it doesn't sit under the floating chrome toolbar at the canvas's right edge.
+    &-toggle {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      z-index: 1;
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #cfd8e2;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #55627a;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+
+      &:hover { background: #eef3f8; color: #28374a; }
+    }
+
+    // "Map" pill shown only when collapsed.
+    &-label {
+      display: none;
+      padding: 4px 10px;
+      font: 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #55627a;
+      user-select: none;
+    }
+
+    &--collapsed {
+      cursor: pointer;
+
+      .entity-graph__minimap-svg,
+      .entity-graph__minimap-toggle { display: none; }
+
+      .entity-graph__minimap-label { display: block; }
+
+      &:hover { background: #eef3f8; }
+    }
+  }
+
+  // Minimap thumbnail: the snapshot is scaled to ~0.1x, so the real node/edge
+  // strokes shrink to sub-pixel and disappear. Give the boxes a solid muted fill
+  // and keep edges as thin non-scaling lines so the graph's shape reads at a glance.
+  &__minimap-svg {
+    .entity-graph__node-shape {
+      fill: #b9c4d4;
+      stroke: none;
+    }
+
+    .entity-graph__node--selected .entity-graph__node-shape {
+      fill: var(--primary-color);
+    }
+
+    .entity-graph__node--collector .entity-graph__node-shape {
+      fill: #dbe1e9;
+    }
+
+    .entity-graph__edge {
+      stroke-width: 1px;
+      vector-effect: non-scaling-stroke;
+      opacity: 0.5;
+    }
+  }
+
+  // Toolbar (search + option toggles) --------------------------------------
+  // Floating chrome: the popout / settings (gear) / key (?) icon buttons, stacked
+  // vertically at the top-right, just under the zoom controls. A high z-index keeps
+  // them clickable above the concept page's sub-tab bar, which overlaps the canvas top.
+  &__chrome {
+    position: absolute;
+    top: 96px; // clear of the 3-button zoom column above
+    right: 8px;
+    z-index: 16;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  &__icon-wrap {
+    position: relative;
+    display: inline-flex;
+  }
+
+  // Match the round action buttons used elsewhere in the UI (e.g. the {} JSON
+  // button): a 32px navy-outlined circle that fills navy with a white glyph on hover.
+  &__icon-btn {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--primary-color);
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--primary-color);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    transition: background-color ease 0.2s, color ease 0.2s;
+
+    &:hover {
+      background: var(--primary-color);
+      color: #ffffff;
+    }
+
+    svg { display: block; }
+
+    // Active-filter indicator: a small dot on the filter button when some
+    // relationships are hidden. White ring so it stays visible on the navy
+    // hover fill as well as the white default.
+    &.is-filtered::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #f0a848; // the relationship (amber) accent used in the graph
+      border: 2px solid #ffffff;
+      box-sizing: border-box;
+    }
+  }
+
+  // popovers open below their icon, right-aligned (icons live near the canvas's
+  // top-right, so a left-aligned popover could overflow the edge)
+  &__options-pop,
+  &__help-pop,
+  &__menu-pop,
+  &__filter-pop {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 20;
+    background: #ffffff;
+    border: 1px solid #cfd8e2;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+    color: #4a5b6e;
+
+    &[hidden] { display: none; }
+  }
+
+  &__options-pop,
+  &__help-pop { padding: 10px 12px; }
+  &__options-pop { width: 240px; font-size: 13px; }
+  &__help-pop { width: 250px; font-size: 12px; }
+
+  // copy menu: a compact list of clickable actions
+  &__menu-pop { padding: 4px 0; min-width: 180px; font-size: 13px; }
+
+  &__menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 6px 14px;
+    border: none;
+    background: none;
+    color: #28374a;
+    font: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover { background: #eef3f8; }
+  }
+
+  // Relationship-property picker popover
+  &__filter-pop {
+    width: 260px;
+    font-size: 13px;
+    padding: 8px 0;
+  }
+
+  // Side panel: filter and settings dock to the right edge of the canvas at full
+  // height and scroll internally, instead of dropping down from their icon (where
+  // tall content overflowed the viewport). Overrides the popover positioning above.
+  &__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: auto;
+    width: 300px;
+    max-width: 85%;
+    border: none;
+    border-left: 1px solid #cfd8e2;
+    border-radius: 0;
+    box-shadow: -4px 0 16px rgba(0, 0, 0, 0.10);
+    display: flex;
+    flex-direction: column;
+    padding: 0; // the header and the scrolling body own their padding
+
+    // Slide in/out from the right edge. Closed = shifted fully off to the right;
+    // `--open` slides it back to rest. The JS keeps the element rendered during the
+    // slide-out and only sets [hidden] (display:none) once the transition ends.
+    transform: translateX(100%);
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+
+    &--open { transform: translateX(0); }
+    // suppress the transition for an instant (re)open after a re-render
+    &--no-anim { transition: none; }
+
+    // fixed header; the body below it scrolls as one column
+    .entity-graph__panel-head { flex: 0 0 auto; }
+    .entity-graph__panel-body { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding: 8px 0; }
+
+    // the relationship list no longer needs its own cap — the panel body scrolls
+    .entity-graph__filter-list { max-height: none; overflow: visible; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__panel { transition: none; }
+  }
+
+  &__panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 8px 10px 14px;
+    border-bottom: 1px solid #eef2f6;
+    font-weight: 600;
+    color: #33465e;
+  }
+
+  &__panel-title { font-size: 14px; }
+
+  &__panel-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    color: #8794a5;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+
+    svg { display: block; }
+    &:hover { color: var(--primary-color); background: #eef3f8; }
+  }
+
+  &__filter-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 12px 6px;
+    font-weight: 600;
+    color: #33465e;
+    border-bottom: 1px solid #eef2f6;
+  }
+
+  &__filter-actions button {
+    border: none;
+    background: none;
+    color: var(--primary-color);
+    font: inherit;
+    cursor: pointer;
+    padding: 0 4px;
+
+    &:hover { text-decoration: underline; }
+  }
+
+  &__filter-search {
+    display: block;
+    width: calc(100% - 24px);
+    margin: 8px 12px 4px;
+    padding: 4px 8px;
+    border: 1px solid #cfd8e2;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+  }
+
+  // the list scrolls once it gets tall — the key to scaling with many properties
+  &__filter-list {
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+
+  &__filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 4px 12px;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover { background: #f5f8fb; }
+    input { cursor: pointer; flex: 0 0 auto; }
+  }
+
+  &__filter-name {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__filter-count {
+    flex: 0 0 auto;
+    color: #8794a5;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // The "Hidden nodes" section under the relationships list — separated by a rule.
+  // Hidden entirely (via inline style) when there are no hidden nodes.
+  &__filter-section {
+    margin-top: 4px;
+    border-top: 1px solid #eef2f6;
+  }
+
+  // The "show this node again" control (eye icon) on a hidden-node row.
+  &__filter-show {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    color: #8794a5;
+    cursor: pointer;
+    padding: 2px 3px;
+    border-radius: 4px;
+
+    svg { display: block; }
+    &:hover { color: var(--primary-color); background: #e7eef6; }
+  }
+
+  // Settings rows carry their own horizontal inset (12px) so they don't rely on a
+  // container's padding — the side panel body has none (its lists are full-bleed).
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 4px 12px;
+    cursor: pointer;
+    user-select: none;
+
+    input { cursor: pointer; flex: 0 0 auto; }
+  }
+
+  // Checkboxes carry Bootstrap 5's .form-check-input (the app's native checkbox
+  // look), but Bootstrap fills the checked state with its default $primary
+  // (#0d6efd). Repaint the checked fill/border and the focus ring with the
+  // BioPortal brand blue so they match the rest of the UI (chips, switches, the
+  // upper-ontology "Show" segment) which all key off --primary-color.
+  .form-check-input {
+    &:checked {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    &:focus {
+      border-color: var(--hover-color);
+      box-shadow: 0 0 0 0.2rem rgba(35, 73, 121, 0.25); // --primary-color @ 25%
+    }
+  }
+
+  // the option label text takes the row, pushing the info icon to the right
+  &__option-name { flex: 1 1 auto; }
+
+  // a thin rule separating groups of options
+  &__option-divider {
+    height: 1px;
+    background: #eef2f6;
+    margin: 6px 12px;
+  }
+
+  // per-option help: a muted (i) whose tooltip explains the setting
+  &__option-info {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    color: #aab4c0;
+    cursor: help;
+
+    svg { display: block; }
+    &:hover { color: var(--primary-color); }
+  }
+
+  // A grouped, separated settings section (e.g. Upper ontology) at the panel bottom.
+  &__option-section {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #eef2f6;
+  }
+
+  &__option-section-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 12px 4px;
+    font-weight: 600;
+    color: #33465e;
+  }
+
+  // Segmented control (Show / Fade / Hide) for a three-state option.
+  &__seg-row {
+    padding: 6px 12px;
+  }
+
+  &__seg-label {
+    margin-bottom: 5px;
+    color: #4a5b6e;
+  }
+
+  &__seg {
+    display: inline-flex;
+    border: 1px solid #cfd8e2;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  &__seg-btn {
+    padding: 4px 12px;
+    border: none;
+    background: #ffffff;
+    color: #4a5b6e;
+    font: inherit;
+    cursor: pointer;
+    line-height: 1.2;
+
+    & + & { border-left: 1px solid #e6ecf2; }
+    &:hover { background: #eef3f8; }
+
+    &.is-active {
+      background: var(--primary-color);
+      color: #ffffff;
+    }
+  }
+
+  &__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 6px;
+  }
+
+  &__legend-hint {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eef2f6;
+    color: #8794a5;
+    line-height: 1.5;
+  }
+
+  // Gate / empty states ----------------------------------------------------
+  &__gate,
+  &__empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--light-color);
+  }
+}

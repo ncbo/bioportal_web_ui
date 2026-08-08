@@ -313,6 +313,71 @@ $bd-bottom-gap: 30px;
   background: rgba(255, 255, 255, 0.65);
 }
 
+// Single spinner across the two-frame handoff. Selecting a class fires TWO
+// sequential fetches: #concept_show (the tab shell, fast) then, inside it, the
+// lazy #concept_entity_graph frame (the slow graph build). The rule above veils the
+// pane only while #concept_show is [busy]; once it returns, its veil dropped but the
+// inner graph frame is now [busy] fetching — which showed a SECOND, separately-
+// positioned spinner over a blank pane. Two problems, two fixes:
+//
+//   a) Keep the SAME outer veil up while the inner graph frame is [busy], and
+//      suppress the inner frame's own loader — so it's one spinner in one place with
+//      the previous graph veiled underneath, not a blank second spinner.
+//   b) Bridge the gap BETWEEN the two [busy] states. They are NOT contiguous: there's
+//      a ~36ms window where concept_show has cleared and the graph frame hasn't gone
+//      busy yet, during which the veil blinked off. The tree marks #concept_content
+//      with .entity-graph-loading from the click until the graph is drawn (see
+//      simple_tree_controller + concept_graph_controller#connect); veiling also while
+//      that marker is present spans the gap so the veil never drops.
+#bd_content #concept_content.entity-graph-loading > .d-flex > turbo-frame#concept_show > .hide-if-loading,
+#bd_content #concept_content > .d-flex:has(turbo-frame#concept_entity_graph[busy]) > turbo-frame#concept_show > .hide-if-loading {
+  display: flex !important;
+}
+#bd_content #concept_content.entity-graph-loading > .d-flex > .show-if-loading,
+#bd_content #concept_content > .d-flex:has(turbo-frame#concept_entity_graph[busy]) > .show-if-loading {
+  display: flex !important;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.65);
+}
+// Kill the inner graph frame's own loader — the outer veil covers it now.
+#concept_graph_content turbo-frame#concept_entity_graph[busy] ~ .show-if-loading {
+  display: none !important;
+}
+
+// The Mappings tab shows a lazy count (#mapping_count Turbo frame). Two issues
+// on every concept select:
+//  - the count's TurboFrameComponent wrapper is a flex COLUMN holding both the
+//    frame (with its own busy spinner) and a sibling .show-if-loading loader;
+//    during a real fetch both showed, stacking TWO circular spinners vertically
+//    below the tab label. Suppress the redundant sibling loader — the frame's
+//    own busy spinner is enough.
+//  - the number<->spinner swap changed the label width and jumped the tab bar;
+//    a fixed footprint keeps the label width constant.
+#concept_content .concepts-mapping-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  // Reserve just enough width for a single-digit count or the (slightly wider)
+  // busy spinner, so the two swap without a jump while the parentheses stay
+  // snug. min-width (not width) lets longer counts expand instead of clipping.
+  min-width: 1.25em;
+
+  > .d-flex.flex-column {
+    width: 100%;
+    align-items: center;
+
+    // the redundant second loader that stacked below the count
+    > .show-if-loading {
+      display: none !important;
+    }
+  }
+}
+
 // The tree tab's content wrapper is a Bootstrap .p-1 (padding: .25rem !important),
 // so the "Jump to" search box sat cramped against the tab bar and pane edges.
 // Give it comfortable room; !important is needed to beat the .p-1 utility.
@@ -331,6 +396,14 @@ $bd-bottom-gap: 30px;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-top: none;
   border-radius: 0 0 4px 4px;
+}
+
+// The Entity Graph canvas fills its pane exactly (absolutely positioned, its own
+// borderless edge-to-edge box), so the 4px top gutter above pushes it past the
+// viewport and produces a few-pixel scrollbar when panning. Drop the gutter only
+// while the graph pane is the active tab — Details/Visualization keep theirs.
+#bd_content #concept_content .tab-content:has(> #concept_graph_content.active) {
+  padding-top: 0;
 }
 
 // The details content has two inset boxes that each draw their own border,
