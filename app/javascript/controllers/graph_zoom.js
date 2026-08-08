@@ -111,7 +111,14 @@ export function createZoom ({ svg, vp, world, canvas, storageGet, storageSet }) 
   // zoom control buttons
   const zmod = (navigator.platform || '').toLowerCase().includes('mac') ? '⌘' : 'Ctrl'
   const ctl = document.createElement('div'); ctl.className = 'entity-graph__zoom'
-  ctl.innerHTML = `<button data-z="in" title="Zoom in (${zmod}+scroll)">+</button><button data-z="out" title="Zoom out (${zmod}+scroll)">−</button><button data-z="fit" title="Fit to view">⤢</button>`
+  // All three zoom controls use inline SVG glyphs so they match the round icon
+  // buttons below. "Fit to view" is a crosshair target (circle + cross-hairs) —
+  // "centre/fit on target", deliberately NOT the outward arrows people read as a popout.
+  const svgOpen = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">'
+  const plusIcon = `${svgOpen}<path d="M12 5v14M5 12h14"/></svg>`
+  const minusIcon = `${svgOpen}<path d="M5 12h14"/></svg>`
+  const fitIcon = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>'
+  ctl.innerHTML = `<button data-z="in" title="Zoom in (${zmod}+scroll)" aria-label="Zoom in">${plusIcon}</button><button data-z="out" title="Zoom out (${zmod}+scroll)" aria-label="Zoom out">${minusIcon}</button><button data-z="fit" title="Fit to view" aria-label="Fit to view">${fitIcon}</button>`
   ctl.querySelector('[data-z="in"]').addEventListener('click', () => zoomAt(winW / 2, winH / 2, 1.3))
   ctl.querySelector('[data-z="out"]').addEventListener('click', () => zoomAt(winW / 2, winH / 2, 1 / 1.3))
   ctl.querySelector('[data-z="fit"]').addEventListener('click', () => { userZoomed = false; recenter() })
