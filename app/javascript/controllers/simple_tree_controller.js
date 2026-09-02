@@ -17,6 +17,31 @@ document.addEventListener('turbo:before-fetch-request', (event) => {
   if (url && !url.searchParams.has('view')) url.searchParams.set('view', view)
 })
 
+// Hold the entity-graph loading veil continuously across the two-request handoff a
+// class select fires: concept_show reloads (fast), then the lazy entity-graph frame
+// inside it fetches the graph (slow). The veil is otherwise driven by [busy] on each
+// frame, but there's a ~35ms gap where concept_show has cleared and the graph frame
+// hasn't gone busy yet — the veil blinked off. Mark the stable outer container
+// (#concept_content, which survives the frame swaps) while a graph-view select is in
+// flight; the concept-graph controller clears it once the graph is drawn. The veil
+// CSS shows while this marker is present, so it never drops in the gap. Only for the
+// graph view — other tabs have a single fast request and don't need it. Registered
+// once at document level; stateless and idempotent (a standalone listener, kept
+// independent of the #533 view-preserving hook so it doesn't collide with it).
+document.addEventListener('turbo:before-fetch-request', (event) => {
+  if (event.target?.id !== 'concept_show') return // only the concept view frame
+  const view = new URLSearchParams(window.location.search).get('view')
+  if (view !== 'concept-graph') return
+
+  const holder = document.getElementById('concept_content')
+  holder?.classList.add('entity-graph-loading')
+  // Safety net: the concept-graph controller clears this once the graph is drawn, but
+  // if the graph frame errors or never connects, clear it anyway so the veil can't get
+  // stuck on the pane. Generous, since a cold graph build can take several seconds.
+  clearTimeout(window.__egLoadingTimer)
+  window.__egLoadingTimer = setTimeout(() => holder?.classList.remove('entity-graph-loading'), 30000)
+})
+
 // Connects to data-controller="simple-tree"
 export default class extends Controller {
 

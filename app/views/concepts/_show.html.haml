@@ -27,6 +27,18 @@
         - tab_item_component(container_tabs: c, id: 'visualization', title: t('concepts.visualization'), path: '#visualization', selected: selected_concept_view?('visualization')) do
           = render :partial =>'/concepts/biomixer'
 
+        -# Entity Graph: a node-link diagram of the selected class's is-a
+        -# neighbourhood (parents + children). loading:'lazy' so the (expensive,
+        -# many-API-call) graph build only runs when this tab is actually visible —
+        -# not on every class select while you're on Details/etc. A turbo-frame with
+        -# a bare src fetches eagerly on insertion even inside a hidden pane, which
+        -# was silently building the graph for views that never showed it.
+        - tab_item_component(container_tabs: c, id: 'concept-graph', title: t('concepts.entity_graph', default: 'Graph'), path: '#graph', selected: selected_concept_view?('concept-graph')) do
+          -# Pass the active language so the graph's labels/tooltips (and its cache
+          -# key) match the class page's language on multilingual ontologies.
+          = render TurboFrameComponent.new(id: 'concept_entity_graph', loading: 'lazy',
+          src: "/ajax/entity_graph?ontologyid=#{@ontology.acronym}&conceptid=#{CGI.escape(@concept.id)}&language=#{CGI.escape(request_lang.to_s)}")
+
 
         -# Notes are loaded lazily, like Mappings: the turbo-frame's `loading: lazy`
         -# defers the fetch until the pane is shown. The tab label no longer shows a

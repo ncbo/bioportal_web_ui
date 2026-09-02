@@ -1,0 +1,35 @@
+-# Entity Graph tab body. The graph data is emitted as JSON and drawn client-side
+-# by the concept-graph Stimulus controller (custom tidy-tree layout + SVG, with
+-# hand-rolled zoom/pan in graph_zoom).
+-# For large neighbourhoods we show a gate first (WebProtege-style) rather than
+-# rendering an unreadable graph.
+-# Wrapped in the matching turbo-frame (concept_entity_graph) so the lazy frame
+-# in _show.html.haml resolves the response (same pattern as Mappings).
+= turbo_frame_tag 'concept_entity_graph' do
+  .entity-graph{data: {controller: 'concept-graph',
+                       'concept-graph-graph-value': @graph.to_json,
+                       'concept-graph-ontology-value': @ontology.acronym,
+                       'concept-graph-large-value': @graph[:large].to_s}}
+
+    -# The settings (gear) and key (?) icon buttons are floated onto the canvas by
+    -# the controller — no toolbar row, so the graph gets the full height.
+
+    -# Large-graph gate: shown when the neighbourhood exceeds the threshold. The
+    -# controller hides this and reveals the canvas when the user chooses to render.
+    .entity-graph__gate.d-none{data: {'concept-graph-target': 'gate'}}
+      .text-center.py-5
+        %p.mb-2
+          %b This graph is large
+        %p.text-muted.mb-3
+          = "It has #{@graph[:edge_count]} connections, which may be slow or hard to read."
+        %button.btn.btn-primary{type: 'button', data: {action: 'concept-graph#renderAnyway'}}
+          Show graph anyway
+
+    -# The graph canvas. The controller injects the SVG here.
+    .entity-graph__canvas{data: {'concept-graph-target': 'canvas'}}
+
+    -# Empty state — controller reveals it if the class has no ancestors (i.e. it
+    -# is a root of the hierarchy, so there is nothing above it to graph).
+    .entity-graph__empty.d-none{data: {'concept-graph-target': 'empty'}}
+      .text-center.py-5.text-muted
+        This class is at the top of the hierarchy — it has no superclasses to graph.

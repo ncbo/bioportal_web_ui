@@ -172,6 +172,30 @@ class ConceptsController < ApplicationController
     render partial: "biomixer", layout: false
   end
 
+  # Entity-graph data for a class: the selected class and its full is-a ancestor
+  # chain up to the ontology root(s), as a node-link graph. Mirrors the
+  # WebProtege entity graph (selected entity at the bottom, superclasses rising
+  # to the top). Rendered into the Entity Graph tab; the graph itself is drawn
+  # client-side (concept-graph Stimulus controller).
+  def entity_graph
+    @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontologyid]).first
+    ontology_not_found(params[:ontologyid]) if @ontology.nil?
+
+    @concept = @ontology.explore.single_class({ full: true, language: request_lang }, params[:conceptid])
+    concept_not_found(params[:conceptid]) if @concept.nil?
+
+    # Building the graph fans out to many API calls, but the result is a pure
+    # function of (ontology, class, language) — so cache it. Keyed by acronym +
+    # class + lang; a TTL (not the submission id) handles invalidation, since
+    # reading the submission id would itself cost an API call on every request,
+    # including cache hits. A re-upload is reflected once the TTL lapses.
+    cache_key = "entity_graph/#{@ontology.acronym}/#{request_lang}/#{Digest::MD5.hexdigest(@concept.id.to_s)}"
+    @graph = Rails.cache.fetch(cache_key, expires_in: EXPIRY_ENTITY_GRAPH) do
+      EntityGraphService.call(@ontology, @concept, helpers: helpers, lang: request_lang)
+    end
+    render partial: 'entity_graph', layout: false
+  end
+
   private
 
   def filter_concept_with_no_date(concepts)

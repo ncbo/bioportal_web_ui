@@ -137,6 +137,7 @@ Rails.application.routes.draw do
   get '/ajax/classes/treeview' => 'concepts#show_tree'
   get '/ajax/properties/tree' => 'concepts#property_tree'
   get '/ajax/biomixer' => 'concepts#biomixer'
+  get '/ajax/entity_graph' => 'concepts#entity_graph'
 
   get 'ajax/schemes/label', to: 'schemes#show_label'
   get '/ajax/classes/list' => 'collections#show_members'
