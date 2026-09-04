@@ -242,8 +242,11 @@ class OntologiesController < ApplicationController
     @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology], include: 'all').first
     if @ontology.nil? || (@ontology.errors && @ontology.status.to_i == 404)
       ontology_not_found(params[:ontology])
-    elsif @ontology.errors && [401, 403].include?(@ontology.status.to_i)
+    elsif @ontology.errors && @ontology.status.to_i == 403
       return ontology_forbidden(params[:ontology])
+    elsif @ontology.errors && @ontology.status.to_i == 401
+      raise UpstreamAuthenticationError,
+            "REST API authentication failed while retrieving ontology #{params[:ontology]}"
     end
 
     # Handle the case where an ontology is converted to summary only.

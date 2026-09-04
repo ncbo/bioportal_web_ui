@@ -35,14 +35,16 @@ class OntologiesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, 'You do not have permission to access ontology PRIVATE.'
   end
 
-  test 'returns 403 when the API requires authentication for an ontology' do
+  test 'raises an upstream authentication error when the API rejects the application credentials' do
     inaccessible_ontology = OpenStruct.new(errors: ['Authentication required'], status: 401)
 
-    LinkedData::Client::Models::Ontology.stub(:find_by_acronym, [inaccessible_ontology]) do
-      get ontology_path('PRIVATE')
+    error = assert_raises(UpstreamAuthenticationError) do
+      LinkedData::Client::Models::Ontology.stub(:find_by_acronym, [inaccessible_ontology]) do
+        get ontology_path('PRIVATE')
+      end
     end
 
-    assert_response :forbidden
+    assert_includes error.message, 'REST API authentication failed'
   end
 
   test 'returns 404 when an ontology does not exist' do

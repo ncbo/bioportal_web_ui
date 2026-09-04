@@ -32,6 +32,7 @@ module BioportalWebUi
     # config.eager_load_paths << Rails.root.join("extras")
 
     config.exceptions_app = self.routes
+    config.action_dispatch.rescue_responses['OntologyAccessDeniedError'] = :forbidden
 
     config.settings = config_for :settings
     # Initialize configuration for KGCL change request functionality.

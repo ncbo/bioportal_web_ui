@@ -50,7 +50,8 @@ class ApplicationController < ActionController::Base
   end
 
   def ontology_forbidden(ontology_acronym)
-    forbidden(t('application.ontology_forbidden', acronym: ontology_acronym))
+    raise OntologyAccessDeniedError,
+          t('application.ontology_forbidden', acronym: ontology_acronym)
   end
 
   def submission_metadata
@@ -110,18 +111,6 @@ class ApplicationController < ActionController::Base
     end
 
     raise ActiveRecord::RecordNotFound.new(message || t('application.not_found_message'))
-  end
-
-  def forbidden(message = '')
-    message = t('application.forbidden_message') if message.blank?
-
-    if request.xhr?
-      render plain: message, status: :forbidden
-      return
-    end
-
-    @error_message = message
-    render template: 'errors/forbidden', status: :forbidden
   end
 
   NOTIFICATION_TYPES = { :notes => "CREATE_NOTE_NOTIFICATION", :all => "ALL_NOTIFICATION" }
