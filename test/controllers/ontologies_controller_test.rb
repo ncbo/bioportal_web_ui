@@ -24,6 +24,37 @@ class OntologiesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test 'returns 403 when the API denies access to an ontology' do
+    inaccessible_ontology = OpenStruct.new(errors: ['Access denied'], status: 403)
+
+    LinkedData::Client::Models::Ontology.stub(:find_by_acronym, [inaccessible_ontology]) do
+      get ontology_path('PRIVATE')
+    end
+
+    assert_response :forbidden
+    assert_includes response.body, 'You do not have permission to access ontology PRIVATE.'
+  end
+
+  test 'returns 403 when the API requires authentication for an ontology' do
+    inaccessible_ontology = OpenStruct.new(errors: ['Authentication required'], status: 401)
+
+    LinkedData::Client::Models::Ontology.stub(:find_by_acronym, [inaccessible_ontology]) do
+      get ontology_path('PRIVATE')
+    end
+
+    assert_response :forbidden
+  end
+
+  test 'returns 404 when an ontology does not exist' do
+    missing_ontology = OpenStruct.new(errors: ['Not found'], status: 404)
+
+    LinkedData::Client::Models::Ontology.stub(:find_by_acronym, [missing_ontology]) do
+      get ontology_path('DOES-NOT-EXIST')
+    end
+
+    assert_response :not_found
+  end
+
   ONTOLOGIES.each do |ont|
     PAGES.each do |page|
       test "should get page #{page} of #{ont.acronym} ontology" do
