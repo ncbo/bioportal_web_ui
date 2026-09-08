@@ -195,20 +195,14 @@ module OntologiesHelper
   # strip beside the JSON button. Clicking it bubbles to the fullscreen-pane
   # Stimulus controller on #bd_content (see fullscreen_pane_controller.js), which
   # expands the tree + details to fill the window. The icon swaps between the two
-  # SVGs below via the .bd-content--fullscreen class on the ancestor; the
+  # SVGs via the .bd-content--fullscreen class on the ancestor; the
   # controller updates the title/aria-label to the state-specific string.
   def fullscreen_pane_button
-    # Two inline SVGs, one shown per state (CSS in ontologies.scss keys off the
-    # ancestor's .bd-content--fullscreen class): outward "expand" arrows normally,
-    # inward "contract" arrows (the mirror, reading as restore rather than
-    # close/delete) when full-window.
-    expand = <<~SVG.html_safe
-      <svg class="bd-content__fs-icon bd-content__fs-icon--expand" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H4v5M20 9V4h-5M4 15v5h5M15 20h5v-5"/></svg>
-    SVG
-    contract = <<~SVG.html_safe
-      <svg class="bd-content__fs-icon bd-content__fs-icon--contract" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M20 9h-5V4M4 15h5v5M15 20v-5h5"/></svg>
-    SVG
-    content_tag(:button, expand + contract,
+    expand = inline_svg_tag('icons/expand.svg', width: 20, height: 20,
+                            class: 'bd-content__fs-icon bd-content__fs-icon--expand', 'aria-hidden': true)
+    contract = inline_svg_tag('icons/contract.svg', width: 20, height: 20,
+                              class: 'bd-content__fs-icon bd-content__fs-icon--contract', 'aria-hidden': true)
+    content_tag(:button, safe_join([expand, contract]),
                 type: 'button',
                 class: 'bd-content__fullscreen-btn',
                 title: t('concepts.maximise'),
