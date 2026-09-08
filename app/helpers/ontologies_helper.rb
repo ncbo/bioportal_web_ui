@@ -178,7 +178,7 @@ module OntologiesHelper
   end
 
   def render_permalink_link
-    content_tag(:div, class: 'concepts_json_button mx-2') do
+    content_tag(:div, class: 'concepts_json_button me-0') do
       render RoundedButtonComponent.new(id: 'classPermalink', link: 'javascript:void(0);', title: t('concepts.permanent_link_class'), data: { 'bs-toggle': "modal", 'bs-target': "#classPermalinkModal", current_purl: @current_purl }) do
         inline_svg_tag('icons/copy_link.svg', width: 20, height: 20)
       end
@@ -210,7 +210,7 @@ module OntologiesHelper
     SVG
     content_tag(:button, expand + contract,
                 type: 'button',
-                class: 'bd-content__fullscreen-btn mx-2',
+                class: 'bd-content__fullscreen-btn',
                 title: t('concepts.maximise'),
                 'aria-label': t('concepts.maximise'),
                 data: {
@@ -257,7 +257,7 @@ module OntologiesHelper
     render TabsContainerComponent.new(type: 'outline', url_parameter: url_parameter,
                                       merge_url_params: merge_url_params) do |c|
       concat(c.with_pinned_right do
-        content_tag(:div, '', class: 'd-flex align-items-center', 'data-concepts-json-target': 'button') do
+        content_tag(:div, '', class: 'd-flex align-items-center gap-2 ms-2', 'data-concepts-json-target': 'button') do
           concat(fullscreen_pane_button) if fullscreen_toggle
           concat(render_permalink_link) if $PURL_ENABLED
           concat(render_concepts_json_button(resource_url))
