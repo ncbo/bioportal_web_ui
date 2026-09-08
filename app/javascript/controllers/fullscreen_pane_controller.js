@@ -78,7 +78,10 @@ export default class extends Controller {
     if (!btn) return;
     const label = this.isOpen ? btn.dataset.exitLabel : btn.dataset.enterLabel;
     if (!label) return;
-    btn.title = label;
+    // The shared tooltip removes title to suppress the browser's native tooltip.
+    // Before it connects, leave the current label in title for initialization.
+    if (btn._tippy) btn._tippy.setContent(label);
+    else btn.title = label;
     btn.setAttribute('aria-label', label);
   }
 

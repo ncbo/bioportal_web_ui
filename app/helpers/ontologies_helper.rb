@@ -214,6 +214,7 @@ module OntologiesHelper
                 title: t('concepts.maximise'),
                 'aria-label': t('concepts.maximise'),
                 data: {
+                  controller: 'tooltip',
                   action: 'click->fullscreen-pane#toggle',
                   'enter-label': t('concepts.maximise'),
                   'exit-label': t('concepts.minimise')
