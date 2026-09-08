@@ -50,8 +50,10 @@ en:
 
   application:
     ontology_not_found: Ontology %{acronym} not found
+    ontology_forbidden: You do not have permission to access ontology %{acronym}.
     error_load: "Error: load failed"
     not_found_message: Not Found
+    forbidden_message: You do not have permission to access this page.
     errors_in_fields: "Errors in fields: %{errors}"
 
   home:

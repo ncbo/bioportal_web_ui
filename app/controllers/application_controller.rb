@@ -49,6 +49,11 @@ class ApplicationController < ActionController::Base
     not_found(t('application.ontology_not_found',acronym: ontology_acronym))
   end
 
+  def ontology_forbidden(ontology_acronym)
+    raise OntologyAccessDeniedError,
+          t('application.ontology_forbidden', acronym: ontology_acronym)
+  end
+
   def submission_metadata
     @metadata ||= helpers.submission_metadata
   end

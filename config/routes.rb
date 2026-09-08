@@ -88,6 +88,7 @@ Rails.application.routes.draw do
   match '/visits', to: 'visits#index', via: :get
 
   # Error pages
+  match '/403', to: 'errors#forbidden', via: :all
   match '/404', to: 'errors#not_found', via: :all
   match '/500', to: 'errors#internal_server_error', via: :all
 
