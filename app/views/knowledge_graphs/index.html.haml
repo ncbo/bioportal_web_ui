@@ -1,0 +1,65 @@
+- @title ||= "Knowledge Graphs"
+- filters_active = [@query, @category, @status, @domain].any?(&:present?)
+
+%div.container-fluid.py-3
+  %div.d-flex.align-items-center.justify-content-between.flex-wrap.gap-2
+    %h1.mb-0 Knowledge Graphs
+    %div.text-muted.small
+      - total = @all_knowledge_graphs.length
+      - shown = @knowledge_graphs.length
+      = filters_active ? "#{shown} of #{total} resources" : "#{total} resources"
+
+  %p.text-muted.mt-2
+    This catalog is sourced from the KG-Registry project.
+
+  %form.row.g-2.align-items-end.mt-3{action: knowledge_graphs_path, method: :get}
+    %div.col-12.col-lg-4
+      %label.form-label{for: "kg-q"} Search
+      %input#kg-q.form-control{name: "q", value: @query, placeholder: "Name, ID, synonym, description"}
+    %div.col-12.col-md-4.col-lg-2
+      %label.form-label{for: "kg-category"} Category
+      %select#kg-category.form-select{name: "category"}
+        %option{value: ""} All
+        - @categories.each do |cat|
+          %option{value: cat, selected: @category == cat}= cat
+    %div.col-12.col-md-4.col-lg-2
+      %label.form-label{for: "kg-status"} Status
+      %select#kg-status.form-select{name: "status"}
+        %option{value: ""} All
+        - @statuses.each do |status|
+          %option{value: status, selected: @status == status}= status
+    %div.col-12.col-md-4.col-lg-2
+      %label.form-label{for: "kg-domain"} Domain
+      %select#kg-domain.form-select{name: "domain"}
+        %option{value: ""} All
+        - @domains.each do |domain|
+          %option{value: domain, selected: @domain == domain}= domain
+    %div.col-12.col-lg-2.d-flex.gap-2
+      %button.btn.btn-primary.w-100{type: "submit"} Apply
+      - if filters_active
+        = link_to("Clear", knowledge_graphs_path, class: "btn btn-outline-secondary w-100")
+
+  - if @knowledge_graphs.empty?
+    %div.alert.alert-warning.mt-3
+      - if filters_active
+        No knowledge graphs match your filters.
+      - else
+        No knowledge graphs could be loaded right now. Please try again later.
+  - else
+    %div.row.g-3.mt-1
+      - @knowledge_graphs.each do |kg|
+        %div.col-12.col-md-6.col-xl-4
+          %div.card.h-100.shadow-sm
+            %div.card-body.d-flex.flex-column
+              %h5.card-title.mb-1
+                = link_to(kg[:name].presence || kg[:id], knowledge_graph_path(kg[:id]))
+              - meta = [kg[:category], kg[:activity_status]].compact
+              - if meta.any?
+                %div.text-muted.small.mb-2= meta.join(" • ")
+              - if kg[:description].present?
+                %p.card-text.flex-grow-1= truncate(kg[:description], length: 220)
+              - domains = Array(kg[:domains]).compact
+              - if domains.any?
+                %div.mt-2
+                  - domains.first(6).each do |domain|
+                    %span.badge.bg-light.text-dark.me-1.mb-1= domain
