@@ -21,6 +21,9 @@ export default class extends Controller {
 
   connect() {
     this._onKey = (ev) => {
+      // Let dialogs consume Escape, including while Bootstrap finishes closing
+      // and restores the body's scroll lock after its transition.
+      if (ev.defaultPrevented || document.body.classList.contains('modal-open')) return;
       if (ev.key === 'Escape' && this.isOpen) this.toggle();
     };
     document.addEventListener('keydown', this._onKey);
