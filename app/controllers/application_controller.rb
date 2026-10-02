@@ -381,10 +381,15 @@ class ApplicationController < ActionController::Base
           params[:conceptid].empty? ||
           params[:conceptid].eql?("root")
 
+      # The tree's root set: the ontology's IAO:0000700 declared roots when present,
+      # unless the "Show full hierarchy" toggle (tree_roots=full) asks for the
+      # structural roots. See tree_root_set.
+      show_full_hierarchy = params[:tree_roots].to_s == 'full'
+
       if ignore_concept_param
         # get the top level nodes for the root
         # TODO_REV: Support views? Replace old view call: @ontology.top_level_classes(view)
-        roots = @ontology.explore.roots(lang: lang)
+        roots = tree_root_set(submission, lang, full: show_full_hierarchy)
 
         if roots.nil? || roots.empty?
           Log.add :debug, "Missing roots for #{@ontology.acronym}"
@@ -414,11 +419,37 @@ class ApplicationController < ActionController::Base
           not_found
         end
 
-        # Create the tree
-        rootNode = @concept.explore.tree(include: "prefLabel,hasChildren,obsolete", lang: lang)
+        # Create the tree. In "paths" mode we show every location of the class
+        # in the hierarchy (all parent paths merged) rather than the single path
+        # the /tree endpoint returns. We pass the tree root set so the paths stop
+        # at them, matching where the normal tree begins. When the paths tree can't
+        # be built (e.g. paths_to_root is unavailable for the ontology), fall back
+        # to the normal single-path tree. A selected class that sits *above* the
+        # tree roots keeps its real path: trim_path_to_tree_root leaves a path with
+        # no tree root on it unchanged, so an explicitly selected class is never
+        # hidden by declared-root trimming.
+        # Resolve the declared roots once for this request (each costs an API call)
+        # and reuse them for both the paths root set and the /tree re-rooting below.
+        declared = declared_root_classes(submission, lang) unless show_full_hierarchy
+
+        roots = nil
+        rootNode = nil
+        if params[:tree_mode].to_s == 'paths'
+          roots = tree_root_set(submission, lang, full: show_full_hierarchy, declared: declared)
+          rootNode = paths_to_root_tree(@concept, lang, roots)
+        end
+        rootNode ||= @concept.explore.tree(include: "prefLabel,hasChildren,obsolete", lang: lang)
+
+        # When the ontology declares its own roots (and the full-hierarchy toggle is
+        # off), re-root the /tree result at those declared roots so the tree starts
+        # where the normal (declared-roots) view does, instead of climbing to the
+        # structural top. A concept that sits above every declared root keeps its
+        # real path (reroot_tree_at_roots returns it unchanged), so an explicitly
+        # selected class is never hidden.
+        rootNode = reroot_tree_at_roots(rootNode, declared) if declared.present?
 
         if rootNode.nil? || rootNode.empty?
-          roots = @ontology.explore.roots(lang: lang)
+          roots ||= tree_root_set(submission, lang, full: show_full_hierarchy, declared: declared)
 
           if roots.nil? || roots.empty?
             Log.add :debug, "Missing roots for #{@ontology.acronym}"
@@ -439,6 +470,206 @@ class ApplicationController < ActionController::Base
       end
     end
     @concept
+  end
+
+  # The set of classes the tree starts at. When the ontology declares its own
+  # display roots via IAO:0000700 (submission.hasOntologyRootTerm) and the caller
+  # has not asked for the full hierarchy, use those; otherwise use the structural
+  # roots the API computes (`explore.roots`, i.e. children of owl:Thing).
+  #
+  # `full` (from the "Show full hierarchy" toggle) forces the structural roots even
+  # when declared roots exist. Declared root IRIs that don't resolve to a class in
+  # this ontology are ignored; if none resolve, we fall back to the structural
+  # roots. Returns an array of Class, or nil/empty as `explore.roots` would.
+  #
+  # Pass `declared:` when the declared roots have already been resolved for this
+  # request (they cost one API call each) to avoid resolving them a second time.
+  def tree_root_set(submission, lang, full: false, declared: nil)
+    declared = declared_root_classes(submission, lang) if declared.nil? && !full
+    return declared if !full && declared.present?
+
+    @ontology.explore.roots(lang: lang)
+  end
+
+  # Resolve the ontology's IAO:0000700 declared root terms (a list of class IRIs on
+  # the submission) to Class objects, dropping any that don't resolve in this
+  # ontology. Returns [] when none are declared or none resolve.
+  #
+  # SKOS vocabularies root the tree from skos:hasTopConcept, not IAO:0000700, so the
+  # declared-roots path is skipped for them (mirrors ontology_declares_roots?, which
+  # hides the toggle). Returning [] here means tree_root_set falls through to the
+  # normal (skos:hasTopConcept-derived) roots and the /tree re-rooting is skipped.
+  def declared_root_classes(submission, lang)
+    return [] if submission&.hasOntologyLanguage === 'SKOS'
+
+    iris = Array(submission&.hasOntologyRootTerm).map(&:to_s).reject(&:empty?)
+    return [] if iris.empty?
+
+    iris.map do |iri|
+      cls = @ontology.explore.single_class({ include: 'prefLabel,hasChildren', lang: lang }, iri)
+      cls unless cls.nil? || (cls.respond_to?(:errors) && cls.errors)
+    end.compact
+  end
+
+  # Re-root a /tree result (an array of top Class nodes, each with nested
+  # `children`) so it begins at the ontology's declared roots. Walks the tree,
+  # collects every node whose id is a declared root, and returns those as the new
+  # tops — discarding the ancestors above them. If no declared root appears
+  # anywhere in the tree (the concept sits above all of them), the tree is returned
+  # unchanged, so an explicitly selected class above the roots keeps its real path.
+  def reroot_tree_at_roots(tree_nodes, declared_roots)
+    return tree_nodes unless tree_nodes.is_a?(Array) && declared_roots.present?
+
+    root_ids = declared_roots.map { |r| r.id.to_s }
+    found = []
+    walk = lambda do |nodes|
+      Array(nodes).each do |n|
+        if root_ids.include?(n.id.to_s)
+          found << n # a declared root: keep it (with its subtree) as a new top
+        else
+          walk.call(n.children) # otherwise descend past this ancestor
+        end
+      end
+    end
+    walk.call(tree_nodes)
+
+    found.empty? ? tree_nodes : found
+  end
+
+  # Build the class tree from *all* of a concept's paths to root (the class can
+  # sit under several parents), merged into a single tree so the concept appears
+  # at every location. Returns an array of top-level (root) nodes, or nil when the
+  # paths tree can't be built (no self link, the endpoint failed, or the concept
+  # has no paths) so the caller can fall back to the normal single-path tree.
+  #
+  # The tree is "pruned": each node keeps only the children that lie on a path to
+  # the concept, and hasChildren is set to false on the leaves so those pruned
+  # nodes render as static (no expand handle).
+  #
+  # tree_roots is the set of classes the tree starts at (the ontology's roots);
+  # each path is trimmed to begin at the tree root nearest the concept so the paths
+  # start where the normal tree does rather than climbing to the top of the
+  # hierarchy. See tree_root_set for how this set is chosen (IAO:0000700-declared
+  # roots when present, otherwise the structural roots endpoint).
+  def paths_to_root_tree(concept, lang, tree_roots = nil)
+    paths = concept_paths_to_root(concept, lang, tree_roots)
+    return nil unless paths.is_a?(Array) && !paths.empty?
+
+    paths = paths.map { |path| trim_path_to_tree_root(path, tree_roots) }
+
+    # Merge the paths into one tree. Each tree node is a *fresh copy* of the source
+    # node (keyed by its position — the id-path from the root), never the source
+    # object itself: the same source Class instance can appear at several positions
+    # (the parents-walk fallback in particular reuses instances), and mutating a
+    # shared instance's children would corrupt the other positions.
+    roots = []
+    node_at_path = {}  # "id/id/id" (position) => tree node
+
+    paths.each do |path|
+      next unless path.is_a?(Array)
+
+      parent = nil
+      key = nil
+      path.each do |node|
+        key = key.nil? ? node.id.to_s : "#{key}/#{node.id}"
+        existing = node_at_path[key]
+        unless existing
+          existing = node.dup
+          existing.children = []
+          node_at_path[key] = existing
+          if parent.nil?
+            roots << existing
+          else
+            # The client Class getter only returns children once assigned via the
+            # writer, so always reassign the array rather than mutating in place.
+            parent.children = parent.children + [existing]
+          end
+        end
+        parent = existing
+      end
+    end
+
+    set_has_children = lambda do |nodes|
+      nodes.each do |n|
+        children = n.children || []
+        n.hasChildren = !children.empty?
+        set_has_children.call(children)
+      end
+    end
+    set_has_children.call(roots)
+
+    roots
+  end
+
+  # Return all root->concept paths (array of arrays of Class), or nil if none can
+  # be obtained. Prefer the paths_to_root endpoint (a single call); if it is
+  # unavailable for the ontology (e.g. some SKOS ontologies return an unparseable
+  # body), fall back to walking the concept's parent links.
+  def concept_paths_to_root(concept, lang, tree_roots)
+    self_link = concept.links && concept.links['self']
+    return nil if self_link.nil?
+
+    paths = begin
+              LinkedData::Client::HTTP.get("#{self_link}/paths_to_root",
+                                           include: 'prefLabel,hasChildren', lang: lang)
+            rescue StandardError => e
+              Log.add :debug, "paths_to_root failed for #{concept.id}: #{e.class}"
+              nil
+            end
+    return paths if paths.is_a?(Array) && !paths.empty?
+
+    # Fallback: build the paths from the parents link (which is available even
+    # when paths_to_root is not). Each root->concept path is returned root-first.
+    root_ids = Array(tree_roots).map { |r| r.id.to_s }
+    build_paths_via_parents(concept, root_ids)
+  end
+
+  # Cap on the number of paths built by the parents-walk fallback, to bound a wide
+  # polyhierarchy (paths multiply per parent per level).
+  MAX_PARENT_PATHS = 200
+
+  # Build all root->concept paths by walking the concept's parent links upward,
+  # forking a path for each parent (polyhierarchy). Stops at the tree roots, at
+  # a concept with no parents, or when the concept is already on the current path
+  # (cycle guard). Memoises parent lookups by id, and the total number of paths is
+  # capped so a wide or malformed hierarchy can't blow up.
+  def build_paths_via_parents(concept, root_ids, parents_cache = {}, visited = [], depth = 0)
+    id = concept.id.to_s
+    return [[concept]] if depth > 50 || root_ids.include?(id) || visited.include?(id)
+
+    parents = parents_cache[id] ||= begin
+      res = concept.explore.parents
+      res.respond_to?(:collection) ? res.collection : res
+    rescue StandardError
+      []
+    end
+    parents = [] unless parents.is_a?(Array)
+    return [[concept]] if parents.empty?
+
+    next_visited = visited + [id]
+    paths = []
+    parents.each do |parent|
+      build_paths_via_parents(parent, root_ids, parents_cache, next_visited, depth + 1).each do |path|
+        paths << (path + [concept])
+        return paths if paths.length >= MAX_PARENT_PATHS
+      end
+    end
+    paths
+  end
+
+  # Trim a single root->concept path so it begins at the tree root nearest the
+  # concept (the deepest tree root on the path). The raw paths_to_root endpoint
+  # climbs to the top of the hierarchy, above the roots the ontology actually
+  # exposes; this keeps the paths starting where the normal tree does. Paths with
+  # no tree root on them (or when no roots are given) are left as-is.
+  def trim_path_to_tree_root(path, tree_roots)
+    return path if tree_roots.nil? || tree_roots.empty? || !path.is_a?(Array)
+
+    root_ids = tree_roots.map { |r| r.id.to_s }
+    last_root_index = nil
+    path.each_index { |i| last_root_index = i if root_ids.include?(path[i].id.to_s) }
+
+    last_root_index ? path[last_root_index..] : path
   end
 
   def get_metrics_hash

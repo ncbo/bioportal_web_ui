@@ -97,7 +97,11 @@ class ConceptsController < ApplicationController
 
   def show_tree
     @ontology = LinkedData::Client::Models::Ontology.find_by_acronym(params[:ontology]).first
-    @submission = @ontology.explore.latest_submission(include: 'uriRegexPattern,preferredNamespaceUri')
+    # hasOntologyRootTerm carries the ontology's IAO:0000700 declared roots, used by
+    # get_class -> tree_root_set to seed the tree from them (see application_controller).
+    # hasOntologyLanguage is needed alongside it so the declared-roots path can be
+    # skipped for SKOS (which roots from skos:hasTopConcept instead).
+    @submission = @ontology.explore.latest_submission(include: 'uriRegexPattern,preferredNamespaceUri,hasOntologyRootTerm,hasOntologyLanguage')
     if @ontology.nil? || @ontology.errors
       ontology_not_found(params[:ontology])
     else

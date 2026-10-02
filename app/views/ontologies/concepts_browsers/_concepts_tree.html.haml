@@ -16,14 +16,57 @@
                         'skos-collections-selector-enable-colors-value': 'true'}}
   -# Class tree
   -# Height + overflow are handled by the #sd_content rule in ontologies.scss
-  -# so the tree fills its column and scrolls independently.
-  %div#sd_content.px-1
-    - if skos? && @roots&.empty?
-      %div.text-wrap
-        = render Display::AlertComponent.new do
-          = t("ontologies.concepts_browsers.missing_roots", acronym: @ontology.acronym)
-    - else
-      - concept_schemes = skos? ? "&concept_schemes=#{params[:concept_schemes]}" : ''
-      = render TurboFrameComponent.new(id: 'concepts_tree_view',
-                                     src: "/ajax/classes/treeview?ontology=#{@ontology.acronym}&conceptid=#{escape(@concept.id)}#{concept_schemes}&auto_click=false&language=#{request_lang}",
-                                     data: {'turbo-frame-target': 'frame'})
+  -# so the tree fills its column and scrolls independently. The parent is the
+  -# positioning context for the floating "Show parent paths" toggle, which sits
+  -# over the top-right of the tree so it doesn't take vertical space away from it.
+  - tree_mode_paths = params[:tree_mode].to_s == 'paths'
+  -# tree_roots=full shows the structural hierarchy up to owl:Thing. When the
+  -# ontology declares its own roots (IAO:0000700), the tree starts at those by
+  -# default and this toggle reveals the full hierarchy. The button is only shown
+  -# when the ontology declares roots (otherwise the two are identical).
+  - tree_roots_full = params[:tree_roots].to_s == 'full'
+  %div.tree-with-toggle
+    -# Parent-paths toggle (tree-paths-toggle, from #437): an icon button floated
+    -# over the top-right of the tree — how many paths to a class are shown.
+    %button.rounded-button.tree-paths-toggle{type: 'button', class: ('active' if tree_mode_paths),
+      title: t('ontologies.concepts_browsers.parent_paths_tooltip'),
+      aria: {label: t('ontologies.concepts_browsers.parent_paths'), pressed: tree_mode_paths.to_s},
+      data: {controller: 'tree-paths-toggle',
+             action: 'tree-paths-toggle#toggle',
+             'tree-paths-toggle-active-class': 'active'}}
+      = inline_svg_tag 'icons/list-tree.svg', class: 'svg-icon'
+    %div#sd_content.px-1
+      - if skos? && @roots&.empty?
+        %div.text-wrap
+          = render Display::AlertComponent.new do
+            = t("ontologies.concepts_browsers.missing_roots", acronym: @ontology.acronym)
+      - else
+        - concept_schemes = skos? ? "&concept_schemes=#{params[:concept_schemes]}" : ''
+        - tree_mode = tree_mode_paths ? "&tree_mode=paths" : ''
+        - tree_roots = tree_roots_full ? "&tree_roots=full" : ''
+        -# On initial load (no explicit class requested) of an ontology that declares
+        -# its own roots, start the tree at the root view (the clean declared-roots
+        -# list) rather than auto-drilling into the first root's path. Once a class is
+        -# explicitly requested, its (declared-root-trimmed) path is shown.
+        - no_explicit_concept = params[:conceptid].blank? || params[:conceptid] == 'root'
+        - tree_conceptid = (no_explicit_concept && ontology_declares_roots? && !tree_roots_full) ? 'root' : @concept.id
+        = render TurboFrameComponent.new(id: 'concepts_tree_view',
+                                       src: "/ajax/classes/treeview?ontology=#{@ontology.acronym}&conceptid=#{escape(tree_conceptid)}#{concept_schemes}#{tree_mode}#{tree_roots}&auto_click=false&language=#{request_lang}",
+                                       data: {'turbo-frame-target': 'frame'})
+    -# Root-set control: a radio group footer BELOW the scrolling tree (#sd_content
+    -# grows, this stays pinned at the pane's bottom). Both options are always
+    -# visible, so it's clear the tree is trimmed to the ontology's preferred
+    -# (IAO:0000700) roots by default and that the full set is available. Choosing a
+    -# radio reloads the tree in that mode (see tree-roots-toggle controller). Shown
+    -# only when the ontology declares roots.
+    - if ontology_declares_roots?
+      %div.tree-roots-control{data: {controller: 'tree-roots-toggle',
+                                     'tree-roots-toggle-ontology-value': @ontology.acronym}}
+        %label.tree-roots-option
+          %input{type: 'radio', name: 'tree_roots_mode', value: 'preferred', checked: !tree_roots_full,
+                 data: {action: 'tree-roots-toggle#select', 'tree-roots-toggle-target': 'preferred'}}
+          %span= t('ontologies.concepts_browsers.roots_preferred')
+        %label.tree-roots-option
+          %input{type: 'radio', name: 'tree_roots_mode', value: 'all', checked: tree_roots_full,
+                 data: {action: 'tree-roots-toggle#select', 'tree-roots-toggle-target': 'all'}}
+          %span= t('ontologies.concepts_browsers.roots_all')

@@ -34,6 +34,20 @@ module ConceptsHelper
     end
   end
 
+  # True when the ontology declares its own display roots via IAO:0000700
+  # (submission.hasOntologyRootTerm). Used to show the "Show full hierarchy" tree
+  # toggle only when it would do something. Requires the submission to have been
+  # fetched with hasOntologyRootTerm included (see show_tree / get_class).
+  #
+  # SKOS vocabularies declare their tops with skos:hasTopConcept, not IAO:0000700,
+  # and the tree already roots them there, so the declared-roots toggle is excluded
+  # for SKOS even if an IAO:0000700 assertion happens to be present.
+  def ontology_declares_roots?(submission = @submission)
+    return false if submission&.hasOntologyLanguage === 'SKOS'
+
+    Array(submission&.hasOntologyRootTerm).map(&:to_s).any?(&:present?)
+  end
+
   def exclude_relation?(relation_to_check, ontology = nil)
     excluded_relations = %w[type rdf:type [R] SuperClass InstanceCount]
 

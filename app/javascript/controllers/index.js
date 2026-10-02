@@ -93,3 +93,9 @@ application.register("concept-graph", ConceptGraphController)
 
 import BiomixerLazyController from "./biomixer_lazy_controller"
 application.register("biomixer-lazy", BiomixerLazyController)
+
+import TreePathsToggleController from "./tree_paths_toggle_controller"
+application.register("tree-paths-toggle", TreePathsToggleController)
+
+import TreeRootsToggleController from "./tree_roots_toggle_controller"
+application.register("tree-roots-toggle", TreeRootsToggleController)
