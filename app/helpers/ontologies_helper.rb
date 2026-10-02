@@ -178,7 +178,7 @@ module OntologiesHelper
   end
 
   def render_permalink_link
-    content_tag(:div, class: 'concepts_json_button mx-2') do
+    content_tag(:div, class: 'concepts_json_button me-0') do
       render RoundedButtonComponent.new(id: 'classPermalink', link: 'javascript:void(0);', title: t('concepts.permanent_link_class'), data: { 'bs-toggle': "modal", 'bs-target': "#classPermalinkModal", current_purl: @current_purl }) do
         inline_svg_tag('icons/copy_link.svg', width: 20, height: 20)
       end
@@ -189,6 +189,30 @@ module OntologiesHelper
     content_tag(:div, class: 'concepts_json_button') do
       render RoundedButtonComponent.new(link: link, target: '_blank', title: t('concepts.api_link_class'))
     end
+  end
+
+  # Full-window toggle for the class browser, shown in the concept details tab
+  # strip beside the JSON button. Clicking it bubbles to the fullscreen-pane
+  # Stimulus controller on #bd_content (see fullscreen_pane_controller.js), which
+  # expands the tree + details to fill the window. The icon swaps between the two
+  # SVGs via the .bd-content--fullscreen class on the ancestor; the
+  # controller updates the title/aria-label to the state-specific string.
+  def fullscreen_pane_button
+    expand = inline_svg_tag('icons/expand.svg', width: 20, height: 20,
+                            class: 'bd-content__fs-icon bd-content__fs-icon--expand', 'aria-hidden': true)
+    contract = inline_svg_tag('icons/contract.svg', width: 20, height: 20,
+                              class: 'bd-content__fs-icon bd-content__fs-icon--contract', 'aria-hidden': true)
+    content_tag(:button, safe_join([expand, contract]),
+                type: 'button',
+                class: 'bd-content__fullscreen-btn',
+                title: t('concepts.maximise'),
+                'aria-label': t('concepts.maximise'),
+                data: {
+                  controller: 'tooltip',
+                  action: 'click->fullscreen-pane#toggle',
+                  'enter-label': t('concepts.maximise'),
+                  'exit-label': t('concepts.minimise')
+                })
   end
 
   # The tab ids of the inner concept views, in _show.html.haml order. The default
@@ -216,13 +240,20 @@ module OntologiesHelper
 
   # url_parameter/merge_url_params default to leaving the URL alone; only the concept
   # views opt in (see concepts/_show.html.haml).
+  #
+  # fullscreen_toggle: render the full-window toggle button. Only the class browser
+  # (concepts/_show.html.haml) is inside the fullscreen-pane controller, so only it
+  # opts in; the schemes/collections details tabs (ontology_object_details_component)
+  # leave it off, where the button would be a dead control.
   def ontology_object_tabs_component(ontology_id:, objects_title:, object_id:,
-                                     url_parameter: nil, merge_url_params: false, &block)
+                                     url_parameter: nil, merge_url_params: false,
+                                     fullscreen_toggle: false, &block)
     resource_url = ontology_object_json_link(ontology_id, objects_title, object_id)
     render TabsContainerComponent.new(type: 'outline', url_parameter: url_parameter,
                                       merge_url_params: merge_url_params) do |c|
       concat(c.with_pinned_right do
-        content_tag(:div, '', class: 'd-flex', 'data-concepts-json-target': 'button') do
+        content_tag(:div, '', class: 'd-flex align-items-center gap-2 ms-2', 'data-concepts-json-target': 'button') do
+          concat(fullscreen_pane_button) if fullscreen_toggle
           concat(render_permalink_link) if $PURL_ENABLED
           concat(render_concepts_json_button(resource_url))
         end

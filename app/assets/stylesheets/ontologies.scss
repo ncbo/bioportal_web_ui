@@ -218,6 +218,55 @@ $bd-bottom-gap: 30px;
   overflow: hidden;
 }
 
+// Full-screen the class browser (tree + details) into a full-window overlay.
+// Toggled by the fullscreen-pane controller; opt-in, Esc or the button exits.
+// position:fixed fills the viewport; the pane's internal split.js columns and
+// per-column scrollers then fill the larger box on their own.
+//
+// z-index sits above the page chrome but below Bootstrap modals (1055+) and the
+// cookie banner (9999) — both of those should still appear over the overlay.
+#bd_content.bd-content--fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  margin-top: 0;
+  height: 100dvh;
+  background: #ffffff;
+  padding: 8px;
+}
+
+// Full-window toggle button, rendered in the concept details tab strip beside
+// the JSON `{ }` button. Matches the round icon-button look of its neighbour.
+.bd-content__fullscreen-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  // Match the JSON button's vertical nudge (.concepts_json_button margin-top:-4px
+  // in concepts.scss) so the two sit on the same line in the tab strip.
+  margin-top: -4px;
+  color: var(--primary-color);
+  background: #ffffff;
+  border: 1px solid var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover { background: var(--primary-color); color: #ffffff; }
+
+  // Show the expand arrows normally; the inward "contract" arrows only appear in
+  // the full-window state (rule below). Both icons keep the button's flex
+  // centring — toggle visibility, not display type.
+  .bd-content__fs-icon--contract { display: none; }
+}
+
+#bd_content.bd-content--fullscreen .bd-content__fullscreen-btn {
+  .bd-content__fs-icon--expand { display: none; }
+  .bd-content__fs-icon--contract { display: inline-flex; }
+}
+
 // Each column (and the resizer gutter) fills the row height. min-height:0 is
 // required so a flex child may shrink below its content and delegate the
 // overflow to the inner scroller.

@@ -13,6 +13,9 @@ application.register("class-search-auto-complete", ClassSearchAutoCompleteContro
 import ContainerSplitterController from "./container_splitter_controller"
 application.register("container-splitter", ContainerSplitterController)
 
+import FullscreenPaneController from "./fullscreen_pane_controller"
+application.register("fullscreen-pane", FullscreenPaneController)
+
 import HistoryController from "./history_controller"
 application.register("history", HistoryController)
 

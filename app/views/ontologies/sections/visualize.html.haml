@@ -1,7 +1,7 @@
 =  render TurboFrameComponent.new(id: "classes", data: {"turbo-frame-target": "frame"} ) do
   - unless @error || @concept.nil?
     - @title = "#{@ontology.acronym} - #{@concept.prefLabel}"
-    %div#bd_content.bd_content.explore{data:{controller: 'container-splitter'}}
+    %div#bd_content.bd_content.explore{data:{controller: 'container-splitter fullscreen-pane'}}
       %div.sidebar{data:{'container-splitter-target': 'container'}}
         = render partial: 'ontologies/concepts_browsers/concepts_browser'
       %div#concept_content.d-flex.flex-column{data:{'container-splitter-target': 'container'}}

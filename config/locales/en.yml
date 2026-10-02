@@ -167,6 +167,8 @@ en:
     mappings: Mappings
     permanent_link_class: Get a permanent link to this class
     api_link_class: Go to class API
+    maximise: Maximise
+    minimise: Minimise
 
   schemes:
     error_valid_scheme_id: 'Error: You must provide a valid scheme id'
