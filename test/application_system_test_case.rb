@@ -139,10 +139,6 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     end
   end
 
-  def date_picker_fill_in(selector, value, index = 0)
-    page.execute_script("document.querySelectorAll(\"[name^='#{selector}']\")[#{index}].flatpickr().setDate('#{value}')")
-  end
-
   def agent_search(name)
     within(".search-inputs:last-of-type") do
       input = find("input[name^='agent']")
