@@ -1,0 +1,40 @@
+.enable-lists
+  %ul
+    %li
+      Download the
+      %a.external.free{:href => "/javascripts/widgets/quick_jump.js", :rel => "nofollow", :title => "/javascripts/widgets/quick_jump.js"}
+        %b quick_jump.js file
+      and put it on your server
+    %li
+      Copy the code below and paste it to your HTML page
+    %li
+      %b Note:
+      If you would like to use Quick Jump across multiple ontologies:
+      %ul
+        %li
+          You can enter a comma-separated list of ontology ids:
+          %br/
+          var BP_ontology_id = "NCIt,SNOMEDCT";
+        %li
+          You can set the variable to 'all' to search all ontologies in #{$SITE}:
+          %br/
+          var BP_ontology_id = "all";
+    %li
+      To include definitions in the Jump To drop-down, add the following variable in Javascript:
+      %br/
+      %pre var BP_include_definitions = true;
+    %li
+      In the code that you just pasted, make sure to change the path to the quick_jump.js file to point to the location where you put the file (relative to your HTML file)
+      %ul
+        %li
+          For example, if you put the quick_jump.js file in the same directory as your HTML file, this is the code you would use:
+          %pre
+            = preserve do
+              :escaped
+                <div id="bp_quick_jump"></div>
+                <script type="text/javascript">
+                    var BP_ontology_id = "#{@ontology.acronym}";</script>
+                <script src="quick_jump.js" type="text/javascript" charset="utf-8"></script>
+%p
+  For more help visit
+  %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki

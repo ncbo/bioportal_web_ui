@@ -1,0 +1,10 @@
+%b Copy the code below and paste it to your HTML page
+%br/
+%br/
+%pre
+  = preserve do
+    :escaped
+      <iframe frameborder="0" src="/widgets/visualization?ontology=#{@ontology.acronym}&class=#{CGI.escape(@ontology.explore.classes["collection"].first.id)}&apikey=YOUR_API_KEY"></iframe>
+%p
+  For more help visit
+  %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki

@@ -1,0 +1,20 @@
+%b Copy the code below and paste it to your HTML page
+%br/
+%br/
+%pre
+  = preserve do
+    :escaped
+      <link rel="stylesheet" type="text/css" href="/widgets/jquery.ncbo.tree.css">
+      <script src="/widgets/jquery.ncbo.tree-2.0.2.js"></script>
+      <div id="widget_tree"></div>
+      var widget_tree = $("#widget_tree").NCBOTree({
+        apikey: "YOUR_API_KEY",
+        ontology: "#{@ontology.acronym}"
+      });
+
+%p
+  You can also view a
+  %a{href: "/widgets/ncbo_tree.html"} detailed demonstration
+%p
+  For more help visit
+  %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
