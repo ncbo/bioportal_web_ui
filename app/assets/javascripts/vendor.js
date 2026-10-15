@@ -13,7 +13,6 @@
 //
 //= require jquery.blockUI
 //= require facebox
-//= require thickbox
 //= require chosen.jquery
 //= require ajax-chosen
 //= require jquery.cookie
