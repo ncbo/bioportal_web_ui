@@ -1,21 +1,55 @@
-%b Copy the code below and paste it to your HTML page
-%br/
-%br/
-%pre
-  = preserve do
-    :escaped
-      <link rel="stylesheet" type="text/css" href="/widgets/jquery.ncbo.tree.css">
-      <script src="/widgets/jquery.ncbo.tree-2.0.2.js"></script>
-      <div id="widget_tree"></div>
-      var widget_tree = $("#widget_tree").NCBOTree({
-        apikey: "YOUR_API_KEY",
-        ontology: "#{@ontology.acronym}"
-      });
+%p.mb-3
+  The Tree Widget requires jQuery. Load jQuery on your page before the widget script below.
 
-%p
-  You can also view a
+%p.mb-3
+  Add these stylesheet and script tags to your HTML page's
+  %code= '<head>'
+  section:
+%pre.bg-light.border.rounded.p-3
+  %code
+    = preserve do
+      :escaped
+        <link rel="stylesheet" href="#{request.base_url}/widgets/jquery.ncbo.tree.css">
+        <script src="#{request.base_url}/widgets/jquery.ncbo.tree-2.0.2.js"></script>
+
+%h6.mt-4 Add the tree to your page
+%p.mb-3
+  Paste this code into your HTML page where you want the class tree for #{@ontology.acronym} to appear:
+%pre.bg-light.border.rounded.p-3
+  %code
+    = preserve do
+      :escaped
+        <div id="widget_tree"></div>
+        <script>
+          jQuery(function($) {
+            $("#widget_tree").NCBOTree({
+              apikey: "YOUR_API_KEY",
+              ontology: #{@ontology.acronym.to_json},
+              ncboUIURL: #{request.base_url.to_json},
+              ncboAPIURL: #{$REST_URL.to_json}
+            });
+          });
+        </script>
+
+%p.mb-3
+  Replace
+  %code YOUR_API_KEY
+  with your #{$SITE} API key. To display a different ontology, change the
+  %code ontology
+  value to that ontology's acronym.
+
+%p.mb-3
+  The
+  %code widget_tree
+  ID connects the container to the initialization code. If you rename it, also update the
+  %code #widget_tree
+  selector in the script.
+
+%p.mb-3
+  See the
   = link_to('detailed demonstration', '/widgets/ncbo_tree.html', target: '_blank')
-%p
-  For more help visit
-  = link_to('NCBO Widget Wiki', 'https://www.bioontology.org/wiki/NCBO_Widgets#NCBO_Ontology_Tree_Widget',
-            target: '_blank')
+  for examples of handling class selection and tree events.
+%p.mb-0
+  For more help visit the
+  = succeed '.' do
+    = link_to('NCBO Wiki', 'https://www.bioontology.org/wiki/NCBO_Widgets#NCBO_Ontology_Tree_Widget', target: '_blank')
