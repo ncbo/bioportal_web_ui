@@ -1,0 +1,26 @@
+- visualization_params = {ontology: @ontology.acronym, class: @ontology.explore.classes['collection'].first.id, apikey: 'YOUR_API_KEY'}
+- visualization_url = "#{request.base_url}/widgets/visualization?#{visualization_params.to_query}"
+- iframe_code = "<iframe src=\"#{h visualization_url}\" title=\"Ontology visualization\" width=\"100%\" height=\"350\" style=\"border: 0;\"></iframe>"
+
+%p.mb-3
+  Paste this code into your HTML page where you want the visualization to appear:
+
+%pre.bg-light.border.rounded.p-3
+  %code= iframe_code
+
+%p.mb-3
+  Replace
+  %code YOUR_API_KEY
+  with your #{$SITE} API key.
+
+%p.mb-3
+  This example displays a class from #{@ontology.acronym}. To display another class, replace the
+  %code class
+  parameter in the URL with that class's URL-encoded URI. If the class belongs to a different ontology, also update the
+  %code ontology
+  parameter to that ontology's acronym.
+
+%p.mb-0
+  For more help visit the
+  = succeed '.' do
+    = link_to('NCBO Wiki', 'https://www.bioontology.org/wiki/NCBO_Widgets#Ontology_visualization_widget', target: '_blank')

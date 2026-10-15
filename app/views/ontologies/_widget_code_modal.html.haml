@@ -1,0 +1,10 @@
+.modal.fade{id: id, tabindex: "-1", aria: {labelledby: "#{id}_title", hidden: "true"}}
+  .modal-dialog.modal-lg.modal-dialog-scrollable
+    .modal-content
+      .modal-header
+        %h5.modal-title{id: "#{id}_title"}= title
+        %button.btn-close{type: "button", data: {bs_dismiss: "modal"}, aria: {label: "Close"}}
+      .modal-body
+        = yield
+      .modal-footer
+        %button.btn.btn-secondary{type: "button", data: {bs_dismiss: "modal"}} Close

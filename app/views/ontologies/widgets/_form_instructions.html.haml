@@ -1,0 +1,109 @@
+%p.mb-3
+  Download the
+  = link_to('form_complete.js file', '/javascripts/widgets/form_complete.js', rel: 'nofollow', class: 'fw-bold')
+  and put it on your server.
+
+%p.mb-3
+  Add this script to your HTML page's
+  %code= '<head>'
+  section:
+%pre.bg-light.border.rounded.p-3
+  %code
+    = preserve do
+      :escaped
+        <script src="form_complete.js" type="text/javascript" charset="utf-8"></script>
+
+%p.mb-3
+  This example assumes
+  %code form_complete.js
+  is in the same folder as your HTML page. If you save it elsewhere, update the script's
+  %code src
+  path.
+
+%p.mb-3
+  Add this input to your form to search #{@ontology.acronym}. Selecting a class places its full URI in the field:
+%pre.bg-light.border.rounded.p-3
+  %code
+    = preserve do
+      :escaped
+        <input type="text" name="term" class="bp_form_complete-#{CGI.escape(@ontology.acronym).gsub('-', '%2D')}-uri">
+
+%p.mb-3
+  The widget searches the latest version of the ontology. Give each autocomplete input a unique
+  %code name
+  so its associated hidden fields can be identified.
+
+%h6.mt-4 Choose the field value
+%p.mb-3
+  The input's
+  %code class
+  attribute uses this format:
+%pre.bg-light.border.rounded.p-3
+  %code bp_form_complete-{ontology_id_list}-{value}
+%p.mb-3
+  Replace the final
+  %code uri
+  in the example with the value you want to display after a class is selected:
+%table.table.table-sm
+  %thead
+    %tr
+      %th{scope: 'col'} Value
+      %th{scope: 'col'} Field content
+  %tbody
+    %tr
+      %td
+        %code uri
+      %td The class's full URI
+    %tr
+      %td
+        %code shortid
+      %td The class's short ID
+    %tr
+      %td
+        %code name
+      %td The class's preferred name
+
+%h6.mt-4 Search multiple ontologies
+%p.mb-3
+  Replace the input's widget class with a comma-separated list of ontology IDs:
+%pre.bg-light.border.rounded.p-3
+  %code bp_form_complete-NCIT,NCBITAXON-uri
+%p.mb-3
+  Or search all ontologies in #{$SITE}:
+%pre.bg-light.border.rounded.p-3
+  %code bp_form_complete-all-uri
+%p.mb-3
+  If an ontology ID contains a hyphen, replace that hyphen with
+  %code %2D
+  in the widget class. For example, use
+  %code FB%2DDV
+  for FB-DV.
+
+%h6.mt-4 Access the selected class details
+%p.mb-3
+  The widget automatically creates four hidden inputs and fills them when a class is selected.
+  Their IDs start with your input's
+  = succeed '.' do
+    %code name
+  For the
+  %code name="term"
+  example above, it creates:
+%pre.bg-light.border.rounded.p-3
+  %code
+    = preserve do
+      :escaped
+        <input type="hidden" id="term_bioportal_preferred_name">
+        <input type="hidden" id="term_bioportal_concept_id">
+        <input type="hidden" id="term_bioportal_ontology_id">
+        <input type="hidden" id="term_bioportal_full_id">
+%p.mb-3
+  You can read these values with JavaScript. You do not need to add the hidden inputs yourself.
+
+%p.mb-3
+  See the NCBO Wiki for
+  = succeed '.' do
+    = link_to('additional configuration options', 'https://www.bioontology.org/wiki/NCBO_Widgets#Optional_attributes', target: '_blank')
+%p.mb-0
+  For more help visit the
+  = succeed '.' do
+    = link_to('NCBO Wiki', 'https://www.bioontology.org/wiki/NCBO_Widgets#Term-selection_field_on_a_form', target: '_blank')
