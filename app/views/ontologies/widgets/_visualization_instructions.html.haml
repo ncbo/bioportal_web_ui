@@ -7,4 +7,5 @@
       <iframe frameborder="0" src="/widgets/visualization?ontology=#{@ontology.acronym}&class=#{CGI.escape(@ontology.explore.classes["collection"].first.id)}&apikey=YOUR_API_KEY"></iframe>
 %p
   For more help visit
-  %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
+  = link_to('NCBO Widget Wiki', 'https://www.bioontology.org/wiki/NCBO_Widgets#Ontology_visualization_widget',
+            target: '_blank')

@@ -14,7 +14,8 @@
 
 %p
   You can also view a
-  %a{href: "/widgets/ncbo_tree.html"} detailed demonstration
+  = link_to('detailed demonstration', '/widgets/ncbo_tree.html', target: '_blank')
 %p
   For more help visit
-  %a{:href => "http://bioontology.org/wiki/index.php/NCBO_Widgets#How_to_use_NCBO_Widgets", :target => "_blank"} NCBO Widget Wiki
+  = link_to('NCBO Widget Wiki', 'https://www.bioontology.org/wiki/NCBO_Widgets#NCBO_Ontology_Tree_Widget',
+            target: '_blank')
