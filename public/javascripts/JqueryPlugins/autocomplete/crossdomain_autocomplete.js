@@ -141,8 +141,8 @@
 
         if (active < 0) {
           active = 0;
-        } else if (active >= lis.size()) {
-          active = lis.size() - 1;
+        } else if (active >= lis.length) {
+          active = lis.length - 1;
         }
 
         lis.removeClass("ac_over");
@@ -269,8 +269,8 @@
           if( data.length == 0 )
             results.appendChild("<div style='padding: 5px; font-size: normal; font-style: oblique;'>No results found</div>")
 
-          if ($.browser.msie && $.browser.version < 9) {
-            // we put a styled iframe behind the calendar so HTML SELECT elements don't show through
+          if (/MSIE [1-8]\./i.test(navigator.userAgent)) {
+            // Preserve the old IE iframe shim without requiring jQuery Migrate's $.browser.
             $results.append(document.createElement('iframe'));
           }
           results.appendChild(dataToDom(data));

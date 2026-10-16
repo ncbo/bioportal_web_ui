@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Autocomplete jQuery compatibility tests</title>
+  </head>
+  <body>
+    <h1>Autocomplete jQuery compatibility tests</h1>
+    <p>
+      From the repository root, run
+      <code>python3 -m http.server 8000 --bind 127.0.0.1</code>, then open
+      <code>http://127.0.0.1:8000/test/javascript/autocomplete_compatibility.html</code>. Only the pinned jQuery/Migrate
+      test libraries require internet access. Search responses are fixtures; Rails and the BioPortal API are not used.
+    </p>
+    <p>Each case uses a fresh iframe. Reload to rerun.</p>
+    <p id="status" role="status">Running…</p>
+    <ol id="results"></ol>
+    <script>
+      (async function () {
+        const sources = [
+          '/vendor/assets/javascripts/autocomplete/crossdomain_autocomplete.js',
+          '/public/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js',
+        ];
+        const environments = [
+          { version: '1.11.2', migrate: true },
+          { version: '1.11.2', migrate: false },
+          { version: '2.2.4', migrate: false },
+          { version: '3.7.1', migrate: false },
+        ];
+        const results = [];
+        window.autocompleteTestResults = { done: false, results };
+
+        function assert(condition, message) {
+          if (!condition) throw new Error(message);
+        }
+
+        async function until(condition, message, errors) {
+          const deadline = Date.now() + 3000;
+          while (!condition()) {
+            assert(errors.length === 0, errors.join('; '));
+            assert(Date.now() < deadline, message);
+            await new Promise((resolve) => setTimeout(resolve, 10));
+          }
+          assert(errors.length === 0, errors.join('; '));
+        }
+
+        function loadScript(doc, src) {
+          return new Promise((resolve, reject) => {
+            const script = doc.createElement('script');
+            const timer = setTimeout(() => reject(new Error('Timed out loading ' + src)), 15000);
+            script.src = src;
+            script.onload = () => {
+              clearTimeout(timer);
+              resolve();
+            };
+            script.onerror = () => {
+              clearTimeout(timer);
+              reject(new Error('Cannot load ' + src));
+            };
+            doc.head.appendChild(script);
+          });
+        }
+
+        async function exercise(win, errors) {
+          const $ = win.jQuery;
+          const input = win.document.querySelector('input');
+          const selected = [];
+          const found = [];
+          const requests = [];
+          let selectionEvents = 0;
+          const rows = {
+            al: 'Alpha|urn:alpha|A|TEST~!~Alpine|urn:alpine|B|TEST',
+            be: 'Beta|urn:beta|C|TEST',
+            beta: 'Beta|urn:beta|C|TEST',
+            zz: '',
+          };
+
+          // Preserve the plugin's asynchronous response flow without a live API.
+          $.getJSON = (url, callback) => {
+            requests.push(url);
+            const query = new URL(url, document.baseURI).searchParams.get('q');
+            win.setTimeout(() => callback({ data: rows[query] || '' }), 0);
+          };
+          $.get = (url, callback) => {
+            const query = new URL(url, document.baseURI).searchParams.get('q');
+            win.setTimeout(() => callback(rows[query] || ''), 0);
+          };
+          $(win.document).on('autocomplete_selected', () => selectionEvents++);
+          $(input).bioportal_autocomplete('/fixture/search', {
+            delay: 1,
+            lineSeparator: '~!~',
+            extraParams: { ontology: 'TEST' },
+            onItemSelect: (li) => selected.push({ label: li.selectValue, extra: li.extra }),
+            onFindValue: (li) => found.push(li && { label: li.selectValue, extra: li.extra }),
+          });
+
+          function key(code) {
+            input.dispatchEvent(
+              new win.KeyboardEvent('keydown', {
+                bubbles: true,
+                cancelable: true,
+                keyCode: code,
+                which: code,
+              }),
+            );
+          }
+
+          function type(value) {
+            input.focus();
+            input.value = value;
+            key(65);
+          }
+
+          const items = () => $('.ac_results li');
+          type('al');
+          await until(() => items().length === 2, 'Suggestions did not appear', errors);
+          assert($('.ac_results').is(':visible'), 'Suggestions must be visible');
+          assert(!$(input).hasClass('ac_loading'), 'Loading state must clear');
+          assert($('.ac_results iframe').length === 0, 'Modern browsers must not get the IE iframe');
+          assert(
+            requests[0].includes('q=al') &&
+              requests[0].includes('ontology=TEST') &&
+              requests[0].includes('response=json&callback=?'),
+            'Search request parameters changed',
+          );
+
+          key(40);
+          assert(items().eq(0).hasClass('ac_over'), 'Down must highlight the first suggestion');
+          key(40);
+          key(40);
+          assert(items().eq(1).hasClass('ac_over'), 'Down must stop at the last suggestion');
+          key(38);
+          key(38);
+          assert(items().eq(0).hasClass('ac_over'), 'Up must stop at the first suggestion');
+          key(40);
+          key(13);
+          await until(
+            () => selected.length === 1 && selectionEvents === 1,
+            'Keyboard selection callbacks did not run',
+            errors,
+          );
+          assert(input.value === 'Alpine', 'Enter must fill the selected label');
+          assert(
+            JSON.stringify(selected[0].extra) === '["urn:alpine","B","TEST"]',
+            'Selection must preserve URI, short ID, and ontology metadata',
+          );
+          assert(!$('.ac_results').is(':visible'), 'Selection must close suggestions');
+
+          type('be');
+          await until(() => items().length === 1, 'Second query did not produce a suggestion', errors);
+          items()[0].click();
+          await until(
+            () => selected.length === 2 && selectionEvents === 2,
+            'Mouse selection callbacks did not run',
+            errors,
+          );
+          assert(input.value === 'Beta' && selected[1].label === 'Beta', 'Mouse selection must fill the label');
+          assert(
+            JSON.stringify(selected[1].extra) === '["urn:beta","C","TEST"]',
+            'Mouse selection must preserve metadata',
+          );
+
+          input.autocompleter.findValue();
+          await until(() => found.length === 1, 'Exact-value lookup did not finish', errors);
+          assert(
+            found[0].label === 'Beta' && found[0].extra[0] === 'urn:beta',
+            'Exact-value lookup must return the matching concept',
+          );
+
+          type('zz');
+          await until(
+            () => $('.ac_results').text().includes('No results found'),
+            'Empty response must display the no-results message',
+            errors,
+          );
+          assert(
+            items().length === 0 && !$(input).hasClass('ac_loading'),
+            'Empty response must clear old suggestions and loading state',
+          );
+
+          // Check that removing $.browser does not discard the existing IE shim.
+          // This simulates detection only; it is not an actual IE browser test.
+          Object.defineProperty(win.navigator, 'userAgent', {
+            configurable: true,
+            value: 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)',
+          });
+          // Migrate caches the browser identity when it loads.
+          if ($.browser) {
+            $.browser.msie = true;
+            $.browser.version = '8.0';
+          }
+          type('al');
+          await until(() => items().length === 2, 'Cached suggestions did not appear', errors);
+          assert($('.ac_results iframe').length === 1, 'Legacy IE must retain its iframe shim');
+          assert(win.$.hostLibrary === true, 'The plugin must leave the host’s $ untouched');
+        }
+
+        for (const source of sources) {
+          for (const environment of environments) {
+            const label =
+              source +
+              ' — jQuery ' +
+              environment.version +
+              (environment.migrate ? ' + Migrate 1.2.1' : ' without Migrate');
+            const item = document.createElement('li');
+            item.textContent = label + ': running';
+            document.querySelector('#results').appendChild(item);
+            const frame = document.createElement('iframe');
+            frame.title = label;
+            document.body.appendChild(frame);
+            const win = frame.contentWindow;
+            const errors = [];
+            const captureError = (event) => errors.push(event.message);
+            window.addEventListener('error', captureError);
+            win.addEventListener('error', (event) => errors.push(event.message));
+            win.addEventListener('unhandledrejection', (event) => errors.push(String(event.reason)));
+            win.document.body.innerHTML = '<input aria-label="Search">';
+            try {
+              await loadScript(win.document, 'https://code.jquery.com/jquery-' + environment.version + '.js');
+              if (environment.migrate) {
+                await loadScript(win.document, 'https://code.jquery.com/jquery-migrate-1.2.1.js');
+              }
+              assert(win.jQuery.fn.jquery === environment.version, 'Unexpected jQuery version');
+              assert(Array.isArray(win.jQuery.migrateWarnings) === environment.migrate, 'Unexpected Migrate presence');
+              win.jQuery.noConflict();
+              win.$ = { hostLibrary: true };
+              await loadScript(win.document, source);
+              await until(
+                () => typeof win.jQuery.fn.bioportal_autocomplete === 'function',
+                'Plugin registration did not finish',
+                errors,
+              );
+              await exercise(win, errors);
+              results.push({ label, passed: true });
+              item.textContent = label + ': PASS';
+            } catch (error) {
+              results.push({ label, passed: false, error: error.message });
+              item.textContent = label + ': FAIL — ' + error.message;
+            } finally {
+              window.removeEventListener('error', captureError);
+              frame.remove();
+            }
+          }
+        }
+        const failures = results.filter((result) => !result.passed).length;
+        const status = document.querySelector('#status');
+        status.textContent = results.length - failures + '/' + results.length + ' cases passed';
+        status.dataset.result = failures ? 'failed' : 'passed';
+        window.autocompleteTestResults.done = true;
+      })();
+    </script>
+  </body>
+</html>
