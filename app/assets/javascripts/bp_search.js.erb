@@ -155,13 +155,13 @@ jQuery(document).ready(function() {
         }
     });
 
-    jQuery("#search_results a.additional_ont_results_link").live("click", showAdditionalOntResults);
-    jQuery("#search_results a.additional_cls_results_link").live("click", showAdditionalClsResults);
+    jQuery(document).on("click", "#search_results a.additional_ont_results_link", showAdditionalOntResults);
+    jQuery(document).on("click", "#search_results a.additional_cls_results_link", showAdditionalClsResults);
 
     jQuery("#advanced_options").on('click', toggleAdvancedSearchOptions);
 
     // Events to run whenever search results are updated (mainly counts)
-    jQuery(document).live("search_results_updated", function() {
+    jQuery(document).on("search_results_updated", function() {
         // Update count
         jQuery("#ontologies_count_total").html(currentOntologiesCount());
     });
@@ -191,7 +191,7 @@ jQuery(document).ready(function() {
     });
 
     // Use pop-up with flex via an iframe for "visualize" link
-    jQuery("a.class_visualize").live("click", function() {
+    jQuery(document).on("click", "a.class_visualize", function() {
         var acronym = jQuery(this).attr("data-bp_ontologyid"),
             conceptid = jQuery(this).attr("data-bp_conceptid");
         jQuery("#biomixer").html('<iframe src="/ajax/biomixer/?ontology=' + acronym + '&conceptid=' + encodeURIComponent(conceptid) + '" frameborder=0 height="500px" width="500px" scrolling="no"></iframe>').show();
