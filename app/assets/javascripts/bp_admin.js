@@ -852,7 +852,7 @@ jQuery(".admin.index").ready(function() {
   );
 
   // for toggling between all and problem ontologies
-  jQuery(".toggle-row-display a").live("click", function() {
+  jQuery(document).on("click", ".toggle-row-display a", function() {
     toggleShow(!problemOnly);
     new DataTable('#adminOntologies').draw();
     str = showOntologiesToggleLinks(problemOnly);

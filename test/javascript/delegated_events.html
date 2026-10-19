@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Delegated application event tests</title>
+  </head>
+  <body>
+    <h1>Delegated application event tests</h1>
+    <p>
+      After <code>yarn install</code>, run <code>python3 -m http.server 8000 --bind 127.0.0.1</code> from the repository
+      root, then open <code>http://127.0.0.1:8000/test/javascript/delegated_events.html</code>. Only the pinned jQuery
+      test library needs internet access. Rails and the BioPortal API are not used.
+    </p>
+    <p>
+      These tests execute the application handlers against fixture DOM, with and without Migrate. Network requests,
+      DataTables rendering, and Facebox display are stubbed. The tree tests use real Stimulus connect/disconnect cycles.
+      Reload to rerun.
+    </p>
+    <p id="status" role="status">Running…</p>
+    <ol id="results"></ol>
+    <script type="module" src="./delegated_events.js"></script>
+  </body>
+</html>

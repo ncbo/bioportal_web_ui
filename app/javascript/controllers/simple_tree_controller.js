@@ -55,6 +55,11 @@ export default class extends Controller {
   }
 
   disconnect () {
+    clearTimeout(this.centerTreeTimeout);
+    if (this.boundTooManyChildrenClick) {
+      jQuery(this.element).off('click', '.too_many_children_override', this.boundTooManyChildrenClick);
+      this.boundTooManyChildrenClick = null;
+    }
     if (this.boundExpandClick) {
       this.element.removeEventListener('click', this.boundExpandClick, true)
     }
@@ -129,7 +134,7 @@ export default class extends Controller {
   }
 
   #centerTreeView() {
-    setTimeout(() => {
+    this.centerTreeTimeout = setTimeout(() => {
       const location = window.location.href;
 
       const isTreeViewPage = TREE_VIEW_PAGES.some(param => location.includes(`p=${param}`));
@@ -184,22 +189,25 @@ export default class extends Controller {
   }
 
   #onClickTooManyChildrenInit () {
-    jQuery('.too_many_children_override').live('click', (event) => {
+    this.boundTooManyChildrenClick = (event) => {
       event.preventDefault()
-      let result = jQuery(event.target).closest('ul')
+      const link = jQuery(event.currentTarget);
+      const url = link.attr('href');
+      const result = link.closest('ul');
       result.html('<img src=\'/images/tree/spinner.gif\'>')
       jQuery.ajax({
-        url: jQuery(event.target).attr('href'),
+        url: url,
         context: result,
         success: function (data) {
           this.html(data)
           this.simpleTreeCollection.get(0).setTreeNodes(this)
         },
         error: function () {
-          this.html('<div style=\'background: #eeeeee; padding: 5px; width: 80%;\'>Problem getting children. <a href=\'' + jQuery(this).attr('href') + '\' class=\'too_many_children_override\'>Try again</a></div>')
+          this.html('<div style=\'background: #eeeeee; padding: 5px; width: 80%;\'>Problem getting children. <a href=\'' + url + '\' class=\'too_many_children_override\'>Try again</a></div>')
         }
       })
-    })
+    }
+    jQuery(this.element).on('click', '.too_many_children_override', this.boundTooManyChildrenClick);
   }
 
   #afterClick (node) {

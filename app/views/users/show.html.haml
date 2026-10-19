@@ -91,7 +91,7 @@
     jQuery(document).ready(function(){
       jQuery("#edit_custom_ontologies").click(editCustomOntologies);
       // Wire up subscriptions button activity
-      jQuery("a.subscribe_to_ontology").live("click", function(){
+      jQuery(document).on("click", "a.subscribe_to_ontology", function(){
         subscribeToOntology(this);
       });
     });

@@ -419,7 +419,7 @@ jQuery(window).ready(function(){
     }
   });
 
-  jQuery("input[type=text].help_text, textarea.help_text").live("focus", (function(){
+  jQuery(document).on("focus", "input[type=text].help_text, textarea.help_text", (function(){
     var input = jQuery(this);
     if (input.attr("title") == input.val()) {
       input.val("");
@@ -427,7 +427,7 @@ jQuery(window).ready(function(){
     }
   }));
 
-  jQuery("input[type=text].help_text, textarea.help_text").live("blur", (function(){
+  jQuery(document).on("blur", "input[type=text].help_text, textarea.help_text", (function(){
     var input = jQuery(this);
     if (input.val() == "") {
       input.val(input.attr("title"));
@@ -438,12 +438,12 @@ jQuery(window).ready(function(){
 
 // Truncate more/less show and hide
 jQuery(document).ready(function(){
-  jQuery("a.truncated_more").live("click", function(){
+  jQuery(document).on("click", "a.truncated_more", function(){
     var link = jQuery(this);
     link.parents("span.more_less_container").find(".truncated_more").hide();
     link.parents("span.more_less_container").find(".truncated_less").show();
   })
-  jQuery("a.truncated_less").live("click", function(){
+  jQuery(document).on("click", "a.truncated_less", function(){
     var link = jQuery(this);
     link.parents("span.more_less_container").find(".truncated_less").hide();
     link.parents("span.more_less_container").find(".truncated_more").show();
@@ -496,7 +496,7 @@ function getAjaxContent() {
 }
 
 // Handle will_paginate using ajax
-jQuery(".pagination a").live("click", function(e){
+jQuery(document).on("click", ".pagination a", function(e){
   var link = jQuery(this);
   var replaceDiv = link.closest(".paginate_ajax");
   e.preventDefault();
