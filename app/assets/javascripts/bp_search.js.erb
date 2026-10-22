@@ -217,34 +217,34 @@ function autoSearch() {
 
         if (params.exactmatch === "true" || params.exact_match === "true") {
             if (!jQuery("#search_exact_match").is(":checked")) {
-                jQuery("#search_exact_match").attr("checked", true);
+                jQuery("#search_exact_match").prop("checked", true);
             }
         } else {
-            jQuery("#search_exact_match").attr("checked", false);
+            jQuery("#search_exact_match").prop("checked", false);
         }
 
         if (params.searchproperties === "true" || params.include_properties === "true") {
             if (!jQuery("#search_include_properties").is(":checked")) {
-                jQuery("#search_include_properties").attr("checked", true);
+                jQuery("#search_include_properties").prop("checked", true);
             }
         } else {
-            jQuery("#search_include_properties").attr("checked", false);
+            jQuery("#search_include_properties").prop("checked", false);
         }
 
         if (params.require_definition === "true") {
             if (!jQuery("#search_require_definition").is(":checked")) {
-                jQuery("#search_require_definition").attr("checked", true);
+                jQuery("#search_require_definition").prop("checked", true);
             }
         } else {
-            jQuery("#search_require_definition").attr("checked", false);
+            jQuery("#search_require_definition").prop("checked", false);
         }
 
         if (params.include_views === "true") {
             if (!jQuery("#search_include_views").is(":checked")) {
-                jQuery("#search_include_views").attr("checked", true);
+                jQuery("#search_include_views").prop("checked", true);
             }
         } else {
-            jQuery("#search_include_views").attr("checked", false);
+            jQuery("#search_include_views").prop("checked", false);
         }
 
         if (params.hasOwnProperty("ontologyids") || params.hasOwnProperty("ontologies")) {
