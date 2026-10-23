@@ -84,34 +84,34 @@ jQuery(document).ready(function(){
     syncFromCheckboxes();
     if (allSelected = true) {
       allSelected = false;
-      jQuery("#ont_select_all").attr("checked", false);
+      jQuery("#ont_select_all").prop("checked", false);
     } else {
       // Compare total checkboxes to checked to see if they're all checked
       if (jQuery(".ont_select_boxes_tr input:checkbox").length == jQuery(".ont_select_boxes_tr input:checked").length) {
         allSelected = true;
-        jQuery("#ont_select_all").attr("checked", true);
+        jQuery("#ont_select_all").prop("checked", true);
       }
     }
   });
 
   // Toggle all selected
   jQuery("#ont_select_all").click(function(){
-    if (jQuery(this).attr("checked")) {
+    if (jQuery(this).prop("checked")) {
       allSelected = true;
     } else {
       allSelected = false;
     }
-    jQuery(".ont_select_boxes_tr input:checkbox").attr("checked", allSelected);
+    jQuery(".ont_select_boxes_tr input:checkbox").prop("checked", allSelected);
     syncFromCheckboxes();
     refreshOntList();
   });
 
   // Select ontologies that are visible in the filter list
   jQuery("#ont_select_all_filtered").click(function(){
-    if (jQuery(this).attr("checked")) {
-      jQuery(".ont_select_boxes_tr input:checkbox:visible").attr("checked", true);
+    if (jQuery(this).prop("checked")) {
+      jQuery(".ont_select_boxes_tr input:checkbox:visible").prop("checked", true);
     } else {
-      jQuery(".ont_select_boxes_tr input:checkbox:visible").attr("checked", false);
+      jQuery(".ont_select_boxes_tr input:checkbox:visible").prop("checked", false);
     }
     syncFromCheckboxes();
     refreshOntList();
@@ -138,12 +138,12 @@ var hideAdvancedSelect = function(){
 // Synchronise select list to checkboxes
 function syncFromList() {
   jQuery(".ont_select_boxes_tr input:checked").each(function(){
-    jQuery(this).attr("checked", false);
+    jQuery(this).prop("checked", false);
   });
 
   jQuery("#<%=@select_id%> option:selected").each(function(){
     var id = jQuery(this).val();
-    jQuery("#ont_select_adv_check" + id).attr("checked", true);
+    jQuery("#ont_select_adv_check" + id).prop("checked", true);
   });
 }
 
@@ -202,7 +202,7 @@ function syncFromCheckboxes() {
 }
 
 function syncGroupsAndCategories() {
-  jQuery("#select_all_filtered_row input").attr("checked", false);
+  jQuery("#select_all_filtered_row input").prop("checked", false);
 
   var groups = jQuery("#ont_select_adv tr.group_select_boxes_tr input:checked");
   var categories = jQuery("#ont_select_adv tr.category_select_boxes_tr input:checked");
@@ -261,8 +261,8 @@ function showAllFiltered() {
 }
 
 function clearGroupsAndCategories() {
-  jQuery("#group_list input").attr("checked", false);
-  jQuery("#category_list input").attr("checked", false);
+  jQuery("#group_list input").prop("checked", false);
+  jQuery("#category_list input").prop("checked", false);
   jQuery("#groups_categories_names_container").hide();
 }
 
@@ -297,7 +297,7 @@ function clearAllSelections() {
         }
 
         clearGroupsAndCategories();
-        jQuery("#select_all_filtered_row input").attr("checked", false);
+        jQuery("#select_all_filtered_row input").prop("checked", false);
 
         return false;
       })

@@ -3,7 +3,7 @@
     jQuery('#user_info').on('submit', function (event) {
         event.preventDefault()
         let admin_checkbox = jQuery('input[id=user_admin]')
-        if(admin_checkbox.attr('checked') && !admin_checkbox.hasClass('admin')){
+        if(admin_checkbox.prop('checked') && !admin_checkbox.hasClass('admin')){
           alertify.confirm('Are you sure you want to make this user an admin?', (e) => {
             if(e){
               this.submit()
@@ -11,7 +11,7 @@
               jQuery('input[type="submit"]').prop('disabled',false)
             }
           })
-        } else if (!admin_checkbox.attr('checked') && admin_checkbox.hasClass('admin')){
+        } else if (!admin_checkbox.prop('checked') && admin_checkbox.hasClass('admin')){
           alertify.confirm('Are you sure you want to revoke admin privileges for this user?',  (e) => {
             if(e){
               this.submit()

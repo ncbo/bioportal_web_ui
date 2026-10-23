@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Checkbox state compatibility tests</title>
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <h1>Checkbox state compatibility tests</h1>
+    <p>
+      Run <code>python3 -m http.server 8000 --bind 127.0.0.1</code> from the repository root, then open
+      <code>http://127.0.0.1:8000/test/javascript/checkbox_state.html</code>. Internet access is needed for the pinned
+      jQuery 2.2.4 test library. Reload to rerun; expect six passing cases.
+    </p>
+    <p>
+      These tests execute the application's ontology picker, search-option restoration, and admin confirmation code
+      against fixture DOM, with and without Migrate. Rails values are substituted; search requests, confirmation
+      dialogs, and form submissions are stubbed. No account changes or API requests are made.
+    </p>
+    <p id="status" role="status">Running…</p>
+    <ol id="results"></ol>
+    <script type="module" src="./checkbox_state.js"></script>
+  </body>
+</html>
