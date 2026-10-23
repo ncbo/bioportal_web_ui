@@ -4,7 +4,7 @@
 - more_colspan = 3 if @ont_restricted
 
 %div.click_versions_collapse
-  %table#ontology_versions.table.table-sm.table-striped
+  %table#ontology_versions.table.table-sm.table-striped{data: {controller: 'submissions-toggle'}}
     %thead.border-top
       %tr
         %th Version
@@ -18,8 +18,8 @@
     - rescue
       - submission_readyId = -1
     - @submissions.each_with_index do |sub, index|
-      - hidden_row_class = index >= 5 ? "hidden_ont hidden_select" : ""
-      %tr{class: "#{hidden_row_class}"}
+      - extra_row = index >= 5
+      %tr{class: ('hidden_ont' if extra_row), data: {'submissions-toggle-target': ('row' if extra_row)}}
         %td
           = raw status_link(sub, sub.submissionId==submission_readyId)
         %td
@@ -29,24 +29,7 @@
         - unless @ont_restricted
           %td
             = raw download_link(sub, nil, submission_ready)
-    - if @submissions.length >= 5
+    - if @submissions.length > 5
       %tr
         %td{colspan: more_colspan, class: "show_more_subs"}
-          %a#version_toggle{:href => ""} more...
-
-:javascript
-  jQuery(document).ready(() => {
-    jQuery("#version_toggle").click( (event) => {
-        event.preventDefault();
-        jQuery("#ontology_versions tr.hidden_select").toggleClass("hidden_ont")
-        const oldText = event.target.innerHTML
-        switch (oldText) {
-          case 'more...':
-            event.target.innerHTML = 'less...'
-            break
-          case 'less...':
-            event.target.innerHTML = 'more...'
-            break
-        }
-    })
-  })
+          %a{href: '#', data: {action: 'click->submissions-toggle#toggle', 'submissions-toggle-target': 'toggle'}, aria: {expanded: 'false'}} more...
