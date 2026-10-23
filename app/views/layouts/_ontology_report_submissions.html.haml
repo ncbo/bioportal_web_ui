@@ -1,24 +1,9 @@
-:javascript
-  jQuery(document).ready(function() {
-    jQuery("#version_toggle").click(function(event) {
-      event.preventDefault();
-      jQuery("#ontology_versions tr.hidden_select").toggleClass("hidden_ont");
-    });
-
-    jQuery("#version_toggle").toggle(
-      function() {
-        jQuery(this).text("less...");
-      },
-      function() {
-        jQuery(this).text("more...");
-    });
-  });
 %h1.tab_header Ontology Submissions for #{@acronym}
 - if @ontology.nil?
   %p{:style => "color:red;padding:20px 13px 20px 13px;"}
     Ontology #{@acronym} does not appear to exist in the system. It may have been deleted. Please refresh your browser window.
 - else
-  %table#ontology_versions.zebra{:cellpadding => "0", :cellspacing => "0", width: "100%"}
+  %table#ontology_versions.zebra{:cellpadding => "0", :cellspacing => "0", width: "100%", data: {controller: 'submissions-toggle'}}
     %thead
       %tr
         %th Submission
@@ -31,18 +16,18 @@
     - rescue
       - submission_readyId = -1
     - @submissions.each_with_index do |sub, index|
-      - hidden_row_class = index >= 10 ? "hidden_ont hidden_select" : ""
-      <tr #{cycle("class='#{hidden_row_class}'", "class='alt #{hidden_row_class}'")} class="#{hidden_row_class}">
-      %td
-        = raw status_link(sub, sub.submissionId == submission_readyId, target="_blank")
-      %td
-        = xmldatetime_to_date(sub.released)
-      %td
-        = xmldatetime_to_date(sub.creationDate)
-      %td
-        %a{href: 'javascript:;', class: 'btn btn-outline-primary btn-sm',
-           onclick: "DeleteSubmission.act('#{@acronym}', #{sub.submissionId});"} Delete
-    - if @submissions.length >= 10
+      - extra_row = index >= 10
+      %tr{class: [cycle('', 'alt'), ('hidden_ont' if extra_row)], data: {'submissions-toggle-target': ('row' if extra_row)}}
+        %td
+          = raw status_link(sub, sub.submissionId == submission_readyId, target="_blank")
+        %td
+          = xmldatetime_to_date(sub.released)
+        %td
+          = xmldatetime_to_date(sub.creationDate)
+        %td
+          %a{href: 'javascript:;', class: 'btn btn-outline-primary btn-sm',
+             onclick: "DeleteSubmission.act('#{@acronym}', #{sub.submissionId});"} Delete
+    - if @submissions.length > 10
       %tr
         %td{:colspan => 4, :style => "text-align: right;"}
-          %a#version_toggle{:href => "javascript:;"} more...
+          %a{href: '#', data: {action: 'click->submissions-toggle#toggle', 'submissions-toggle-target': 'toggle'}, aria: {expanded: 'false'}} more...

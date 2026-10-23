@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Submissions toggle Stimulus tests</title>
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <h1>Submissions toggle Stimulus tests</h1>
+    <p>
+      With npm dependencies installed, run <code>python3 -m http.server 8000 --bind 127.0.0.1</code> from the repository
+      root, then open <code>http://127.0.0.1:8000/test/javascript/submissions_toggle.html</code>. Reload to rerun;
+      expect six passing cases. No CDN, jQuery, or Migrate is required.
+    </p>
+    <p>
+      These tests run the production controller with real Stimulus and the application's hidden-row CSS against fixture
+      tables. They cover the five- and ten-row limits, state synchronization, independent tables, and connection
+      lifecycles. Run <code>bundle exec rails test test/views/submissions_toggle_view_test.rb</code> for
+      rendered-template coverage. Facebox and API requests are not exercised here.
+    </p>
+    <p id="status" role="status">Running…</p>
+    <ol id="results"></ol>
+    <div id="fixtures"></div>
+    <script type="module" src="./submissions_toggle.js"></script>
+  </body>
+</html>
