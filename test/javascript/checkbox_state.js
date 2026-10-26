@@ -294,7 +294,7 @@ async function run() {
       win.addEventListener('unhandledrejection', capture);
       try {
         await loadScript(win.document, 'https://code.jquery.com/jquery-2.2.4.js');
-        if (migrate) await loadScript(win.document, '/vendor/assets/javascripts/jquery-migrate-1.3.0.min.js');
+        if (migrate) await loadScript(win.document, 'https://code.jquery.com/jquery-migrate-1.3.0.min.js');
         assert(win.jQuery.fn.jquery === '2.2.4', 'Unexpected jQuery version');
         assert(Boolean(win.jQuery.migrateVersion) === migrate, 'Unexpected Migrate presence');
         await test(win);
