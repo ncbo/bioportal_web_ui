@@ -35,7 +35,7 @@
 }
 
 .acLoading {
-	background : Window url('./indicator.gif') right center no-repeat;
+	background : Window url('autocomplete/indicator.gif') right center no-repeat;
 }
 
 .acSelect {
@@ -87,7 +87,7 @@
 }
 
 .ac_loading {
-	background : Window url('./indicator.gif') right center no-repeat;
+	background : Window url('autocomplete/indicator.gif') right center no-repeat;
 }
 
 .ac_over {
