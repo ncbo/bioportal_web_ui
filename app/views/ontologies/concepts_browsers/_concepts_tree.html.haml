@@ -31,7 +31,7 @@
     %button.rounded-button.tree-paths-toggle{type: 'button', class: ('active' if tree_mode_paths),
       title: t('ontologies.concepts_browsers.parent_paths_tooltip'),
       aria: {label: t('ontologies.concepts_browsers.parent_paths'), pressed: tree_mode_paths.to_s},
-      data: {controller: 'tree-paths-toggle',
+      data: {controller: 'tree-paths-toggle tooltip',
              action: 'tree-paths-toggle#toggle',
              'tree-paths-toggle-active-class': 'active'}}
       = inline_svg_tag 'icons/list-tree.svg', class: 'svg-icon'
