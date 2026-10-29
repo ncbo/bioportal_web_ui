@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Public widget loading tests</title>
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <h1>Public widget loading tests</h1>
+    <p>
+      Serve the repository root with <code>python3 -m http.server 8000 --bind 127.0.0.1</code>, then open
+      <code>http://127.0.0.1:8000/test/javascript/widget_loading.html</code>. Pinned jQuery/Migrate host libraries need
+      internet access. The actual widget entry points and dependencies are loaded; search responses are fixtures. Rails
+      and the BioPortal API are not used. Reload to rerun.
+    </p>
+    <p>
+      Each case uses a fresh iframe and gives another library ownership of <code>$</code>. Tests cover independent and
+      concurrent widgets, existing jQuery/Migrate/autocomplete, repeat initialization, replacement DOM, and retry after
+      a failed dependency download. The widgets must never request Migrate.
+    </p>
+    <p id="status" role="status">Running…</p>
+    <ol id="results"></ol>
+    <script type="module" src="./widget_loading.js"></script>
+  </body>
+</html>

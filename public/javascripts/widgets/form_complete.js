@@ -1,55 +1,3 @@
-// jQuery check, if it's not present then include it
-function bpMinVersion(min, actual) {
-  function parseVersionString (str) {
-    if (typeof(str) != 'string') { return false; }
-    var x = str.split('.');
-    var maj = parseInt(x[0]) || 0;
-    var min = parseInt(x[1]) || 0;
-    var pat = parseInt(x[2]) || 0;
-    return {
-      major: maj,
-      minor: min,
-      patch: pat
-    }
-  }
-
-  var minParsed = parseVersionString(min);
-  var actualParsed = parseVersionString(actual);
-  if (actualParsed.major > minParsed.major) {
-    return true;
-  } else if (actualParsed.major == minParsed.major &&
-             actualParsed.minor > minParsed.minor) {
-    return true;
-  } else if (actualParsed.major == minParsed.major &&
-             actualParsed.minor == minParsed.minor &&
-             actualParsed.patch > minParsed.patch) {
-    return true;
-  }
-  return false;
-}
-
-if (typeof jQuery == 'undefined') {
-  var jq, jqMigrate, scriptLoc = document.getElementsByTagName('script')[0].parentElement;
-  jq = document.createElement('script');
-  jqMigrate = document.createElement('script');
-  jq.type = jqMigrate.type = "text/javascript";
-  jq.src = "//code.jquery.com/jquery-1.11.2.min.js";
-  jqMigrate.src = "//code.jquery.com/jquery-migrate-1.2.1.min.js";
-  jq.onload = function() {
-    jqMigrate.onload = bpFormCompleteOnLoad;
-    scriptLoc.appendChild(jqMigrate);
-  }
-  scriptLoc.appendChild(jq);
-} else if (bpMinVersion("1.9", $.fn.jquery)) {
-  var jqMigrate = document.createElement('script');
-  jqMigrate.type = "text/javascript";
-  jqMigrate.src = "//code.jquery.com/jquery-migrate-1.2.1.min.js";
-  jqMigrate.onload = bpFormCompleteOnLoad;
-  document.getElementsByTagName('head')[0].appendChild(jqMigrate);
-} else {
-  bpFormCompleteOnLoad();
-}
-
 // ***********************************
 // Widget-specific code
 // ***********************************
@@ -84,45 +32,8 @@ var formComplete_searchBoxID = "BP_search_box",
 
 function bpFormCompleteOnLoad() {
   jQuery(document).ready(function(){
-    // Install any CSS we need (check to make sure it hasn't been loaded)
-    if (jQuery('link[href$="' + BP_SEARCH_SERVER + '/javascripts/JqueryPlugins/autocomplete/jquery.autocomplete.css"]')) {
-      jQuery("head").append("<link>");
-      css = jQuery("head").children(":last");
-      css.attr({
-        rel:  "stylesheet",
-        type: "text/css",
-        href: BP_SEARCH_SERVER + "/javascripts/JqueryPlugins/autocomplete/jquery.autocomplete.css"
-      });
-    }
-
-    // Grab the specific scripts we need and fires the start event
-    getScript(BP_SEARCH_SERVER + "/javascripts/JqueryPlugins/autocomplete/crossdomain_autocomplete.js").then(function(){
-      formComplete_setup_functions();
-    });
+    formComplete_setup_functions(true);
   });
-}
-
-
-function getScript(url){
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-
-        script.onerror = reject
-
-        script.onload = script.onreadystatechange = function() {
-            const loadState = this.readyState
-
-            if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-
-            script.onload = script.onreadystatechange = null
-
-            resolve()
-        }
-
-        document.head.appendChild(script)
-    })
 }
 
 // Formats the search results
@@ -231,8 +142,9 @@ function definitionDiv(ont, concept) {
     return definitionDiv;
 }
 
-function formComplete_setup_functions() {
+function formComplete_setup_functions(onlyNew) {
   jQuery("input[class*='bp_form_complete']").each(function(){
+    if (onlyNew && this.autocompleter) return;
     var classes = this.className.split(" ");
     var values;
     var ontology_id;
@@ -348,11 +260,11 @@ function bpFormSelect(li) {
 // Poll for potential definitions returned with results
 function getWidgetAjaxContent() {
   // Look for anchors with a get_via_ajax class and replace the parent with the resulting ajax call
-  $(".get_definition_via_ajax").each(function(){
-    var def_link = $(this);
+  jQuery(".get_definition_via_ajax").each(function(){
+    var def_link = jQuery(this);
     if (typeof def_link.attr("getting_content") === 'undefined') {
       def_link.attr("getting_content", true);
-      $.getJSON(def_link.attr("href"), function(data){
+      jQuery.getJSON(def_link.attr("href"), function(data){
         var definition = (typeof data.definition === 'undefined') ? "" : data.definition.join(" ");
         def_link.parent().html(truncateText(decodeURIComponent(definition.replace(/\+/g, " "))));
       });
@@ -368,7 +280,7 @@ function truncateText(text, max_length) {
 
   var more = '...';
 
-  var content_length = $.trim(text).length;
+  var content_length = jQuery.trim(text).length;
   if (content_length <= max_length)
     return text;  // bail early if not overlong
 
@@ -382,7 +294,7 @@ function truncateText(text, max_length) {
 
   // Ensure HTML entities are encoded
   // http://debuggable.com/posts/encode-html-entities-with-jquery:480f4dd6-13cc-4ce9-8071-4710cbdd56cb
-  text_short = $('<div/>').text(text_short).html();
+  text_short = jQuery('<div/>').text(text_short).html();
 
   var other_text = text.slice(max_length, text.length);
 
@@ -390,3 +302,24 @@ function truncateText(text, max_length) {
   text_short += "<span class='long_text'>" + other_text + "</span>";
   return text_short;
 }
+
+// Start after configuration and callbacks are defined, even when DOM ready has already fired.
+(function (server, initialize) {
+  if (!window.BioPortalWidgetLoader) {
+    window.BioPortalWidgetLoader = new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.src = server.replace(/\/$/, '') + '/javascripts/widgets/dependencies.js';
+      script.onload = function () { resolve(window.BioPortalWidgetDependencies); };
+      script.onerror = function () {
+        window.BioPortalWidgetLoader = null;
+        script.remove();
+        reject(new Error('Unable to load BioPortal widget dependencies'));
+      };
+      document.head.appendChild(script);
+    });
+  }
+  window.BioPortalWidgetLoader
+    .then(function (dependencies) { return dependencies.load(server); })
+    .then(function () { initialize(); })
+    .catch(function (error) { console.error(error); });
+})(BP_SEARCH_SERVER, bpFormCompleteOnLoad);
