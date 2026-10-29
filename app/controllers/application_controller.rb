@@ -600,21 +600,29 @@ class ApplicationController < ActionController::Base
   # unavailable for the ontology (e.g. some SKOS ontologies return an unparseable
   # body), fall back to walking the concept's parent links.
   def concept_paths_to_root(concept, lang, tree_roots)
+    # A selected display root is already a complete path in this root mode.
+    root_ids = Array(tree_roots).map { |r| r.id.to_s }
+    return [[concept]] if root_ids.include?(concept.id.to_s)
+
     self_link = concept.links && concept.links['self']
     return nil if self_link.nil?
 
     paths = begin
               LinkedData::Client::HTTP.get("#{self_link}/paths_to_root",
                                            include: 'prefLabel,hasChildren', lang: lang)
-            rescue StandardError => e
+            rescue Exception => e
+              # The API client raises bare Exception for HTTP 5xx responses.
+              # Handle those as well as ordinary errors, but propagate exits,
+              # interrupts, and other non-StandardError subclasses.
+              raise unless e.is_a?(StandardError) || e.instance_of?(Exception)
+
               Log.add :debug, "paths_to_root failed for #{concept.id}: #{e.class}"
               nil
             end
     return paths if paths.is_a?(Array) && !paths.empty?
 
-    # Fallback: build the paths from the parents link (which is available even
-    # when paths_to_root is not). Each root->concept path is returned root-first.
-    root_ids = Array(tree_roots).map { |r| r.id.to_s }
+    # If paths_to_root fails, try building the paths by repeatedly fetching
+    # each class's immediate parents. Return each path in root-to-concept order.
     build_paths_via_parents(concept, root_ids)
   end
 
@@ -634,7 +642,10 @@ class ApplicationController < ActionController::Base
     parents = parents_cache[id] ||= begin
       res = concept.explore.parents
       res.respond_to?(:collection) ? res.collection : res
-    rescue StandardError
+    rescue Exception => e
+      # Match the API client's bare HTTP 5xx exception without swallowing exits.
+      raise unless e.is_a?(StandardError) || e.instance_of?(Exception)
+
       []
     end
     parents = [] unless parents.is_a?(Array)
