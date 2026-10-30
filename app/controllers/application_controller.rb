@@ -440,7 +440,10 @@ class ApplicationController < ActionController::Base
         # structural top. A concept that sits above every declared root keeps its
         # real path (reroot_tree_at_roots returns it unchanged), so an explicitly
         # selected class is never hidden.
-        rootNode = reroot_tree_at_roots(rootNode, declared) if declared.present?
+        if declared.present?
+          rootNode = reroot_tree_at_roots(rootNode, declared,
+                                         include_missing: params[:tree_mode].to_s != 'paths')
+        end
 
         if rootNode.nil? || rootNode.empty?
           roots ||= tree_root_set(submission, lang, full: show_full_hierarchy, declared: declared)
@@ -511,7 +514,10 @@ class ApplicationController < ActionController::Base
   # tops — discarding the ancestors above them. If no declared root appears
   # anywhere in the tree (the concept sits above all of them), the tree is returned
   # unchanged, so an explicitly selected class above the roots keeps its real path.
-  def reroot_tree_at_roots(tree_nodes, declared_roots)
+  # In the normal hierarchy view, include_missing restores declared roots absent
+  # from the API's partial tree as collapsed browsing entries. Paths mode omits
+  # these unrelated roots so it stays focused on paths to the selected class.
+  def reroot_tree_at_roots(tree_nodes, declared_roots, include_missing: false)
     return tree_nodes unless tree_nodes.is_a?(Array) && declared_roots.present?
 
     root_ids = declared_roots.map { |r| r.id.to_s }
@@ -527,7 +533,20 @@ class ApplicationController < ActionController::Base
     end
     walk.call(tree_nodes)
 
-    found.empty? ? tree_nodes : found
+    return tree_nodes if found.empty?
+
+    if include_missing
+      found_ids = found.map { |node| node.id.to_s }
+      declared_roots.each do |root|
+        next if found_ids.include?(root.id.to_s)
+
+        collapsed_root = root.dup
+        collapsed_root.children = []
+        found << collapsed_root
+      end
+    end
+
+    found
   end
 
   # Build the class tree from *all* of a concept's paths to root (the class can
