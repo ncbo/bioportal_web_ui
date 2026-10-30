@@ -88,8 +88,10 @@ export default class extends Controller {
   }
 
   select (event) {
-    this.element.querySelector('a.active')?.classList.toggle('active')
-    event.currentTarget.classList.toggle('active')
+    // Paths mode can highlight several occurrences of the previous class.
+    // Clear all of them so toggles read the newly selected class.
+    this.element.querySelectorAll('a.active').forEach(link => link.classList.remove('active'))
+    event.currentTarget.classList.add('active')
     this.#afterClick(event.currentTarget)
   }
 
