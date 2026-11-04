@@ -473,8 +473,11 @@ module OntologiesHelper
     if current_section.eql?(section_title)
       block.call
     else
+      # Lazy in every environment: the inactive section panes are hidden, so each one
+      # loads only when its tab is opened. Eager loading made every ontology page also
+      # render all other sections (and the Widgets section's live BioMixer demo).
       render TurboFrameComponent.new(id: section_title, src: "/ontologies/#{@ontology.acronym}?p=#{section_title}",
-                                     loading: Rails.env.development? ? "lazy" : "eager",
+                                     loading: 'lazy',
                                      target: '_top', data: { "turbo-frame-target": "frame" })
     end
   end
