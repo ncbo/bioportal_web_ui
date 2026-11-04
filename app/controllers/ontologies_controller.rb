@@ -151,10 +151,6 @@ class OntologiesController < ApplicationController
 
     @current_purl = @concept.purl if Rails.configuration.settings.purl[:enabled]
 
-    unless @concept.id == 'bp_fake_root'
-      @notes = @concept.explore.notes
-    end
-
     update_tab(@ontology, @concept.id)
 
     if request.xhr?
