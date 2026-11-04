@@ -105,7 +105,7 @@ gem 'iso-639', '~> 0.3.6'
 gem 'dotenv-rails', groups: [:test]
 
 # Custom API client
-gem 'ontologies_api_client', github: 'ncbo/ontologies_api_ruby_client', tag: 'v2.9.0'
+gem 'ontologies_api_client', github: 'ncbo/ontologies_api_ruby_client', tag: 'v2.9.1'
 
 gem 'rexml', '~> 3'
 

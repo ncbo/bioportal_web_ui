@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/ncbo/ontologies_api_ruby_client.git
-  revision: 3c3456503f4d2ff681d6f99bbee68598924b74c1
-  tag: v2.9.0
+  revision: 1a1a8854c1ec7a98b4d611c4671d98dc71cf6cd8
+  tag: v2.9.1
   specs:
-    ontologies_api_client (2.9.0)
+    ontologies_api_client (2.9.1)
       activesupport (= 8.0.3)
       addressable (~> 2.8)
       excon
@@ -359,7 +359,7 @@ GEM
       omniauth (~> 2.0)
     ostruct (0.6.3)
     parallel (1.27.0)
-    parser (3.3.10.0)
+    parser (3.3.13.0)
       ast (~> 2.4.1)
       racc
     pp (0.6.3)
