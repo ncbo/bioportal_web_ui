@@ -13,7 +13,7 @@ BioPortal Web UI is a Ruby on Rails application for browsing and interacting wit
 ## Tech Stack
 
 - **Framework**: Rails 8.0.3
-- **Ruby**: 3.2.9 (see `.ruby-version`)
+- **Ruby**: 3.2.11 (see `.ruby-version`)
 - **Database**: MySQL 8.0 (MariaDB compatible for dev)
 - **Cache**: Memcached
 - **JavaScript**: ES modules via esbuild, Hotwire (Turbo + Stimulus)
