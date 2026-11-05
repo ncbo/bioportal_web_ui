@@ -11,19 +11,26 @@ class ErrorsController < ApplicationController
     if request.xhr?
       render plain: @error_message, status: :forbidden
     else
-      render status: :forbidden
+      render_error(:forbidden, @error_message)
     end
   end
 
   def not_found
-    render status: 404
+    render_error(:not_found, 'Not Found')
   end
 
   def internal_server_error
-    render status: 500
+    render_error(:internal_server_error, 'Internal Server Error')
   end
 
   private
+
+  def render_error(status, message)
+    respond_to do |format|
+      format.html { render status: status }
+      format.any { render plain: message, status: status }
+    end
+  end
 
   def set_error_page_defaults
     @subdomain_filter = { active: false, name: '', acronym: '' }
