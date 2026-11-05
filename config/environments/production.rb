@@ -17,6 +17,9 @@ Rails.application.configure do
   # Full error reports are disabled.
   config.consider_all_requests_local = false
 
+  # Suppress exception reports for mapped errors without changing the log level.
+  config.action_dispatch.log_rescued_responses = false
+
   # Ensures that a master key has been made available in ENV["RAILS_MASTER_KEY"], config/master.key, or an environment
   # key such as config/credentials/production.key. This key is used to decrypt credentials (and other encrypted files).
   config.require_master_key = ENV['REQUIRE_MASTER_KEY'].present?
