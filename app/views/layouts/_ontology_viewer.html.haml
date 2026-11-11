@@ -1,4 +1,3 @@
-- content_section = current_section
 - concept_title = @concept.nil? ? "" : " - #{@concept.prefLabel} - Classes"
 - @title = "#{@ontology.name}#{concept_title}"
 
@@ -25,20 +24,8 @@
     // Ontology viewer vars
     jQuery(document).data().bp.ont_viewer = {};
     jQuery(document).data().bp.ont_viewer.ontology_id = jQuery(document).data().bp.ontology.acronym;
-    jQuery(document).data().bp.ont_viewer.ontology_version_id = jQuery(document).data().bp.submission_latest.submissionId;
-    jQuery(document).data().bp.ont_viewer.ontology_name = "#{@ontology.name}";
-    jQuery(document).data().bp.ont_viewer.org_site = "#{$ORG_SITE}";
     jQuery(document).data().bp.ont_viewer.concept_id = "#{params[:conceptid] || (@concept ? @concept.id : 'root')}";
-    jQuery(document).data().bp.ont_viewer.content_section = "#{sanitize(h(content_section))}";
-    jQuery(document).data().bp.ont_viewer.concept_param = "#{"conceptid=\#{params[:conceptid]}" unless params[:conceptid].nil? || params[:conceptid].empty?}";
-    jQuery(document).data().bp.ont_viewer.concept_name = "#{@concept.prefLabel unless @concept.nil?}";
     jQuery(document).data().bp.ont_viewer.metadata_only = "#{@ontology.summaryOnly}";
-    jQuery(document).data().bp.ont_viewer.purl_prefix = "#{(Rails.configuration.settings.purl[:enabled] ? Rails.configuration.settings.purl[:prefix]+"/"+@ontology.acronym : '')}";
-    jQuery(document).data().bp.ont_viewer.concept_name_title = (jQuery(document).data().bp.ont_viewer.concept_name == "") ?
-        "" : " - " + jQuery(document).data().bp.ont_viewer.concept_name;
-    jQuery(document).data().bp.ont_viewer.lang = "#{request_lang(sub)}";
-    jQuery(document).data().bp.ont_viewer.submission_lang = #{submission_languages(sub).to_json.html_safe};
-    jQuery(document).data().bp.ont_viewer.lang_sections = #{ontology_data_sections.to_json.html_safe};
 
   -# Modal dialog for getting a permanent link to a class (must reside in a top-level position in the document to display properly).
   %div#classPermalinkModal{class: "modal fade", tabindex: "-1", aria: {labelledby: "classPermalinkLabel", hidden: "true"}}
