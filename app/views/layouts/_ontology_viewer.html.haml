@@ -48,21 +48,15 @@
         %div
           %h4
             = link_to(@ontology.name, ontology_path(@ontology.acronym))
-          %div
-            - if (details_available && !sub.released.nil?)
-              %span.text-muted
-                Last uploaded:
-                = l(Date.parse(sub.creationDate), format: :monthfull_day_year)
-        %div{class: 'ont-info-links d-flex gap-2'}
-          = download_button
-          = ontology_admin_button
-          - if details_available
-            = ontology_purl_button(@ontology.purl)
-            = homepage_button(sub.homepage)
-            = documentation_button(sub.documentation)
-            - publication = Array(sub.publication).first
-            - if publication
-              = publication_button(publication)
+          - if (details_available && !sub.released.nil?)
+            %div.text-muted
+              Last uploaded:
+              = l(Date.parse(sub.creationDate), format: :monthfull_day_year)
+          - info_links = ontology_info_links(details_available ? sub : nil)
+          - if info_links.any?
+            %nav.ont-info-links{aria: {label: 'Ontology resources'}}
+              = safe_join(info_links)
+        = ontology_admin_button
 
   %div.row.pb-4
     %div.col
