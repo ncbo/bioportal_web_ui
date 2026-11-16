@@ -123,7 +123,8 @@ module OntologiesHelper
     purl = @ontology.purl if submission && Rails.configuration.settings.purl[:enabled]
     [
       ont_info_link('Download', ontology_download_url, title: 'Download latest submission'),
-      ont_info_link('Permanent link', purl, title: "#{portal_name} PURL"),
+      ont_info_link('Permanent link', purl,
+                    title: 'Permanent URL (PURL) for this ontology, for use in citations and links'),
       ont_info_link('Homepage', submission&.homepage, external: true),
       ont_info_link('Documentation', submission&.documentation, external: true),
       ont_info_link('Publication', Array(submission&.publication).first, external: true),
