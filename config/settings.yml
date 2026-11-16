@@ -29,6 +29,7 @@ development:
     tag_id: null
   links:
     cookies: 'https://www.bioontology.org/terms/#use-of-cookies'
+    kg_bioportal: 'https://ncbo.github.io/kg-bioportal/graphs/resource'
     release_notes: 'https://github.com/ncbo/bioportal_web_ui/releases'
   purl:
     enabled: true
@@ -48,6 +49,7 @@ staging:
     tag_id: 'G-KF3SKHPEGW'
   links:
     cookies: 'https://www.bioontology.org/terms/#use-of-cookies'
+    kg_bioportal: 'https://ncbo.github.io/kg-bioportal/graphs/resource'
     release_notes: 'https://github.com/ncbo/bioportal_web_ui/releases'
   purl:
     enabled: true
@@ -59,6 +61,7 @@ production:
     tag_id: 'G-KF3SKHPEGW'
   links:
     cookies: 'https://www.bioontology.org/terms/#use-of-cookies'
+    kg_bioportal: 'https://ncbo.github.io/kg-bioportal/graphs/resource'
     release_notes: 'https://github.com/ncbo/bioportal_web_ui/releases'
   purl:
     enabled: true
