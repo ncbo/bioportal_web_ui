@@ -102,36 +102,47 @@ module OntologiesHelper
                                       size: 'medium', title: 'Ontology Admin')
   end
 
-  def download_button
-    return if (@ontology.summaryOnly || @ont_restricted || @submissions.empty?)
+  # The latest submission's download URL, or nil when the ontology can't be downloaded.
+  def ontology_download_url
+    return if @ontology.summaryOnly || @ont_restricted || @submissions.empty?
 
-    down_link = @submissions.first.id + "/download?apikey=#{get_apikey}"
-    render RoundedButtonComponent.new(link: down_link, icon: 'summary/download.svg',
-                                      size: 'medium', title: 'Download latest submission')
+    "#{@submissions.first.id}/download?apikey=#{get_apikey}"
   end
 
-  def ontology_purl_button(purl)
-    return unless Rails.configuration.settings.purl[:enabled]
+  # The KG-BioPortal resource page for this ontology, or nil when it has none.
+  # Private ontologies are skipped so their acronyms are never sent to another site.
+  def kg_bioportal_url
+    return if @ontology.private?
 
-    render RoundedButtonComponent.new(link: purl, icon: 'icons/copy_link.svg',
-                                      size: 'medium', title: "#{portal_name} PURL")
+    KgBioportalResourceService.call(@ontology.acronym)
   end
 
-  def homepage_button(homepage)
-    return unless homepage
-    render RoundedButtonComponent.new(link: homepage, icon: 'summary/homepage.svg',
-                                      size: 'medium', title: 'Homepage')
+  # The labeled links shown under the ontology name in the viewer header.
+  # `submission` is nil when the latest submission's details aren't available.
+  def ontology_info_links(submission)
+    purl = @ontology.purl if submission && Rails.configuration.settings.purl[:enabled]
+    [
+      ont_info_link('Download', ontology_download_url, title: 'Download latest submission'),
+      ont_info_link('Permanent link', purl,
+                    title: 'Permanent URL (PURL) for this ontology, for use in citations and links'),
+      ont_info_link('Homepage', submission&.homepage, external: true),
+      ont_info_link('Documentation', submission&.documentation, external: true),
+      ont_info_link('Publication', Array(submission&.publication).first, external: true),
+      ont_info_link('Knowledge graph', kg_bioportal_url, external: true,
+                                                         title: 'This ontology as a knowledge graph on KG-BioPortal')
+    ].compact
   end
 
-  def documentation_button(documentation)
-    return unless documentation
-    render RoundedButtonComponent.new(link: documentation, icon: 'summary/documentation.svg',
-                                      size: 'medium', title: 'Documentation')
-  end
+  # External links leave the site, so they open in a new tab.
+  def ont_info_link(label, url, external: false, **options)
+    return if url.blank?
 
-  def publication_button(publication)
-    render RoundedButtonComponent.new(link: publication, icon: 'icons/publication.svg',
-                                      size: 'medium', title: 'Publication')
+    options = options.merge(target: '_blank', rel: 'noopener') if external
+    options = options.merge(data: { controller: 'tooltip' }) if options[:title]
+    link_to(url, **options) do
+      icon = inline_svg_tag('icons/external-link.svg', aria_hidden: true) if external
+      safe_join([label, icon].compact)
+    end
   end
 
   def new_submission_button
