@@ -1,16 +1,16 @@
 GIT
   remote: https://github.com/ncbo/ontologies_api_ruby_client.git
-  revision: 1a1a8854c1ec7a98b4d611c4671d98dc71cf6cd8
-  tag: v2.9.1
+  revision: 89966ddd106a9d17321eb4d141bc839a8ab34c07
+  tag: v2.9.2
   specs:
-    ontologies_api_client (2.9.1)
+    ontologies_api_client (2.9.2)
       activesupport (= 8.0.3)
       addressable (~> 2.8)
       excon
       faraday
       faraday-excon
       faraday-multipart
-      lz4-ruby
+      lz4_flex (~> 1.1.2)
       multi_json
       oj
 
@@ -184,8 +184,6 @@ GEM
       net-http (~> 0.5)
     ffi (1.17.4-aarch64-linux-gnu)
     ffi (1.17.4-aarch64-linux-musl)
-    ffi (1.17.4-arm-linux-gnu)
-    ffi (1.17.4-arm-linux-musl)
     ffi (1.17.4-arm64-darwin)
     ffi (1.17.4-x86_64-darwin)
     ffi (1.17.4-x86_64-linux-gnu)
@@ -287,7 +285,12 @@ GEM
       view_component (>= 2.0)
       yard (~> 0.9)
       zeitwerk (~> 2.5)
-    lz4-ruby (0.3.3)
+    lz4_flex (1.1.2-aarch64-linux)
+    lz4_flex (1.1.2-aarch64-linux-musl)
+    lz4_flex (1.1.2-arm64-darwin)
+    lz4_flex (1.1.2-x86_64-darwin)
+    lz4_flex (1.1.2-x86_64-linux)
+    lz4_flex (1.1.2-x86_64-linux-musl)
     mail (2.9.0)
       logger
       mini_mime (>= 0.1.1)
@@ -334,10 +337,6 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.2-aarch64-linux-musl)
       racc (~> 1.4)
-    nokogiri (1.19.2-arm-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.19.2-arm-linux-musl)
-      racc (~> 1.4)
     nokogiri (1.19.2-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.19.2-x86_64-darwin)
@@ -359,7 +358,7 @@ GEM
       omniauth (~> 2.0)
     ostruct (0.6.3)
     parallel (1.27.0)
-    parser (3.3.13.0)
+    parser (3.3.14.0)
       ast (~> 2.4.1)
       racc
     pp (0.6.3)
@@ -569,8 +568,6 @@ GEM
 PLATFORMS
   aarch64-linux-gnu
   aarch64-linux-musl
-  arm-linux-gnu
-  arm-linux-musl
   arm64-darwin-23
   arm64-darwin-24
   x86_64-darwin
